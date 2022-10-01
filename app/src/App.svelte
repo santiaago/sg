@@ -3,6 +3,7 @@
   import Square from "./lib/Square.svelte";
   import Square2 from "./lib/Square2.svelte";
   import Square3 from "./lib/Square3.svelte";
+  import Sheet from "./lib/Sheet.svelte";
 </script>
 
 <main>
@@ -19,6 +20,9 @@
   </div>
   <div class="card">
     <Square3 size={50} />
+  </div>
+  <div class="card">
+    <Sheet />
   </div>
 </main>
 
