@@ -49,3 +49,50 @@ export function intersection(x0, y0, r0, x1, y1, r1) {
 
     return [xi, yi, xi_prime, yi_prime];
 }
+
+export function bisect(angle, radius, cx, cy) {
+
+    // let x1 = cx + radius * Math.cos(angle);
+    // let y1 = cy + radius * Math.sin(angle);
+    let angle2 = 0
+    if (angle > 2*Math.PI) {
+        angle2 = angle - Math.PI;
+    } else {
+        angle2 = angle + Math.PI;
+    }
+
+    let x2 = cx + radius * Math.cos(angle2);
+    let y2 = cy + radius * Math.sin(angle2);
+
+    return [x2, y2]
+}
+
+// https://stackoverflow.com/a/37225895
+export function inteceptCircleLineSeg(cx, cy, l1x, l1y, l2x, l2y, r){
+    let a, b, c, d, u1, u2, ret, retP1, retP2, v1, v2;
+    let v1x = l2x - l1x;
+    let v1y = l2y - l1y;
+    let v2x = l1x - cx;
+    let v2y = l1y - cy;
+    b = (v1x * v2x + v1y * v2y);
+    c = 2 * (v1x * v1x + v1y * v1y);
+    b *= -2;
+    d = Math.sqrt(b * b - 2 * c * (v2x * v2x + v2y * v2y - r * r));
+    if(isNaN(d)){ // no intercept
+        return [];
+    }
+    u1 = (b - d) / c;  // these represent the unit distance of point one and two on the line
+    u2 = (b + d) / c;    
+    ret = []; // return array
+    if(u1 <= 1 && u1 >= 0){  // add point if on the line segment
+        let retP1x = l1x + v1x * u1;
+        let retP1y = l1y + v1y * u1;
+        ret[0] = [retP1x, retP1y];
+    }
+    if(u2 <= 1 && u2 >= 0){  // second add point if on the line segment
+        let retP2x = l1x + v1x * u2;
+        let retP2y = l1y + v1y * u2;
+        ret[ret.length] = [retP2x, retP2y];
+    }       
+    return ret;
+}
