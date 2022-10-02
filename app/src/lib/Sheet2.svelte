@@ -19,7 +19,7 @@
       .style("display", "block")
       .attr("cx", x)
       .attr("cy", y)
-      .attr("r", 3);
+      .attr("r", 2);
   };
 
   const line = (svg, x1, y1, x2, y2, stroke = 5) => {
@@ -33,6 +33,25 @@
       .attr("y2", y2);
   };
 
+  const rect = (svg, width, height) => {
+    svg
+      .append("rect")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("fill", "#fff");
+  };
+
+  const circle = (svg, cx, cy, r, stroke = 1) => {
+    svg
+      .append("circle")
+      .style("stroke", "#f06")
+      .style("stroke-width", stroke)
+      .style("fill", "none")
+      .attr("cx", cx)
+      .attr("cy", cy)
+      .attr("r", r);
+  };
+
   onMount(() => {
     let svg = d3
       .select(el)
@@ -41,38 +60,20 @@
       .attr("viewBox", "0 0 800 1000")
       .attr("viewBox", "0 0 800 1000");
 
-    const rect = svg
-      .append("rect")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("fill", "#fff");
+    rect(svg, width, height);
 
-    const border = 50;
-    const stroke = 1;
+    const border = 200;
+    const stroke = 0.5;
     line(svg, border, height - border, width - border, height - border, stroke);
 
     const cx1 = width - border;
     const cy1 = height - border;
-    const r = 200;
-    const circle1 = svg
-      .append("circle")
-      .style("stroke", "#f06")
-      .style("stroke-width", stroke)
-      .style("fill", "none")
-      .attr("cx", cx1)
-      .attr("cy", cy1)
-      .attr("r", r);
+    const r = 100;
+    circle(svg, cx1, cy1, r, stroke);
 
     const cx2 = cx1 - r;
     const cy2 = cy1;
-    const circle2 = svg
-      .append("circle")
-      .style("stroke", "#f06")
-      .style("stroke-width", stroke)
-      .style("fill", "none")
-      .attr("cx", cx2)
-      .attr("cy", cy2)
-      .attr("r", r);
+    circle(svg, cx2, cy2, r, stroke);
 
     let points = intersection(cx1, cy1, r, cx2, cy2, r);
     if (!points) {
@@ -92,14 +93,7 @@
       py = py2;
     }
 
-    const circle3 = svg
-      .append("circle")
-      .style("stroke", "#f06")
-      .style("stroke-width", stroke)
-      .style("fill", "none")
-      .attr("cx", px)
-      .attr("cy", py)
-      .attr("r", r);
+    circle(svg, px, py, r, stroke);
 
     const x1 = cx2;
     const y1 = cy2;
@@ -124,24 +118,22 @@
     line(svg, px3, py3, px4, py4, stroke);
     let plx, ply, prx, pry;
     let lp_left = inteceptCircleLineSeg(cx2, cy2, cx2, cy2, px4, py4, r);
-    console.log(lp_left);
+
     if (lp_left && lp_left.length > 0) {
       [plx, ply] = lp_left[0];
-      console.log("got", plx, ply, cx2, cy2);
       dot(svg, plx, ply);
     }
     let lp_right = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, px3, py3, r);
-    console.log(lp_right);
+
     if (lp_right && lp_right.length > 0) {
       [prx, pry] = lp_right[0];
-      console.log("got", prx, pry, cx2, cy2);
       dot(svg, prx, pry);
     }
     if (plx && ply && prx && pry) {
-      line(svg, plx, ply, prx, pry, 2);
-      line(svg, cx2, cy2, plx, ply, 2);
-      line(svg, cx2, cy2, cx1, cy1, 2);
-      line(svg, cx1, cy1, prx, pry, 2);
+      line(svg, plx, ply, prx, pry, 1);
+      line(svg, cx2, cy2, plx, ply, 1);
+      line(svg, cx2, cy2, cx1, cy1, 1);
+      line(svg, cx1, cy1, prx, pry, 1);
     }
   });
 </script>
