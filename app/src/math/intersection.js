@@ -68,6 +68,7 @@ export function bisect(angle, radius, cx, cy) {
 }
 
 // https://stackoverflow.com/a/37225895
+// cercle line intercept
 export function inteceptCircleLineSeg(cx, cy, l1x, l1y, l2x, l2y, r){
     let a, b, c, d, u1, u2, ret, retP1, retP2, v1, v2;
     let v1x = l2x - l1x;
