@@ -179,6 +179,9 @@
 
 <h1>Drawing a square</h1>
 <small>08/10/2022</small>
+<a href="https://www.youtube.com/watch?v=RSP5sm1e--4" target="_blank"
+  >inspired by</a
+>
 <svg bind:this={el} />
 
 <style>
