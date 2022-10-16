@@ -221,16 +221,13 @@
   };
 
   onMount(() => {
-    let svg = d3
-      .select(el)
-      .attr("width", "100%")
-      .attr("heigth", "100%")
-      .attr("viewBox", "0 0 800 1000")
-      .attr("viewBox", "0 0 800 1000");
+    let svg = d3.select(el).attr("viewBox", "0 0 600 300");
 
-    let width = 647;
-    let height = 400;
+    const width = 600;
+    const height = 300;
+
     rect(svg, width, height);
+    dot(svg, 0, 0);
 
     const border = height / 3;
     const stroke = 0.5;
