@@ -18,41 +18,24 @@
 
   const stroke_gold = (1 + Math.sqrt(5)) / 2;
 
-  onMount(() => {
-    let svg = d3
-      .select(el)
-      .attr("width", "100%")
-      .attr("heigth", "100%")
-      .attr("viewBox", "0 0 800 1000")
-      .attr("viewBox", "0 0 800 1000");
-
-    let width = 647;
-    let height = 400;
-    rect(svg, width, height);
-
-    const border = height / 3;
-    const stroke = 0.5;
-
-    const [lx1, ly1, lx2, ly2] = [
-      border,
-      height - border,
-      width - border,
-      height - border,
-    ];
-
-    // draw first line
-    line(svg, lx1, ly1, lx2, ly2, stroke);
-    // for debug
-    // for (let i = 0; i <= 8; i++) {
-    //   dot(svg, lx1 + ((lx2 - lx1) * i) / 8, ly1 + 50);
-    // }
-
+  const drawSquareFromLine = (
+    svg,
+    lx1,
+    ly1,
+    lx2,
+    ly2,
+    stroke,
+    drawDetails,
+    drawFinalShape
+  ) => {
     // draw right side circle
     const cx1 = lx1 + ((lx2 - lx1) * 5) / 8;
     const cy1 = ly2;
     const r = ((lx2 - lx1) * 2) / 8;
-    circle(svg, cx1, cy1, r, stroke);
-    dot(svg, cx1, cy1);
+    if (drawDetails) {
+      circle(svg, cx1, cy1, r, stroke);
+      dot(svg, cx1, cy1);
+    }
 
     // draw left side circle
     const cx2 = cx1 - r;
@@ -60,7 +43,9 @@
     if (showDetails) {
       circle(svg, cx2, cy2, r, stroke);
     }
-    dot(svg, cx2, cy2);
+    if (drawDetails) {
+      dot(svg, cx2, cy2);
+    }
 
     // find intersection point between 2 circles
     let points = intersection(cx1, cy1, r, cx2, cy2, r);
@@ -85,7 +70,9 @@
     if (showDetails) {
       circle(svg, px, py, r, stroke);
     }
-    dot(svg, px, py);
+    if (drawDetails) {
+      dot(svg, px, py);
+    }
 
     const x1 = cx2;
     const y1 = cy2;
@@ -128,41 +115,112 @@
 
     // draw intersection between center(c2) AND
     // p4
-    let plx, ply;
+    let cx3, cy3;
     let lp_left = inteceptCircleLineSeg(cx2, cy2, cx2, cy2, px4, py4, r);
 
     if (lp_left && lp_left.length > 0) {
-      [plx, ply] = lp_left[0];
-      dot(svg, plx, ply);
+      [cx3, cy3] = lp_left[0];
+      if (drawDetails) {
+        dot(svg, cx3, cy3);
+      }
     }
 
     // draw intersection between center (c1) AND
     // p3
-    let prx, pry;
+    let cx4, cy4;
     let lp_right = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, px3, py3, r);
 
     if (lp_right && lp_right.length > 0) {
-      [prx, pry] = lp_right[0];
-      dot(svg, prx, pry);
+      [cx4, cy4] = lp_right[0];
+      if (drawDetails) {
+        dot(svg, cx4, cy4);
+      }
     }
 
     // draw final square
-    if (plx && ply && prx && pry) {
-      line(svg, plx, ply, prx, pry, stroke_gold);
-      line(svg, cx2, cy2, plx, ply, stroke_gold);
-      line(svg, cx2, cy2, cx1, cy1, stroke_gold);
-      line(svg, cx1, cy1, prx, pry, stroke_gold);
+    if (cx3 && cy3 && cx4 && cy4) {
+      if (drawFinalShape) {
+        line(svg, cx3, cy3, cx4, cy4, stroke_gold);
+        line(svg, cx2, cy2, cx3, cy3, stroke_gold);
+        line(svg, cx2, cy2, cx1, cy1, stroke_gold);
+        line(svg, cx1, cy1, cx4, cy4, stroke_gold);
+      }
     }
 
+    return [
+      [cx1, cy1, r],
+      [cx2, cy2, r],
+      [cx3, cy3, r],
+      [cx4, cy4, r],
+    ];
+  };
+
+  onMount(() => {
+    let svg = d3
+      .select(el)
+      .attr("width", "100%")
+      .attr("heigth", "100%")
+      .attr("viewBox", "0 0 800 1000")
+      .attr("viewBox", "0 0 800 1000");
+
+    let width = 647;
+    let height = 400;
+    rect(svg, width, height);
+
+    const border = height / 3;
+    const stroke = 0.5;
+
+    const [lx1, ly1, lx2, ly2] = [
+      border,
+      height - border,
+      width - border,
+      height - border,
+    ];
+
+    // draw first line
+    line(svg, lx1, ly1, lx2, ly2, stroke);
+    // for debug
+    // for (let i = 0; i <= 8; i++) {
+    //   dot(svg, lx1 + ((lx2 - lx1) * i) / 8, ly1 + 50);
+    // }
+
+    const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] =
+      drawSquareFromLine(svg, lx1, ly1, lx2, ly2, stroke, true, true);
+
     // draw crossing lines of square
-    const [cx3, cy3, cx4, cy4] = [plx, ply, prx, pry];
     line(svg, cx1, cy1, cx3, cy3, stroke);
     line(svg, cx2, cy2, cx4, cy4, stroke);
 
     circle(svg, cx2, cy2, r, stroke);
     circle(svg, cx4, cy4, r, stroke);
 
-    line(svg, cx1, cy1, px, py, stroke);
+    // -------
+    // find intersection point between 2 circles
+    let pic12nx, pic12ny;
+    {
+      let points = intersection(cx1, cy1, r, cx2, cy2, r);
+      if (!points) {
+        return;
+      }
+      let px, py;
+
+      const px1 = points[0];
+      const py1 = points[1];
+      const px2 = points[2];
+      const py2 = points[3];
+      if (py1 < py2) {
+        px = px1;
+        py = py1;
+      } else {
+        px = px2;
+        py = py2;
+      }
+      [pic12nx, pic12ny] = [px, py];
+    }
+
+    // ------
+
+    line(svg, cx1, cy1, pic12nx, pic12ny, stroke);
 
     //
     const [pix, piy] = cerclesIntersection(
@@ -195,7 +253,7 @@
     });
 
     const [cx5, cy5] = [pix, piy];
-    const [cx6, cy6] = [px, py];
+    const [cx6, cy6] = [pic12nx, pic12ny];
 
     [
       [cx5, cy5],
@@ -240,13 +298,13 @@
     let pi5 = inteceptCircleLineSeg(cx5, cy5, cx1, cy1, cx5, cy5, d1);
     if (pi5 && pi5.length > 0) {
       [prx5, pry5] = pi5[0];
-      dot(svg, prx, pry, "dot-sm");
+      dot(svg, prx5, pry5);
     }
     let prx6, pry6;
     let pi6 = inteceptCircleLineSeg(cx6, cy6, cx1, cy1, cx6, cy6, d1);
     if (pi6 && pi6.length > 0) {
       [prx6, pry6] = pi6[0];
-      dot(svg, prx, pry, "dot-sm");
+      dot(svg, prx6, pry6);
     }
 
     // looking for intersection of
@@ -281,7 +339,7 @@
     {
       const cx0 = cx6 - d1;
       const cy0 = cy6;
-      angle = Math.atan2(pry6 - cy0, prx6 - cx0);
+      const angle = Math.atan2(pry6 - cy0, prx6 - cx0);
       // translate it into the interval [0,2 π] multiply by 2
       let [x, y] = bisect(angle * 2, d1, cx6, cy6);
       dot(svg, x, y);
@@ -351,14 +409,14 @@
     }
     // show or hide
     line(svg, cx2, cy2, pix, piy, stroke);
-    line(svg, cx4, cy4, px, py, stroke);
+    line(svg, cx4, cy4, pic12nx, pic12ny, stroke);
     // end
     // find intersection between 2 segments
     // line (pii1x, pii1y) (pi4x, pi4y)
     // line (cx4, cy4) (px, py)
     let pic4x, pic4y;
     {
-      let p = intersect(pii1x, pii1y, pi4x, pi4y, cx4, cy4, px, py);
+      let p = intersect(pii1x, pii1y, pi4x, pi4y, cx4, cy4, pic12nx, pic12ny);
       if (p && p.length > 0) {
         const [x1, y1] = p;
         dot(svg, x1, y1);
