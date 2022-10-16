@@ -5,13 +5,13 @@ export const dot = (svg, x, y, className = "dot") => {
       .style("display", "block")
       .attr("cx", x)
       .attr("cy", y)
-      .attr("r", 1.5);
+      .attr("r", 1);
   };
 
-  export const line = (svg, x1, y1, x2, y2, stroke = 5) => {
+  export const line = (svg, x1, y1, x2, y2, stroke = 5, color="#506") => {
     svg
       .append("line")
-      .style("stroke", "#506")
+      .style("stroke", color)
       .style("stroke-width", stroke)
       .attr("x1", x1)
       .attr("y1", y1)
