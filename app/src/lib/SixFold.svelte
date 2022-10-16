@@ -14,7 +14,6 @@
   import { distance } from "../math/points";
 
   let el;
-  const showDetails = false;
 
   const stroke_gold = (1 + Math.sqrt(5)) / 2;
 
@@ -40,10 +39,8 @@
     // draw left side circle
     const cx2 = cx1 - r;
     const cy2 = cy1;
-    if (showDetails) {
-      circle(svg, cx2, cy2, r, stroke);
-    }
     if (drawDetails) {
+      circle(svg, cx2, cy2, r, stroke);
       dot(svg, cx2, cy2);
     }
 
@@ -67,10 +64,8 @@
     }
 
     // draw circle at intersection point
-    if (showDetails) {
-      circle(svg, px, py, r, stroke);
-    }
     if (drawDetails) {
+      circle(svg, px, py, r, stroke);
       dot(svg, px, py);
     }
 
@@ -85,7 +80,7 @@
     let angle = Math.atan2(cy0 - y1, cx0 - x1);
     // translate it into the interval [0,2 π] multiply by 2
     let [px3, py3] = bisect(angle * 2, r, px, py);
-    if (showDetails) {
+    if (drawDetails) {
       line(svg, x1, y1, px3, py3, stroke);
       dot(svg, px3, py3);
     }
@@ -96,20 +91,20 @@
     angle = Math.atan2(cy0 - cy1, cx0 - cx1);
     // translate it into the interval [0,2 π] multiply by 2
     let [px4, py4] = bisect(angle * 2, r, px, py);
-    if (showDetails) {
+    if (drawDetails) {
       dot(svg, px4, py4);
       line(svg, cx1, cy1, px4, py4, stroke);
     }
 
     // draw lines from cercle(c1) and cercle(c2) with new intersection points
     // p3 and p4
-    if (showDetails) {
+    if (drawDetails) {
       line(svg, cx1, cy1, px3, py3, stroke);
       line(svg, cx2, cy2, px4, py4, stroke);
     }
 
     // draw line between p3 and p4
-    if (showDetails) {
+    if (drawDetails) {
       line(svg, px3, py3, px4, py4, stroke);
     }
 
@@ -125,7 +120,7 @@
       }
     }
 
-    // draw intersection between center (c1) AND
+    // draw intersection between circle (c1) AND
     // p3
     let cx4, cy4;
     let lp_right = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, px3, py3, r);
