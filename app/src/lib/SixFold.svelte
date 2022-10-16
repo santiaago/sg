@@ -161,13 +161,11 @@
 
     // draw crossing lines of square
     if (drawDetails) {
-      line(svg, cx1, cy1, cx3, cy3, stroke);
-      line(svg, cx2, cy2, cx4, cy4, stroke);
-
       circle(svg, cx1, cy1, r, stroke);
       circle(svg, cx2, cy2, r, stroke);
       circle(svg, cx4, cy4, r, stroke);
     }
+
     const [pic12nx, pic12ny] = cerclesIntersection(
       cx1,
       cy1,
@@ -199,6 +197,27 @@
       [pic12nx, pic12ny],
       [pic14x, pic14y],
     ];
+  };
+
+  const drawLinesIntersectionPoint = (
+    svg,
+    circles,
+    drawDetails,
+    drawFinalShape,
+    stroke
+  ) => {
+    const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
+
+    if (drawDetails) {
+      line(svg, cx1, cy1, cx3, cy3, stroke);
+      line(svg, cx2, cy2, cx4, cy4, stroke);
+    }
+
+    const [pi2x, pi2y] = lineIntersect(cx1, cy1, cx3, cy3, cx4, cy4, cx2, cy2);
+    if (drawFinalShape) {
+      dot(svg, pi2x, pi2y);
+    }
+    return [pi2x, pi2y];
   };
 
   onMount(() => {
@@ -251,11 +270,14 @@
       true
     );
 
-    const [li1pax, li1pay, li1pbx, lipby] = [cx1, cy1, pic14x, pic14y];
-
-    const [pi2x, pi2y] = lineIntersect(cx1, cy1, cx3, cy3, cx4, cy4, cx2, cy2);
-    dot(svg, pi2x, pi2y);
-
+    // draw crossing lines of square
+    const [pi2x, pi2y] = drawLinesIntersectionPoint(
+      svg,
+      circles,
+      true,
+      true,
+      stroke
+    );
     // measure distance of intersection points
     const d1 = distance(pic14x, pic14y, pi2x, pi2y);
 
@@ -404,15 +426,7 @@
     let pii2x, pii2y;
     let d3_;
     {
-      const pi = inteceptCircleLineSeg(
-        cx1,
-        cy1,
-        li1pax,
-        li1pay,
-        li1pbx,
-        lipby,
-        d1
-      );
+      const pi = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, pic14x, pic14y, d1);
       if (pi && pi.length > 0) {
         const [x, y] = pi[0];
         dot(svg, x, y);
