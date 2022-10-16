@@ -4,6 +4,8 @@
   import { onMount } from "svelte";
   import {
     bisect,
+    cerclesIntersection,
+    directions,
     inteceptCircleLineSeg,
     intersection,
   } from "../math/intersection";
@@ -13,53 +15,7 @@
   let el;
   const showDetails = false;
 
-  const directions = {
-    up: 0,
-    down: 1,
-    left: 2,
-    right: 3,
-  };
-
   const stroke_gold = (1 + Math.sqrt(5)) / 2;
-
-  const cerclesIntersection = (cx1, cy1, r1, cx2, cy2, r2, direction) => {
-    // find intersection point between 2 circles
-    let points = intersection(cx1, cy1, r1, cx2, cy2, r2);
-    if (!points) {
-      console.debug("no intersection found");
-      return;
-    }
-    const px1 = points[0];
-    const py1 = points[1];
-    const px2 = points[2];
-    const py2 = points[3];
-    if (direction == directions.down || directions.up) {
-      if (py1 < py2) {
-        if (direction == directions.up) {
-          return [px1, py1];
-        } else {
-          return [px2, py2];
-        }
-      }
-      if (direction == directions.up) {
-        return [px2, py2];
-      }
-      return [px1, py1];
-    }
-    if (direction == directions.left || directions.right) {
-      if (px1 < px2) {
-        if (direction == directions.left) {
-          return [px1, py1];
-        } else {
-          return [px2, py2];
-        }
-      }
-      if (direction == directions.left) {
-        return [px2, py2];
-      }
-      return [px1, py1];
-    }
-  };
 
   const lineIntersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
     var ua,

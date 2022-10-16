@@ -1,4 +1,5 @@
 // https://stackoverflow.com/questions/12219802/a-javascript-function-that-returns-the-x-y-points-of-intersection-between-two-ci/#answer-12221389
+// A JavaScript function that returns the x,y points of intersection between two circles
 export function intersection(x0, y0, r0, x1, y1, r1) {
     let a, dx, dy, d, h, rx, ry;
     let x2, y2;
@@ -97,3 +98,49 @@ export function inteceptCircleLineSeg(cx, cy, l1x, l1y, l2x, l2y, r){
     }       
     return ret;
 }
+
+export const directions = {
+    up: 0,
+    down: 1,
+    left: 2,
+    right: 3,
+  };
+
+// find intersection point between 2 circles
+export const cerclesIntersection = (cx1, cy1, r1, cx2, cy2, r2, direction) => {
+    let points = intersection(cx1, cy1, r1, cx2, cy2, r2);
+    if (!points) {
+      console.debug("no intersection found");
+      return;
+    }
+    const px1 = points[0];
+    const py1 = points[1];
+    const px2 = points[2];
+    const py2 = points[3];
+    if (direction == directions.down || directions.up) {
+      if (py1 < py2) {
+        if (direction == directions.up) {
+          return [px1, py1];
+        } else {
+          return [px2, py2];
+        }
+      }
+      if (direction == directions.up) {
+        return [px2, py2];
+      }
+      return [px1, py1];
+    }
+    if (direction == directions.left || directions.right) {
+      if (px1 < px2) {
+        if (direction == directions.left) {
+          return [px1, py1];
+        } else {
+          return [px2, py2];
+        }
+      }
+      if (direction == directions.left) {
+        return [px2, py2];
+      }
+      return [px1, py1];
+    }
+  };
