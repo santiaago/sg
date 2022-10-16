@@ -281,12 +281,7 @@
     // measure distance of intersection points
     const d1 = distance(pic14x, pic14y, pi2x, pi2y);
 
-    [
-      [cx1, cy1],
-      [cx2, cy2],
-      [cx3, cy3],
-      [cx4, cy4],
-    ].forEach(([cx, cy]) => {
+    circles.forEach(([cx, cy]) => {
       circle(svg, cx, cy, d1, stroke);
     });
 
@@ -447,12 +442,7 @@
           line(svg, x1, y1, x2, y2, stroke);
         }
         d3_ = distance(cx1, cy1, x1, y1);
-        [
-          [cx1, cy1],
-          [cx2, cy2],
-          [cx3, cy3],
-          [cx4, cy4],
-        ].forEach(([x, y]) => {
+        circles.forEach(([x, y]) => {
           circle(svg, x, y, d3_, stroke);
         });
       }
@@ -704,7 +694,6 @@
   });
 </script>
 
-// @flow
 <h1>Six fold pattern</h1>
 <small>08/10/2022</small>
 <svg bind:this={el} />
