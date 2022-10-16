@@ -108,39 +108,20 @@ export const directions = {
 
 // find intersection point between 2 circles
 export const cerclesIntersection = (cx1, cy1, r1, cx2, cy2, r2, direction) => {
-    let points = intersection(cx1, cy1, r1, cx2, cy2, r2);
-    if (!points) {
-      console.debug("no intersection found");
-      return;
-    }
-    const px1 = points[0];
-    const py1 = points[1];
-    const px2 = points[2];
-    const py2 = points[3];
-    if (direction == directions.down || directions.up) {
-      if (py1 < py2) {
-        if (direction == directions.up) {
-          return [px1, py1];
-        } else {
-          return [px2, py2];
-        }
-      }
-      if (direction == directions.up) {
-        return [px2, py2];
-      }
-      return [px1, py1];
-    }
-    if (direction == directions.left || directions.right) {
-      if (px1 < px2) {
-        if (direction == directions.left) {
-          return [px1, py1];
-        } else {
-          return [px2, py2];
-        }
-      }
-      if (direction == directions.left) {
-        return [px2, py2];
-      }
-      return [px1, py1];
-    }
-  };
+export const lineIntersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
+  var ua,
+    ub,
+    denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+  if (denom == 0) {
+    return null;
+  }
+  ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
+  ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
+  return [x1 + ua * (x2 - x1), y1 + ua * (y2 - y1)];
+  // return {
+  //   x: x1 + ua * (x2 - x1),
+  //   y: y1 + ua * (y2 - y1),
+  //   seg1: ua >= 0 && ua <= 1,
+  //   seg2: ub >= 0 && ub <= 1,
+  // };
+};
