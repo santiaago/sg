@@ -9,7 +9,6 @@
   } from "../math/intersection";
   import { intersect } from "../math/lines";
   import { distance } from "../math/points";
-  import { identity } from "svelte/internal";
 
   let el;
   const showDetails = false;
@@ -20,6 +19,8 @@
     left: 2,
     right: 3,
   };
+
+  const stroke_gold = (1 + Math.sqrt(5)) / 2;
 
   const cerclesIntersection = (cx1, cy1, r1, cx2, cy2, r2, direction) => {
     // find intersection point between 2 circles
@@ -208,11 +209,10 @@
 
     // draw final square
     if (plx && ply && prx && pry) {
-      const s = (1 + Math.sqrt(5)) / 2;
-      line(svg, plx, ply, prx, pry, s);
-      line(svg, cx2, cy2, plx, ply, s);
-      line(svg, cx2, cy2, cx1, cy1, s);
-      line(svg, cx1, cy1, prx, pry, s);
+      line(svg, plx, ply, prx, pry, stroke_gold);
+      line(svg, cx2, cy2, plx, ply, stroke_gold);
+      line(svg, cx2, cy2, cx1, cy1, stroke_gold);
+      line(svg, cx1, cy1, prx, pry, stroke_gold);
     }
 
     // draw crossing lines of square
@@ -410,30 +410,35 @@
         });
       }
     }
-    //
+    // show or hide
     line(svg, cx2, cy2, pix, piy, stroke);
     line(svg, cx4, cy4, px, py, stroke);
+    // end
     // find intersection between 2 segments
     // line (pii1x, pii1y) (pi4x, pi4y)
     // line (cx4, cy4) (px, py)
+    let pic4x, pic4y;
     {
       let p = intersect(pii1x, pii1y, pi4x, pi4y, cx4, cy4, px, py);
       if (p && p.length > 0) {
         const [x1, y1] = p;
         dot(svg, x1, y1);
-        line(svg, pii1x, pii1y, x1, y1, stroke);
+        line(svg, pii1x, pii1y, x1, y1, stroke_gold);
+        [pic4x, pic4y] = p;
       }
     }
 
     // find intersection between 2 segments
     // line (pii1x, pii1y), (pii2x, pii2y)
     // line(cx2, cy2) (pix, piy)
+    let pic2x, pic2y;
     {
       let p = intersect(pii1x, pii1y, pii2x, pii2y, cx2, cy2, pix, piy);
       if (p && p.length > 0) {
         const [x1, y1] = p;
         dot(svg, x1, y1);
-        line(svg, pii1x, pii1y, x1, y1, stroke);
+        line(svg, pii1x, pii1y, x1, y1, stroke_gold);
+        [pic2x, pic2y] = p;
       }
     }
 
@@ -463,7 +468,7 @@
         [pic34x, pic34y] = p[1];
       }
       if (pic1wx && pic1wy && pic34x && pic34y) {
-        line(svg, pic1wx, pic1wy, pic34x, pic34y, stroke);
+        line(svg, pic1wx, pic1wy, pic34x, pic34y, stroke_gold);
       }
     }
     // lines between
@@ -492,7 +497,7 @@
         [pic23x, pic23y] = p[1];
       }
       if (pic1nx && pic1ny && pic23x && pic23y) {
-        line(svg, pic1nx, pic1ny, pic23x, pic23y, stroke);
+        line(svg, pic1nx, pic1ny, pic23x, pic23y, stroke_gold);
       }
     }
     // lines between
@@ -503,6 +508,7 @@
     //    circle(cx23, cy23, d2)
     //    line(cx2, cy2, cx3, cy3)
     let pc1wx, pc1wy;
+    let pc23sx, pc23sy;
     {
       // first point
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, cx2, cy2, d1);
@@ -512,7 +518,6 @@
         [pc1wx, pc1wy] = p[0];
       }
       // second point
-      let pc23sx, pc23sy;
       p = inteceptCircleLineSeg(cx23, cy23, cx2, cy2, cx3, cy3, d2);
       if (p && p.length > 0) {
         const [x1, y1] = p[0];
@@ -520,7 +525,7 @@
         [pc23sx, pc23sy] = p[0];
       }
       if (pc1wx && pc1wy && pc23sx && pc23sy) {
-        line(svg, pc1wx, pc1wy, pc23sx, pc23sy, stroke);
+        line(svg, pc1wx, pc1wy, pc23sx, pc23sy, stroke_gold);
       }
     }
     // lines between
@@ -531,6 +536,7 @@
     //    circle(cx34, cy34, d2)
     //    line(cx4, cy4, cx3, cy3)
     let pc1nx, pc1ny;
+    let pc34ex, pc34ey;
     {
       // first point
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, cx4, cy4, d1);
@@ -540,7 +546,6 @@
         [pc1nx, pc1ny] = p[0];
       }
       // second point
-      let pc34ex, pc34ey;
       p = inteceptCircleLineSeg(cx34, cy34, cx3, cy3, cx4, cy4, d2);
       if (p && p.length > 0) {
         const [x1, y1] = p[1];
@@ -548,7 +553,7 @@
         [pc34ex, pc34ey] = p[1];
       }
       if (pc1nx && pc1ny && pc34ex && pc34ey) {
-        line(svg, pc1nx, pc1ny, pc34ex, pc34ey, stroke);
+        line(svg, pc1nx, pc1ny, pc34ex, pc34ey, stroke_gold);
       }
     }
     // line between
@@ -560,10 +565,93 @@
     //    point(pic1wx, pic1wy)
     {
       if (pc1nx && pc1ny && pic1nx && pic1ny) {
-        line(svg, pc1nx, pc1ny, pic1nx, pic1ny, stroke);
+        line(svg, pc1nx, pc1ny, pic1nx, pic1ny, stroke_gold);
       }
       if (pc1wx && pc1wy && pic1wx && pic1wy) {
-        line(svg, pc1wx, pc1wy, pic1wx, pic1wy, stroke);
+        line(svg, pc1wx, pc1wy, pic1wx, pic1wy, stroke_gold);
+      }
+    }
+    // line between
+    //  point 1:
+    //    circle(cx3, cy3, d3_)
+    //    line(cx3, cy, cx1, cy1)
+    //  point 2:
+    //    circle(c23x, c23y, d3_)
+    //    line(c23x, c23y, cx0, cy0)
+    let pc3swx, pc3swy;
+    let pc23ex, pc23ey;
+    {
+      const p = inteceptCircleLineSeg(cx3, cy3, cx3, cy3, cx1, cy1, d3_);
+      if (p && p.length > 0) {
+        const [x1, y1] = p[0];
+        dot(svg, x1, y1);
+        [pc3swx, pc3swy] = p[0];
+      }
+      const p2 = inteceptCircleLineSeg(cx23, cy23, cx23, cy23, cx1, cy1, d2);
+      if (p2 && p2.length > 0) {
+        const [x1, y1] = p2[0];
+        dot(svg, x1, y1);
+        [pc23ex, pc23ey] = p2[0];
+      }
+      if (pc3swx && pc3swy && pc23ex && pc23ey) {
+        line(svg, pc3swx, pc3swy, pc23ex, pc23ey, stroke_gold);
+      }
+    }
+    // lines between
+    //  point 1:
+    //    circle(c34x, c34y, d3_)
+    //    line(c34x, c34y, c1x, c1y)
+    //  point 2:
+    //    point(pc3swx, pc3swy)
+    let pc34sx, pc34sy;
+    {
+      const p = inteceptCircleLineSeg(cx34, cy34, cx34, cy34, cx1, cy1, d2);
+      if (p && p.length > 0) {
+        const [x1, y1] = p[0];
+        dot(svg, x1, y1);
+        [pc34sx, pc34sy] = p[0];
+      }
+      if (pc3swx && pc3swy && pc34sx && pc34sy) {
+        line(svg, pc34sx, pc34sy, pc3swx, pc3swy, stroke_gold);
+      }
+    }
+    // line between
+    // point 1:
+    //    point(pc34ex, pc34ey)
+    // point 2:
+    //    point(pc34sx, pc34sy)
+    {
+      if (pc34ex && pc34ey && pc34sx && pc34sy) {
+        line(svg, pc34ex, pc34ey, pc34sx, pc34sy, stroke_gold);
+      }
+    }
+    // line between
+    // point 1:
+    //    point(pc23sx, pc23sy)
+    // point 2:
+    //    point(pc23ex, pc23ey)
+    {
+      if (pc23sx && pc23sy && pc23ex && pc23ey) {
+        line(svg, pc23sx, pc23sy, pc23ex, pc23ey, stroke_gold);
+      }
+    }
+    // line between
+    // point 1:
+    //    point(pic4x, pic4y)
+    //    point(cx4, cy4)
+    {
+      if (pic4x && pic4y && cx4 && cy4) {
+        line(svg, cx4, cy4, pic4x, pic4y, stroke_gold);
+      }
+    }
+    // line between
+    // point 1:
+    //  point(pic2x, pic2y)
+    // point 2:
+    //  point(cx2, cy2)
+    {
+      if (pic2x && pic2y && cx4 && cy4) {
+        line(svg, cx2, cy2, pic2x, pic2y, stroke_gold);
       }
     }
   });
