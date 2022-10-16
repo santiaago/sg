@@ -1,6 +1,6 @@
 <script>
   import * as d3 from "d3";
-  import { circle, dot, line, rect } from "../geometry/basic";
+  import { circle, dot, line, rect } from "../draw/basic";
   import { onMount } from "svelte";
   import {
     bisect,
