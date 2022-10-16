@@ -208,7 +208,7 @@
     line(svg, cx1, cy1, pic12nx, pic12ny, stroke);
 
     //
-    const [pix, piy] = cerclesIntersection(
+    const [pic14x, pic14y] = cerclesIntersection(
       cx4,
       cy4,
       r,
@@ -217,16 +217,16 @@
       r,
       directions.left
     );
-    dot(svg, pix, piy);
-    line(svg, cx1, cy1, pix, piy, stroke);
-    const [li1pax, li1pay, li1pbx, lipby] = [cx1, cy1, pix, piy];
+    dot(svg, pic14x, pic14y);
+    line(svg, cx1, cy1, pic14x, pic14y, stroke);
+    const [li1pax, li1pay, li1pbx, lipby] = [cx1, cy1, pic14x, pic14y];
 
     const [pi2x, pi2y] = lineIntersect(cx1, cy1, cx3, cy3, cx4, cy4, cx2, cy2);
     dot(svg, pi2x, pi2y);
 
     // measure distance of intersetion points
-    //const d1 = pi2x - pix;
-    const d1 = distance(pix, piy, pi2x, pi2y);
+    //const d1 = pi2x - pic14x;
+    const d1 = distance(pic14x, pic14y, pi2x, pi2y);
 
     [
       [cx1, cy1],
@@ -237,7 +237,7 @@
       circle(svg, cx, cy, d1, stroke);
     });
 
-    const [cx5, cy5] = [pix, piy];
+    const [cx5, cy5] = [pic14x, pic14y];
     const [cx6, cy6] = [pic12nx, pic12ny];
 
     [
@@ -393,7 +393,7 @@
       }
     }
     // show or hide
-    line(svg, cx2, cy2, pix, piy, stroke);
+    line(svg, cx2, cy2, pic14x, pic14y, stroke);
     line(svg, cx4, cy4, pic12nx, pic12ny, stroke);
     // end
     // find intersection between 2 segments
@@ -415,7 +415,7 @@
     // line(cx2, cy2) (pix, piy)
     let pic2x, pic2y;
     {
-      let p = intersect(pii1x, pii1y, pii2x, pii2y, cx2, cy2, pix, piy);
+      let p = intersect(pii1x, pii1y, pii2x, pii2y, cx2, cy2, pic14x, pic14y);
       if (p && p.length > 0) {
         const [x1, y1] = p;
         dot(svg, x1, y1);
@@ -639,6 +639,7 @@
   });
 </script>
 
+// @flow
 <h1>Six fold pattern</h1>
 <small>08/10/2022</small>
 <svg bind:this={el} />
