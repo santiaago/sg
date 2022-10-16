@@ -207,7 +207,6 @@
 
     line(svg, cx1, cy1, pic12nx, pic12ny, stroke);
 
-    //
     const [pic14x, pic14y] = cerclesIntersection(
       cx4,
       cy4,
@@ -225,7 +224,6 @@
     dot(svg, pi2x, pi2y);
 
     // measure distance of intersetion points
-    //const d1 = pi2x - pic14x;
     const d1 = distance(pic14x, pic14y, pi2x, pi2y);
 
     [
@@ -237,20 +235,17 @@
       circle(svg, cx, cy, d1, stroke);
     });
 
-    const [cx5, cy5] = [pic14x, pic14y];
-    const [cx6, cy6] = [pic12nx, pic12ny];
-
     [
-      [cx5, cy5],
-      [cx6, cy6],
+      [pic14x, pic14y],
+      [pic12nx, pic12ny],
     ].forEach(([cx, cy]) => {
       circle(svg, cx, cy, d1, stroke);
     });
 
     // find intersection point
     const [pi3x, pi3y] = cerclesIntersection(
-      cx5,
-      cy5,
+      pic14x,
+      pic14y,
       d1,
       cx2,
       cy2,
@@ -260,8 +255,8 @@
     dot(svg, pi3x, pi3y);
     // find intersection point
     const [pi4x, pi4y] = cerclesIntersection(
-      cx6,
-      cy6,
+      pic12nx,
+      pic12ny,
       d1,
       cx4,
       cy4,
@@ -280,13 +275,29 @@
 
     // compute intersection between lines and cercles
     let prx5, pry5;
-    let pi5 = inteceptCircleLineSeg(cx5, cy5, cx1, cy1, cx5, cy5, d1);
+    let pi5 = inteceptCircleLineSeg(
+      pic14x,
+      pic14y,
+      cx1,
+      cy1,
+      pic14x,
+      pic14y,
+      d1
+    );
     if (pi5 && pi5.length > 0) {
       [prx5, pry5] = pi5[0];
       dot(svg, prx5, pry5);
     }
     let prx6, pry6;
-    let pi6 = inteceptCircleLineSeg(cx6, cy6, cx1, cy1, cx6, cy6, d1);
+    let pi6 = inteceptCircleLineSeg(
+      pic12nx,
+      pic12ny,
+      cx1,
+      cy1,
+      pic12nx,
+      pic12ny,
+      d1
+    );
     if (pi6 && pi6.length > 0) {
       [prx6, pry6] = pi6[0];
       dot(svg, prx6, pry6);
@@ -297,15 +308,15 @@
     // circle(center(px, py))
     let cx23, cy23;
     {
-      const cx0 = cx5 - d1;
-      const cy0 = cy5;
+      const cx0 = pic14x - d1;
+      const cy0 = pic14y;
       const angle = Math.atan2(pry5 - cy0, prx5 - cx0);
       // translate it into the interval [0,2 π] multiply by 2
-      let [x, y] = bisect(angle * 2, d1, cx5, cy5);
+      let [x, y] = bisect(angle * 2, d1, pic14x, pic14y);
       dot(svg, x, y);
-      line(svg, cx5, cy5, x, y, stroke);
+      line(svg, pic14x, pic14y, x, y, stroke);
 
-      const [px, py] = lineIntersect(cx2, cy2, cx3, cy3, cx5, cy5, x, y);
+      const [px, py] = lineIntersect(cx2, cy2, cx3, cy3, pic14x, pic14y, x, y);
       dot(svg, px, py);
 
       let prx, pry;
@@ -315,22 +326,30 @@
         dot(svg, prx, pry);
       }
 
-      //const d2 = pry - py;
       const d2 = distance(px, py, prx, pry);
       circle(svg, px, py, d2, stroke);
       [cx23, cy23] = [px, py];
     }
     let cx34, cy34, d2;
     {
-      const cx0 = cx6 - d1;
-      const cy0 = cy6;
+      const cx0 = pic12nx - d1;
+      const cy0 = pic12ny;
       const angle = Math.atan2(pry6 - cy0, prx6 - cx0);
       // translate it into the interval [0,2 π] multiply by 2
-      let [x, y] = bisect(angle * 2, d1, cx6, cy6);
+      let [x, y] = bisect(angle * 2, d1, pic12nx, pic12ny);
       dot(svg, x, y);
-      line(svg, cx6, cy6, x, y, stroke);
+      line(svg, pic12nx, pic12ny, x, y, stroke);
 
-      const [px, py] = lineIntersect(cx3, cy3, cx4, cy4, cx6, cy6, x, y);
+      const [px, py] = lineIntersect(
+        cx3,
+        cy3,
+        cx4,
+        cy4,
+        pic12nx,
+        pic12ny,
+        x,
+        y
+      );
       dot(svg, px, py);
 
       let prx, pry;
@@ -340,7 +359,6 @@
         dot(svg, prx, pry);
       }
 
-      // d2 = prx - px; // todo fix distance here
       d2 = distance(px, py, prx, pry);
       circle(svg, px, py, d2, stroke);
       [cx34, cy34] = [px, py];
