@@ -194,31 +194,16 @@
     circle(svg, cx2, cy2, r, stroke);
     circle(svg, cx4, cy4, r, stroke);
 
-    // -------
-    // find intersection point between 2 circles
-    let pic12nx, pic12ny;
-    {
-      let points = intersection(cx1, cy1, r, cx2, cy2, r);
-      if (!points) {
-        return;
-      }
-      let px, py;
-
-      const px1 = points[0];
-      const py1 = points[1];
-      const px2 = points[2];
-      const py2 = points[3];
-      if (py1 < py2) {
-        px = px1;
-        py = py1;
-      } else {
-        px = px2;
-        py = py2;
-      }
-      [pic12nx, pic12ny] = [px, py];
-    }
-
-    // ------
+    const [pic12nx, pic12ny] = cerclesIntersection(
+      cx1,
+      cy1,
+      r,
+      cx2,
+      cy2,
+      r,
+      directions.up
+    );
+    dot(svg, pic12nx, pic12ny);
 
     line(svg, cx1, cy1, pic12nx, pic12ny, stroke);
 

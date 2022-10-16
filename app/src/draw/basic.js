@@ -1,11 +1,10 @@
-export const dot = (svg, x, y, className = "dot") => {
+export const dot = (svg, x, y, stroke = 1.5) => {
   svg
     .append("circle")
-    .attr("class", className)
     .style("display", "block")
     .attr("cx", x)
     .attr("cy", y)
-    .attr("r", 3);
+    .attr("r", stroke);
 };
 
 export const line = (svg, x1, y1, x2, y2, stroke = 5, color = "#506") => {
