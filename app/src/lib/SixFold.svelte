@@ -309,8 +309,38 @@
     // measure distance of intersection points
     const d1 = distance(pic14x, pic14y, pi2x, pi2y);
 
-    circles.forEach(([cx, cy]) => {
-      circle(svg, cx, cy, d1, stroke);
+    const isPointCloseToCircleBorder = (mouseEvent, cx, cy, r) => {
+      const [px, py] = d3.pointer(mouseEvent);
+      const dist = distance(px, py, cx, cy);
+      // epsilons for distance in and out of circle border
+      const eOut = 0.1;
+      const eIn = 1.4;
+      return (
+        (r - eOut) * (r - eOut) <= dist * dist &&
+        dist * dist <= (r + eIn) * (r + eIn)
+      );
+    };
+
+    circles.forEach(([cx, cy], i) => {
+      const tooltip = text(svg, cx, cy, `c${i}-d1`);
+      tooltip.map((x) => x.style("opacity", 0));
+      circle(svg, cx, cy, d1, stroke)
+        .on("mouseover", (d) => {
+          if (isPointCloseToCircleBorder(d, cx, cy, d1)) {
+            tooltip.map((x) => x.style("opacity", 1));
+            d3.select(d.currentTarget).style("stroke-width", stroke * 3);
+          }
+        })
+        .on("mouseleave", (d) => {
+          if (isPointCloseToCircleBorder(d, cx, cy, d1)) {
+          } else {
+            tooltip.map((x) => x.style("opacity", 0));
+            d3.select(d.currentTarget)
+              .style("fill", "transparent")
+              .style("opacity", 1)
+              .style("stroke-width", stroke);
+          }
+        });
     });
 
     [
