@@ -1,5 +1,5 @@
 export const dot = (svg, x, y, stroke = 1.5) => {
-  svg
+  return svg
     .append("circle")
     .style("display", "block")
     .attr("cx", x)
@@ -8,7 +8,7 @@ export const dot = (svg, x, y, stroke = 1.5) => {
 };
 
 export const line = (svg, x1, y1, x2, y2, stroke = 5, color = "#506") => {
-  svg
+  return svg
     .append("line")
     .style("stroke", color)
     .style("stroke-width", stroke)
@@ -19,7 +19,7 @@ export const line = (svg, x1, y1, x2, y2, stroke = 5, color = "#506") => {
 };
 
 export const rect = (svg, width, height) => {
-  svg
+  return svg
     .append("rect")
     .attr("width", width)
     .attr("height", height)
@@ -27,7 +27,7 @@ export const rect = (svg, width, height) => {
 };
 
 export const circle = (svg, cx, cy, r, stroke = 1) => {
-  svg
+  return svg
     .append("circle")
     .style("stroke", "#f06")
     .style("stroke-width", stroke)
