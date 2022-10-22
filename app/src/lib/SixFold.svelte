@@ -260,10 +260,8 @@
 
     const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
 
-    circles.forEach(([cx, cy], i) => {
-      const tooltip = text(svg, cx, cy, "c", i + 1);
-      tooltip.map((x) => x.style("opacity", 0));
-      dot(svg, cx, cy, 2)
+    const addPointTooltipEvents = (selection, tooltip) => {
+      selection
         .on("mouseover", (d) => {
           tooltip.map((x) => x.style("opacity", 1));
           d3.select(d.currentTarget).style("fill", "red");
@@ -272,6 +270,12 @@
           tooltip.map((x) => x.style("opacity", 0));
           d3.select(d.currentTarget).style("fill", "black");
         });
+    };
+
+    circles.forEach(([cx, cy], i) => {
+      const tooltip = text(svg, cx, cy, "c", i + 1);
+      tooltip.map((x) => x.style("opacity", 0));
+      dot(svg, cx, cy, 2).call(addPointTooltipEvents, tooltip);
     });
 
     const [[pic12nx, pic12ny], [pic14x, pic14y]] = drawIntersectionPoints(
@@ -287,15 +291,7 @@
     ].forEach(([x, y, prefix]) => {
       const tooltip = text(svg, x, y, `pic${prefix}`);
       tooltip.map((x) => x.style("opacity", 0));
-      dot(svg, x, y, stroke * 4)
-        .on("mouseover", (d) => {
-          tooltip.map((x) => x.style("opacity", 1));
-          d3.select(d.currentTarget).style("fill", "red");
-        })
-        .on("mouseleave", (d) => {
-          tooltip.map((x) => x.style("opacity", 0));
-          d3.select(d.currentTarget).style("fill", "black");
-        });
+      dot(svg, x, y, stroke * 4).call(addPointTooltipEvents, tooltip);
     });
 
     // draw crossing lines of square
@@ -321,10 +317,8 @@
       );
     };
 
-    circles.forEach(([cx, cy], i) => {
-      const tooltip = text(svg, cx, cy, `c${i}-d1`);
-      tooltip.map((x) => x.style("opacity", 0));
-      circle(svg, cx, cy, d1, stroke)
+    const addCircleTooltipEvents = (selection, tooltip, cx, cy, d1, stroke) => {
+      selection
         .on("mouseover", (d) => {
           if (isPointCloseToCircleBorder(d, cx, cy, d1)) {
             tooltip.map((x) => x.style("opacity", 1));
@@ -341,6 +335,19 @@
               .style("stroke-width", stroke);
           }
         });
+    };
+
+    circles.forEach(([cx, cy], i) => {
+      const tooltip = text(svg, cx, cy, `c${i}-d1`);
+      tooltip.map((x) => x.style("opacity", 0));
+      circle(svg, cx, cy, d1, stroke).call(
+        addCircleTooltipEvents,
+        tooltip,
+        cx,
+        cy,
+        d1,
+        stroke
+      );
     });
 
     [
