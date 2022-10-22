@@ -351,10 +351,19 @@
     });
 
     [
-      [pic14x, pic14y],
-      [pic12nx, pic12ny],
-    ].forEach(([cx, cy]) => {
-      circle(svg, cx, cy, d1, stroke);
+      [pic14x, pic14y, "pic14"],
+      [pic12nx, pic12ny, "pic12"],
+    ].forEach(([cx, cy, prefix]) => {
+      const tooltip = text(svg, cx, cy, `${prefix}-d1`);
+      tooltip.map((x) => x.style("opacity", 0));
+      circle(svg, cx, cy, d1, stroke).call(
+        addCircleTooltipEvents,
+        tooltip,
+        cx,
+        cy,
+        d1,
+        stroke
+      );
     });
 
     // find intersection point
@@ -367,7 +376,6 @@
       d1,
       directions.right
     );
-    dot(svg, pi3x, pi3y);
     // find intersection point
     const [pi4x, pi4y] = cerclesIntersection(
       pic12nx,
@@ -378,7 +386,15 @@
       d1,
       directions.right
     );
-    dot(svg, pi4x, pi4y);
+
+    [
+      [pi3x, pi3y, "pi3"],
+      [pi4x, pi4y, "pi4"],
+    ].forEach(([x, y, prefix]) => {
+      const tooltip = text(svg, x, y, prefix);
+      tooltip.map((x) => x.style("opacity", 0));
+      dot(svg, x, y, stroke * 6).call(addPointTooltipEvents, tooltip);
+    });
 
     // draw lines
     [
