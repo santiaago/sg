@@ -1,6 +1,7 @@
 <script>
   import * as d3 from "d3";
   import { circle, dot, line, rect } from "../draw/basic";
+  import { text } from "../draw/text";
   import { onMount } from "svelte";
   import {
     bisect,
@@ -259,6 +260,20 @@
 
     const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
 
+    circles.forEach(([cx, cy], i) => {
+      const tooltip = text(svg, cx, cy, "c", i + 1);
+      tooltip.map((x) => x.style("opacity", 0));
+      dot(svg, cx, cy, 2)
+        .on("mouseover", (d) => {
+          tooltip.map((x) => x.style("opacity", 1));
+          d3.select(d.currentTarget).style("fill", "red");
+        })
+        .on("mouseleave", (d) => {
+          tooltip.map((x) => x.style("opacity", 0));
+          d3.select(d.currentTarget).style("fill", "black");
+        });
+    });
+
     const [[pic12nx, pic12ny], [pic14x, pic14y]] = drawIntersectionPoints(
       svg,
       circles,
@@ -266,6 +281,22 @@
       true,
       true
     );
+    [
+      [pic12nx, pic12ny, "12"],
+      [pic14x, pic14y, "14"],
+    ].forEach(([x, y, prefix]) => {
+      const tooltip = text(svg, x, y, `pic${prefix}`);
+      tooltip.map((x) => x.style("opacity", 0));
+      dot(svg, x, y, stroke * 4)
+        .on("mouseover", (d) => {
+          tooltip.map((x) => x.style("opacity", 1));
+          d3.select(d.currentTarget).style("fill", "red");
+        })
+        .on("mouseleave", (d) => {
+          tooltip.map((x) => x.style("opacity", 0));
+          d3.select(d.currentTarget).style("fill", "black");
+        });
+    });
 
     // draw crossing lines of square
     const [pi2x, pi2y] = drawLinesIntersectionPoint(
@@ -696,12 +727,10 @@
 <svg bind:this={el} />
 
 <style>
-  .dot {
-    fill: red;
-    r: 5;
-  }
-  .dot-sm {
-    fill: greenyellow;
-    r: 5/2;
+  :global(text) {
+    font-family: "monaco", sans-serif;
+    font-size: 5px;
+    font-weight: bold;
+    fill: #fff;
   }
 </style>
