@@ -1,6 +1,6 @@
 <script>
   import * as d3 from "d3";
-  import { circle, dot, line, rect } from "../draw/basic";
+  import { circle, dot, dotWithTooltip, line, rect } from "../draw/basic";
   import { text } from "../draw/text";
   import { onMount } from "svelte";
   import {
@@ -261,22 +261,8 @@
 
     const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
 
-    const addPointTooltipEvents = (selection, tooltip) => {
-      selection
-        .on("mouseover", (d) => {
-          tooltip.map((x) => x.style("opacity", 1));
-          d3.select(d.currentTarget).style("fill", "red");
-        })
-        .on("mouseleave", (d) => {
-          tooltip.map((x) => x.style("opacity", 0));
-          d3.select(d.currentTarget).style("fill", "black");
-        });
-    };
-
     circles.forEach(([cx, cy], i) => {
-      const tooltip = text(svg, cx, cy, "c", i + 1);
-      tooltip.map((x) => x.style("opacity", 0));
-      dot(svg, cx, cy, 2).call(addPointTooltipEvents, tooltip);
+      dotWithTooltip(svg, cx, cy, `c${i + 1}`, stroke);
     });
 
     const [[pic12nx, pic12ny], [pic14x, pic14y]] = drawIntersectionPoints(
@@ -290,9 +276,7 @@
       [pic12nx, pic12ny, "12"],
       [pic14x, pic14y, "14"],
     ].forEach(([x, y, prefix]) => {
-      const tooltip = text(svg, x, y, `pic${prefix}`);
-      tooltip.map((x) => x.style("opacity", 0));
-      dot(svg, x, y, strokeBig).call(addPointTooltipEvents, tooltip);
+      dotWithTooltip(svg, x, y, `pic${prefix}`, strokeBig);
     });
 
     // draw crossing lines of square
@@ -392,9 +376,7 @@
       [pi3x, pi3y, "pi3"],
       [pi4x, pi4y, "pi4"],
     ].forEach(([x, y, prefix]) => {
-      const tooltip = text(svg, x, y, prefix);
-      tooltip.map((x) => x.style("opacity", 0));
-      dot(svg, x, y, strokeBig).call(addPointTooltipEvents, tooltip);
+      dotWithTooltip(svg, x, y, prefix, strokeBig);
     });
 
     // draw lines
@@ -418,9 +400,7 @@
     );
     if (pi5 && pi5.length > 0) {
       [prx5, pry5] = pi5[0];
-      const tooltip = text(svg, prx5, pry5, "prx5");
-      tooltip.map((x) => x.style("opacity", 0));
-      dot(svg, prx5, pry5, strokeBig).call(addPointTooltipEvents, tooltip);
+      dotWithTooltip(svg, prx5, pry5, "prx5", strokeBig);
     }
     let prx6, pry6;
     let pi6 = inteceptCircleLineSeg(
@@ -434,8 +414,7 @@
     );
     if (pi6 && pi6.length > 0) {
       [prx6, pry6] = pi6[0];
-      const tooltip = text(svg, prx6, pry6, "prx6");
-      dot(svg, prx6, pry6, strokeBig).call(addPointTooltipEvents, tooltip);
+      dotWithTooltip(svg, prx6, pry6, "prx6", strokeBig);
     }
 
     // looking for intersection of
@@ -449,8 +428,7 @@
       // translate it into the interval [0,2 π] multiply by 2
       let [x, y] = bisect(angle * 2, d1, pic14x, pic14y);
       {
-        const tooltip = text(svg, x, y, "c23w");
-        dot(svg, x, y).call(addPointTooltipEvents, tooltip);
+        dotWithTooltip(svg, x, y, "c23w", stroke);
         line(svg, pic14x, pic14y, x, y, stroke);
       }
 
@@ -462,16 +440,14 @@
       if (pi && pi.length > 0) {
         [prx, pry] = pi[0];
         {
-          const tooltip = text(svg, prx, pry, "c23s");
-          dot(svg, prx, pry).call(addPointTooltipEvents, tooltip);
+          dotWithTooltip(svg, prx, pry, "c23s", stroke);
         }
       }
 
       const d2 = distance(px, py, prx, pry);
       circle(svg, px, py, d2, stroke);
       [cx23, cy23] = [px, py];
-      const tooltip = text(svg, cx23, cy23, "c23");
-      dot(svg, cx23, cy23).call(addPointTooltipEvents, tooltip);
+      dotWithTooltip(svg, cx23, cy23, "c23");
     }
     let cx34, cy34, d2;
     {
@@ -481,8 +457,7 @@
       // translate it into the interval [0,2 π] multiply by 2
       let [x, y] = bisect(angle * 2, d1, pic12nx, pic12ny);
       {
-        const tooltip = text(svg, x, y, "c34n");
-        dot(svg, x, y).call(addPointTooltipEvents, tooltip);
+        dotWithTooltip(svg, x, y, "c34n", stroke);
         line(svg, pic12nx, pic12ny, x, y, stroke);
       }
 
@@ -502,15 +477,13 @@
       const pi = inteceptCircleLineSeg(cx4, cy4, px, py, cx4, cy4, d1);
       if (pi && pi.length > 0) {
         [prx, pry] = pi[0];
-        const tooltip = text(svg, prx, pry, "c34e");
-        dot(svg, prx, pry, strokeBig).call(addPointTooltipEvents, tooltip);
+        dotWithTooltip(svg, prx, pry, "c34e", strokeBig);
       }
 
       d2 = distance(px, py, prx, pry);
       circle(svg, px, py, d2, stroke);
       [cx34, cy34] = [px, py];
-      const tooltip = text(svg, cx34, cy34, "c34");
-      dot(svg, cx34, cy34).call(addPointTooltipEvents, tooltip);
+      dotWithTooltip(svg, cx34, cy34, "c34", stroke);
     }
     //
     // point: pi3x, pi3y
@@ -529,21 +502,13 @@
         if (p && p.length > 0) {
           [x1, y1] = p;
           [pii1x, pii1y] = p;
-          const tooltip = text(svg, pii1x, pii1y, "pii1");
-          dot(svg, pii1x, pii1y, strokeBig).call(
-            addPointTooltipEvents,
-            tooltip
-          );
+          dotWithTooltip(svg, pii1x, pii1y, "pii1", strokeBig);
         }
         p = intersect(pi3x, pi3y, x, y, cx2, cy2, cx4, cy4);
         if (p && p.length > 0) {
           [x2, y2] = p;
           [pii2x, pii2y] = p;
-          const tooltip = text(svg, pii2x, pii2y, "pii2");
-          dot(svg, pii2x, pii2y, strokeBig).call(
-            addPointTooltipEvents,
-            tooltip
-          );
+          dotWithTooltip(svg, pii2x, pii2y, "pii2", strokeBig);
         }
         if (x1 && y1 && x2 && y2) {
           line(svg, x1, y1, x2, y2, stroke);
@@ -576,9 +541,7 @@
       if (p && p.length > 0) {
         [pic4x, pic4y] = p;
         line(svg, pii1x, pii1y, pic4x, pic4y, strokeLine);
-        const tooltip = text(svg, pic4x, pic4y, `pic4`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic4x, pic4y, strokeBig).call(addPointTooltipEvents, tooltip);
+        dotWithTooltip(svg, pic4x, pic4y, "pic4", strokeBig);
       }
     }
 
@@ -591,9 +554,7 @@
       if (p && p.length > 0) {
         [pic2x, pic2y] = p;
         line(svg, pii1x, pii1y, pic2x, pic2y, strokeLine);
-        const tooltip = text(svg, pic2x, pic2y, `pic2`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic2x, pic2y, strokeBig).call(addPointTooltipEvents, tooltip);
+        dotWithTooltip(svg, pic2x, pic2y, "pic2", strokeBig);
       }
     }
 
@@ -611,21 +572,14 @@
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, pi3x, pi3y, d3_);
       if (p && p.length > 0) {
         [pic1wx, pic1wy] = p[0];
-        const tooltip = text(svg, pic1wx, pic1wy, `pic1w`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic1wx, pic1wy, strokeBig).call(
-          addPointTooltipEvents,
-          tooltip
-        );
+        dotWithTooltip(svg, pic1wx, pic1wy, "pic1w", strokeBig);
       }
       // second point
       let pic34x, pic34y;
       p = inteceptCircleLineSeg(cx34, cy34, cx4, cy4, cx3, cy3, d2);
       if (p && p.length > 0) {
         [pic34x, pic34y] = p[1];
-        const tooltip = text(svg, pic34x, pic34y, `pic34`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic34x, pic34y).call(addPointTooltipEvents, tooltip);
+        dotWithTooltip(svg, pic34x, pic34y, `pic34`, stroke);
       }
       if (pic1wx && pic1wy && pic34x && pic34y) {
         line(svg, pic1wx, pic1wy, pic34x, pic34y, strokeLine);
@@ -645,24 +599,14 @@
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, pi4x, pi4y, d3_);
       if (p && p.length > 0) {
         [pic1nx, pic1ny] = p[0];
-        const tooltip = text(svg, pic1nx, pic1ny, `pic1n`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic1nx, pic1ny, strokeBig).call(
-          addPointTooltipEvents,
-          tooltip
-        );
+        dotWithTooltip(svg, pic1nx, pic1ny, "pic1n", strokeBig);
       }
       // second point
       let pic23x, pic23y;
       p = inteceptCircleLineSeg(cx23, cy23, cx2, cy2, cx3, cy3, d2);
       if (p && p.length > 0) {
         [pic23x, pic23y] = p[1];
-        const tooltip = text(svg, pic23x, pic23y, `pic23`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic23x, pic23y, strokeBig).call(
-          addPointTooltipEvents,
-          tooltip
-        );
+        dotWithTooltip(svg, pic23x, pic23y, "pic23", strokeBig);
       }
       if (pic1nx && pic1ny && pic23x && pic23y) {
         line(svg, pic1nx, pic1ny, pic23x, pic23y, strokeLine);
@@ -682,20 +626,13 @@
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, cx2, cy2, d1);
       if (p && p.length > 0) {
         [pc1wx, pc1wy] = p[0];
-        const tooltip = text(svg, pc1wx, pc1wy, `pc1w`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc1wx, pc1wy).call(addPointTooltipEvents, tooltip);
+        dotWithTooltip(svg, pc1wx, pc1wy, "pc1w", stroke);
       }
       // second point
       p = inteceptCircleLineSeg(cx23, cy23, cx2, cy2, cx3, cy3, d2);
       if (p && p.length > 0) {
         [pc23sx, pc23sy] = p[0];
-        const tooltip = text(svg, pc23sx, pc23sy, `pc23s`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc23sx, pc23sy, strokeBig).call(
-          addPointTooltipEvents,
-          tooltip
-        );
+        dotWithTooltip(svg, pc23sx, pc23sy, "pc23s", strokeBig);
       }
       if (pc1wx && pc1wy && pc23sx && pc23sy) {
         line(svg, pc1wx, pc1wy, pc23sx, pc23sy, strokeLine);
@@ -715,20 +652,13 @@
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, cx4, cy4, d1);
       if (p && p.length > 0) {
         [pc1nx, pc1ny] = p[0];
-        const tooltip = text(svg, pc1nx, pc1ny, `pc1n`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc1nx, pc1ny, strokeBig).call(addPointTooltipEvents, tooltip);
+        dotWithTooltip(svg, pc1nx, pc1ny, "pc1n", strokeBig);
       }
       // second point
       p = inteceptCircleLineSeg(cx34, cy34, cx3, cy3, cx4, cy4, d2);
       if (p && p.length > 0) {
         [pc34ex, pc34ey] = p[1];
-        const tooltip = text(svg, pc34ex, pc34ey, `pc34e`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc34ex, pc34ey, strokeBig).call(
-          addPointTooltipEvents,
-          tooltip
-        );
+        dotWithTooltip(svg, pc34ex, pc34ey, "pc34e", strokeBig);
       }
       if (pc1nx && pc1ny && pc34ex && pc34ey) {
         line(svg, pc1nx, pc1ny, pc34ex, pc34ey, strokeLine);
@@ -762,22 +692,12 @@
       const p = inteceptCircleLineSeg(cx3, cy3, cx3, cy3, cx1, cy1, d3_);
       if (p && p.length > 0) {
         [pc3swx, pc3swy] = p[0];
-        const tooltip = text(svg, pc3swx, pc3swy, `pc3sw`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc3swx, pc3swy, strokeBig).call(
-          addPointTooltipEvents,
-          tooltip
-        );
+        dotWithTooltip(svg, pc3swx, pc3swy, "pc3sw", strokeBig);
       }
       const p2 = inteceptCircleLineSeg(cx23, cy23, cx23, cy23, cx1, cy1, d2);
       if (p2 && p2.length > 0) {
         [pc23ex, pc23ey] = p2[0];
-        const tooltip = text(svg, pc23ex, pc23ey, `pc23e`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc23ex, pc23ey, strokeBig).call(
-          addPointTooltipEvents,
-          tooltip
-        );
+        dotWithTooltip(svg, pc23ex, pc23ey, "pc23e", strokeBig);
       }
       if (pc3swx && pc3swy && pc23ex && pc23ey) {
         line(svg, pc3swx, pc3swy, pc23ex, pc23ey, strokeLine);
@@ -794,12 +714,7 @@
       const p = inteceptCircleLineSeg(cx34, cy34, cx34, cy34, cx1, cy1, d2);
       if (p && p.length > 0) {
         [pc34sx, pc34sy] = p[0];
-        const tooltip = text(svg, pc34sx, pc34sy, `pc34s`);
-        tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc34sx, pc34sy, strokeBig).call(
-          addPointTooltipEvents,
-          tooltip
-        );
+        dotWithTooltip(svg, pc34sx, pc34sy, "pc34s", strokeBig);
       }
       if (pc3swx && pc3swy && pc34sx && pc34sy) {
         line(svg, pc34sx, pc34sy, pc3swx, pc3swy, strokeLine);
