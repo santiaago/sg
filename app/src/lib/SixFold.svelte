@@ -15,8 +15,10 @@
   import { distance } from "../math/points";
 
   let el;
-
-  const stroke_gold = (1 + Math.sqrt(5)) / 2;
+  export let stroke = 0.5;
+  export let strokeMid;
+  export let strokeBig;
+  export let strokeLine = (1 + Math.sqrt(5)) / 2;
 
   const drawSquareFromLine = (
     svg,
@@ -136,10 +138,10 @@
     // draw final square
     if (cx3 && cy3 && cx4 && cy4) {
       if (drawFinalShape) {
-        line(svg, cx3, cy3, cx4, cy4, stroke_gold);
-        line(svg, cx2, cy2, cx3, cy3, stroke_gold);
-        line(svg, cx2, cy2, cx1, cy1, stroke_gold);
-        line(svg, cx1, cy1, cx4, cy4, stroke_gold);
+        line(svg, cx3, cy3, cx4, cy4, strokeLine);
+        line(svg, cx2, cy2, cx3, cy3, strokeLine);
+        line(svg, cx2, cy2, cx1, cy1, strokeLine);
+        line(svg, cx1, cy1, cx4, cy4, strokeLine);
       }
     }
 
@@ -222,16 +224,15 @@
   };
 
   onMount(() => {
-    let svg = d3.select(el).attr("viewBox", "0 0 600 300");
+    let svg = d3.select(el).attr("viewBox", "0 0 300 150");
 
-    const width = 600;
-    const height = 300;
+    const width = 300;
+    const height = 150;
 
     rect(svg, width, height);
     dot(svg, 0, 0);
 
     const border = height / 3;
-    const stroke = 0.5;
 
     const [lx1, ly1, lx2, ly2] = [
       border,
@@ -291,7 +292,7 @@
     ].forEach(([x, y, prefix]) => {
       const tooltip = text(svg, x, y, `pic${prefix}`);
       tooltip.map((x) => x.style("opacity", 0));
-      dot(svg, x, y, stroke * 6).call(addPointTooltipEvents, tooltip);
+      dot(svg, x, y, strokeBig).call(addPointTooltipEvents, tooltip);
     });
 
     // draw crossing lines of square
@@ -322,7 +323,7 @@
         .on("mouseover", (d) => {
           if (isPointCloseToCircleBorder(d, cx, cy, d1)) {
             tooltip.map((x) => x.style("opacity", 1));
-            d3.select(d.currentTarget).style("stroke-width", stroke * 3);
+            d3.select(d.currentTarget).style("stroke-width", strokeMid);
           }
         })
         .on("mouseleave", (d) => {
@@ -393,7 +394,7 @@
     ].forEach(([x, y, prefix]) => {
       const tooltip = text(svg, x, y, prefix);
       tooltip.map((x) => x.style("opacity", 0));
-      dot(svg, x, y, stroke * 6).call(addPointTooltipEvents, tooltip);
+      dot(svg, x, y, strokeBig).call(addPointTooltipEvents, tooltip);
     });
 
     // draw lines
@@ -419,7 +420,7 @@
       [prx5, pry5] = pi5[0];
       const tooltip = text(svg, prx5, pry5, "prx5");
       tooltip.map((x) => x.style("opacity", 0));
-      dot(svg, prx5, pry5, stroke * 6).call(addPointTooltipEvents, tooltip);
+      dot(svg, prx5, pry5, strokeBig).call(addPointTooltipEvents, tooltip);
     }
     let prx6, pry6;
     let pi6 = inteceptCircleLineSeg(
@@ -434,7 +435,7 @@
     if (pi6 && pi6.length > 0) {
       [prx6, pry6] = pi6[0];
       const tooltip = text(svg, prx6, pry6, "prx6");
-      dot(svg, prx6, pry6, stroke * 6).call(addPointTooltipEvents, tooltip);
+      dot(svg, prx6, pry6, strokeBig).call(addPointTooltipEvents, tooltip);
     }
 
     // looking for intersection of
@@ -502,7 +503,7 @@
       if (pi && pi.length > 0) {
         [prx, pry] = pi[0];
         const tooltip = text(svg, prx, pry, "c34e");
-        dot(svg, prx, pry, stroke * 6).call(addPointTooltipEvents, tooltip);
+        dot(svg, prx, pry, strokeBig).call(addPointTooltipEvents, tooltip);
       }
 
       d2 = distance(px, py, prx, pry);
@@ -529,7 +530,7 @@
           [x1, y1] = p;
           [pii1x, pii1y] = p;
           const tooltip = text(svg, pii1x, pii1y, "pii1");
-          dot(svg, pii1x, pii1y, stroke * 6).call(
+          dot(svg, pii1x, pii1y, strokeBig).call(
             addPointTooltipEvents,
             tooltip
           );
@@ -539,7 +540,7 @@
           [x2, y2] = p;
           [pii2x, pii2y] = p;
           const tooltip = text(svg, pii2x, pii2y, "pii2");
-          dot(svg, pii2x, pii2y, stroke * 6).call(
+          dot(svg, pii2x, pii2y, strokeBig).call(
             addPointTooltipEvents,
             tooltip
           );
@@ -574,10 +575,10 @@
       let p = intersect(pii1x, pii1y, pi4x, pi4y, cx4, cy4, pic12nx, pic12ny);
       if (p && p.length > 0) {
         [pic4x, pic4y] = p;
-        line(svg, pii1x, pii1y, pic4x, pic4y, stroke_gold);
+        line(svg, pii1x, pii1y, pic4x, pic4y, strokeLine);
         const tooltip = text(svg, pic4x, pic4y, `pic4`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic4x, pic4y, stroke * 6).call(addPointTooltipEvents, tooltip);
+        dot(svg, pic4x, pic4y, strokeBig).call(addPointTooltipEvents, tooltip);
       }
     }
 
@@ -589,10 +590,10 @@
       let p = intersect(pii1x, pii1y, pii2x, pii2y, cx2, cy2, pic14x, pic14y);
       if (p && p.length > 0) {
         [pic2x, pic2y] = p;
-        line(svg, pii1x, pii1y, pic2x, pic2y, stroke_gold);
+        line(svg, pii1x, pii1y, pic2x, pic2y, strokeLine);
         const tooltip = text(svg, pic2x, pic2y, `pic2`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic2x, pic2y, stroke * 6).call(addPointTooltipEvents, tooltip);
+        dot(svg, pic2x, pic2y, strokeBig).call(addPointTooltipEvents, tooltip);
       }
     }
 
@@ -612,7 +613,7 @@
         [pic1wx, pic1wy] = p[0];
         const tooltip = text(svg, pic1wx, pic1wy, `pic1w`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic1wx, pic1wy, stroke * 6).call(
+        dot(svg, pic1wx, pic1wy, strokeBig).call(
           addPointTooltipEvents,
           tooltip
         );
@@ -627,7 +628,7 @@
         dot(svg, pic34x, pic34y).call(addPointTooltipEvents, tooltip);
       }
       if (pic1wx && pic1wy && pic34x && pic34y) {
-        line(svg, pic1wx, pic1wy, pic34x, pic34y, stroke_gold);
+        line(svg, pic1wx, pic1wy, pic34x, pic34y, strokeLine);
       }
     }
     // lines between
@@ -646,7 +647,7 @@
         [pic1nx, pic1ny] = p[0];
         const tooltip = text(svg, pic1nx, pic1ny, `pic1n`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic1nx, pic1ny, stroke * 6).call(
+        dot(svg, pic1nx, pic1ny, strokeBig).call(
           addPointTooltipEvents,
           tooltip
         );
@@ -658,13 +659,13 @@
         [pic23x, pic23y] = p[1];
         const tooltip = text(svg, pic23x, pic23y, `pic23`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pic23x, pic23y, stroke * 6).call(
+        dot(svg, pic23x, pic23y, strokeBig).call(
           addPointTooltipEvents,
           tooltip
         );
       }
       if (pic1nx && pic1ny && pic23x && pic23y) {
-        line(svg, pic1nx, pic1ny, pic23x, pic23y, stroke_gold);
+        line(svg, pic1nx, pic1ny, pic23x, pic23y, strokeLine);
       }
     }
     // lines between
@@ -691,13 +692,13 @@
         [pc23sx, pc23sy] = p[0];
         const tooltip = text(svg, pc23sx, pc23sy, `pc23s`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc23sx, pc23sy, stroke * 6).call(
+        dot(svg, pc23sx, pc23sy, strokeBig).call(
           addPointTooltipEvents,
           tooltip
         );
       }
       if (pc1wx && pc1wy && pc23sx && pc23sy) {
-        line(svg, pc1wx, pc1wy, pc23sx, pc23sy, stroke_gold);
+        line(svg, pc1wx, pc1wy, pc23sx, pc23sy, strokeLine);
       }
     }
     // lines between
@@ -716,7 +717,7 @@
         [pc1nx, pc1ny] = p[0];
         const tooltip = text(svg, pc1nx, pc1ny, `pc1n`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc1nx, pc1ny, stroke * 6).call(addPointTooltipEvents, tooltip);
+        dot(svg, pc1nx, pc1ny, strokeBig).call(addPointTooltipEvents, tooltip);
       }
       // second point
       p = inteceptCircleLineSeg(cx34, cy34, cx3, cy3, cx4, cy4, d2);
@@ -724,13 +725,13 @@
         [pc34ex, pc34ey] = p[1];
         const tooltip = text(svg, pc34ex, pc34ey, `pc34e`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc34ex, pc34ey, stroke * 6).call(
+        dot(svg, pc34ex, pc34ey, strokeBig).call(
           addPointTooltipEvents,
           tooltip
         );
       }
       if (pc1nx && pc1ny && pc34ex && pc34ey) {
-        line(svg, pc1nx, pc1ny, pc34ex, pc34ey, stroke_gold);
+        line(svg, pc1nx, pc1ny, pc34ex, pc34ey, strokeLine);
       }
     }
     // line between
@@ -742,10 +743,10 @@
     //    point(pic1wx, pic1wy)
     {
       if (pc1nx && pc1ny && pic1nx && pic1ny) {
-        line(svg, pc1nx, pc1ny, pic1nx, pic1ny, stroke_gold);
+        line(svg, pc1nx, pc1ny, pic1nx, pic1ny, strokeLine);
       }
       if (pc1wx && pc1wy && pic1wx && pic1wy) {
-        line(svg, pc1wx, pc1wy, pic1wx, pic1wy, stroke_gold);
+        line(svg, pc1wx, pc1wy, pic1wx, pic1wy, strokeLine);
       }
     }
     // line between
@@ -763,7 +764,7 @@
         [pc3swx, pc3swy] = p[0];
         const tooltip = text(svg, pc3swx, pc3swy, `pc3sw`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc3swx, pc3swy, stroke * 6).call(
+        dot(svg, pc3swx, pc3swy, strokeBig).call(
           addPointTooltipEvents,
           tooltip
         );
@@ -773,13 +774,13 @@
         [pc23ex, pc23ey] = p2[0];
         const tooltip = text(svg, pc23ex, pc23ey, `pc23e`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc23ex, pc23ey, stroke * 6).call(
+        dot(svg, pc23ex, pc23ey, strokeBig).call(
           addPointTooltipEvents,
           tooltip
         );
       }
       if (pc3swx && pc3swy && pc23ex && pc23ey) {
-        line(svg, pc3swx, pc3swy, pc23ex, pc23ey, stroke_gold);
+        line(svg, pc3swx, pc3swy, pc23ex, pc23ey, strokeLine);
       }
     }
     // lines between
@@ -795,13 +796,13 @@
         [pc34sx, pc34sy] = p[0];
         const tooltip = text(svg, pc34sx, pc34sy, `pc34s`);
         tooltip.map((x) => x.style("opacity", 0));
-        dot(svg, pc34sx, pc34sy, stroke * 6).call(
+        dot(svg, pc34sx, pc34sy, strokeBig).call(
           addPointTooltipEvents,
           tooltip
         );
       }
       if (pc3swx && pc3swy && pc34sx && pc34sy) {
-        line(svg, pc34sx, pc34sy, pc3swx, pc3swy, stroke_gold);
+        line(svg, pc34sx, pc34sy, pc3swx, pc3swy, strokeLine);
       }
     }
     // line between
@@ -811,7 +812,7 @@
     //    point(pc34sx, pc34sy)
     {
       if (pc34ex && pc34ey && pc34sx && pc34sy) {
-        line(svg, pc34ex, pc34ey, pc34sx, pc34sy, stroke_gold);
+        line(svg, pc34ex, pc34ey, pc34sx, pc34sy, strokeLine);
       }
     }
     // line between
@@ -821,7 +822,7 @@
     //    point(pc23ex, pc23ey)
     {
       if (pc23sx && pc23sy && pc23ex && pc23ey) {
-        line(svg, pc23sx, pc23sy, pc23ex, pc23ey, stroke_gold);
+        line(svg, pc23sx, pc23sy, pc23ex, pc23ey, strokeLine);
       }
     }
     // line between
@@ -830,7 +831,7 @@
     //    point(cx4, cy4)
     {
       if (pic4x && pic4y && cx4 && cy4) {
-        line(svg, cx4, cy4, pic4x, pic4y, stroke_gold);
+        line(svg, cx4, cy4, pic4x, pic4y, strokeLine);
       }
     }
     // line between
@@ -840,14 +841,12 @@
     //  point(cx2, cy2)
     {
       if (pic2x && pic2y && cx4 && cy4) {
-        line(svg, cx2, cy2, pic2x, pic2y, stroke_gold);
+        line(svg, cx2, cy2, pic2x, pic2y, strokeLine);
       }
     }
   });
 </script>
 
-<h1>Six fold pattern</h1>
-<small>08/10/2022</small>
 <svg bind:this={el} />
 
 <style>
