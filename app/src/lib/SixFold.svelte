@@ -21,6 +21,11 @@
   export let strokeBig;
   export let strokeLine = (1 + Math.sqrt(5)) / 2;
 
+  // from 2 points in line
+  // draw a square where the 2 points are a side of the square
+  // returns an array with 4 elements
+  // each element is the coordinates of each side of the square
+  //
   const drawSquareFromLine = (
     svg,
     lx1,
@@ -154,6 +159,11 @@
     ];
   };
 
+  // from a set of 4 points
+  // calculate the intersection 3 of these circles in space
+  // circles has shape [[cx, cy, r],... ]
+  // returns the 2 coordinates that intersect the circles
+  //
   const drawIntersectionPoints = (
     svg,
     circles,
@@ -161,7 +171,7 @@
     drawDetails,
     drawFinalShape
   ) => {
-    const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
+    const [[cx1, cy1, r], [cx2, cy2], [], [cx4, cy4]] = circles;
 
     // draw crossing lines of square
     if (drawDetails) {
@@ -203,6 +213,8 @@
     ];
   };
 
+  // from set of 4 points find the intersection point
+  //
   const drawLinesIntersectionPoint = (
     svg,
     circles,
