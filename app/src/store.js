@@ -3,14 +3,15 @@ import { writable, derived } from "svelte/store";
 export const items = writable({});
 export const store = {
   subscribe: items.subscribe,
-  add: (k, o) =>
+  add: (name, element, type) =>
     items.update((old) => {
       return {
         ...old,
-        [k]: {
-          name: k,
-          element: o,
+        [name]: {
+          name,
+          element,
           selected: false,
+          type,
         },
       };
     }),

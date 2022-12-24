@@ -47,7 +47,7 @@
               on:keydown={() => handleClick(name)}
               style="color: {get(store)[name].selected ? 'red' : 'white'}"
             >
-              {name}
+              {name} | {get(store)[name].type}
             </li>
           {/each}
         </ul>
