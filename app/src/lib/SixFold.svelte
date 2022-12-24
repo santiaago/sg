@@ -13,6 +13,7 @@
   } from "../math/intersection";
   import { intersect } from "../math/lines";
   import { distance } from "../math/points";
+  import { store } from "../store";
 
   let el;
   export let stroke = 0.5;
@@ -36,7 +37,7 @@
     const r = ((lx2 - lx1) * 2) / 8;
     if (drawDetails) {
       circle(svg, cx1, cy1, r, stroke);
-      dot(svg, cx1, cy1);
+      dot(svg, cx1, cy1, stroke);
     }
 
     // draw left side circle
@@ -44,7 +45,7 @@
     const cy2 = cy1;
     if (drawDetails) {
       circle(svg, cx2, cy2, r, stroke);
-      dot(svg, cx2, cy2);
+      dot(svg, cx2, cy2, stroke);
     }
 
     // find intersection point between 2 circles
@@ -69,7 +70,7 @@
     // draw circle at intersection point
     if (drawDetails) {
       circle(svg, px, py, r, stroke);
-      dot(svg, px, py);
+      dot(svg, px, py, stroke);
     }
 
     const x1 = cx2;
@@ -85,7 +86,7 @@
     let [px3, py3] = bisect(angle * 2, r, px, py);
     if (drawDetails) {
       line(svg, x1, y1, px3, py3, stroke);
-      dot(svg, px3, py3);
+      dot(svg, px3, py3, stroke);
     }
 
     // looking for intersection of
@@ -95,7 +96,7 @@
     // translate it into the interval [0,2 π] multiply by 2
     let [px4, py4] = bisect(angle * 2, r, px, py);
     if (drawDetails) {
-      dot(svg, px4, py4);
+      dot(svg, px4, py4, stroke);
       line(svg, cx1, cy1, px4, py4, stroke);
     }
 
@@ -119,7 +120,7 @@
     if (lp_left && lp_left.length > 0) {
       [cx3, cy3] = lp_left[0];
       if (drawDetails) {
-        dot(svg, cx3, cy3);
+        dot(svg, cx3, cy3, stroke);
       }
     }
 
@@ -131,7 +132,7 @@
     if (lp_right && lp_right.length > 0) {
       [cx4, cy4] = lp_right[0];
       if (drawDetails) {
-        dot(svg, cx4, cy4);
+        dot(svg, cx4, cy4, stroke);
       }
     }
 
@@ -178,7 +179,7 @@
       r,
       directions.up
     );
-    if (drawDetails) dot(svg, pic12nx, pic12ny);
+    if (drawDetails) dot(svg, pic12nx, pic12ny, stroke);
 
     const [pic14x, pic14y] = cerclesIntersection(
       cx4,
@@ -190,7 +191,7 @@
       directions.left
     );
     if (drawDetails) {
-      dot(svg, pic14x, pic14y);
+      dot(svg, pic14x, pic14y, stroke);
     }
     if (drawFinalShape) {
       line(svg, cx1, cy1, pic12nx, pic12ny, stroke);
@@ -218,7 +219,7 @@
 
     const [pi2x, pi2y] = lineIntersect(cx1, cy1, cx3, cy3, cx4, cy4, cx2, cy2);
     if (drawFinalShape) {
-      dot(svg, pi2x, pi2y);
+      dot(svg, pi2x, pi2y, stroke);
     }
     return [pi2x, pi2y];
   };
@@ -230,7 +231,6 @@
     const height = 150;
 
     rect(svg, width, height);
-    dot(svg, 0, 0);
 
     const border = height / 3;
 
@@ -262,7 +262,8 @@
     const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
 
     circles.forEach(([cx, cy], i) => {
-      dotWithTooltip(svg, cx, cy, `c${i + 1}`, stroke);
+      const n = `c${i + 1}`;
+      store.add(n, dotWithTooltip(svg, cx, cy, n, stroke));
     });
 
     const [[pic12nx, pic12ny], [pic14x, pic14y]] = drawIntersectionPoints(
@@ -276,7 +277,8 @@
       [pic12nx, pic12ny, "12"],
       [pic14x, pic14y, "14"],
     ].forEach(([x, y, prefix]) => {
-      dotWithTooltip(svg, x, y, `pic${prefix}`, strokeBig);
+      const n = `pic${prefix}`;
+      store.add(n, dotWithTooltip(svg, x, y, n, stroke));
     });
 
     // draw crossing lines of square
@@ -376,7 +378,7 @@
       [pi3x, pi3y, "pi3"],
       [pi4x, pi4y, "pi4"],
     ].forEach(([x, y, prefix]) => {
-      dotWithTooltip(svg, x, y, prefix, strokeBig);
+      store.add(prefix, dotWithTooltip(svg, x, y, prefix, stroke));
     });
 
     // draw lines
@@ -400,7 +402,8 @@
     );
     if (pi5 && pi5.length > 0) {
       [prx5, pry5] = pi5[0];
-      dotWithTooltip(svg, prx5, pry5, "prx5", strokeBig);
+      const name = "prx5";
+      store.add(name, dotWithTooltip(svg, prx5, pry5, name, stroke));
     }
     let prx6, pry6;
     let pi6 = inteceptCircleLineSeg(
@@ -414,7 +417,8 @@
     );
     if (pi6 && pi6.length > 0) {
       [prx6, pry6] = pi6[0];
-      dotWithTooltip(svg, prx6, pry6, "prx6", strokeBig);
+      const n = "prx6";
+      store.add(n, dotWithTooltip(svg, prx6, pry6, n, stroke));
     }
 
     // looking for intersection of
@@ -428,7 +432,8 @@
       // translate it into the interval [0,2 π] multiply by 2
       let [x, y] = bisect(angle * 2, d1, pic14x, pic14y);
       {
-        dotWithTooltip(svg, x, y, "c23w", stroke);
+        const n = "c23w";
+        store.add(n, dotWithTooltip(svg, x, y, n, stroke));
         line(svg, pic14x, pic14y, x, y, stroke);
       }
 
@@ -440,14 +445,16 @@
       if (pi && pi.length > 0) {
         [prx, pry] = pi[0];
         {
-          dotWithTooltip(svg, prx, pry, "c23s", stroke);
+          const n = "c23s";
+          store.add(n, dotWithTooltip(svg, prx, pry, n, stroke));
         }
       }
 
       const d2 = distance(px, py, prx, pry);
       circle(svg, px, py, d2, stroke);
       [cx23, cy23] = [px, py];
-      dotWithTooltip(svg, cx23, cy23, "c23");
+      const n = "c23";
+      store.add(n, dotWithTooltip(svg, cx23, cy23, n, stroke));
     }
     let cx34, cy34, d2;
     {
@@ -457,7 +464,8 @@
       // translate it into the interval [0,2 π] multiply by 2
       let [x, y] = bisect(angle * 2, d1, pic12nx, pic12ny);
       {
-        dotWithTooltip(svg, x, y, "c34n", stroke);
+        const n = "c34n";
+        store.add(n, dotWithTooltip(svg, x, y, n, stroke));
         line(svg, pic12nx, pic12ny, x, y, stroke);
       }
 
@@ -477,13 +485,15 @@
       const pi = inteceptCircleLineSeg(cx4, cy4, px, py, cx4, cy4, d1);
       if (pi && pi.length > 0) {
         [prx, pry] = pi[0];
-        dotWithTooltip(svg, prx, pry, "c34e", strokeBig);
+        const n = "c34e";
+        store.add(n, dotWithTooltip(svg, prx, pry, n, stroke));
       }
 
       d2 = distance(px, py, prx, pry);
       circle(svg, px, py, d2, stroke);
       [cx34, cy34] = [px, py];
-      dotWithTooltip(svg, cx34, cy34, "c34", stroke);
+      const n = "c34";
+      store.add(n, dotWithTooltip(svg, cx34, cy34, n, stroke));
     }
     //
     // point: pi3x, pi3y
@@ -502,13 +512,15 @@
         if (p && p.length > 0) {
           [x1, y1] = p;
           [pii1x, pii1y] = p;
-          dotWithTooltip(svg, pii1x, pii1y, "pii1", strokeBig);
+          const n = "pii1";
+          store.add(n, dotWithTooltip(svg, pii1x, pii1y, n, stroke));
         }
         p = intersect(pi3x, pi3y, x, y, cx2, cy2, cx4, cy4);
         if (p && p.length > 0) {
           [x2, y2] = p;
           [pii2x, pii2y] = p;
-          dotWithTooltip(svg, pii2x, pii2y, "pii2", strokeBig);
+          const n = "pii2";
+          store.add(n, dotWithTooltip(svg, pii2x, pii2y, n, stroke));
         }
         if (x1 && y1 && x2 && y2) {
           line(svg, x1, y1, x2, y2, stroke);
@@ -541,7 +553,8 @@
       if (p && p.length > 0) {
         [pic4x, pic4y] = p;
         line(svg, pii1x, pii1y, pic4x, pic4y, strokeLine);
-        dotWithTooltip(svg, pic4x, pic4y, "pic4", strokeBig);
+        const n = "pic4";
+        store.add(n, dotWithTooltip(svg, pic4x, pic4y, n, stroke));
       }
     }
 
@@ -554,7 +567,8 @@
       if (p && p.length > 0) {
         [pic2x, pic2y] = p;
         line(svg, pii1x, pii1y, pic2x, pic2y, strokeLine);
-        dotWithTooltip(svg, pic2x, pic2y, "pic2", strokeBig);
+        const n = "pic2";
+        store.add(n, dotWithTooltip(svg, pic2x, pic2y, n, stroke));
       }
     }
 
@@ -572,14 +586,16 @@
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, pi3x, pi3y, d3_);
       if (p && p.length > 0) {
         [pic1wx, pic1wy] = p[0];
-        dotWithTooltip(svg, pic1wx, pic1wy, "pic1w", strokeBig);
+        const n = "pic1w";
+        store.add(n, dotWithTooltip(svg, pic1wx, pic1wy, n, stroke));
       }
       // second point
       let pic34x, pic34y;
       p = inteceptCircleLineSeg(cx34, cy34, cx4, cy4, cx3, cy3, d2);
       if (p && p.length > 0) {
         [pic34x, pic34y] = p[1];
-        dotWithTooltip(svg, pic34x, pic34y, `pic34`, stroke);
+        const n = "pic34";
+        store.add(n, dotWithTooltip(svg, pic34x, pic34y, n, stroke));
       }
       if (pic1wx && pic1wy && pic34x && pic34y) {
         line(svg, pic1wx, pic1wy, pic34x, pic34y, strokeLine);
@@ -599,14 +615,16 @@
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, pi4x, pi4y, d3_);
       if (p && p.length > 0) {
         [pic1nx, pic1ny] = p[0];
-        dotWithTooltip(svg, pic1nx, pic1ny, "pic1n", strokeBig);
+        const n = "pic1n";
+        store.add(n, dotWithTooltip(svg, pic1nx, pic1ny, n, stroke));
       }
       // second point
       let pic23x, pic23y;
       p = inteceptCircleLineSeg(cx23, cy23, cx2, cy2, cx3, cy3, d2);
       if (p && p.length > 0) {
         [pic23x, pic23y] = p[1];
-        dotWithTooltip(svg, pic23x, pic23y, "pic23", strokeBig);
+        const n = "pic23";
+        store.add(n, dotWithTooltip(svg, pic23x, pic23y, n, stroke));
       }
       if (pic1nx && pic1ny && pic23x && pic23y) {
         line(svg, pic1nx, pic1ny, pic23x, pic23y, strokeLine);
@@ -626,13 +644,15 @@
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, cx2, cy2, d1);
       if (p && p.length > 0) {
         [pc1wx, pc1wy] = p[0];
-        dotWithTooltip(svg, pc1wx, pc1wy, "pc1w", stroke);
+        const n = "pc1w";
+        store.add(n, dotWithTooltip(svg, pc1wx, pc1wy, n, stroke));
       }
       // second point
       p = inteceptCircleLineSeg(cx23, cy23, cx2, cy2, cx3, cy3, d2);
       if (p && p.length > 0) {
         [pc23sx, pc23sy] = p[0];
-        dotWithTooltip(svg, pc23sx, pc23sy, "pc23s", strokeBig);
+        const n = "pc23s";
+        store.add(n, dotWithTooltip(svg, pc23sx, pc23sy, n, stroke));
       }
       if (pc1wx && pc1wy && pc23sx && pc23sy) {
         line(svg, pc1wx, pc1wy, pc23sx, pc23sy, strokeLine);
@@ -652,13 +672,15 @@
       let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, cx4, cy4, d1);
       if (p && p.length > 0) {
         [pc1nx, pc1ny] = p[0];
-        dotWithTooltip(svg, pc1nx, pc1ny, "pc1n", strokeBig);
+        const n = "pc1n";
+        store.add(n, dotWithTooltip(svg, pc1nx, pc1ny, n, stroke));
       }
       // second point
       p = inteceptCircleLineSeg(cx34, cy34, cx3, cy3, cx4, cy4, d2);
       if (p && p.length > 0) {
         [pc34ex, pc34ey] = p[1];
-        dotWithTooltip(svg, pc34ex, pc34ey, "pc34e", strokeBig);
+        const n = "pc34e";
+        store.add(n, dotWithTooltip(svg, pc34ex, pc34ey, n, stroke));
       }
       if (pc1nx && pc1ny && pc34ex && pc34ey) {
         line(svg, pc1nx, pc1ny, pc34ex, pc34ey, strokeLine);
@@ -692,12 +714,14 @@
       const p = inteceptCircleLineSeg(cx3, cy3, cx3, cy3, cx1, cy1, d3_);
       if (p && p.length > 0) {
         [pc3swx, pc3swy] = p[0];
-        dotWithTooltip(svg, pc3swx, pc3swy, "pc3sw", strokeBig);
+        const n = "pc3sw";
+        store.add(n, dotWithTooltip(svg, pc3swx, pc3swy, n, stroke));
       }
       const p2 = inteceptCircleLineSeg(cx23, cy23, cx23, cy23, cx1, cy1, d2);
       if (p2 && p2.length > 0) {
         [pc23ex, pc23ey] = p2[0];
-        dotWithTooltip(svg, pc23ex, pc23ey, "pc23e", strokeBig);
+        const n = "pc23e";
+        store.add(n, dotWithTooltip(svg, pc23ex, pc23ey, n, stroke));
       }
       if (pc3swx && pc3swy && pc23ex && pc23ey) {
         line(svg, pc3swx, pc3swy, pc23ex, pc23ey, strokeLine);
@@ -714,7 +738,8 @@
       const p = inteceptCircleLineSeg(cx34, cy34, cx34, cy34, cx1, cy1, d2);
       if (p && p.length > 0) {
         [pc34sx, pc34sy] = p[0];
-        dotWithTooltip(svg, pc34sx, pc34sy, "pc34s", strokeBig);
+        const n = "pc34s";
+        store.add(n, dotWithTooltip(svg, pc34sx, pc34sy, n, stroke));
       }
       if (pc3swx && pc3swy && pc34sx && pc34sy) {
         line(svg, pc34sx, pc34sy, pc3swx, pc3swy, strokeLine);

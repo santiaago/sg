@@ -26,7 +26,9 @@ const addPointTooltipEvents = (selection, tooltip) => {
 export const dotWithTooltip = (svg, x, y, name, stroke) => {
   const tooltip = text(svg, x, y, name);
   tooltip.map((x) => x.style("opacity", 0));
-  return dot(svg, x, y, stroke).call(addPointTooltipEvents, tooltip);
+  const d = dot(svg, x, y, stroke);
+  d.call(addPointTooltipEvents, tooltip);
+  return { dot: d, tooltip, visible: false };
 };
 
 export const line = (svg, x1, y1, x2, y2, stroke = 5, color = "#506") => {
