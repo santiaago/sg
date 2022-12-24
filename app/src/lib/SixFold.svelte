@@ -21,37 +21,20 @@
   export let strokeBig;
   export let strokeLine = (1 + Math.sqrt(5)) / 2;
 
-  // from 2 points in line
+  // from a line
   // draw a square where the 2 points are a side of the square
   // returns an array with 4 elements
   // each element is the coordinates of each side of the square
   //
-  const drawSquareFromLine = (
-    svg,
-    lx1,
-    ly1,
-    lx2,
-    ly2,
-    stroke,
-    drawDetails,
-    drawFinalShape
-  ) => {
+  const drawSquareFromLine = (svg, lx1, ly1, lx2, ly2, stroke, drawDetails) => {
     // draw right side circle
     const cx1 = lx1 + ((lx2 - lx1) * 5) / 8;
     const cy1 = ly2;
     const r = ((lx2 - lx1) * 2) / 8;
-    if (drawDetails) {
-      circle(svg, cx1, cy1, r, stroke);
-      dot(svg, cx1, cy1, stroke);
-    }
 
     // draw left side circle
     const cx2 = cx1 - r;
     const cy2 = cy1;
-    if (drawDetails) {
-      circle(svg, cx2, cy2, r, stroke);
-      dot(svg, cx2, cy2, stroke);
-    }
 
     // find intersection point between 2 circles
     let points = intersection(cx1, cy1, r, cx2, cy2, r);
@@ -141,16 +124,6 @@
       }
     }
 
-    // draw final square
-    if (cx3 && cy3 && cx4 && cy4) {
-      if (drawFinalShape) {
-        line(svg, cx3, cy3, cx4, cy4, strokeLine);
-        line(svg, cx2, cy2, cx3, cy3, strokeLine);
-        line(svg, cx2, cy2, cx1, cy1, strokeLine);
-        line(svg, cx1, cy1, cx4, cy4, strokeLine);
-      }
-    }
-
     return [
       [cx1, cy1, r],
       [cx2, cy2, r],
@@ -164,21 +137,8 @@
   // circles has shape [[cx, cy, r],... ]
   // returns the 2 coordinates that intersect the circles
   //
-  const drawIntersectionPoints = (
-    svg,
-    circles,
-    stroke,
-    drawDetails,
-    drawFinalShape
-  ) => {
+  const drawIntersectionPoints = (svg, circles) => {
     const [[cx1, cy1, r], [cx2, cy2], [], [cx4, cy4]] = circles;
-
-    // draw crossing lines of square
-    if (drawDetails) {
-      circle(svg, cx1, cy1, r, stroke);
-      circle(svg, cx2, cy2, r, stroke);
-      circle(svg, cx4, cy4, r, stroke);
-    }
 
     const [pic12nx, pic12ny] = cerclesIntersection(
       cx1,
@@ -189,7 +149,6 @@
       r,
       directions.up
     );
-    if (drawDetails) dot(svg, pic12nx, pic12ny, stroke);
 
     const [pic14x, pic14y] = cerclesIntersection(
       cx4,
@@ -200,13 +159,7 @@
       r,
       directions.left
     );
-    if (drawDetails) {
-      dot(svg, pic14x, pic14y, stroke);
-    }
-    if (drawFinalShape) {
-      line(svg, cx1, cy1, pic12nx, pic12ny, stroke);
-      line(svg, cx1, cy1, pic14x, pic14y, stroke);
-    }
+
     return [
       [pic12nx, pic12ny],
       [pic14x, pic14y],
@@ -215,24 +168,11 @@
 
   // from set of 4 points find the intersection point
   //
-  const drawLinesIntersectionPoint = (
-    svg,
-    circles,
-    drawDetails,
-    drawFinalShape,
-    stroke
-  ) => {
+  const drawLinesIntersectionPoint = (svg, circles) => {
     const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
 
-    if (drawDetails) {
-      line(svg, cx1, cy1, cx3, cy3, stroke);
-      line(svg, cx2, cy2, cx4, cy4, stroke);
-    }
-
     const [pi2x, pi2y] = lineIntersect(cx1, cy1, cx3, cy3, cx4, cy4, cx2, cy2);
-    if (drawFinalShape) {
-      dot(svg, pi2x, pi2y, stroke);
-    }
+
     return [pi2x, pi2y];
   };
 
@@ -292,30 +232,33 @@
     //   dot(svg, lx1 + ((lx2 - lx1) * i) / 8, ly1 + 50);
     // }
 
-    const circles = drawSquareFromLine(
-      svg,
-      lx1,
-      ly1,
-      lx2,
-      ly2,
-      stroke,
-      false,
-      true
-    );
-
+    const circles = drawSquareFromLine(svg, lx1, ly1, lx2, ly2, stroke, false);
     const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
 
-    circles.forEach(([cx, cy], i) => {
+    circles.forEach(([cx, cy, r], i) => {
       const n = `c${i + 1}`;
       store.add(n, dotWithTooltip(svg, cx, cy, n, stroke), "point");
     });
+    circles.forEach(([cx, cy, r], i) => {
+      const n = `c${i + 1}`;
+      const c = circle(svg, cx, cy, r, stroke);
+      store.add(`${n}_c`, c, "circle");
+    });
+
+    {
+      [
+        line(svg, cx2, cy2, cx1, cy1, strokeLine),
+        line(svg, cx2, cy2, cx3, cy3, strokeLine),
+        line(svg, cx3, cy3, cx4, cy4, strokeLine),
+        line(svg, cx1, cy1, cx4, cy4, strokeLine),
+      ].forEach((l, i) => {
+        store.add(`l${i}_l`, l, "line");
+      });
+    }
 
     const [[pic12nx, pic12ny], [pic14x, pic14y]] = drawIntersectionPoints(
       svg,
-      circles,
-      stroke,
-      true,
-      true
+      circles
     );
     [
       [pic12nx, pic12ny, "12"],
@@ -324,15 +267,31 @@
       const n = `pic${prefix}`;
       store.add(n, dotWithTooltip(svg, x, y, n, stroke), "point");
     });
+    [
+      [pic12nx, pic12ny, "12"],
+      [pic14x, pic14y, "14"],
+    ].forEach(([x, y, prefix]) => {
+      const n = `pic${prefix}`;
+      const l = line(svg, cx1, cy1, x, y, stroke);
+      store.add(`${n}_l`, l, "line");
+    });
 
     // draw crossing lines of square
-    const [pi2x, pi2y] = drawLinesIntersectionPoint(
-      svg,
-      circles,
-      true,
-      true,
-      stroke
-    );
+    {
+      [
+        [line(svg, cx1, cy1, cx3, cy3, stroke), "l13"],
+        [line(svg, cx2, cy2, cx4, cy4, stroke), "l24"],
+      ].forEach(([l, name], i) => {
+        store.add(`${name}_l`, l, "line");
+      });
+    }
+
+    const [pi2x, pi2y] = drawLinesIntersectionPoint(svg, circles);
+    {
+      const name = `pi2`;
+      store.add(name, dotWithTooltip(svg, pi2x, pi2y, name, stroke), "point");
+    }
+    // <---- we are here
     // measure distance of intersection points
     const d1 = distance(pic14x, pic14y, pi2x, pi2y);
 
