@@ -11,17 +11,18 @@
   const strokeLine = 1.4;
 
   $: names = derived(store, ($s) => Object.keys($s));
-  const handleClick = (n) => {
+  const handleClick = (name) => {
     const s = get(store);
-    const v = s[n];
-    if (v.visible) {
-      v.tooltip.map((x) => x.style("opacity", 0));
-      v.dot.style("fill", "black").attr("r", stroke);
+    const v = s[name];
+    const e = v.element;
+    if (v.selected) {
+      e.tooltip.map((x) => x.style("opacity", 0));
+      e.dot.style("fill", "black").attr("r", stroke);
     } else {
-      v.tooltip.map((x) => x.style("opacity", 1));
-      v.dot.style("fill", "red").attr("r", strokeBig);
+      e.tooltip.map((x) => x.style("opacity", 1));
+      e.dot.style("fill", "red").attr("r", strokeBig);
     }
-    store.update(n, { ...v, visible: !v.visible });
+    store.update(name, { ...v, selected: !v.selected });
   };
 </script>
 
@@ -36,11 +37,18 @@
       <SixFold {stroke} {strokeMid} {strokeBig} {strokeLine} />
     </div>
     <div class="right">
-      <h2>right pane</h2>
+      <h2>Right pane</h2>
       <div>
         <ul>
-          {#each $names as n}
-            <li on:click={() => handleClick(n)}>{n}</li>
+          {#each $names as name}
+            <li
+              class="geometry-item"
+              on:click={() => handleClick(name)}
+              on:keydown={() => handleClick(name)}
+              style="color: {get(store)[name].selected ? 'red' : 'white'}"
+            >
+              {name}
+            </li>
           {/each}
         </ul>
       </div>
@@ -73,8 +81,15 @@
   }
   .row .right {
     grid-column: col-start 10 / span 12;
+    padding-left: 1em;
   }
   .row .title {
     grid-column: col-start 1 / span 12;
+  }
+  .geometry-item {
+    cursor: pointer;
+  }
+  .geometry-item:hover {
+    text-decoration: underline;
   }
 </style>

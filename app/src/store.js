@@ -7,8 +7,20 @@ export const store = {
     items.update((old) => {
       return {
         ...old,
-        [k]: o,
+        [k]: {
+          name: k,
+          element: o,
+          selected: false,
+        },
       };
     }),
-  update: (k, o) => store.add(k, o),
+  update: (k, o) =>
+    items.update((old) => {
+      return {
+        ...old,
+        [k]: {
+          ...o,
+        },
+      };
+    }),
 };
