@@ -1,5 +1,11 @@
 # App
 
+**install**
+
+```bash
+npm install
+```
+
 **run**
 
 ```bash
