@@ -25,3 +25,29 @@ export const store = {
       };
     }),
 };
+
+export const itemsv2 = writable({});
+export const storev2 = {
+  subscribe: itemsv2.subscribe,
+  add: (name, element, type) =>
+    itemsv2.update((old) => {
+      return {
+        ...old,
+        [name]: {
+          name,
+          element,
+          selected: false,
+          type,
+        },
+      };
+    }),
+  update: (k, o) =>
+    itemsv2.update((old) => {
+      return {
+        ...old,
+        [k]: {
+          ...o,
+        },
+      };
+    }),
+};
