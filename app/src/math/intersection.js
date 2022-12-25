@@ -1,5 +1,6 @@
 // @ts-ignore
 import { Circle } from "./circles";
+import { Line } from "./lines";
 import { Point } from "./points";
 
 /**
@@ -85,6 +86,25 @@ export function bisect(angle, radius, cx, cy) {
   let y2 = cy + radius * Math.sin(angle2);
 
   return [x2, y2];
+}
+
+/**
+ * @param {Circle} circle
+ * @param {Point} point
+ * looking for intersection of
+ * line(circle(center)), point AND
+ * circle(center)
+ */
+export function bisectCircleAndPoint(circle, point) {
+  const cx0 = circle.p.x - circle.r;
+  const cy0 = circle.p.y;
+  const pointInCircle = new Point(cx0, cy0);
+
+  let angle = Math.atan2(pointInCircle.y - point.y, pointInCircle.x - point.x);
+
+  // translate it into the interval [0,2 π] multiply by 2
+  let [x, y] = bisect(angle * 2, circle.r, circle.p.x, circle.p.y);
+  return new Point(x, y);
 }
 
 // https://stackoverflow.com/a/37225895

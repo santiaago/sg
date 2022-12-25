@@ -14,6 +14,7 @@
   import { onMount } from "svelte";
   import {
     bisect,
+    bisectCircleAndPoint,
     cerclesIntersection,
     circlesIntersection,
     directions,
@@ -61,6 +62,7 @@
     let p1 = points[0];
     let p2 = points[1];
     let p;
+    // only pick top intersection
     if (p1.y < p2.y) {
       p = p1;
     } else {
@@ -77,12 +79,7 @@
     // looking for intersection of
     // line(center(c2), point(px,py)) AND
     // circle(center(px, py))
-    const cx0 = p.x - r;
-    const cy0 = p.y;
-    let angle = Math.atan2(cy0 - cp2.y, cx0 - cp2.x);
-    // translate it into the interval [0,2 π] multiply by 2
-    let [px3, py3] = bisect(angle * 2, r, p.x, p.y);
-    const p3 = new Point(px3, py3);
+    const p3 = bisectCircleAndPoint(circleAtIntersection, cp2);
     if (drawDetails) {
       const l = new Line(cp2, p3);
       drawLine(svg, l, stroke);
@@ -92,10 +89,7 @@
     // looking for intersection of
     // line(center(c1), point(px,py)) AND
     // circle(center(px, py))
-    angle = Math.atan2(cy0 - cy1, cx0 - cx1);
-    // translate it into the interval [0,2 π] multiply by 2
-    let [px4, py4] = bisect(angle * 2, r, p.x, p.y);
-    const p4 = new Point(px4, py4);
+    const p4 = bisectCircleAndPoint(circleAtIntersection, cp1);
     if (drawDetails) {
       drawDot(svg, p4, stroke);
       const l = new Line(cp1, p4);
@@ -118,7 +112,7 @@
     let cx3, cy3;
     let cp3;
     let c3;
-    let lp_left = inteceptCircleLineSeg(cx2, cy2, cx2, cy2, px4, py4, r);
+    let lp_left = inteceptCircleLineSeg(cx2, cy2, cx2, cy2, p4.x, p4.y, r);
 
     if (lp_left && lp_left.length > 0) {
       [cx3, cy3] = lp_left[0];
@@ -134,7 +128,7 @@
     let cx4, cy4;
     let cp4;
     let c4;
-    let lp_right = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, px3, py3, r);
+    let lp_right = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, p3.x, p3.y, r);
 
     if (lp_right && lp_right.length > 0) {
       [cx4, cy4] = lp_right[0];
