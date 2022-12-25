@@ -1,24 +1,35 @@
 <script>
   import * as d3 from "d3";
-  import { circle, dot, dotWithTooltip, line, rect } from "../draw/basic";
+  import {
+    circle,
+    dot,
+    dotWithTooltip,
+    drawCircle,
+    drawDot,
+    drawLine,
+    line,
+    rect,
+  } from "../draw/basic";
   import { text } from "../draw/text";
   import { onMount } from "svelte";
   import {
     bisect,
     cerclesIntersection,
+    circlesIntersection,
     directions,
     inteceptCircleLineSeg,
     intersection,
     lineIntersect,
   } from "../math/intersection";
-  import { intersect } from "../math/lines";
-  import { distance } from "../math/points";
+  import { intersect, Line } from "../math/lines";
+  import { distance, Point } from "../math/points";
+  import { Circle } from "../math/circles";
 
   let el;
   export let store;
   export let stroke = 0.5;
-  export let strokeMid;
-  export let strokeBig;
+  export let strokeMid = 0.5;
+  export let strokeBig = 2;
   export let strokeLine = (1 + Math.sqrt(5)) / 2;
 
   // from a line
@@ -26,55 +37,56 @@
   // returns an array with 4 elements
   // each element is the coordinates of each side of the square
   //
-  const drawSquareFromLine = (svg, lx1, ly1, lx2, ly2, stroke, drawDetails) => {
+  const drawSquareFromLine = (svg, line, stroke, drawDetails) => {
     // draw right side circle
-    const cx1 = lx1 + ((lx2 - lx1) * 5) / 8;
-    const cy1 = ly2;
-    const r = ((lx2 - lx1) * 2) / 8;
+    const cx1 = line.p1.x + ((line.p2.x - line.p1.x) * 5) / 8;
+    const cy1 = line.p2.y;
+    const r = ((line.p2.x - line.p1.x) * 2) / 8;
 
     // draw left side circle
     const cx2 = cx1 - r;
     const cy2 = cy1;
 
     // find intersection point between 2 circles
-    let points = intersection(cx1, cy1, r, cx2, cy2, r);
+    const cp1 = new Point(cx1, cy1);
+    const cp2 = new Point(cx2, cy2);
+    const c1 = new Circle(cp1, r);
+    const c2 = new Circle(cp2, r);
+
+    let points = circlesIntersection(c1, c2);
     if (!points) {
       return;
     }
-    let px, py;
 
-    const px1 = points[0];
-    const py1 = points[1];
-    const px2 = points[2];
-    const py2 = points[3];
-    if (py1 < py2) {
-      px = px1;
-      py = py1;
+    let p1 = points[0];
+    let p2 = points[1];
+    let p;
+    if (p1.y < p2.y) {
+      p = p1;
     } else {
-      px = px2;
-      py = py2;
+      p = p2;
     }
 
+    const circleAtIntersection = new Circle(p, r);
     // draw circle at intersection point
     if (drawDetails) {
-      circle(svg, px, py, r, stroke);
-      dot(svg, px, py, stroke);
+      drawCircle(svg, circleAtIntersection, stroke);
+      drawDot(svg, circleAtIntersection.p, stroke);
     }
-
-    const x1 = cx2;
-    const y1 = cy2;
 
     // looking for intersection of
     // line(center(c2), point(px,py)) AND
     // circle(center(px, py))
-    const cx0 = px - r;
-    const cy0 = py;
-    let angle = Math.atan2(cy0 - y1, cx0 - x1);
+    const cx0 = p.x - r;
+    const cy0 = p.y;
+    let angle = Math.atan2(cy0 - cp2.y, cx0 - cp2.x);
     // translate it into the interval [0,2 π] multiply by 2
-    let [px3, py3] = bisect(angle * 2, r, px, py);
+    let [px3, py3] = bisect(angle * 2, r, p.x, p.y);
+    const p3 = new Point(px3, py3);
     if (drawDetails) {
-      line(svg, x1, y1, px3, py3, stroke);
-      dot(svg, px3, py3, stroke);
+      const l = new Line(cp2, p3);
+      drawLine(svg, l, stroke);
+      drawDot(svg, p3, stroke);
     }
 
     // looking for intersection of
@@ -82,54 +94,58 @@
     // circle(center(px, py))
     angle = Math.atan2(cy0 - cy1, cx0 - cx1);
     // translate it into the interval [0,2 π] multiply by 2
-    let [px4, py4] = bisect(angle * 2, r, px, py);
+    let [px4, py4] = bisect(angle * 2, r, p.x, p.y);
+    const p4 = new Point(px4, py4);
     if (drawDetails) {
-      dot(svg, px4, py4, stroke);
-      line(svg, cx1, cy1, px4, py4, stroke);
+      drawDot(svg, p4, stroke);
+      const l = new Line(cp1, p4);
+      drawLine(svg, l, stroke);
     }
 
     // draw lines from cercle(c1) and cercle(c2) with new intersection points
     // p3 and p4
     if (drawDetails) {
-      line(svg, cx1, cy1, px3, py3, stroke);
-      line(svg, cx2, cy2, px4, py4, stroke);
-    }
-
-    // draw line between p3 and p4
-    if (drawDetails) {
-      line(svg, px3, py3, px4, py4, stroke);
+      const l13 = new Line(cp1, p3);
+      const l24 = new Line(cp2, p4);
+      const l34 = new Line(p3, p4);
+      drawLine(svg, l13, stroke);
+      drawLine(svg, l24, stroke);
+      drawLine(svg, l34, stroke);
     }
 
     // draw intersection between center(c2) AND
     // p4
     let cx3, cy3;
+    let cp3;
+    let c3;
     let lp_left = inteceptCircleLineSeg(cx2, cy2, cx2, cy2, px4, py4, r);
 
     if (lp_left && lp_left.length > 0) {
       [cx3, cy3] = lp_left[0];
+      cp3 = new Point(cx3, cy3);
+      c3 = new Circle(cp3, r);
       if (drawDetails) {
-        dot(svg, cx3, cy3, stroke);
+        drawDot(svg, cp3, stroke);
       }
     }
 
     // draw intersection between circle (c1) AND
     // p3
     let cx4, cy4;
+    let cp4;
+    let c4;
     let lp_right = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, px3, py3, r);
 
     if (lp_right && lp_right.length > 0) {
       [cx4, cy4] = lp_right[0];
+      cp4 = new Point(cx4, cy4);
+      c4 = new Circle(cp4, r);
       if (drawDetails) {
-        dot(svg, cx4, cy4, stroke);
+        drawDot(svg, cp4, stroke);
       }
     }
 
-    return [
-      [cx1, cy1, r],
-      [cx2, cy2, r],
-      [cx3, cy3, r],
-      [cx4, cy4, r],
-    ];
+    return [c1, c2, c3, c4];
   };
 
   // from a set of 4 points
@@ -224,25 +240,30 @@
       width - border,
       height - border,
     ];
-
+    const p1 = new Point(lx1, ly1);
+    const p2 = new Point(lx2, ly2);
+    const line1 = new Line(p1, p2);
     // draw first line
-    line(svg, lx1, ly1, lx2, ly2, stroke);
+    drawLine(svg, line1, stroke);
     // for debug
     // for (let i = 0; i <= 8; i++) {
     //   dot(svg, lx1 + ((lx2 - lx1) * i) / 8, ly1 + 50);
     // }
 
-    const circles = drawSquareFromLine(svg, lx1, ly1, lx2, ly2, stroke, false);
-    const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
+    const circles = drawSquareFromLine(svg, line1, stroke, false);
 
-    circles.forEach(([cx, cy, r], i) => {
+    const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles.map(
+      (c) => [c.p.x, c.p.y, c.r]
+    );
+
+    circles.forEach((c, i) => {
       const n = `c${i + 1}`;
-      store.add(n, dotWithTooltip(svg, cx, cy, n, stroke), "point");
+      store.add(n, dotWithTooltip(svg, c.p.x, c.p.y, n, stroke), "point");
     });
-    circles.forEach(([cx, cy, r], i) => {
+    circles.forEach((c, i) => {
       const n = `c${i + 1}`;
-      const c = circle(svg, cx, cy, r, stroke);
-      store.add(`${n}_c`, c, "circle");
+      const csvg = circle(svg, c.p.x, c.p.y, r, stroke);
+      store.add(`${n}_c`, csvg, "circle");
     });
 
     {
@@ -258,7 +279,7 @@
 
     const [[pic12nx, pic12ny], [pic14x, pic14y]] = drawIntersectionPoints(
       svg,
-      circles
+      circles.map((c) => [c.p.x, c.p.y, c.r])
     );
     [
       [pic12nx, pic12ny, "12"],
@@ -286,7 +307,10 @@
       });
     }
 
-    const [pi2x, pi2y] = drawLinesIntersectionPoint(svg, circles);
+    const [pi2x, pi2y] = drawLinesIntersectionPoint(
+      svg,
+      circles.map((c) => [c.p.x, c.p.y, c.r])
+    );
     {
       const name = `pi2`;
       store.add(name, dotWithTooltip(svg, pi2x, pi2y, name, stroke), "point");
@@ -295,7 +319,9 @@
     // measure distance of intersection points
     const d1 = distance(pic14x, pic14y, pi2x, pi2y);
 
-    circles.forEach(([cx, cy], i) => {
+    circles.forEach((c, i) => {
+      const cx = c.p.x;
+      const cy = c.p.y;
       const tooltip = text(svg, cx, cy, `c${i}-d1`);
       tooltip.map((x) => x.style("opacity", 0));
       circle(svg, cx, cy, d1, stroke).call(
@@ -497,7 +523,9 @@
           line(svg, x1, y1, x2, y2, stroke);
         }
         d3_ = distance(cx1, cy1, x1, y1);
-        circles.forEach(([x, y], i) => {
+        circles.forEach((c, i) => {
+          const x = c.p.x;
+          const y = c.p.y;
           const tooltip = text(svg, x, y, `c${i + 1}-d3`);
           tooltip.map((x) => x.style("opacity", 0));
           circle(svg, x, y, d3_, stroke).call(
