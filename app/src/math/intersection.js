@@ -107,6 +107,25 @@ export function bisectCircleAndPoint(circle, point) {
   return new Point(x, y);
 }
 
+/**
+ * @param {Circle} circle
+ * @param {Line} line
+ */
+export function interceptCircleAndLine(circle, line) {
+  const points = inteceptCircleLineSeg(
+    circle.p.x,
+    circle.p.y,
+    line.p1.x,
+    line.p1.y,
+    line.p2.x,
+    line.p2.y,
+    circle.r
+  );
+  return points.map((p) => {
+    const [x, y] = p;
+    return new Point(x, y);
+  });
+}
 // https://stackoverflow.com/a/37225895
 // cercle line intercept
 export function inteceptCircleLineSeg(cx, cy, l1x, l1y, l2x, l2y, r) {
@@ -130,13 +149,13 @@ export function inteceptCircleLineSeg(cx, cy, l1x, l1y, l2x, l2y, r) {
     // add point if on the line segment
     let retP1x = l1x + v1x * u1;
     let retP1y = l1y + v1y * u1;
-    ret[0] = [retP1x, retP1y];
+    ret.push([retP1x, retP1y]);
   }
   if (u2 <= 1 && u2 >= 0) {
     // second add point if on the line segment
     let retP2x = l1x + v1x * u2;
     let retP2y = l1y + v1y * u2;
-    ret[ret.length] = [retP2x, retP2y];
+    ret.push([retP2x, retP2y]);
   }
   return ret;
 }

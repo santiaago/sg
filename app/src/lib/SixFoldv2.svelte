@@ -19,7 +19,7 @@
     circlesIntersection,
     directions,
     inteceptCircleLineSeg,
-    intersection,
+    interceptCircleAndLine,
     lineIntersect,
   } from "../math/intersection";
   import { intersect, Line } from "../math/lines";
@@ -79,9 +79,9 @@
     // looking for intersection of
     // line(center(c2), point(px,py)) AND
     // circle(center(px, py))
-    const p3 = bisectCircleAndPoint(circleAtIntersection, cp2);
+    const p3 = bisectCircleAndPoint(circleAtIntersection, c2.p);
     if (drawDetails) {
-      const l = new Line(cp2, p3);
+      const l = new Line(c2.p, p3);
       drawLine(svg, l, stroke);
       drawDot(svg, p3, stroke);
     }
@@ -89,19 +89,19 @@
     // looking for intersection of
     // line(center(c1), point(px,py)) AND
     // circle(center(px, py))
-    const p4 = bisectCircleAndPoint(circleAtIntersection, cp1);
+    const p4 = bisectCircleAndPoint(circleAtIntersection, c1.p);
     if (drawDetails) {
       drawDot(svg, p4, stroke);
-      const l = new Line(cp1, p4);
+      const l = new Line(c1.p, p4);
       drawLine(svg, l, stroke);
     }
 
     // draw lines from cercle(c1) and cercle(c2) with new intersection points
     // p3 and p4
+    const l13 = new Line(c1.p, p3);
+    const l24 = new Line(c2.p, p4);
+    const l34 = new Line(p3, p4);
     if (drawDetails) {
-      const l13 = new Line(cp1, p3);
-      const l24 = new Line(cp2, p4);
-      const l34 = new Line(p3, p4);
       drawLine(svg, l13, stroke);
       drawLine(svg, l24, stroke);
       drawLine(svg, l34, stroke);
@@ -109,33 +109,31 @@
 
     // draw intersection between center(c2) AND
     // p4
-    let cx3, cy3;
     let cp3;
     let c3;
-    let lp_left = inteceptCircleLineSeg(cx2, cy2, cx2, cy2, p4.x, p4.y, r);
-
-    if (lp_left && lp_left.length > 0) {
-      [cx3, cy3] = lp_left[0];
-      cp3 = new Point(cx3, cy3);
-      c3 = new Circle(cp3, r);
-      if (drawDetails) {
-        drawDot(svg, cp3, stroke);
+    {
+      const tmp_points = interceptCircleAndLine(c2, l24);
+      if (tmp_points && tmp_points.length > 0) {
+        cp3 = tmp_points[0];
+        c3 = new Circle(cp3, r);
+        if (drawDetails) {
+          drawDot(svg, cp3, stroke);
+        }
       }
     }
 
     // draw intersection between circle (c1) AND
     // p3
-    let cx4, cy4;
     let cp4;
     let c4;
-    let lp_right = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, p3.x, p3.y, r);
-
-    if (lp_right && lp_right.length > 0) {
-      [cx4, cy4] = lp_right[0];
-      cp4 = new Point(cx4, cy4);
-      c4 = new Circle(cp4, r);
-      if (drawDetails) {
-        drawDot(svg, cp4, stroke);
+    {
+      const tmp_points = interceptCircleAndLine(c1, l13);
+      if (tmp_points && tmp_points.length > 0) {
+        cp4 = tmp_points[0];
+        c4 = new Circle(cp4, r);
+        if (drawDetails) {
+          drawDot(svg, cp4, stroke);
+        }
       }
     }
 
