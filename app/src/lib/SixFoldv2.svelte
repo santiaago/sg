@@ -352,43 +352,39 @@
     });
 
     // draw lines
-    [
-      [pi3.x, pi3.y],
-      [pi4.x, pi4.y],
-    ].forEach(([x, y]) => {
-      line(svg, cx1, cy1, x, y, stroke);
+    [pi3, pi4].forEach((p) => {
+      drawLine(svg, new Line(new Point(cx1, cy1), p), stroke);
     });
 
     // compute intersection between lines and cercles
-    let prx5, pry5;
-    let pi5 = inteceptCircleLineSeg(
-      pic14.x,
-      pic14.y,
-      cx1,
-      cy1,
-      pic14.x,
-      pic14.y,
-      d1
-    );
-    if (pi5 && pi5.length > 0) {
-      [prx5, pry5] = pi5[0];
-      const name = "prx5";
-      store.add(name, dotWithTooltip(svg, prx5, pry5, name, stroke), "point");
+    let pi5;
+    {
+      const points = interceptCircleAndLine(
+        c14,
+        new Line(new Point(cx1, cy1), pic14)
+      );
+      if (points && points.length > 0) {
+        pi5 = points[0];
+        const name = "prx5";
+        store.add(
+          name,
+          dotWithTooltip(svg, pi5.x, pi5.y, name, stroke),
+          "point"
+        );
+      }
     }
-    let prx6, pry6;
-    let pi6 = inteceptCircleLineSeg(
-      pic12.x,
-      pic12.y,
-      cx1,
-      cy1,
-      pic12.x,
-      pic12.y,
-      d1
-    );
-    if (pi6 && pi6.length > 0) {
-      [prx6, pry6] = pi6[0];
-      const n = "prx6";
-      store.add(n, dotWithTooltip(svg, prx6, pry6, n, stroke), "point");
+
+    let pi6;
+    {
+      const points = interceptCircleAndLine(
+        c12,
+        new Line(new Point(cx1, cy1), pic12)
+      );
+      if (points && points.length > 0) {
+        pi6 = points[0];
+        const n = "prx6";
+        store.add(n, dotWithTooltip(svg, pi6.x, pi6.y, n, stroke), "point");
+      }
     }
 
     // looking for intersection of
@@ -398,7 +394,7 @@
     {
       const cx0 = pic14.x - d1;
       const cy0 = pic14.y;
-      const angle = Math.atan2(pry5 - cy0, prx5 - cx0);
+      const angle = Math.atan2(pi5.y - cy0, pi5.x - cx0);
       // translate it into the interval [0,2 π] multiply by 2
       let [x, y] = bisect(angle * 2, d1, pic14.x, pic14.y);
       {
@@ -439,7 +435,7 @@
     {
       const cx0 = pic12.x - d1;
       const cy0 = pic12.y;
-      const angle = Math.atan2(pry6 - cy0, prx6 - cx0);
+      const angle = Math.atan2(pi6.y - cy0, pi6.x - cx0);
       // translate it into the interval [0,2 π] multiply by 2
       let [x, y] = bisect(angle * 2, d1, pic12.x, pic12.y);
       {
