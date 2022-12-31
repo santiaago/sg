@@ -17,10 +17,12 @@
     bisectCircleAndPoint,
     cerclesIntersection,
     circlesIntersection,
+    circlesIntersectionPoint,
     directions,
     inteceptCircleLineSeg,
     interceptCircleAndLine,
     lineIntersect,
+    linesIntersection,
   } from "../math/intersection";
   import { intersect, Line } from "../math/lines";
   import { distance, Point } from "../math/points";
@@ -146,42 +148,21 @@
   // returns the 2 coordinates that intersect the circles
   //
   const drawIntersectionPoints = (svg, circles) => {
-    const [[cx1, cy1, r], [cx2, cy2], [], [cx4, cy4]] = circles;
+    //const [[cx1, cy1, r], [cx2, cy2], [], [cx4, cy4]] = circles;
 
-    const [pic12nx, pic12ny] = cerclesIntersection(
-      cx1,
-      cy1,
-      r,
-      cx2,
-      cy2,
-      r,
+    const pic12 = circlesIntersectionPoint(
+      circles[0],
+      circles[1],
       directions.up
     );
 
-    const [pic14x, pic14y] = cerclesIntersection(
-      cx4,
-      cy4,
-      r,
-      cx1,
-      cy1,
-      r,
+    const pic14 = circlesIntersectionPoint(
+      circles[3],
+      circles[0],
       directions.left
     );
 
-    return [
-      [pic12nx, pic12ny],
-      [pic14x, pic14y],
-    ];
-  };
-
-  // from set of 4 points find the intersection point
-  //
-  const drawLinesIntersectionPoint = (svg, circles) => {
-    const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles;
-
-    const [pi2x, pi2y] = lineIntersect(cx1, cy1, cx3, cy3, cx4, cy4, cx2, cy2);
-
-    return [pi2x, pi2y];
+    return [pic12, pic14];
   };
 
   const isPointCloseToCircleBorder = (mouseEvent, cx, cy, r) => {
@@ -269,23 +250,21 @@
       });
     }
 
-    const [[pic12nx, pic12ny], [pic14x, pic14y]] = drawIntersectionPoints(
-      svg,
-      circles.map((c) => [c.p.x, c.p.y, c.r])
-    );
+    const [pic12, pic14] = drawIntersectionPoints(svg, circles);
     [
-      [pic12nx, pic12ny, "12"],
-      [pic14x, pic14y, "14"],
-    ].forEach(([x, y, prefix]) => {
-      const n = `pic${prefix}`;
-      store.add(n, dotWithTooltip(svg, x, y, n, stroke), "point");
+      { p: pic12, prefix: "12" },
+      { p: pic14, prefix: "14" },
+    ].forEach((e) => {
+      const n = `pic${e.prefix}`;
+      store.add(n, dotWithTooltip(svg, e.p.x, e.p.y, n, stroke), "point");
     });
+
     [
-      [pic12nx, pic12ny, "12"],
-      [pic14x, pic14y, "14"],
-    ].forEach(([x, y, prefix]) => {
-      const n = `pic${prefix}`;
-      const l = line(svg, cx1, cy1, x, y, stroke);
+      { p: pic12, prefix: "12" },
+      { p: pic14, prefix: "14" },
+    ].forEach((e) => {
+      const n = `pic${e.prefix}`;
+      const l = line(svg, cx1, cy1, e.p.x, e.p.y, stroke);
       store.add(`${n}_l`, l, "line");
     });
 
@@ -299,17 +278,20 @@
       });
     }
 
-    const [pi2x, pi2y] = drawLinesIntersectionPoint(
-      svg,
-      circles.map((c) => [c.p.x, c.p.y, c.r])
-    );
+    let pi2;
+    {
+      const line1 = new Line(circles[0].p, circles[2].p);
+      const line2 = new Line(circles[1].p, circles[3].p);
+      pi2 = linesIntersection(line1, line2);
+    }
     {
       const name = `pi2`;
-      store.add(name, dotWithTooltip(svg, pi2x, pi2y, name, stroke), "point");
+      store.add(name, dotWithTooltip(svg, pi2.x, pi2.y, name, stroke), "point");
     }
-    // <---- we are here
     // measure distance of intersection points
-    const d1 = distance(pic14x, pic14y, pi2x, pi2y);
+    // const d1 = pi2.distanceToPoint(pic14)
+
+    const d1 = distance(pic14.x, pic14.y, pi2.x, pi2.y);
 
     circles.forEach((c, i) => {
       const cx = c.p.x;
@@ -327,8 +309,8 @@
     });
 
     [
-      [pic14x, pic14y, "pic14"],
-      [pic12nx, pic12ny, "pic12"],
+      [pic14.x, pic14.y, "pic14"],
+      [pic12.x, pic12.y, "pic12"],
     ].forEach(([cx, cy, prefix]) => {
       const tooltip = text(svg, cx, cy, `${prefix}-d1`);
       tooltip.map((x) => x.style("opacity", 0));
@@ -344,8 +326,8 @@
 
     // find intersection point
     const [pi3x, pi3y] = cerclesIntersection(
-      pic14x,
-      pic14y,
+      pic14.x,
+      pic14.y,
       d1,
       cx2,
       cy2,
@@ -354,8 +336,8 @@
     );
     // find intersection point
     const [pi4x, pi4y] = cerclesIntersection(
-      pic12nx,
-      pic12ny,
+      pic12.x,
+      pic12.y,
       d1,
       cx4,
       cy4,
@@ -381,12 +363,12 @@
     // compute intersection between lines and cercles
     let prx5, pry5;
     let pi5 = inteceptCircleLineSeg(
-      pic14x,
-      pic14y,
+      pic14.x,
+      pic14.y,
       cx1,
       cy1,
-      pic14x,
-      pic14y,
+      pic14.x,
+      pic14.y,
       d1
     );
     if (pi5 && pi5.length > 0) {
@@ -396,12 +378,12 @@
     }
     let prx6, pry6;
     let pi6 = inteceptCircleLineSeg(
-      pic12nx,
-      pic12ny,
+      pic12.x,
+      pic12.y,
       cx1,
       cy1,
-      pic12nx,
-      pic12ny,
+      pic12.x,
+      pic12.y,
       d1
     );
     if (pi6 && pi6.length > 0) {
@@ -415,18 +397,27 @@
     // circle(center(px, py))
     let cx23, cy23;
     {
-      const cx0 = pic14x - d1;
-      const cy0 = pic14y;
+      const cx0 = pic14.x - d1;
+      const cy0 = pic14.y;
       const angle = Math.atan2(pry5 - cy0, prx5 - cx0);
       // translate it into the interval [0,2 π] multiply by 2
-      let [x, y] = bisect(angle * 2, d1, pic14x, pic14y);
+      let [x, y] = bisect(angle * 2, d1, pic14.x, pic14.y);
       {
         const n = "c23w";
         store.add(n, dotWithTooltip(svg, x, y, n, stroke), "point");
-        line(svg, pic14x, pic14y, x, y, stroke);
+        line(svg, pic14.x, pic14.y, x, y, stroke);
       }
 
-      const [px, py] = lineIntersect(cx2, cy2, cx3, cy3, pic14x, pic14y, x, y);
+      const [px, py] = lineIntersect(
+        cx2,
+        cy2,
+        cx3,
+        cy3,
+        pic14.x,
+        pic14.y,
+        x,
+        y
+      );
       //dot(svg, px, py);
 
       let prx, pry;
@@ -447,15 +438,15 @@
     }
     let cx34, cy34, d2;
     {
-      const cx0 = pic12nx - d1;
-      const cy0 = pic12ny;
+      const cx0 = pic12.x - d1;
+      const cy0 = pic12.y;
       const angle = Math.atan2(pry6 - cy0, prx6 - cx0);
       // translate it into the interval [0,2 π] multiply by 2
-      let [x, y] = bisect(angle * 2, d1, pic12nx, pic12ny);
+      let [x, y] = bisect(angle * 2, d1, pic12.x, pic12.y);
       {
         const n = "c34n";
         store.add(n, dotWithTooltip(svg, x, y, n, stroke), "point");
-        line(svg, pic12nx, pic12ny, x, y, stroke);
+        line(svg, pic12.x, pic12.y, x, y, stroke);
       }
 
       const [px, py] = lineIntersect(
@@ -463,8 +454,8 @@
         cy3,
         cx4,
         cy4,
-        pic12nx,
-        pic12ny,
+        pic12.x,
+        pic12.y,
         x,
         y
       );
@@ -492,7 +483,15 @@
     let pii2x, pii2y;
     let d3_;
     {
-      const pi = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, pic14x, pic14y, d1);
+      const pi = inteceptCircleLineSeg(
+        cx1,
+        cy1,
+        cx1,
+        cy1,
+        pic14.x,
+        pic14.y,
+        d1
+      );
       if (pi && pi.length > 0) {
         const [x, y] = pi[0];
         dot(svg, x, y);
@@ -532,15 +531,15 @@
       }
     }
     // show or hide
-    line(svg, cx2, cy2, pic14x, pic14y, stroke);
-    line(svg, cx4, cy4, pic12nx, pic12ny, stroke);
+    line(svg, cx2, cy2, pic14.x, pic14.y, stroke);
+    line(svg, cx4, cy4, pic12.x, pic12.y, stroke);
     // end
     // find intersection between 2 segments
     // line (pii1x, pii1y) (pi4x, pi4y)
     // line (cx4, cy4) (px, py)
     let pic4x, pic4y;
     {
-      let p = intersect(pii1x, pii1y, pi4x, pi4y, cx4, cy4, pic12nx, pic12ny);
+      let p = intersect(pii1x, pii1y, pi4x, pi4y, cx4, cy4, pic12.x, pic12.y);
       if (p && p.length > 0) {
         [pic4x, pic4y] = p;
         line(svg, pii1x, pii1y, pic4x, pic4y, strokeLine);
@@ -554,7 +553,7 @@
     // line(cx2, cy2) (pix, piy)
     let pic2x, pic2y;
     {
-      let p = intersect(pii1x, pii1y, pii2x, pii2y, cx2, cy2, pic14x, pic14y);
+      let p = intersect(pii1x, pii1y, pii2x, pii2y, cx2, cy2, pic14.x, pic14.y);
       if (p && p.length > 0) {
         [pic2x, pic2y] = p;
         line(svg, pii1x, pii1y, pic2x, pic2y, strokeLine);

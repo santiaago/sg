@@ -3,6 +3,9 @@ export class Point {
     this.x = x;
     this.y = y;
   }
+  distanceToPoint(p) {
+    return distance(this.x, this.y, p.x, p.y);
+  }
 }
 
 /**
