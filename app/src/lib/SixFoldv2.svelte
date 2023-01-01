@@ -437,7 +437,7 @@
       {
         const n = "c34n";
         store.add(n, dotWithTooltip(svg, x, y, n, stroke), "point");
-        line(svg, pic12.x, pic12.y, x, y, stroke);
+        drawLine(svg, new Line(pic12, new Point(x, y)));
       }
 
       c34 = linesIntersection(
@@ -456,8 +456,8 @@
         store.add(n, dotWithTooltip(svg, c34e.x, c34e.y, n, stroke), "point");
       }
 
-      d2 = distance(c34.x, c34.y, c34e.x, c34e.y);
-      circle(svg, c34.x, c34.y, d2, stroke);
+      d2 = c34.distanceToPoint(c34e);
+      drawCircle(svg, new Circle(c34, d2), stroke);
       const n = "c34";
       store.add(n, dotWithTooltip(svg, c34.x, c34.y, n, stroke), "point");
     }
