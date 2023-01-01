@@ -53,7 +53,7 @@ export function intersect(x1, y1, x2, y2, x3, y3, x4, y4) {
  * @param {Line} l2
  */
 export function intersectLines(l1, l2) {
-  return intersect(
+  const ret = intersect(
     l1.p1.x,
     l1.p1.y,
     l1.p2.x,
@@ -63,4 +63,9 @@ export function intersectLines(l1, l2) {
     l2.p2.x,
     l2.p2.y
   );
+  if (ret.length === 0) {
+    return null;
+  }
+  const [x, y] = ret;
+  return new Point(x, y);
 }
