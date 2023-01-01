@@ -427,7 +427,7 @@
       store.add(n, dotWithTooltip(svg, c23.x, c23.y, n, stroke), "point");
     }
 
-    let cx34, cy34, d2;
+    let c34, d2;
     {
       const cx0 = pic12.x - d1;
       const cy0 = pic12.y;
@@ -440,7 +440,7 @@
         line(svg, pic12.x, pic12.y, x, y, stroke);
       }
 
-      const p = linesIntersection(
+      c34 = linesIntersection(
         new Line(new Point(cx3, cy3), new Point(cx4, cy4)),
         new Line(pic12, new Point(x, y))
       );
@@ -448,7 +448,7 @@
       let c34e;
       const pi = interceptCircleAndLine(
         new Circle(new Point(cx4, cy4), d1),
-        new Line(p, new Point(cx4, cy4))
+        new Line(c34, new Point(cx4, cy4))
       );
       if (pi && pi.length > 0) {
         c34e = pi[0];
@@ -456,11 +456,10 @@
         store.add(n, dotWithTooltip(svg, c34e.x, c34e.y, n, stroke), "point");
       }
 
-      d2 = distance(p.x, p.y, c34e.x, c34e.y);
-      circle(svg, p.x, p.y, d2, stroke);
-      [cx34, cy34] = [p.x, p.y];
+      d2 = distance(c34.x, c34.y, c34e.x, c34e.y);
+      circle(svg, c34.x, c34.y, d2, stroke);
       const n = "c34";
-      store.add(n, dotWithTooltip(svg, cx34, cy34, n, stroke), "point");
+      store.add(n, dotWithTooltip(svg, c34.x, c34.y, n, stroke), "point");
     }
     //
     // point: pi3x, pi3y
@@ -568,7 +567,7 @@
       }
       // second point
       let pic34x, pic34y;
-      p = inteceptCircleLineSeg(cx34, cy34, cx4, cy4, cx3, cy3, d2);
+      p = inteceptCircleLineSeg(c34.x, c34.y, cx4, cy4, cx3, cy3, d2);
       if (p && p.length > 0) {
         [pic34x, pic34y] = p[1];
         const n = "pic34";
@@ -653,7 +652,7 @@
         store.add(n, dotWithTooltip(svg, pc1nx, pc1ny, n, stroke), "point");
       }
       // second point
-      p = inteceptCircleLineSeg(cx34, cy34, cx3, cy3, cx4, cy4, d2);
+      p = inteceptCircleLineSeg(c34.x, c34.y, cx3, cy3, cx4, cy4, d2);
       if (p && p.length > 0) {
         [pc34ex, pc34ey] = p[1];
         const n = "pc34e";
@@ -720,7 +719,7 @@
     //    point(pc3swx, pc3swy)
     let pc34sx, pc34sy;
     {
-      const p = inteceptCircleLineSeg(cx34, cy34, cx34, cy34, cx1, cy1, d2);
+      const p = inteceptCircleLineSeg(c34.x, c34.y, c34.x, c34.y, cx1, cy1, d2);
       if (p && p.length > 0) {
         [pc34sx, pc34sy] = p[0];
         const n = "pc34s";
