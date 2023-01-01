@@ -390,7 +390,7 @@
     // looking for intersection of
     // line(center(c1), point(px,py)) AND
     // circle(center(px, py))
-    let cx23, cy23;
+    let c23;
     {
       const cx0 = pic14.x - d1;
       const cy0 = pic14.y;
@@ -405,28 +405,28 @@
 
       const l23 = new Line(new Point(cx2, cy2), new Point(cx3, cy3));
       const l14p = new Line(pic14, new Point(x, y));
-      const p = linesIntersection(l23, l14p);
+      c23 = linesIntersection(l23, l14p);
 
-      let prx, pry;
+      let c23s;
       const pi = interceptCircleAndLine(
         new Circle(new Point(cx2, cy2), d1),
-        new Line(p, new Point(cx2, cy2))
+        new Line(c23, new Point(cx2, cy2))
       );
 
       if (pi && pi.length > 0) {
-        const pr = pi[0];
+        c23s = pi[0];
         {
           const n = "c23s";
-          store.add(n, dotWithTooltip(svg, pr.x, pr.y, n, stroke), "point");
+          store.add(n, dotWithTooltip(svg, c23s.x, c23s.y, n, stroke), "point");
         }
       }
 
-      const d2 = distance(p.x, p.y, prx, pry);
-      circle(svg, p.x, p.y, d2, stroke);
-      [cx23, cy23] = [p.x, p.y];
+      const d2 = c23.distanceToPoint(c23s);
+      drawCircle(svg, new Circle(c23, d2), stroke);
       const n = "c23";
-      store.add(n, dotWithTooltip(svg, cx23, cy23, n, stroke), "point");
+      store.add(n, dotWithTooltip(svg, c23.x, c23.y, n, stroke), "point");
     }
+
     let cx34, cy34, d2;
     {
       const cx0 = pic12.x - d1;
@@ -601,7 +601,7 @@
       }
       // second point
       let pic23x, pic23y;
-      p = inteceptCircleLineSeg(cx23, cy23, cx2, cy2, cx3, cy3, d2);
+      p = inteceptCircleLineSeg(c23.x, c23.y, cx2, cy2, cx3, cy3, d2);
       if (p && p.length > 0) {
         [pic23x, pic23y] = p[1];
         const n = "pic23";
@@ -629,7 +629,7 @@
         store.add(n, dotWithTooltip(svg, pc1wx, pc1wy, n, stroke), "point");
       }
       // second point
-      p = inteceptCircleLineSeg(cx23, cy23, cx2, cy2, cx3, cy3, d2);
+      p = inteceptCircleLineSeg(c23.x, c23.y, cx2, cy2, cx3, cy3, d2);
       if (p && p.length > 0) {
         [pc23sx, pc23sy] = p[0];
         const n = "pc23s";
@@ -698,7 +698,15 @@
         const n = "pc3sw";
         store.add(n, dotWithTooltip(svg, pc3swx, pc3swy, n, stroke), "point");
       }
-      const p2 = inteceptCircleLineSeg(cx23, cy23, cx23, cy23, cx1, cy1, d2);
+      const p2 = inteceptCircleLineSeg(
+        c23.x,
+        c23.y,
+        c23.x,
+        c23.y,
+        cx1,
+        cy1,
+        d2
+      );
       if (p2 && p2.length > 0) {
         [pc23ex, pc23ey] = p2[0];
         const n = "pc23e";
