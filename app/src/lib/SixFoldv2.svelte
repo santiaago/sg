@@ -440,29 +440,25 @@
         line(svg, pic12.x, pic12.y, x, y, stroke);
       }
 
-      const [px, py] = lineIntersect(
-        cx3,
-        cy3,
-        cx4,
-        cy4,
-        pic12.x,
-        pic12.y,
-        x,
-        y
+      const p = linesIntersection(
+        new Line(new Point(cx3, cy3), new Point(cx4, cy4)),
+        new Line(pic12, new Point(x, y))
       );
-      //dot(svg, px, py);
 
-      let prx, pry;
-      const pi = inteceptCircleLineSeg(cx4, cy4, px, py, cx4, cy4, d1);
+      let c34e;
+      const pi = interceptCircleAndLine(
+        new Circle(new Point(cx4, cy4), d1),
+        new Line(p, new Point(cx4, cy4))
+      );
       if (pi && pi.length > 0) {
-        [prx, pry] = pi[0];
+        c34e = pi[0];
         const n = "c34e";
-        store.add(n, dotWithTooltip(svg, prx, pry, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, c34e.x, c34e.y, n, stroke), "point");
       }
 
-      d2 = distance(px, py, prx, pry);
-      circle(svg, px, py, d2, stroke);
-      [cx34, cy34] = [px, py];
+      d2 = distance(p.x, p.y, c34e.x, c34e.y);
+      circle(svg, p.x, p.y, d2, stroke);
+      [cx34, cy34] = [p.x, p.y];
       const n = "c34";
       store.add(n, dotWithTooltip(svg, cx34, cy34, n, stroke), "point");
     }
