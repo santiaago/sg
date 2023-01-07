@@ -542,7 +542,6 @@
     // find intersection between 2 segments
     // line (pii1x, pii1y), (pii2x, pii2y)
     // line(cx2, cy2) (pix, piy)
-    let pic2x, pic2y;
     let pic2;
     {
       pic2 = intersectLines(
@@ -552,7 +551,7 @@
       if (pic2 != null) {
         drawLine(svg, new Line(pii1, pic2), strokeLine);
         const n = "pic2";
-        store.add(n, dotWithTooltip(svg, pic2x, pic2y, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pic2.x, pic2.y, n, stroke), "point");
       }
     }
 
@@ -799,8 +798,8 @@
     // point 2:
     //  point(cx2, cy2)
     {
-      if (pic2x && pic2y && cx4 && cy4) {
-        line(svg, cx2, cy2, pic2x, pic2y, strokeLine);
+      if (pic2 && cx4 && cy4) {
+        drawLine(svg, new Line(new Point(cx2, cy2), pic2), strokeLine);
       }
     }
   });
