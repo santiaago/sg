@@ -519,29 +519,23 @@
     }
 
     // show or hide
-    line(svg, cx2, cy2, pic14.x, pic14.y, stroke);
-    line(svg, cx4, cy4, pic12.x, pic12.y, stroke);
+    drawLine(svg, new Line(new Point(cx2, cy2), pic14), stroke);
+    drawLine(svg, new Line(new Point(cx4, cy4), pic12), stroke);
+
     // end
     // find intersection between 2 segments
     // line (pii1x, pii1y) (pi4x, pi4y)
     // line (cx4, cy4) (px, py)
-    let pic4x, pic4y;
+    let pic4;
     {
-      let p = intersect(
-        pii1.x,
-        pii1.y,
-        pi4.x,
-        pi4.y,
-        cx4,
-        cy4,
-        pic12.x,
-        pic12.y
+      pic4 = intersectLines(
+        new Line(pii1, pi4),
+        new Line(new Point(cx4, cy4), pic12)
       );
-      if (p && p.length > 0) {
-        [pic4x, pic4y] = p;
-        line(svg, pii1.x, pii1.y, pic4x, pic4y, strokeLine);
+      if (pic4 != null) {
+        drawLine(svg, new Line(pii1, pic4), strokeLine);
         const n = "pic4";
-        store.add(n, dotWithTooltip(svg, pic4x, pic4y, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pic4.x, pic4.y, n, stroke), "point");
       }
     }
 
@@ -549,20 +543,14 @@
     // line (pii1x, pii1y), (pii2x, pii2y)
     // line(cx2, cy2) (pix, piy)
     let pic2x, pic2y;
+    let pic2;
     {
-      let p = intersect(
-        pii1.x,
-        pii1.y,
-        pii2.x,
-        pii2.y,
-        cx2,
-        cy2,
-        pic14.x,
-        pic14.y
+      pic2 = intersectLines(
+        new Line(pii1, pii2),
+        new Line(new Point(cx2, cy2), pic14)
       );
-      if (p && p.length > 0) {
-        [pic2x, pic2y] = p;
-        line(svg, pii1.x, pii1.y, pic2x, pic2y, strokeLine);
+      if (pic2 != null) {
+        drawLine(svg, new Line(pii1, pic2), strokeLine);
         const n = "pic2";
         store.add(n, dotWithTooltip(svg, pic2x, pic2y, n, stroke), "point");
       }
@@ -576,25 +564,31 @@
     //  second point
     //    line(cx4, cy4, cx3, cy3)
     //    cercle(cx34, cy34 d2)
-    let pic1wx, pic1wy;
+    let pic1w;
+    let pic34;
     {
       // first point
-      let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, pi3.x, pi3.y, d3_);
-      if (p && p.length > 0) {
-        [pic1wx, pic1wy] = p[0];
+      let points = interceptCircleAndLine(
+        new Circle(new Point(cx1, cy1), d3_),
+        new Line(new Point(cx1, cy1), pi3)
+      );
+      if (points != null && points.length > 0) {
+        pic1w = points[0];
         const n = "pic1w";
-        store.add(n, dotWithTooltip(svg, pic1wx, pic1wy, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pic1w.x, pic1w.y, n, stroke), "point");
       }
       // second point
-      let pic34x, pic34y;
-      p = inteceptCircleLineSeg(c34.x, c34.y, cx4, cy4, cx3, cy3, d2);
-      if (p && p.length > 0) {
-        [pic34x, pic34y] = p[1];
+      points = interceptCircleAndLine(
+        new Circle(c34, d2),
+        new Line(new Point(cx4, cy4), new Point(cx3, cy3))
+      );
+      if (points && points.length > 0) {
+        pic34 = points[1];
         const n = "pic34";
-        store.add(n, dotWithTooltip(svg, pic34x, pic34y, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pic34.x, pic34.y, n, stroke), "point");
       }
-      if (pic1wx && pic1wy && pic34x && pic34y) {
-        line(svg, pic1wx, pic1wy, pic34x, pic34y, strokeLine);
+      if (pic1w && pic34) {
+        drawLine(svg, new Line(pic1w, pic34), strokeLine);
       }
     }
     // lines between
@@ -605,25 +599,31 @@
     //  second point
     //    line(cx2, cy2, cx3, cy3)
     //    cercle(cx23, cy23 d2)
-    let pic1nx, pic1ny;
+    let pic1n, pic23;
+
     {
       // first point
-      let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, pi4.x, pi4.y, d3_);
-      if (p && p.length > 0) {
-        [pic1nx, pic1ny] = p[0];
+      let points = interceptCircleAndLine(
+        new Circle(new Point(cx1, cy1), d3_),
+        new Line(new Point(cx1, cy1), pi4)
+      );
+      if (points != null && points.length > 0) {
+        pic1n = points[0];
         const n = "pic1n";
-        store.add(n, dotWithTooltip(svg, pic1nx, pic1ny, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pic1n.x, pic1n.y, n, stroke), "point");
       }
       // second point
-      let pic23x, pic23y;
-      p = inteceptCircleLineSeg(c23.x, c23.y, cx2, cy2, cx3, cy3, d2);
-      if (p && p.length > 0) {
-        [pic23x, pic23y] = p[1];
+      points = interceptCircleAndLine(
+        new Circle(c23, d2),
+        new Line(new Point(cx2, cy2), new Point(cx3, cy3))
+      );
+      if (points != null && points.length > 0) {
+        pic23 = points[1];
         const n = "pic23";
-        store.add(n, dotWithTooltip(svg, pic23x, pic23y, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pic23.x, pic23.y, n, stroke), "point");
       }
-      if (pic1nx && pic1ny && pic23x && pic23y) {
-        line(svg, pic1nx, pic1ny, pic23x, pic23y, strokeLine);
+      if (pic1n && pic23) {
+        drawLine(svg, new Line(pic1n, pic23), strokeLine);
       }
     }
     // lines between
@@ -690,11 +690,11 @@
     //    point(pc1wx, pc1wy)
     //    point(pic1wx, pic1wy)
     {
-      if (pc1nx && pc1ny && pic1nx && pic1ny) {
-        line(svg, pc1nx, pc1ny, pic1nx, pic1ny, strokeLine);
+      if (pc1nx && pc1ny && pic1n.x && pic1n.y) {
+        line(svg, pc1nx, pc1ny, pic1n.x, pic1n.y, strokeLine);
       }
-      if (pc1wx && pc1wy && pic1wx && pic1wy) {
-        line(svg, pc1wx, pc1wy, pic1wx, pic1wy, strokeLine);
+      if (pc1wx && pc1wy && pic1w.x && pic1w.y) {
+        line(svg, pc1wx, pc1wy, pic1w.x, pic1w.y, strokeLine);
       }
     }
     // line between
@@ -774,8 +774,8 @@
     //    point(pic4x, pic4y)
     //    point(cx4, cy4)
     {
-      if (pic4x && pic4y && cx4 && cy4) {
-        line(svg, cx4, cy4, pic4x, pic4y, strokeLine);
+      if (pic4.x && pic4.y && cx4 && cy4) {
+        line(svg, cx4, cy4, pic4.x, pic4.y, strokeLine);
       }
     }
     // line between
