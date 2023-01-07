@@ -633,25 +633,31 @@
     //  point 2:
     //    circle(cx23, cy23, d2)
     //    line(cx2, cy2, cx3, cy3)
-    let pc1wx, pc1wy;
-    let pc23sx, pc23sy;
+    let pc1w, pc23s;
     {
       // first point
-      let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, cx2, cy2, d1);
-      if (p && p.length > 0) {
-        [pc1wx, pc1wy] = p[0];
+      let points = interceptCircleAndLine(
+        new Circle(new Point(cx1, cy1), d1),
+        new Line(new Point(cx1, cy1), new Point(cx2, cy2))
+      );
+      if (points && points.length > 0) {
+        pc1w = points[0];
         const n = "pc1w";
-        store.add(n, dotWithTooltip(svg, pc1wx, pc1wy, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pc1w.x, pc1w.y, n, stroke), "point");
       }
       // second point
-      p = inteceptCircleLineSeg(c23.x, c23.y, cx2, cy2, cx3, cy3, d2);
-      if (p && p.length > 0) {
-        [pc23sx, pc23sy] = p[0];
+      points = interceptCircleAndLine(
+        new Circle(c23, d2),
+        new Line(new Point(cx2, cy2), new Point(cx3, cy3))
+      );
+      if (points && points.length > 0) {
+        //[pc23sx, pc23sy] = p[0];
+        pc23s = points[0];
         const n = "pc23s";
-        store.add(n, dotWithTooltip(svg, pc23sx, pc23sy, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pc23s.x, pc23s.y, n, stroke), "point");
       }
-      if (pc1wx && pc1wy && pc23sx && pc23sy) {
-        line(svg, pc1wx, pc1wy, pc23sx, pc23sy, strokeLine);
+      if (pc1w && pc23s) {
+        drawLine(svg, new Line(pc1w, pc23s), strokeLine);
       }
     }
     // lines between
@@ -661,25 +667,30 @@
     //  point 2:
     //    circle(cx34, cy34, d2)
     //    line(cx4, cy4, cx3, cy3)
-    let pc1nx, pc1ny;
-    let pc34ex, pc34ey;
+    let pc1n, pc34e;
     {
       // first point
-      let p = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, cx4, cy4, d1);
-      if (p && p.length > 0) {
-        [pc1nx, pc1ny] = p[0];
+      let points = interceptCircleAndLine(
+        new Circle(new Point(cx1, cy1), d1),
+        new Line(new Point(cx1, cy1), new Point(cx4, cy4))
+      );
+      if (points && points.length > 0) {
+        pc1n = points[0];
         const n = "pc1n";
-        store.add(n, dotWithTooltip(svg, pc1nx, pc1ny, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pc1n.x, pc1n.y, n, stroke), "point");
       }
       // second point
-      p = inteceptCircleLineSeg(c34.x, c34.y, cx3, cy3, cx4, cy4, d2);
-      if (p && p.length > 0) {
-        [pc34ex, pc34ey] = p[1];
+      points = interceptCircleAndLine(
+        new Circle(c34, d2),
+        new Line(new Point(cx3, cy3), new Point(cx4, cy4))
+      );
+      if (points && points.length > 0) {
+        pc34e = points[1];
         const n = "pc34e";
-        store.add(n, dotWithTooltip(svg, pc34ex, pc34ey, n, stroke), "point");
+        store.add(n, dotWithTooltip(svg, pc34e.x, pc34e.y, n, stroke), "point");
       }
-      if (pc1nx && pc1ny && pc34ex && pc34ey) {
-        line(svg, pc1nx, pc1ny, pc34ex, pc34ey, strokeLine);
+      if (pc1n && pc34e) {
+        drawLine(svg, new Line(pc1n, pc34e), strokeLine);
       }
     }
     // line between
@@ -690,11 +701,11 @@
     //    point(pc1wx, pc1wy)
     //    point(pic1wx, pic1wy)
     {
-      if (pc1nx && pc1ny && pic1n.x && pic1n.y) {
-        line(svg, pc1nx, pc1ny, pic1n.x, pic1n.y, strokeLine);
+      if (pc1n && pic1n) {
+        drawLine(svg, new Line(pc1n, pic1n), strokeLine);
       }
-      if (pc1wx && pc1wy && pic1w.x && pic1w.y) {
-        line(svg, pc1wx, pc1wy, pic1w.x, pic1w.y, strokeLine);
+      if (pc1w && pic1w) {
+        drawLine(svg, new Line(pc1w, pic1w), strokeLine);
       }
     }
     // line between
@@ -755,8 +766,8 @@
     // point 2:
     //    point(pc34sx, pc34sy)
     {
-      if (pc34ex && pc34ey && pc34sx && pc34sy) {
-        line(svg, pc34ex, pc34ey, pc34sx, pc34sy, strokeLine);
+      if (pc34e.x && pc34e.y && pc34sx && pc34sy) {
+        line(svg, pc34e.x, pc34e.y, pc34sx, pc34sy, strokeLine);
       }
     }
     // line between
@@ -765,8 +776,8 @@
     // point 2:
     //    point(pc23ex, pc23ey)
     {
-      if (pc23sx && pc23sy && pc23ex && pc23ey) {
-        line(svg, pc23sx, pc23sy, pc23ex, pc23ey, strokeLine);
+      if (pc23s.x && pc23s.y && pc23ex && pc23ey) {
+        line(svg, pc23s.x, pc23s.y, pc23ex, pc23ey, strokeLine);
       }
     }
     // line between
