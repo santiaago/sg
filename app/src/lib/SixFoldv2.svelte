@@ -1,13 +1,11 @@
 <script>
   import * as d3 from "d3";
   import {
-    circle,
     dot,
     dotWithTooltip,
     drawCircle,
     drawDot,
     drawLine,
-    line,
     pointWithTooltip,
     rect,
   } from "../draw/basic";
@@ -237,16 +235,17 @@
     });
     circles.forEach((c, i) => {
       const n = `c${i + 1}`;
-      const csvg = circle(svg, c.p.x, c.p.y, r, stroke);
+
+      const csvg = drawCircle(svg, c, stroke);
       store.add(`${n}_c`, csvg, "circle");
     });
 
     {
       [
-        line(svg, cx2, cy2, cx1, cy1, strokeLine),
-        line(svg, cx2, cy2, cx3, cy3, strokeLine),
-        line(svg, cx3, cy3, cx4, cy4, strokeLine),
-        line(svg, cx1, cy1, cx4, cy4, strokeLine),
+        drawLine(svg, new Line(cp2, cp1), strokeLine),
+        drawLine(svg, new Line(cp2, cp3), strokeLine),
+        drawLine(svg, new Line(cp3, cp4), strokeLine),
+        drawLine(svg, new Line(cp1, cp4), strokeLine),
       ].forEach((l, i) => {
         store.add(`l${i}_l`, l, "line");
       });
@@ -266,15 +265,15 @@
       { p: pic14, prefix: "14" },
     ].forEach((e) => {
       const n = `pic${e.prefix}`;
-      const l = line(svg, cx1, cy1, e.p.x, e.p.y, stroke);
+      const l = drawLine(svg, new Line(cp1, e.p), stroke);
       store.add(`${n}_l`, l, "line");
     });
 
     // draw crossing lines of square
     {
       [
-        [line(svg, cx1, cy1, cx3, cy3, stroke), "l13"],
-        [line(svg, cx2, cy2, cx4, cy4, stroke), "l24"],
+        [drawLine(svg, new Line(cp1, cp3), stroke), "l13"],
+        [drawLine(svg, new Line(cp2, cp4), stroke), "l24"],
       ].forEach(([l, name], i) => {
         store.add(`${name}_l`, l, "line");
       });
@@ -395,7 +394,7 @@
       {
         const n = "c23w";
         store.add(n, dotWithTooltip(svg, x, y, n, stroke), "point");
-        line(svg, pic14.x, pic14.y, x, y, stroke);
+        drawLine(svg, new Line(pic14, new Point(x, y)), stroke);
       }
 
       const l23 = new Line(cp2, cp3);
@@ -473,7 +472,7 @@
 
       if (pi && pi.length > 0) {
         const pp = pi[0];
-        dot(svg, pp.x, pp.y);
+        drawDot(svg, pp, stroke);
 
         pii1 = intersectLines(new Line(pi3, pp), new Line(cp1, cp3));
         if (pii1 != null) {
