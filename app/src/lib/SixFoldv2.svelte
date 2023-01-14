@@ -562,7 +562,7 @@
         store.add(n, dotWithTooltip(svg, pic1w.x, pic1w.y, n, stroke), "point");
       }
       // second point
-      points = interceptCircleAndLine(new Circle(c34, d2), new Line(cp4, cp3));
+      points = interceptCircleAndLine(new Circle(c34, d2), l34);
       if (points && points.length > 0) {
         pic34 = points[1];
         const n = "pic34";
