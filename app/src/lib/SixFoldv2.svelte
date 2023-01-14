@@ -16,16 +16,13 @@
   import {
     bisect,
     bisectCircleAndPoint,
-    cerclesIntersection,
     circlesIntersection,
     circlesIntersectionPoint,
     directions,
-    inteceptCircleLineSeg,
     interceptCircleAndLine,
-    lineIntersect,
     linesIntersection,
   } from "../math/intersection";
-  import { intersect, intersectLines, Line } from "../math/lines";
+  import { intersectLines, Line } from "../math/lines";
   import { distance, Point } from "../math/points";
   import { Circle } from "../math/circles";
 
@@ -112,30 +109,30 @@
 
     // draw intersection between center(c2) AND
     // p4
-    let cp3;
+    let cp24;
     let c3;
     {
       const tmp_points = interceptCircleAndLine(c2, l24);
       if (tmp_points && tmp_points.length > 0) {
-        cp3 = tmp_points[0];
-        c3 = new Circle(cp3, r);
+        cp24 = tmp_points[0];
+        c3 = new Circle(cp24, r);
         if (drawDetails) {
-          drawDot(svg, cp3, stroke);
+          drawDot(svg, cp24, stroke);
         }
       }
     }
 
     // draw intersection between circle (c1) AND
     // p3
-    let cp4;
+    let cp13;
     let c4;
     {
       const tmp_points = interceptCircleAndLine(c1, l13);
       if (tmp_points && tmp_points.length > 0) {
-        cp4 = tmp_points[0];
-        c4 = new Circle(cp4, r);
+        cp13 = tmp_points[0];
+        c4 = new Circle(cp13, r);
         if (drawDetails) {
-          drawDot(svg, cp4, stroke);
+          drawDot(svg, cp13, stroke);
         }
       }
     }
@@ -229,6 +226,10 @@
     const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles.map(
       (c) => [c.p.x, c.p.y, c.r]
     );
+    const cp1 = new Point(cx1, cy1);
+    const cp2 = new Point(cx2, cy2);
+    const cp3 = new Point(cx3, cy3);
+    const cp4 = new Point(cx4, cy4);
 
     circles.forEach((c, i) => {
       const n = `c${i + 1}`;
@@ -329,14 +330,14 @@
     // find intersection point
     const pi3 = circlesIntersectionPoint(
       c14,
-      new Circle(new Point(cx2, cy2), d1),
+      new Circle(cp2, d1),
       directions.right
     );
 
     // find intersection point
     const pi4 = circlesIntersectionPoint(
       c12,
-      new Circle(new Point(cx4, cy4), d1),
+      new Circle(cp4, d1),
       directions.right
     );
 
@@ -353,16 +354,13 @@
 
     // draw lines
     [pi3, pi4].forEach((p) => {
-      drawLine(svg, new Line(new Point(cx1, cy1), p), stroke);
+      drawLine(svg, new Line(cp1, p), stroke);
     });
 
     // compute intersection between lines and cercles
     let pi5;
     {
-      const points = interceptCircleAndLine(
-        c14,
-        new Line(new Point(cx1, cy1), pic14)
-      );
+      const points = interceptCircleAndLine(c14, new Line(cp1, pic14));
       if (points && points.length > 0) {
         pi5 = points[0];
         const name = "prx5";
@@ -376,10 +374,7 @@
 
     let pi6;
     {
-      const points = interceptCircleAndLine(
-        c12,
-        new Line(new Point(cx1, cy1), pic12)
-      );
+      const points = interceptCircleAndLine(c12, new Line(cp1, pic12));
       if (points && points.length > 0) {
         pi6 = points[0];
         const n = "prx6";
@@ -403,14 +398,14 @@
         line(svg, pic14.x, pic14.y, x, y, stroke);
       }
 
-      const l23 = new Line(new Point(cx2, cy2), new Point(cx3, cy3));
+      const l23 = new Line(cp2, cp3);
       const l14p = new Line(pic14, new Point(x, y));
       c23 = linesIntersection(l23, l14p);
 
       let c23s;
       const pi = interceptCircleAndLine(
-        new Circle(new Point(cx2, cy2), d1),
-        new Line(c23, new Point(cx2, cy2))
+        new Circle(cp2, d1),
+        new Line(c23, cp2)
       );
 
       if (pi && pi.length > 0) {
@@ -441,14 +436,14 @@
       }
 
       c34 = linesIntersection(
-        new Line(new Point(cx3, cy3), new Point(cx4, cy4)),
+        new Line(cp3, cp4),
         new Line(pic12, new Point(x, y))
       );
 
       let c34e;
       const pi = interceptCircleAndLine(
-        new Circle(new Point(cx4, cy4), d1),
-        new Line(c34, new Point(cx4, cy4))
+        new Circle(cp4, d1),
+        new Line(c34, cp4)
       );
       if (pi && pi.length > 0) {
         c34e = pi[0];
@@ -472,26 +467,20 @@
     let d3_;
     {
       const pi = interceptCircleAndLine(
-        new Circle(new Point(cx1, cy1), d1),
-        new Line(new Point(cx1, cy1), pic14)
+        new Circle(cp1, d1),
+        new Line(cp1, pic14)
       );
 
       if (pi && pi.length > 0) {
         const pp = pi[0];
         dot(svg, pp.x, pp.y);
 
-        pii1 = intersectLines(
-          new Line(pi3, pp),
-          new Line(new Point(cx1, cy1), new Point(cx3, cy3))
-        );
+        pii1 = intersectLines(new Line(pi3, pp), new Line(cp1, cp3));
         if (pii1 != null) {
           const n = "pii1";
           store.add(n, dotWithTooltip(svg, pii1.x, pii1.y, n, stroke), "point");
         }
-        pii2 = intersectLines(
-          new Line(pi3, pp),
-          new Line(new Point(cx2, cy2), new Point(cx4, cy4))
-        );
+        pii2 = intersectLines(new Line(pi3, pp), new Line(cp2, cp4));
         if (pii2 != null) {
           const n = "pii2";
           store.add(n, dotWithTooltip(svg, pii2.x, pii2.y, n, stroke), "point");
@@ -499,7 +488,7 @@
         if (pii1 && pii2) {
           drawLine(svg, new Line(pii1, pii2), stroke);
         }
-        d3_ = pii1.distanceToPoint(new Point(cx1, cy1));
+        d3_ = pii1.distanceToPoint(cp1);
 
         circles.forEach((c, i) => {
           const x = c.p.x;
@@ -519,8 +508,8 @@
     }
 
     // show or hide
-    drawLine(svg, new Line(new Point(cx2, cy2), pic14), stroke);
-    drawLine(svg, new Line(new Point(cx4, cy4), pic12), stroke);
+    drawLine(svg, new Line(cp2, pic14), stroke);
+    drawLine(svg, new Line(cp4, pic12), stroke);
 
     // end
     // find intersection between 2 segments
@@ -528,10 +517,7 @@
     // line (cx4, cy4) (px, py)
     let pic4;
     {
-      pic4 = intersectLines(
-        new Line(pii1, pi4),
-        new Line(new Point(cx4, cy4), pic12)
-      );
+      pic4 = intersectLines(new Line(pii1, pi4), new Line(cp4, pic12));
       if (pic4 != null) {
         drawLine(svg, new Line(pii1, pic4), strokeLine);
         const n = "pic4";
@@ -544,10 +530,7 @@
     // line(cx2, cy2) (pix, piy)
     let pic2;
     {
-      pic2 = intersectLines(
-        new Line(pii1, pii2),
-        new Line(new Point(cx2, cy2), pic14)
-      );
+      pic2 = intersectLines(new Line(pii1, pii2), new Line(cp2, pic14));
       if (pic2 != null) {
         drawLine(svg, new Line(pii1, pic2), strokeLine);
         const n = "pic2";
@@ -568,8 +551,8 @@
     {
       // first point
       let points = interceptCircleAndLine(
-        new Circle(new Point(cx1, cy1), d3_),
-        new Line(new Point(cx1, cy1), pi3)
+        new Circle(cp1, d3_),
+        new Line(cp1, pi3)
       );
       if (points != null && points.length > 0) {
         pic1w = points[0];
@@ -577,10 +560,7 @@
         store.add(n, dotWithTooltip(svg, pic1w.x, pic1w.y, n, stroke), "point");
       }
       // second point
-      points = interceptCircleAndLine(
-        new Circle(c34, d2),
-        new Line(new Point(cx4, cy4), new Point(cx3, cy3))
-      );
+      points = interceptCircleAndLine(new Circle(c34, d2), new Line(cp4, cp3));
       if (points && points.length > 0) {
         pic34 = points[1];
         const n = "pic34";
@@ -603,8 +583,8 @@
     {
       // first point
       let points = interceptCircleAndLine(
-        new Circle(new Point(cx1, cy1), d3_),
-        new Line(new Point(cx1, cy1), pi4)
+        new Circle(cp1, d3_),
+        new Line(cp1, pi4)
       );
       if (points != null && points.length > 0) {
         pic1n = points[0];
@@ -612,10 +592,7 @@
         store.add(n, dotWithTooltip(svg, pic1n.x, pic1n.y, n, stroke), "point");
       }
       // second point
-      points = interceptCircleAndLine(
-        new Circle(c23, d2),
-        new Line(new Point(cx2, cy2), new Point(cx3, cy3))
-      );
+      points = interceptCircleAndLine(new Circle(c23, d2), new Line(cp2, cp3));
       if (points != null && points.length > 0) {
         pic23 = points[1];
         const n = "pic23";
@@ -636,8 +613,8 @@
     {
       // first point
       let points = interceptCircleAndLine(
-        new Circle(new Point(cx1, cy1), d1),
-        new Line(new Point(cx1, cy1), new Point(cx2, cy2))
+        new Circle(cp1, d1),
+        new Line(cp1, cp2)
       );
       if (points && points.length > 0) {
         pc1w = points[0];
@@ -645,10 +622,7 @@
         store.add(n, dotWithTooltip(svg, pc1w.x, pc1w.y, n, stroke), "point");
       }
       // second point
-      points = interceptCircleAndLine(
-        new Circle(c23, d2),
-        new Line(new Point(cx2, cy2), new Point(cx3, cy3))
-      );
+      points = interceptCircleAndLine(new Circle(c23, d2), new Line(cp2, cp3));
       if (points && points.length > 0) {
         //[pc23sx, pc23sy] = p[0];
         pc23s = points[0];
@@ -670,8 +644,8 @@
     {
       // first point
       let points = interceptCircleAndLine(
-        new Circle(new Point(cx1, cy1), d1),
-        new Line(new Point(cx1, cy1), new Point(cx4, cy4))
+        new Circle(cp1, d1),
+        new Line(cp1, cp4)
       );
       if (points && points.length > 0) {
         pc1n = points[0];
@@ -679,10 +653,7 @@
         store.add(n, dotWithTooltip(svg, pc1n.x, pc1n.y, n, stroke), "point");
       }
       // second point
-      points = interceptCircleAndLine(
-        new Circle(c34, d2),
-        new Line(new Point(cx3, cy3), new Point(cx4, cy4))
-      );
+      points = interceptCircleAndLine(new Circle(c34, d2), new Line(cp3, cp4));
       if (points && points.length > 0) {
         pc34e = points[1];
         const n = "pc34e";
@@ -717,18 +688,15 @@
     let pc3sw, pc23e;
     {
       let points = interceptCircleAndLine(
-        new Circle(new Point(cx3, cy3), d3_),
-        new Line(new Point(cx3, cy3), new Point(cx1, cy1))
+        new Circle(cp3, d3_),
+        new Line(cp3, cp1)
       );
       if (points && points.length > 0) {
         pc3sw = points[0];
         const n = "pc3sw";
         store.add(n, dotWithTooltip(svg, pc3sw.x, pc3sw.y, n, stroke), "point");
       }
-      points = interceptCircleAndLine(
-        new Circle(c23, d2),
-        new Line(c23, new Point(cx1, cy1))
-      );
+      points = interceptCircleAndLine(new Circle(c23, d2), new Line(c23, cp1));
 
       if (points && points.length > 0) {
         pc23e = points[0];
@@ -750,7 +718,7 @@
     {
       let points = interceptCircleAndLine(
         new Circle(c34, d2),
-        new Line(c34, new Point(cx1, cy1))
+        new Line(c34, cp1)
       );
       // const p = inteceptCircleLineSeg(c34.x, c34.y, c34.x, c34.y, cx1, cy1, d2);
       if (points && points.length > 0) {
@@ -789,7 +757,7 @@
     //    point(cx4, cy4)
     {
       if (pic4 && cx4 && cy4) {
-        drawLine(svg, new Line(new Point(cx4, cy4), pic4), strokeLine);
+        drawLine(svg, new Line(cp4, pic4), strokeLine);
       }
     }
     // line between
@@ -799,7 +767,7 @@
     //  point(cx2, cy2)
     {
       if (pic2 && cx4 && cy4) {
-        drawLine(svg, new Line(new Point(cx2, cy2), pic2), strokeLine);
+        drawLine(svg, new Line(cp2, pic2), strokeLine);
       }
     }
   });
