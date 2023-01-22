@@ -369,18 +369,16 @@
     // circle(center(px, py))
     let c23;
     {
-      const cx0 = pic14.x - d1;
-      const cy0 = pic14.y;
-      const angle = Math.atan2(pi5.y - cy0, pi5.x - cx0);
-      // translate it into the interval [0,2 π] multiply by 2
-      let [x, y] = bisect(angle * 2, d1, pic14.x, pic14.y);
+      const cpic14 = new Circle(pic14, d1);
+
+      const c23w = bisectCircleAndPoint(cpic14, pi5);
       {
         const n = "c23w";
-        store.add(n, dotWithTooltip(svg, x, y, n, stroke), "point");
-        drawLine(svg, new Line(pic14, new Point(x, y)), stroke);
+        store.add(n, dotWithTooltip(svg, c23w.x, c23w.y, n, stroke), "point");
+        drawLine(svg, new Line(pic14, c23w), stroke);
       }
 
-      const l14p = new Line(pic14, new Point(x, y));
+      const l14p = new Line(pic14, c23w);
       const pc23 = linesIntersection(l23, l14p);
 
       let c23s;
