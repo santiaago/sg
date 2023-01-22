@@ -137,14 +137,11 @@
     return [c1, c2, c3, c4];
   };
 
-  // from a set of 4 points
+  // from a set of 4 circles
   // calculate the intersection 3 of these circles in space
-  // circles has shape [[cx, cy, r],... ]
-  // returns the 2 coordinates that intersect the circles
+  // returns the 2 points coordinates that intersect the circles
   //
   const drawIntersectionPoints = (svg, circles) => {
-    //const [[cx1, cy1, r], [cx2, cy2], [], [cx4, cy4]] = circles;
-
     const pic12 = circlesIntersectionPoint(
       circles[0],
       circles[1],
@@ -160,28 +157,29 @@
     return [pic12, pic14];
   };
 
-  const isPointCloseToCircleBorder = (mouseEvent, cx, cy, r) => {
+  const isPointCloseToCircleBorder = (mouseEvent, c) => {
     const [px, py] = d3.pointer(mouseEvent);
-    const dist = distance(px, py, cx, cy);
+    const dist = distance(px, py, c.p.x, c.p.y);
     // epsilons for distance in and out of circle border
     const eOut = 0.1;
     const eIn = 1.4;
+    const r = c.r;
     return (
       (r - eOut) * (r - eOut) <= dist * dist &&
       dist * dist <= (r + eIn) * (r + eIn)
     );
   };
 
-  const addCircleTooltipEvents = (selection, tooltip, cx, cy, d1, stroke) => {
+  const addCircleTooltipEvents = (selection, tooltip, c, stroke) => {
     selection
       .on("mouseover", (d) => {
-        if (isPointCloseToCircleBorder(d, cx, cy, d1)) {
+        if (isPointCloseToCircleBorder(d, c)) {
           tooltip.map((x) => x.style("opacity", 1));
           d3.select(d.currentTarget).style("stroke-width", strokeMid);
         }
       })
       .on("mouseleave", (d) => {
-        if (isPointCloseToCircleBorder(d, cx, cy, d1)) {
+        if (isPointCloseToCircleBorder(d, c)) {
         } else {
           tooltip.map((x) => x.style("opacity", 0));
           d3.select(d.currentTarget)
@@ -307,9 +305,7 @@
       drawCircle(svg, c, stroke).call(
         addCircleTooltipEvents,
         tooltip,
-        c.p.x,
-        c.p.y,
-        c.r,
+        c,
         stroke
       );
     });
@@ -326,9 +322,7 @@
       drawCircle(svg, e.c, stroke).call(
         addCircleTooltipEvents,
         tooltip,
-        e.c.p.x,
-        e.c.p.y,
-        d1,
+        e.c,
         stroke
       );
     });
@@ -490,9 +484,7 @@
       drawCircle(svg, c, stroke).call(
         addCircleTooltipEvents,
         tooltip,
-        c.p.x,
-        c.p.y,
-        d3_,
+        c,
         stroke
       );
     });
