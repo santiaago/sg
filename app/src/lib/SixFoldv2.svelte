@@ -11,7 +11,6 @@
   import { text } from "../draw/text";
   import { onMount } from "svelte";
   import {
-    bisect,
     bisectCircleAndPoint,
     circlesIntersection,
     circlesIntersectionPoint,
