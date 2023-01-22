@@ -408,7 +408,7 @@
         drawLine(svg, new Line(pic12, c34n), stroke);
       }
 
-      const pc34 = linesIntersection(l34, new Line(pic12, new Point(x, y)));
+      const pc34 = linesIntersection(l34, new Line(pic12, c34n));
 
       let c34e;
       const pi = interceptCircleAndLine(c4, new Line(pc34, cp4));
