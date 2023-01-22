@@ -401,15 +401,12 @@
 
     let c34, d2;
     {
-      const cx0 = pic12.x - d1;
-      const cy0 = pic12.y;
-      const angle = Math.atan2(pi6.y - cy0, pi6.x - cx0);
-      // translate it into the interval [0,2 π] multiply by 2
-      let [x, y] = bisect(angle * 2, d1, pic12.x, pic12.y);
+      const cpic12 = new Circle(pic12, d1);
+      const c34n = bisectCircleAndPoint(cpic12, pi6);
       {
         const n = "c34n";
-        store.add(n, dotWithTooltip(svg, x, y, n, stroke), "point");
-        drawLine(svg, new Line(pic12, new Point(x, y)), stroke);
+        store.add(n, dotWithTooltip(svg, c34n.x, c34n.y, n, stroke), "point");
+        drawLine(svg, new Line(pic12, c34n), stroke);
       }
 
       const pc34 = linesIntersection(l34, new Line(pic12, new Point(x, y)));
