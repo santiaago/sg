@@ -319,10 +319,8 @@
       );
     });
 
-    // find intersection point
+    // find intersection points
     const pi3 = circlesIntersectionPoint(c14, c2, directions.right);
-
-    // find intersection point
     const pi4 = circlesIntersectionPoint(c12, c4, directions.right);
 
     [
