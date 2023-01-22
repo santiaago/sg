@@ -218,7 +218,7 @@
 
     const circles = drawSquareFromLine(svg, line1, stroke, false);
 
-    const [[cx1, cy1, r], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles.map(
+    const [[cx1, cy1], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles.map(
       (c) => [c.p.x, c.p.y, c.r]
     );
     const cp1 = new Point(cx1, cy1);
@@ -234,21 +234,13 @@
     circles.forEach((c, i) => {
       const n = `c${i + 1}`;
       store.add(n, pointWithTooltip(svg, c.p, n, stroke), "point");
-    });
-    circles.forEach((c, i) => {
-      const n = `c${i + 1}`;
-
       const csvg = drawCircle(svg, c, stroke);
       store.add(`${n}_c`, csvg, "circle");
     });
 
-    [
-      drawLine(svg, l12, strokeLine),
-      drawLine(svg, l23, strokeLine),
-      drawLine(svg, l34, strokeLine),
-      drawLine(svg, l41, strokeLine),
-    ].forEach((l, i) => {
-      store.add(`l${i}_l`, l, "line");
+    [l12, l23, l34, l41].forEach((l, i) => {
+      const lsvg = drawLine(svg, l, strokeLine);
+      store.add(`l${i}_l`, lsvg, "line");
     });
 
     const [pic12, pic14] = drawIntersectionPoints(svg, circles);
