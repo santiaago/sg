@@ -244,16 +244,14 @@
       store.add(`${n}_c`, csvg, "circle");
     });
 
-    {
-      [
-        drawLine(svg, l12, strokeLine),
-        drawLine(svg, l23, strokeLine),
-        drawLine(svg, l34, strokeLine),
-        drawLine(svg, l41, strokeLine),
-      ].forEach((l, i) => {
-        store.add(`l${i}_l`, l, "line");
-      });
-    }
+    [
+      drawLine(svg, l12, strokeLine),
+      drawLine(svg, l23, strokeLine),
+      drawLine(svg, l34, strokeLine),
+      drawLine(svg, l41, strokeLine),
+    ].forEach((l, i) => {
+      store.add(`l${i}_l`, l, "line");
+    });
 
     const [pic12, pic14] = drawIntersectionPoints(svg, circles);
     [
@@ -499,7 +497,6 @@
       );
     });
 
-    // show or hide
     drawLine(svg, new Line(cp2, pic14), stroke);
     drawLine(svg, new Line(cp4, pic12), stroke);
 
