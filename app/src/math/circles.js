@@ -11,5 +11,6 @@ export class Circle {
     this.r = r;
     this.type = "circle";
     this.name = name;
+    this.p.name = `p${this.name}`;
   }
 }

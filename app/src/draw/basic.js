@@ -45,8 +45,8 @@ export const dotWithTooltip = (svg, x, y, name, stroke) => {
   d.call(addPointTooltipEvents, tooltip);
   return { dot: d, tooltip };
 };
-export const pointWithTooltip = (svg, point, name, stroke) => {
-  return dotWithTooltip(svg, point.x, point.y, name, stroke);
+export const pointWithTooltip = (svg, point, stroke) => {
+  return dotWithTooltip(svg, point.x, point.y, point.name, stroke);
 };
 
 export const line = (svg, x1, y1, x2, y2, stroke = 5, color = "#506") => {
