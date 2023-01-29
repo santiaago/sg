@@ -29,15 +29,15 @@ export const store = {
 export const itemsv2 = writable({});
 export const storev2 = {
   subscribe: itemsv2.subscribe,
-  add: (name, element, type) =>
+  add: (shape, element) =>
     itemsv2.update((old) => {
       return {
         ...old,
-        [name]: {
+        [shape.name]: {
           name,
           element,
           selected: false,
-          type,
+          type: shape.type,
         },
       };
     }),
