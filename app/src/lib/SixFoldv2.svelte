@@ -212,8 +212,8 @@
       width - border,
       height - border,
     ];
-    const p1 = new Point(lx1, ly1);
-    const p2 = new Point(lx2, ly2);
+    const p1 = new Point(lx1, ly1, "p1");
+    const p2 = new Point(lx2, ly2, "p2");
     const line1 = new Line(p1, p2);
     // draw first line
     drawLine(svg, line1, stroke);
@@ -227,15 +227,15 @@
     const [[cx1, cy1], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles.map(
       (c) => [c.p.x, c.p.y, c.r]
     );
-    const cp1 = new Point(cx1, cy1);
-    const cp2 = new Point(cx2, cy2);
-    const cp3 = new Point(cx3, cy3);
-    const cp4 = new Point(cx4, cy4);
+    const cp1 = new Point(cx1, cy1, "cp1");
+    const cp2 = new Point(cx2, cy2, "cp2");
+    const cp3 = new Point(cx3, cy3, "cp3");
+    const cp4 = new Point(cx4, cy4, "cp4");
 
-    const l12 = new Line(cp1, cp2);
-    const l23 = new Line(cp2, cp3);
-    const l34 = new Line(cp3, cp4);
-    const l41 = new Line(cp4, cp1);
+    const l12 = new Line(cp1, cp2, "l12");
+    const l23 = new Line(cp2, cp3, "l23");
+    const l34 = new Line(cp3, cp4, "l34");
+    const l41 = new Line(cp4, cp1, "l41");
 
     circles.forEach((c, i) => {
       const n = `c${i + 1}`;
@@ -254,55 +254,50 @@
     // });
 
     const [pic12, pic14] = drawIntersectionPoints(svg, circles);
-    [
-      { p: pic12, prefix: "12" },
-      { p: pic14, prefix: "14" },
-    ].forEach((e) => {
-      const n = `pic${e.prefix}`;
-      store.add(n, pointWithTooltip(svg, e.p, n, stroke), "point");
+    pic12.name = "pic12";
+    pic14.name = "pic14";
+
+    [pic12, pic14].forEach((p) => {
+      store.add(p.name, pointWithTooltip(svg, p, p.name, stroke), "point");
     });
 
-    [
-      { p: pic12, prefix: "12" },
-      { p: pic14, prefix: "14" },
-    ].forEach((e) => {
-      const n = `pic${e.prefix}`;
-      const l = drawLine(svg, new Line(cp1, e.p), stroke);
-      store.add(`${n}_l`, l, "line");
+    const lpic12 = new Line(cp1, pic12, "lpic12");
+    const lpic14 = new Line(cp1, pic14, "lpic14");
+    [lpic12, lpic14].forEach((line) => {
+      const l = drawLine(svg, line, stroke);
+      store.add(line.name, l, "line");
     });
 
     // draw crossing lines of square
-    const l13 = new Line(cp1, cp3);
-    const l24 = new Line(cp2, cp4);
-    {
-      [
-        [drawLine(svg, l13, stroke), "l13"],
-        [drawLine(svg, l24, stroke), "l24"],
-      ].forEach(([l, name], i) => {
-        store.add(`${name}_l`, l, "line");
-      });
-    }
+    const l13 = new Line(cp1, cp3, "l13");
+    const l24 = new Line(cp2, cp4, "l24");
+    [l13, l24].forEach((line) => {
+      const l = drawLine(svg, line, stroke);
+      store.add(line.name, l, "line");
+    });
 
     let pi2;
     {
       const line1 = new Line(circles[0].p, circles[2].p);
       const line2 = new Line(circles[1].p, circles[3].p);
       pi2 = linesIntersection(line1, line2);
-    }
-    {
-      const name = `pi2`;
-      store.add(name, pointWithTooltip(svg, pi2, name, stroke), "point");
+      pi2.name = "pi2";
+      store.add(
+        pi2.name,
+        pointWithTooltip(svg, pi2, pi2.name, stroke),
+        "point"
+      );
     }
     // measure distance of intersection points
     const d1 = pic14.distanceToPoint(pi2);
 
-    const c1 = new Circle(cp1, d1);
-    const c2 = new Circle(cp2, d1);
-    const c3 = new Circle(cp3, d1);
-    const c4 = new Circle(cp4, d1);
+    const c1 = new Circle(cp1, d1, "c1_d1");
+    const c2 = new Circle(cp2, d1, "c2_d1");
+    const c3 = new Circle(cp3, d1, "c3_d1");
+    const c4 = new Circle(cp4, d1, "c4_d1");
 
     [c1, c2, c3, c4].forEach((c, i) => {
-      const tooltip = text(svg, c.p.x, c.p.y, `c${i}-d1`);
+      const tooltip = text(svg, c.p.x, c.p.y, c.name);
       tooltip.map((x) => x.style("opacity", 0));
       drawCircle(svg, c, stroke).call(
         addCircleTooltipEvents,
@@ -312,19 +307,16 @@
       );
     });
 
-    const c14 = new Circle(pic14, d1);
-    const c12 = new Circle(pic12, d1);
+    const c14 = new Circle(pic14, d1, "c14_d1");
+    const c12 = new Circle(pic12, d1, "c12_d1");
 
-    [
-      { c: c14, prefix: "pic14" },
-      { c: c12, prefix: "pic12" },
-    ].forEach((e) => {
-      const tooltip = text(svg, e.c.p.x, e.c.p.y, `${e.prefix}-d1`);
+    [c14, c12].forEach((c) => {
+      const tooltip = text(svg, c.p.x, c.p.y, c.name);
       tooltip.map((x) => x.style("opacity", 0));
-      drawCircle(svg, e.c, stroke).call(
+      drawCircle(svg, c, stroke).call(
         addCircleTooltipEvents,
         tooltip,
-        e.c,
+        c,
         stroke
       );
     });
@@ -332,19 +324,15 @@
     // find intersection points
     const pi3 = circlesIntersectionPoint(c14, c2, directions.right);
     const pi4 = circlesIntersectionPoint(c12, c4, directions.right);
+    pi3.name = "pi3";
+    pi4.name = "pi4";
 
-    [
-      { p: pi3, prefix: "pi3" },
-      { p: pi4, prefix: "pi4" },
-    ].forEach((e) => {
-      store.add(
-        e.prefix,
-        dotWithTooltip(svg, e.p.x, e.p.y, e.prefix, stroke),
-        "point"
-      );
+    [pi3, pi4].forEach((p) => {
+      store.add(p.name, dotWithTooltip(svg, p.x, p.y, p.name, stroke), "point");
     });
 
     // draw lines
+    // todo(sas) name this lines
     [pi3, pi4].forEach((p) => {
       drawLine(svg, new Line(cp1, p), stroke);
     });
@@ -355,10 +343,10 @@
       const points = interceptCircleAndLine(c14, new Line(cp1, pic14));
       if (points && points.length > 0) {
         pi5 = points[0];
-        const name = "prx5";
+        pi5.name = "prx5";
         store.add(
-          name,
-          dotWithTooltip(svg, pi5.x, pi5.y, name, stroke),
+          pi5.name,
+          dotWithTooltip(svg, pi5.x, pi5.y, pi5.name, stroke),
           "point"
         );
       }
@@ -369,70 +357,98 @@
       const points = interceptCircleAndLine(c12, new Line(cp1, pic12));
       if (points && points.length > 0) {
         pi6 = points[0];
-        const n = "prx6";
-        store.add(n, dotWithTooltip(svg, pi6.x, pi6.y, n, stroke), "point");
+        pi6.name = "prx6";
+        store.add(
+          pi6.name,
+          dotWithTooltip(svg, pi6.x, pi6.y, pi6.name, stroke),
+          "point"
+        );
       }
     }
 
     // looking for intersection of
     // line(center(c1), point(px,py)) AND
     // circle(center(px, py))
-    const cpic14 = new Circle(pic14, d1);
+    const cpic14 = new Circle(pic14, d1, "cpic14");
     let c23;
     {
       const c23w = bisectCircleAndPoint(cpic14, pi5);
+      c23w.name = "c23w";
       {
-        const n = "c23w";
-        store.add(n, dotWithTooltip(svg, c23w.x, c23w.y, n, stroke), "point");
+        store.add(
+          c23w.name,
+          dotWithTooltip(svg, c23w.x, c23w.y, c23w.name, stroke),
+          "point"
+        );
         drawLine(svg, new Line(pic14, c23w), stroke);
       }
 
-      const l14p = new Line(pic14, c23w);
+      const l14p = new Line(pic14, c23w, "l14p");
       const pc23 = linesIntersection(l23, l14p);
+      pc23.name = "pc23";
 
       let c23s;
       const pi = interceptCircleAndLine(c2, new Line(pc23, cp2));
 
       if (pi && pi.length > 0) {
         c23s = pi[0];
+        c23s.name = "c23s";
         {
-          const n = "c23s";
-          store.add(n, dotWithTooltip(svg, c23s.x, c23s.y, n, stroke), "point");
+          store.add(
+            c23s.name,
+            dotWithTooltip(svg, c23s.x, c23s.y, c23s.name, stroke),
+            "point"
+          );
         }
       }
 
       const d2 = pc23.distanceToPoint(c23s);
-      c23 = new Circle(pc23, d2);
+      c23 = new Circle(pc23, d2, "c23_d2");
       drawCircle(svg, c23, stroke);
-      const n = "c23";
-      store.add(n, dotWithTooltip(svg, c23.p.x, c23.p.y, n, stroke), "point");
+      store.add(
+        c23.name,
+        dotWithTooltip(svg, c23.p.x, c23.p.y, c23.name, stroke),
+        "point"
+      );
     }
 
     let c34, d2;
     {
-      const cpic12 = new Circle(pic12, d1);
+      const cpic12 = new Circle(pic12, d1, "cpic12_d1");
       const c34n = bisectCircleAndPoint(cpic12, pi6);
+      c34n.name = "c34n";
       {
-        const n = "c34n";
-        store.add(n, dotWithTooltip(svg, c34n.x, c34n.y, n, stroke), "point");
+        store.add(
+          c34n.name,
+          dotWithTooltip(svg, c34n.x, c34n.y, c34n.name, stroke),
+          "point"
+        );
         drawLine(svg, new Line(pic12, c34n), stroke);
       }
 
       const pc34 = linesIntersection(l34, new Line(pic12, c34n));
+      pc34.name = "pc34";
 
       let c34e;
       const pi = interceptCircleAndLine(c4, new Line(pc34, cp4));
       if (pi && pi.length > 0) {
         c34e = pi[0];
-        const n = "c34e";
-        store.add(n, dotWithTooltip(svg, c34e.x, c34e.y, n, stroke), "point");
+        c34e.name = "c34e";
+        store.add(
+          c34e.name,
+          dotWithTooltip(svg, c34e.x, c34e.y, c34e.name, stroke),
+          "point"
+        );
       }
 
       d2 = pc34.distanceToPoint(c34e);
-      c34 = new Circle(pc34, d2);
+      c34 = new Circle(pc34, d2, "c34_d2");
       drawCircle(svg, c34, stroke);
-      const n = "c34";
-      store.add(n, dotWithTooltip(svg, c34.p.x, c34.p.y, n, stroke), "point");
+      store.add(
+        c34.name,
+        dotWithTooltip(svg, c34.p.x, c34.p.y, c34.name, stroke),
+        "point"
+      );
     }
 
     //
@@ -451,14 +467,22 @@
         drawDot(svg, pp, stroke);
 
         pii1 = intersectLines(new Line(pi3, pp), l13);
+        pii1.name = "pii1";
         if (pii1 != null) {
-          const n = "pii1";
-          store.add(n, dotWithTooltip(svg, pii1.x, pii1.y, n, stroke), "point");
+          store.add(
+            pii1.name,
+            dotWithTooltip(svg, pii1.x, pii1.y, pii1.name, stroke),
+            "point"
+          );
         }
         pii2 = intersectLines(new Line(pi3, pp), l24);
+        pii2.name = "pii2";
         if (pii2 != null) {
-          const n = "pii2";
-          store.add(n, dotWithTooltip(svg, pii2.x, pii2.y, n, stroke), "point");
+          store.add(
+            pii2.name,
+            dotWithTooltip(svg, pii2.x, pii2.y, pii2.name, stroke),
+            "point"
+          );
         }
         if (pii1 && pii2) {
           drawLine(svg, new Line(pii1, pii2), stroke);
@@ -467,13 +491,13 @@
       }
     }
 
-    const c1d3 = new Circle(c1.p, d3_);
-    const c2d3 = new Circle(c2.p, d3_);
-    const c3d3 = new Circle(c3.p, d3_);
-    const c4d3 = new Circle(c4.p, d3_);
+    const c1d3 = new Circle(c1.p, d3_, "c1_d3");
+    const c2d3 = new Circle(c2.p, d3_, "c2_d3");
+    const c3d3 = new Circle(c3.p, d3_, "c3_d3");
+    const c4d3 = new Circle(c4.p, d3_, "c4_d3");
 
-    [c1d3, c2d3, c3d3, c4d3].forEach((c, i) => {
-      const tooltip = text(svg, c.p.x, c.p.y, `c${i + 1}-d3`);
+    [c1d3, c2d3, c3d3, c4d3].forEach((c) => {
+      const tooltip = text(svg, c.p.x, c.p.y, c.name);
       tooltip.map((x) => x.style("opacity", 0));
       drawCircle(svg, c, stroke).call(
         addCircleTooltipEvents,
@@ -483,6 +507,7 @@
       );
     });
 
+    // todo(sas): what are this lines about
     drawLine(svg, new Line(cp2, pic14), stroke);
     drawLine(svg, new Line(cp4, pic12), stroke);
 
@@ -493,10 +518,14 @@
     let pic4;
     {
       pic4 = intersectLines(new Line(pii1, pi4), new Line(cp4, pic12));
+      pic4.name = "pic4";
       if (pic4 != null) {
         outputLines.push(new Line(pii1, pic4));
-        const n = "pic4";
-        store.add(n, dotWithTooltip(svg, pic4.x, pic4.y, n, stroke), "point");
+        store.add(
+          pic4.name,
+          dotWithTooltip(svg, pic4.x, pic4.y, pic4.name, stroke),
+          "point"
+        );
       }
     }
 
@@ -506,10 +535,14 @@
     let pic2;
     {
       pic2 = intersectLines(new Line(pii1, pii2), new Line(cp2, pic14));
+      pic2.name = "pic2";
       if (pic2 != null) {
         outputLines.push(new Line(pii1, pic2));
-        const n = "pic2";
-        store.add(n, dotWithTooltip(svg, pic2.x, pic2.y, n, stroke), "point");
+        store.add(
+          pic2.name,
+          dotWithTooltip(svg, pic2.x, pic2.y, pic2.name, stroke),
+          "point"
+        );
       }
     }
 
@@ -528,15 +561,23 @@
       let points = interceptCircleAndLine(c1d3, new Line(cp1, pi3));
       if (points != null && points.length > 0) {
         pic1w = points[0];
-        const n = "pic1w";
-        store.add(n, dotWithTooltip(svg, pic1w.x, pic1w.y, n, stroke), "point");
+        pic1w.name = "pic1w";
+        store.add(
+          pic1w.name,
+          dotWithTooltip(svg, pic1w.x, pic1w.y, pic1w.name, stroke),
+          "point"
+        );
       }
       // second point
       points = interceptCircleAndLine(c34, l34);
       if (points && points.length > 0) {
         pic34 = points[0];
-        const n = "pic34";
-        store.add(n, dotWithTooltip(svg, pic34.x, pic34.y, n, stroke), "point");
+        pic34.name = "pic34";
+        store.add(
+          pic34.name,
+          dotWithTooltip(svg, pic34.x, pic34.y, pic34.name, stroke),
+          "point"
+        );
       }
       outputLines.push(new Line(pic1w, pic34));
     }
@@ -555,15 +596,23 @@
       let points = interceptCircleAndLine(c1d3, new Line(cp1, pi4));
       if (points != null && points.length > 0) {
         pic1n = points[0];
-        const n = "pic1n";
-        store.add(n, dotWithTooltip(svg, pic1n.x, pic1n.y, n, stroke), "point");
+        pic1n.name = "pic1n";
+        store.add(
+          pic1n.name,
+          dotWithTooltip(svg, pic1n.x, pic1n.y, pic1n.name, stroke),
+          "point"
+        );
       }
       // second point
       points = interceptCircleAndLine(c23, l23);
       if (points != null && points.length > 0) {
         pic23 = points[1];
-        const n = "pic23";
-        store.add(n, dotWithTooltip(svg, pic23.x, pic23.y, n, stroke), "point");
+        pic23.name = "pic23";
+        store.add(
+          pic23.name,
+          dotWithTooltip(svg, pic23.x, pic23.y, pic23.name, stroke),
+          "point"
+        );
       }
       outputLines.push(new Line(pic1n, pic23));
     }
@@ -580,16 +629,24 @@
       let points = interceptCircleAndLine(c1, l12);
       if (points && points.length > 0) {
         pc1w = points[0];
-        const n = "pc1w";
-        store.add(n, dotWithTooltip(svg, pc1w.x, pc1w.y, n, stroke), "point");
+        pc1w.name = "pc1w";
+        store.add(
+          pc1w.name,
+          dotWithTooltip(svg, pc1w.x, pc1w.y, pc1w.name, stroke),
+          "point"
+        );
       }
       // second point
       points = interceptCircleAndLine(c23, l23);
       if (points && points.length > 0) {
         //[pc23sx, pc23sy] = p[0];
         pc23s = points[0];
-        const n = "pc23s";
-        store.add(n, dotWithTooltip(svg, pc23s.x, pc23s.y, n, stroke), "point");
+        pc23s.name = "pc23s";
+        store.add(
+          pc23s.name,
+          dotWithTooltip(svg, pc23s.x, pc23s.y, pc23s.name, stroke),
+          "point"
+        );
       }
       outputLines.push(new Line(pc1w, pc23s));
     }
@@ -606,15 +663,23 @@
       let points = interceptCircleAndLine(c1, l41);
       if (points && points.length > 0) {
         pc1n = points[0];
-        const n = "pc1n";
-        store.add(n, dotWithTooltip(svg, pc1n.x, pc1n.y, n, stroke), "point");
+        pc1n.name = "pc1n";
+        store.add(
+          pc1n.name,
+          dotWithTooltip(svg, pc1n.x, pc1n.y, pc1n.name, stroke),
+          "point"
+        );
       }
       // second point
       points = interceptCircleAndLine(c34, l34);
       if (points && points.length > 0) {
         pc34e = points[1];
-        const n = "pc34e";
-        store.add(n, dotWithTooltip(svg, pc34e.x, pc34e.y, n, stroke), "point");
+        pc34e.name = "pc34e";
+        store.add(
+          pc34e.name,
+          dotWithTooltip(svg, pc34e.x, pc34e.y, pc34e.name, stroke),
+          "point"
+        );
       }
       outputLines.push(new Line(pc1n, pc34e));
     }
@@ -639,15 +704,23 @@
       let points = interceptCircleAndLine(c3d3, l13);
       if (points && points.length > 0) {
         pc3sw = points[0];
-        const n = "pc3sw";
-        store.add(n, dotWithTooltip(svg, pc3sw.x, pc3sw.y, n, stroke), "point");
+        pc3sw.name = "pc3sw";
+        store.add(
+          pc3sw.name,
+          dotWithTooltip(svg, pc3sw.x, pc3sw.y, pc3sw.name, stroke),
+          "point"
+        );
       }
       points = interceptCircleAndLine(c23, new Line(c23.p, cp1));
 
       if (points && points.length > 0) {
         pc23e = points[0];
-        const n = "pc23e";
-        store.add(n, dotWithTooltip(svg, pc23e.x, pc23e.y, n, stroke), "point");
+        pc23e.name = "pc23e";
+        store.add(
+          pc23e.name,
+          dotWithTooltip(svg, pc23e.x, pc23e.y, pc23e.name, stroke),
+          "point"
+        );
       }
       outputLines.push(new Line(pc3sw, pc23e));
     }
@@ -662,8 +735,12 @@
       let points = interceptCircleAndLine(c34, new Line(c34.p, cp1));
       if (points && points.length > 0) {
         pc34s = points[0];
-        const n = "pc34s";
-        store.add(n, dotWithTooltip(svg, pc34s.x, pc34s.y, n, stroke), "point");
+        pc34s.name = "pc34s";
+        store.add(
+          pc34s.name,
+          dotWithTooltip(svg, pc34s.x, pc34s.y, pc34s.name, stroke),
+          "point"
+        );
       }
     }
     outputLines.push(new Line(pc34s, pc3sw));
