@@ -600,13 +600,7 @@
       }
       outputLines.push(new Line(pc1n, pc34e));
     }
-    // line between
-    //  point 1:
-    //    point(pc1nx, pc1ny)
-    //    point(pic1nx, pic1ny)
-    //  point 2:
-    //    point(pc1wx, pc1wy)
-    //    point(pic1wx, pic1wy)
+
     outputLines.push(new Line(pc1n, pic1n));
     outputLines.push(new Line(pc1w, pic1w));
     // line between
