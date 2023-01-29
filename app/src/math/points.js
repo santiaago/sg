@@ -1,7 +1,9 @@
 export class Point {
-  constructor(x, y) {
+  constructor(x, y, name) {
     this.x = x;
     this.y = y;
+    this.type = "point";
+    this.name = name;
   }
   distanceToPoint(p) {
     return distance(this.x, this.y, p.x, p.y);

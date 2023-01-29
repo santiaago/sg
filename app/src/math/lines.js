@@ -6,9 +6,11 @@ export class Line {
    * @param {Point} p1
    * @param {Point} p2
    */
-  constructor(p1, p2) {
+  constructor(p1, p2, name) {
     this.p1 = p1;
     this.p2 = p2;
+    this.type = "line";
+    this.name = name;
   }
 }
 
