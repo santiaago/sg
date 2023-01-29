@@ -47,8 +47,8 @@
     // find intersection point between 2 circles
     const cp1 = new Point(cx1, cy1);
     const cp2 = new Point(cx2, cy2);
-    const c1 = new Circle(cp1, r);
-    const c2 = new Circle(cp2, r);
+    const c1 = new Circle(cp1, r, "c1");
+    const c2 = new Circle(cp2, r, "c2");
 
     let points = circlesIntersection(c1, c2);
     if (!points) {
@@ -111,7 +111,7 @@
       const tmp_points = interceptCircleAndLine(c2, l24);
       if (tmp_points && tmp_points.length > 0) {
         cp24 = tmp_points[0];
-        c3 = new Circle(cp24, r);
+        c3 = new Circle(cp24, r, "c3");
         if (drawDetails) {
           drawDot(svg, cp24, stroke);
         }
@@ -126,7 +126,7 @@
       const tmp_points = interceptCircleAndLine(c1, l13);
       if (tmp_points && tmp_points.length > 0) {
         cp13 = tmp_points[0];
-        c4 = new Circle(cp13, r);
+        c4 = new Circle(cp13, r, "c4");
         if (drawDetails) {
           drawDot(svg, cp13, stroke);
         }
@@ -238,10 +238,9 @@
     const l41 = new Line(cp4, cp1, "l41");
 
     circles.forEach((c, i) => {
-      const n = `c${i + 1}`;
-      store.add(n, pointWithTooltip(svg, c.p, n, stroke), "point");
+      store.add(c.name, pointWithTooltip(svg, c.p, c.name, stroke), "point");
       const csvg = drawCircle(svg, c, stroke);
-      store.add(`${n}_c`, csvg, "circle");
+      store.add(c.name, csvg, "circle");
     });
 
     [l12, l23, l34, l41].forEach((line) => {
