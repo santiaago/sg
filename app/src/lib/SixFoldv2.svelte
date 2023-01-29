@@ -1,7 +1,6 @@
 <script>
   import * as d3 from "d3";
   import {
-    dotWithTooltip,
     drawCircle,
     drawDot,
     drawLine,
@@ -396,11 +395,7 @@
       const c34n = bisectCircleAndPoint(cpic12, pi6);
       c34n.name = "c34n";
       {
-        store.add(
-          c34n.name,
-          dotWithTooltip(svg, c34n.x, c34n.y, c34n.name, stroke),
-          "point"
-        );
+        store.add(c34n.name, pointWithTooltip(svg, c34n, stroke), "point");
         drawLine(svg, new Line(pic12, c34n), stroke);
       }
 
@@ -412,21 +407,13 @@
       if (pi && pi.length > 0) {
         c34e = pi[0];
         c34e.name = "c34e";
-        store.add(
-          c34e.name,
-          dotWithTooltip(svg, c34e.x, c34e.y, c34e.name, stroke),
-          "point"
-        );
+        store.add(c34e.name, pointWithTooltip(svg, c34e, stroke), "point");
       }
 
       d2 = pc34.distanceToPoint(c34e);
       c34 = new Circle(pc34, d2, "c34_d2");
       drawCircle(svg, c34, stroke);
-      store.add(
-        c34.name,
-        dotWithTooltip(svg, c34.p.x, c34.p.y, c34.name, stroke),
-        "point"
-      );
+      store.add(c34.name, pointWithTooltip(svg, c34.p, stroke), "point");
     }
 
     //
