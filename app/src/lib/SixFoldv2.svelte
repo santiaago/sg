@@ -330,14 +330,16 @@
 
     // draw lines
     // todo(sas) name this lines
-    [pi3, pi4].forEach((p) => {
-      drawLine(svg, new Line(cp1, p), stroke);
-    });
+    const lcp1pi3 = new Line(cp1, pi3, "lcp1pi3");
+    const lcp1pi4 = new Line(cp1, pi4, "lcp1pi4");
+
+    drawLine(svg, lcp1pi3, stroke);
+    drawLine(svg, lcp1pi4, stroke);
 
     // compute intersection between lines and cercles
     let pi5;
     {
-      const points = interceptCircleAndLine(c14, new Line(cp1, pic14));
+      const points = interceptCircleAndLine(c14, lpic14);
       if (points && points.length > 0) {
         pi5 = points[0];
         pi5.name = "prx5";
@@ -347,7 +349,7 @@
 
     let pi6;
     {
-      const points = interceptCircleAndLine(c12, new Line(cp1, pic12));
+      const points = interceptCircleAndLine(c12, lpic12);
       if (points && points.length > 0) {
         pi6 = points[0];
         pi6.name = "prx6";
@@ -363,12 +365,12 @@
     {
       const c23w = bisectCircleAndPoint(cpic14, pi5);
       c23w.name = "c23w";
+      const l14p = new Line(pic14, c23w, "l14p");
       {
         store.add(c23w, pointWithTooltip(svg, c23w, stroke));
-        drawLine(svg, new Line(pic14, c23w), stroke);
+        drawLine(svg, l14p, stroke);
       }
 
-      const l14p = new Line(pic14, c23w, "l14p");
       const pc23 = linesIntersection(l23, l14p);
       pc23.name = "pc23";
 
@@ -425,7 +427,7 @@
     let pii1, pii2;
     let d3_;
     {
-      const pi = interceptCircleAndLine(c1, new Line(cp1, pic14));
+      const pi = interceptCircleAndLine(c1, lpic14);
 
       if (pi && pi.length > 0) {
         const pp = pi[0];
@@ -441,12 +443,13 @@
         if (pii2 != null) {
           store.add(pii2, pointWithTooltip(svg, pii2, stroke));
         }
-        if (pii1 && pii2) {
-          drawLine(svg, new Line(pii1, pii2), stroke);
-        }
-        d3_ = pii1.distanceToPoint(cp1);
       }
     }
+
+    const lpii1pii2 = new Line(pii1, pii2, "lpii1pii2");
+    drawLine(svg, lpii1pii2, stroke);
+
+    d3_ = pii1.distanceToPoint(cp1);
 
     const c1d3 = new Circle(c1.p, d3_, "c1_d3");
     const c2d3 = new Circle(c2.p, d3_, "c2_d3");
@@ -464,17 +467,18 @@
       );
     });
 
-    // todo(sas): what are this lines about
-    drawLine(svg, new Line(cp2, pic14), stroke);
-    drawLine(svg, new Line(cp4, pic12), stroke);
+    const lcp2pic14 = new Line(cp2, pic14, "lcp2pic14");
+    const lcp4pic12 = new Line(cp4, pic12, "lcp4pic12");
 
-    // end
+    drawLine(svg, lcp2pic14, stroke);
+    drawLine(svg, lcp4pic12, stroke);
+
     // find intersection between 2 segments
     // line (pii1x, pii1y) (pi4x, pi4y)
     // line (cx4, cy4) (px, py)
     let pic4;
     {
-      pic4 = intersectLines(new Line(pii1, pi4), new Line(cp4, pic12));
+      pic4 = intersectLines(new Line(pii1, pi4), lcp4pic12);
       pic4.name = "pic4";
       if (pic4 != null) {
         outputLines.push(new Line(pii1, pic4));
@@ -487,7 +491,7 @@
     // line(cx2, cy2) (pix, piy)
     let pic2;
     {
-      pic2 = intersectLines(new Line(pii1, pii2), new Line(cp2, pic14));
+      pic2 = intersectLines(lpii1pii2, lcp2pic14);
       pic2.name = "pic2";
       if (pic2 != null) {
         outputLines.push(new Line(pii1, pic2));
@@ -507,7 +511,7 @@
     let pic34;
     {
       // first point
-      let points = interceptCircleAndLine(c1d3, new Line(cp1, pi3));
+      let points = interceptCircleAndLine(c1d3, lcp1pi3);
       if (points != null && points.length > 0) {
         pic1w = points[0];
         pic1w.name = "pic1w";
@@ -534,7 +538,7 @@
 
     {
       // first point
-      let points = interceptCircleAndLine(c1d3, new Line(cp1, pi4));
+      let points = interceptCircleAndLine(c1d3, lcp1pi4);
       if (points != null && points.length > 0) {
         pic1n = points[0];
         pic1n.name = "pic1n";
