@@ -194,6 +194,15 @@
     });
   };
 
+  const intersectLinesAndStore = (svg, line1, line2, name) => {
+    let point = intersectLines(line1, line2);
+    if (point != null) {
+      point.name = name;
+      store.add(point, pointWithTooltip(svg, point, stroke));
+    }
+    return point;
+  };
+
   onMount(() => {
     let svg = d3.select(el).attr("viewBox", "0 0 300 150");
     const outputLines = [];
@@ -329,7 +338,6 @@
     });
 
     // draw lines
-    // todo(sas) name this lines
     const lcp1pi3 = new Line(cp1, pi3, "lcp1pi3");
     const lcp1pi4 = new Line(cp1, pi4, "lcp1pi4");
 
@@ -433,16 +441,8 @@
         const pp = pi[0];
         drawDot(svg, pp, stroke);
 
-        pii1 = intersectLines(new Line(pi3, pp), l13);
-        pii1.name = "pii1";
-        if (pii1 != null) {
-          store.add(pii1, pointWithTooltip(svg, pii1, stroke));
-        }
-        pii2 = intersectLines(new Line(pi3, pp), l24);
-        pii2.name = "pii2";
-        if (pii2 != null) {
-          store.add(pii2, pointWithTooltip(svg, pii2, stroke));
-        }
+        pii1 = intersectLinesAndStore(svg, new Line(pi3, pp), l13, "pii1");
+        pii2 = intersectLinesAndStore(svg, new Line(pi3, pp), l24, "pii2");
       }
     }
 
@@ -474,30 +474,12 @@
     drawLine(svg, lcp4pic12, stroke);
 
     // find intersection between 2 segments
-    // line (pii1x, pii1y) (pi4x, pi4y)
-    // line (cx4, cy4) (px, py)
-    let pic4;
-    {
-      pic4 = intersectLines(new Line(pii1, pi4), lcp4pic12);
-      pic4.name = "pic4";
-      if (pic4 != null) {
-        outputLines.push(new Line(pii1, pic4));
-        store.add(pic4, pointWithTooltip(svg, pic4, stroke));
-      }
-    }
-
+    const lpii1pi4 = new Line(pii1, pi4);
+    const pic4 = intersectLinesAndStore(svg, lpii1pi4, lcp4pic12, "pic4");
+    outputLines.push(new Line(pii1, pic4));
     // find intersection between 2 segments
-    // line (pii1x, pii1y), (pii2x, pii2y)
-    // line(cx2, cy2) (pix, piy)
-    let pic2;
-    {
-      pic2 = intersectLines(lpii1pii2, lcp2pic14);
-      pic2.name = "pic2";
-      if (pic2 != null) {
-        outputLines.push(new Line(pii1, pic2));
-        store.add(pic2, pointWithTooltip(svg, pic2, stroke));
-      }
-    }
+    const pic2 = intersectLinesAndStore(svg, lpii1pii2, lcp2pic14, "pic2");
+    outputLines.push(new Line(pii1, pic2));
 
     // points for crossing
     //  first point
