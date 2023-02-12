@@ -417,12 +417,6 @@
       store.add(c34.p, pointWithTooltip(svg, c34.p, stroke));
     }
 
-    //
-    // point: pi3x, pi3y
-    // cercle: [cx1, cy1],
-    // line: [li1pax, li1pay, li1pbx, lipby]
-    //let pii1x, pii1y;
-    //let pii2x, pii2y;
     let pii1, pii2;
     let d3_;
     {
@@ -464,67 +458,32 @@
     drawLine(svg, lcp2pic14, stroke);
     drawLine(svg, lcp4pic12, stroke);
 
-    // find intersection between 2 segments
     const lpii1pi4 = new Line(pii1, pi4);
     const pic4 = intersectLinesAndStore(svg, lpii1pi4, lcp4pic12, "pic4");
     outputLines.push(new Line(pii1, pic4));
-    // find intersection between 2 segments
+
     const pic2 = intersectLinesAndStore(svg, lpii1pii2, lcp2pic14, "pic2");
     outputLines.push(new Line(pii1, pic2));
 
-    // points for crossing
-    //  first point
-    //    intersection between
-    //    cercle (cx1, cy1, d3_?)
-    //    line (cx1, cy1, pi3x, pi3y)
-    //  second point
-    //    line(cx4, cy4, cx3, cy3)
-    //    cercle(cx34, cy34 d2)
     const pic1w = interceptCircleLineAndStore(svg, c1d3, lcp1pi3, "pic1w", 0);
     const pic34 = interceptCircleLineAndStore(svg, c34, l34, "pic34", 0);
     outputLines.push(new Line(pic1w, pic34));
 
-    // lines between
-    //  first point
-    //    intersection between
-    //    cercle (cx1, cy1, d3_?)
-    //    line (cx1, cy1, pi4x, pi4y)
-    //  second point
-    //    line(cx2, cy2, cx3, cy3)
-    //    cercle(cx23, cy23 d2)
     const pic1n = interceptCircleLineAndStore(svg, c1d3, lcp1pi4, "pic1n", 0);
     const pic23 = interceptCircleLineAndStore(svg, c23, l23, "pic23", 1);
     outputLines.push(new Line(pic1n, pic23));
-    // lines between
-    //  point 1:
-    //    circle(cx1, cy1, d1)
-    //    line(cx1, cy1, cx2, cy2)
-    //  point 2:
-    //    circle(cx23, cy23, d2)
-    //    line(cx2, cy2, cx3, cy3)
+
     const pc1w = interceptCircleLineAndStore(svg, c1, l12, "pc1w", 0);
     const pc23s = interceptCircleLineAndStore(svg, c23, l23, "pc23s", 0);
     outputLines.push(new Line(pc1w, pc23s));
-    // lines between
-    //  point 1:
-    //    circle(cx1, cy1, d1)
-    //    line(cx1, cy1, cx4, cy4)
-    //  point 2:
-    //    circle(cx34, cy34, d2)
-    //    line(cx4, cy4, cx3, cy3)
+
     const pc1n = interceptCircleLineAndStore(svg, c1, l41, "pc1n", 0);
     const pc34e = interceptCircleLineAndStore(svg, c34, l34, "pc34e", 1);
     outputLines.push(new Line(pc1n, pc34e));
 
     outputLines.push(new Line(pc1n, pic1n));
     outputLines.push(new Line(pc1w, pic1w));
-    // line between
-    //  point 1:
-    //    circle(cx3, cy3, d3_)
-    //    line(cx3, cy, cx1, cy1)
-    //  point 2:
-    //    circle(c23x, c23y, d3_)
-    //    line(c23x, c23y, cx0, cy0)
+
     const pc3sw = interceptCircleLineAndStore(svg, c3d3, l13, "pc3sw", 0);
     const pc23e = interceptCircleLineAndStore(
       svg,
@@ -534,12 +493,7 @@
       0
     );
     outputLines.push(new Line(pc3sw, pc23e));
-    // lines between
-    //  point 1:
-    //    circle(c34x, c34y, d3_)
-    //    line(c34x, c34y, c1x, c1y)
-    //  point 2:
-    //    point(pc3swx, pc3swy)
+
     const pc34s = interceptCircleLineAndStore(
       svg,
       c34,
