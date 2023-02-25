@@ -1,9 +1,14 @@
+import { hashName } from "../hash/name";
+
 export class Point {
   constructor(x, y, name) {
     this.x = x;
     this.y = y;
     this.type = "point";
     this.name = name;
+    if (this.name == null || this.name == undefined) {
+      this.name = hashName(this);
+    }
   }
   distanceToPoint(p) {
     return distance(this.x, this.y, p.x, p.y);

@@ -1,4 +1,5 @@
 // @ts-ignore
+import { hashName } from "../hash/name";
 import { Point } from "./points";
 
 export class Line {
@@ -11,6 +12,9 @@ export class Line {
     this.p2 = p2;
     this.type = "line";
     this.name = name;
+    if (this.name == null || this.name == undefined) {
+      this.name = hashName(this);
+    }
   }
 }
 
