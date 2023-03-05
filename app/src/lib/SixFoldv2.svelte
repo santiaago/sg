@@ -27,6 +27,7 @@
   export let strokeMid = 0.5;
   export let strokeBig = 2;
   export let strokeLine = (1 + Math.sqrt(5)) / 2;
+  export let debug = false;
 
   // from a line
   // draw a square where the 2 points are a side of the square
@@ -234,12 +235,26 @@
     const p1 = new Point(lx1, ly1, "p1");
     const p2 = new Point(lx2, ly2, "p2");
     const line1 = new Line(p1, p2);
-    // draw first line
-    drawLine(svg, line1, stroke);
-    // for debug
-    // for (let i = 0; i <= 8; i++) {
-    //   dot(svg, lx1 + ((lx2 - lx1) * i) / 8, ly1 + 50);
-    // }
+
+    const drawAndStorePoint = (point) => {
+      store.add(point, pointWithTooltip(svg, point, stroke));
+    };
+    const drawAndStoreLine = (line) => {
+      const svgline = drawLine(svg, line, stroke);
+      store.add(line, svgline);
+      outputLines.push(line);
+    };
+
+    [p1, p2].forEach(drawAndStorePoint);
+    [line1].forEach(drawAndStoreLine);
+
+    // drawLine(svg, line1, stroke);
+    if (debug) {
+      for (let i = 0; i <= 8; i++) {
+        pointWithTooltip(svg, lx1 + ((lx2 - lx1) * i) / 8, ly1 + 50);
+      }
+    }
+    // step 1 finished here
 
     const circles = drawSquareFromLine(svg, line1, stroke, false);
 
@@ -256,37 +271,26 @@
     const l34 = new Line(cp3, cp4, "l34");
     const l41 = new Line(cp4, cp1, "l41");
 
-    [cp1, cp2, cp3, cp4].forEach((p) => {
-      store.add(p, pointWithTooltip(svg, p, stroke));
-    });
+    [cp1, cp2, cp3, cp4].forEach(drawAndStorePoint);
 
     circles.forEach((c, i) => {
       const csvg = drawCircle(svg, c, stroke);
       store.add(c, csvg);
     });
 
-    [l12, l23, l34, l41].forEach((line) => {
-      const svgline = drawLine(svg, line, stroke);
-      store.add(line, svgline);
-      outputLines.push(line);
-    });
+    [l12, l23, l34, l41].forEach(drawAndStoreLine);
 
-    // todo add all outputs to store with names
-    // [l12, l23, l34, l41].forEach((l, i) => {
-    //   const lsvg = drawLine(svg, l, strokeLine);
-    //   store.add(`l${i}_l`, lsvg, "line");
-    // });
+    // finish step 2
 
     const [pic12, pic14] = drawIntersectionPoints(svg, circles);
     pic12.name = "pic12";
     pic14.name = "pic14";
 
-    [pic12, pic14].forEach((p) => {
-      store.add(p, pointWithTooltip(svg, p, stroke));
-    });
+    [pic12, pic14].forEach(drawAndStorePoint);
 
     const lpic12 = new Line(cp1, pic12, "lpic12");
     const lpic14 = new Line(cp1, pic14, "lpic14");
+
     [lpic12, lpic14].forEach((line) => {
       const l = drawLine(svg, line, stroke);
       store.add(line, l);
@@ -299,7 +303,7 @@
       const l = drawLine(svg, line, stroke);
       store.add(line, l);
     });
-
+    // finish step 3
     let pi2;
     {
       const line1 = new Line(circles[0].p, circles[2].p);
@@ -340,15 +344,15 @@
       svgc.call(addCircleTooltipEvents, tooltip, c, stroke);
     });
 
+    // finish step 4
+
     // find intersection points
     const pi3 = circlesIntersectionPoint(c14, c2, directions.right);
     const pi4 = circlesIntersectionPoint(c12, c4, directions.right);
     pi3.name = "pi3";
     pi4.name = "pi4";
 
-    [pi3, pi4].forEach((p) => {
-      store.add(p, pointWithTooltip(svg, p, stroke));
-    });
+    [pi3, pi4].forEach(drawAndStorePoint);
 
     // draw lines
     const lcp1pi3 = new Line(cp1, pi3, "lcp1pi3");
@@ -362,9 +366,7 @@
     // compute intersection between lines and cercles
     let pi5 = interceptCircleLineAndStore(svg, c14, lpic14, "prx5", 0);
     let pi6 = interceptCircleLineAndStore(svg, c12, lpic12, "prx6", 0);
-    [pi5, pi6].forEach((point) => {
-      store.add(point, pointWithTooltip(svg, point, stroke));
-    });
+    [pi5, pi6].forEach(drawAndStorePoint);
 
     // looking for intersection of
     // line(center(c1), point(px,py)) AND
@@ -374,6 +376,7 @@
       const csvg = drawCircle(svg, cpic14, stroke);
       store.add(cpic14, csvg);
     }
+    // finish step 5
 
     let c23;
     {
@@ -381,7 +384,7 @@
       c23w.name = "c23w";
       const l14p = new Line(pic14, c23w, "l14p");
       {
-        store.add(c23w, pointWithTooltip(svg, c23w, stroke));
+        drawAndStorePoint(c23w);
 
         const lsvg = drawLine(svg, l14p, stroke);
         store.add(l14p, lsvg);
@@ -397,9 +400,7 @@
         "c23s",
         0
       );
-      [pc23, c23s].forEach((point) => {
-        store.add(point, pointWithTooltip(svg, point, stroke));
-      });
+      [pc23, c23s].forEach(drawAndStorePoint);
 
       const d2 = pc23.distanceToPoint(c23s);
       c23 = new Circle(pc23, d2, "c23_d2");
@@ -436,9 +437,7 @@
         "c34e",
         0
       );
-      [pc34, c34e].forEach((point) => {
-        store.add(point, pointWithTooltip(svg, point, stroke));
-      });
+      [pc34, c34e].forEach(drawAndStorePoint);
 
       d2 = pc34.distanceToPoint(c34e);
       c34 = new Circle(pc34, d2, "c34_d2");
@@ -446,6 +445,7 @@
       store.add(c34.p, pointWithTooltip(svg, c34.p, stroke));
       store.add(c34, svgc);
     }
+    // finish step 6
 
     let pii1, pii2;
     {
@@ -458,9 +458,7 @@
 
         pii1 = intersectLinesAndStore(svg, new Line(pi3, pp), l13, "pii1");
         pii2 = intersectLinesAndStore(svg, new Line(pi3, pp), l24, "pii2");
-        [pii1, pii2].forEach((point) => {
-          store.add(point, pointWithTooltip(svg, point, stroke));
-        });
+        [pii1, pii2].forEach(drawAndStorePoint);
       }
     }
 
@@ -484,6 +482,7 @@
       svgc.call(addCircleTooltipEvents, tooltip, c, stroke);
       store.add(c, svgc);
     });
+    // finish step 7
 
     const lcp2pic14 = new Line(cp2, pic14, "lcp2pic14");
     const lcp4pic12 = new Line(cp4, pic12, "lcp4pic12");
@@ -500,6 +499,7 @@
       store.add(lpii1pi4, lsvg);
       store.add(pic4, pointWithTooltip(svg, pic4, stroke));
     }
+    // finish step 8
 
     outputLines.push(new Line(pii1, pic4));
 
@@ -549,6 +549,7 @@
     outputLines.push(new Line(cp2, pic2));
 
     drawOutput(svg, outputLines);
+    // finish step 9
   });
 </script>
 
