@@ -260,9 +260,9 @@
     const p2 = new Point(lx2, ly2, "p2");
     const line1 = new Line(p1, p2);
 
-    [p1, p2].forEach(drawAndStorePoint);
-    [line1].forEach(drawAndStoreLine);
-    [line1].forEach(addToOutputLines);
+    // [p1, p2].forEach(drawAndStorePoint);
+    // [line1].forEach(drawAndStoreLine);
+    // [line1].forEach(addToOutputLines);
 
     // drawLine(svg, line1, stroke);
     if (debug) {
@@ -270,6 +270,8 @@
         pointWithTooltip(svg, lx1 + ((lx2 - lx1) * i) / 8, ly1 + 50);
       }
     }
+    const step1 = new Step([p1, p2, line1]);
+    steps.push(step1);
 
     // step 1 finished here
 
@@ -288,9 +290,30 @@
     const l34 = new Line(cp3, cp4, "l34");
     const l41 = new Line(cp4, cp1, "l41");
 
-    [cp1, cp2, cp3, cp4].forEach(drawAndStorePoint);
-    circles.forEach(drawAndStoreCircle);
+    //[cp1, cp2, cp3, cp4].forEach(drawAndStorePoint);
+    //circles.forEach(drawAndStoreCircle);
 
+    const step2 = new Step([cp1, cp2, cp3, cp4, ...circles]);
+    steps.push(step2);
+
+    steps.forEach((step) => {
+      step.drawShapes = function () {
+        console.log("inside prototype drawShapes");
+        this.shapes.forEach((shape) => {
+          if (!this.draw) return;
+          if (shape.type == "point") {
+            drawAndStorePoint(shape);
+          }
+          if (shape.type == "line") {
+            drawAndStoreLine(shape);
+          }
+          if (shape.type == "circle") {
+            drawAndStoreCircle(shape);
+          }
+        });
+      };
+    });
+    return;
 
     [l12, l23, l34, l41].forEach(drawAndStoreLine);
     [l12, l23, l34, l41].forEach(addToOutputLines);

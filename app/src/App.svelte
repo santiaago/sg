@@ -13,6 +13,18 @@
 
   const steps = [];
   let currentStep = 0;
+  const handleNextClick = () => {
+    console.log("next step", steps.length);
+    if (currentStep < steps.length) {
+      console.log("inside");
+      const step = steps[currentStep];
+      console.log(step);
+      step.draw = true;
+      step.drawShapes();
+      console.log("after drawShapes");
+      currentStep = +1;
+    }
+  };
 </script>
 
 <main>
@@ -31,6 +43,9 @@
         {strokeLine}
         {steps}
       />
+      <div>
+        <button on:click={handleNextClick}> next </button>
+      </div>
     </div>
     <div class="right">
       <h2>Right pane</h2>
