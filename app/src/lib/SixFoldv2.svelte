@@ -247,6 +247,13 @@
       const csvg = drawCircle(svg, circle, stroke);
       store.add(circle, csvg);
     };
+    const drawAndStoreCircleWithTooltip = (circle) => {
+      const tooltip = text(svg, circle.p.x, circle.p.y, circle.name);
+      tooltip.map((x) => x.style("opacity", 0));
+      const svgc = drawCircle(svg, circle, stroke);
+      store.add(circle, svgc);
+      svgc.call(addCircleTooltipEvents, tooltip, circle, stroke);
+    };
     const addToOutputLines = (line) => {
       outputLines.push(line);
     };
@@ -322,24 +329,12 @@
     const c3 = new Circle(cp3, d1, "c3_d1");
     const c4 = new Circle(cp4, d1, "c4_d1");
 
-    [c1, c2, c3, c4].forEach((c, i) => {
-      const tooltip = text(svg, c.p.x, c.p.y, c.name);
-      tooltip.map((x) => x.style("opacity", 0));
-      const svgc = drawCircle(svg, c, stroke);
-      store.add(c, svgc);
-      svgc.call(addCircleTooltipEvents, tooltip, c, stroke);
-    });
+    [c1, c2, c3, c4].forEach(drawAndStoreCircleWithTooltip);
 
     const c14 = new Circle(pic14, d1, "c14_d1");
     const c12 = new Circle(pic12, d1, "c12_d1");
 
-    [c14, c12].forEach((c) => {
-      const tooltip = text(svg, c.p.x, c.p.y, c.name);
-      tooltip.map((x) => x.style("opacity", 0));
-      const svgc = drawCircle(svg, c, stroke);
-      store.add(c, svgc);
-      svgc.call(addCircleTooltipEvents, tooltip, c, stroke);
-    });
+    [c14, c12].forEach(drawAndStoreCircleWithTooltip);
 
     // finish step 4
 
@@ -448,13 +443,8 @@
     const c3d3 = new Circle(c3.p, d3_, "c3_d3");
     const c4d3 = new Circle(c4.p, d3_, "c4_d3");
 
-    [c1d3, c2d3, c3d3, c4d3].forEach((c) => {
-      const tooltip = text(svg, c.p.x, c.p.y, c.name);
-      tooltip.map((x) => x.style("opacity", 0));
-      const svgc = drawCircle(svg, c, stroke);
-      svgc.call(addCircleTooltipEvents, tooltip, c, stroke);
-      store.add(c, svgc);
-    });
+    [c1d3, c2d3, c3d3, c4d3].forEach(drawAndStoreCircleWithTooltip);
+
     // finish step 7
 
     const lcp2pic14 = new Line(cp2, pic14, "lcp2pic14");
