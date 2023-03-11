@@ -51,3 +51,29 @@ export const storev2 = {
       };
     }),
 };
+
+export const itemsv3 = writable({});
+export const storev3 = {
+  subscribe: itemsv3.subscribe,
+  add: (shape, element) =>
+    itemsv3.update((old) => {
+      return {
+        ...old,
+        [shape.name]: {
+          name,
+          element,
+          selected: false,
+          type: shape.type,
+        },
+      };
+    }),
+  update: (k, o) =>
+    itemsv3.update((old) => {
+      return {
+        ...old,
+        [k]: {
+          ...o,
+        },
+      };
+    }),
+};

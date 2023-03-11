@@ -2,17 +2,50 @@
   import Square from "./lib/Square.svelte";
   import SixFold from "./lib/SixFold.svelte";
   import SixFoldv2 from "./lib/SixFoldv2.svelte";
-  import { store, storev2 } from "./store.js";
+  import SixFoldv3 from "./lib/SixFoldv3.svelte";
+  import { store, storev2, storev3 } from "./store.js";
 
   import GeometryList from "./GeometryList.svelte";
   const stroke = 0.5;
   const strokeMid = 0.5;
   const strokeBig = 2;
   const strokeLine = 1.4;
+
+  const steps = [];
+  let currentStep = 0;
 </script>
 
 <main>
   <h1>sg</h1>
+  <div class="row">
+    <div class="title">
+      <h1>1/4 Six fold pattern v3</h1>
+      <small>11/03/2023</small>
+    </div>
+    <div class="left">
+      <SixFoldv3
+        store={storev3}
+        {stroke}
+        {strokeMid}
+        {strokeBig}
+        {strokeLine}
+        {steps}
+      />
+    </div>
+    <div class="right">
+      <h2>Right pane</h2>
+      <p>Current step {currentStep}</p>
+      <div>
+        <GeometryList
+          store={storev3}
+          {stroke}
+          {strokeMid}
+          {strokeBig}
+          {strokeLine}
+        />
+      </div>
+    </div>
+  </div>
   <div class="row">
     <div class="title">
       <h1>1/4 Six fold pattern v2</h1>
