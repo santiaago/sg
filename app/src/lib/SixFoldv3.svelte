@@ -30,6 +30,7 @@
   export let strokeLine = (1 + Math.sqrt(5)) / 2;
   export let debug = false;
   export let steps = [];
+  export let updateSteps = (newSteps) => {};
   const CUT_LINE_BY = 8;
 
   // from a line
@@ -185,27 +186,32 @@
     };
 
     const addDrawShapesToAllSteps = (steps) => {
-      steps.forEach((step) => {
-        step.drawShapes = function () {
-          console.log("inside prototype drawShapes");
-          this.shapes.forEach((shape) => {
-            if (!this.draw) return;
-            if (shape.type == "point") {
-              drawAndStorePoint(shape);
-              return;
-            }
-            if (shape.type == "line") {
-              drawAndStoreLine(shape);
-              return;
-            }
-            if (shape.type == "circle") {
-              drawAndStoreCircle(shape);
-              return;
-            }
-            console.error("unknown shape type: " + shape.type);
-          });
+      console.log("addDrawShapesToAllSteps", steps);
+      const newSteps = steps.map((step, i) => {
+        return {
+          ...step,
+          drawShapes: (step.drawShapes = function () {
+            console.log("drawShapes new");
+            this.shapes.forEach((shape) => {
+              if (!this.draw) return;
+              if (shape.type == "point") {
+                drawAndStorePoint(shape);
+                return;
+              }
+              if (shape.type == "line") {
+                drawAndStoreLine(shape);
+                return;
+              }
+              if (shape.type == "circle") {
+                drawAndStoreCircle(shape);
+                return;
+              }
+              console.error("unknown shape type: " + shape.type);
+            });
+          }),
         };
       });
+      updateSteps(newSteps);
     };
 
     const width = 300;

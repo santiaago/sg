@@ -11,7 +11,7 @@
   const strokeBig = 2;
   const strokeLine = 1.4;
 
-  const steps = [];
+  $: steps = [];
   let currentStep = 0;
   const handleNextClick = () => {
     console.log("next step", currentStep, steps.length);
@@ -25,6 +25,10 @@
       currentStep += 1;
     }
   };
+  const updateSteps = (newSteps) => {
+    console.log("newSteps", newSteps, "steps", steps);
+    steps = newSteps;
+  };
 </script>
 
 <main>
@@ -33,6 +37,7 @@
     <div class="title">
       <h1>1/4 Six fold pattern v3</h1>
       <small>11/03/2023</small>
+      <p>1/4 Six fold pattern, with steps to display geometry incrementally</p>
     </div>
     <div class="left">
       <SixFoldv3
@@ -42,6 +47,7 @@
         {strokeBig}
         {strokeLine}
         {steps}
+        {updateSteps}
       />
       <div>
         <button on:click={handleNextClick}> next </button>
@@ -49,7 +55,7 @@
     </div>
     <div class="right">
       <h2>Right pane</h2>
-      <p>Current step {currentStep}</p>
+      <p>Current step {currentStep}/{steps.length}</p>
       <div>
         <GeometryList
           store={storev3}
