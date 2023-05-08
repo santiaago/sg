@@ -224,18 +224,15 @@
     };
     const drawAndStoreCircle = (circle) => {
       const csvg = drawCircle(svg, circle, stroke);
+
+      const drawTooltip = false;
+      if (drawTooltip) {
+        const tooltip = text(svg, circle.p.x, circle.p.y, circle.name);
+        tooltip.map((x) => x.style("opacity", 0));
+        csvg.call(addCircleTooltipEvents, tooltip, circle, stroke);
+      }
+
       store.add(circle, csvg);
-    };
-    const drawAndStoreCircleWithTooltip = (circle) => {
-      const tooltip = text(svg, circle.p.x, circle.p.y, circle.name);
-      tooltip.map((x) => x.style("opacity", 0));
-      const svgc = drawCircle(svg, circle, stroke);
-      store.add(circle, svgc);
-      svgc.call(addCircleTooltipEvents, tooltip, circle, stroke);
-    };
-    const outputLines = [];
-    const addToOutputLines = (line) => {
-      outputLines.push(line);
     };
 
     const addDrawShapesToAllSteps = (steps) => {
