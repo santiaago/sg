@@ -382,58 +382,57 @@
       const c23w = bisectCircleAndPoint(c14, pi5);
       c23w.name = "c23w";
       const l14p = new Line(pic14, c23w, "l14p");
-      //[l14p].forEach(drawAndStorePoint);
-      //drawAndStorePoint(c23w);
 
       const pc23 = linesIntersection(l23, l14p);
       pc23.name = "pc23";
 
-      const c23s = interceptCircleLine(svg, c2, new Line(pc23, cp2), "c23s", 0);
-      //[pc23, c23s].forEach(drawAndStorePoint);
+      const line = new Line(pc23, cp2);
+      const c23s = interceptCircleLine(svg, c2, line, "c23s", 0);
 
       const d2 = pc23.distanceToPoint(c23s);
       c23 = new Circle(pc23, d2, "c23_d2");
+      const step13 = new Step([c23w, l14p, pc23, line, c23s, c23, c23.p]);
+      steps.push(step13);
     }
-
-    const step13 = new Step([c23, c23.p]);
-    steps.push(step13);
 
     let c34, d2;
     {
       const cpic12 = new Circle(pic12, d1, "cpic12_d1");
-      //[cpic12].forEach(drawAndStoreCircle);
       const c34n = bisectCircleAndPoint(cpic12, pi6);
       c34n.name = "c34n";
       const lpic12c34n = new Line(pic12, c34n);
-      //[lpic12c34n].forEach(drawAndStoreLine);
-      //[c34n].forEach(drawAndStorePoint);
 
       const pc34 = linesIntersection(l34, lpic12c34n);
       pc34.name = "pc34";
 
-      const c34e = interceptCircleLine(svg, c4, new Line(pc34, cp4), "c34e", 0);
-      //[pc34, c34e].forEach(drawAndStorePoint);
+      const line = new Line(pc34, cp4);
+      const c34e = interceptCircleLine(svg, c4, line, "c34e", 0);
 
       d2 = pc34.distanceToPoint(c34e);
       c34 = new Circle(pc34, d2, "c34_d2");
+      const step14 = new Step([
+        cpic12,
+        c34n,
+        lpic12c34n,
+        pc34,
+        line,
+        c34e,
+        c34,
+        c34.p,
+      ]);
+      steps.push(step14);
     }
-
-    const step14 = new Step([c34, c34.p]);
-    steps.push(step14);
 
     let pii1, pii2;
     {
       const pp = interceptCircleLine(svg, c1, lpic14, "pp", 0);
-
-      if (pp != null) {
-        const l1 = new Line(pi3, pp);
-        pii1 = linesIntersection(new Line(pi3, pp), l13);
-        pii1.name = "pii1";
-        pii2 = linesIntersection(new Line(pi3, pp), l24);
-        pii2.name = "pii2";
-        const step15 = new Step([pp, l1, pii1, pii2]);
-        steps.push(step15);
-      }
+      const l1 = new Line(pi3, pp);
+      pii1 = linesIntersection(new Line(pi3, pp), l13);
+      pii1.name = "pii1";
+      pii2 = linesIntersection(new Line(pi3, pp), l24);
+      pii2.name = "pii2";
+      const step15 = new Step([pp, l1, pii1, pii2]);
+      steps.push(step15);
     }
 
     const lpii1pii2 = new Line(pii1, pii2, "lpii1pii2");
@@ -462,9 +461,6 @@
     const lpii1pi4 = new Line(pii1, pi4);
     const pic4 = linesIntersection(lpii1pi4, lcp4pic12);
     pic4.name = "pic4";
-    //const pic4 = intersectLinesAndStore(svg, lpii1pi4, lcp4pic12, "pic4");
-    //[lpii1pi4].forEach(drawAndStoreLine);
-    //[pic4].forEach(drawAndStorePoint);
 
     const step19 = new Step([lpii1pi4, pic4]);
     steps.push(step19);
