@@ -14,7 +14,7 @@
   const steps = [];
   let currentStep = 0;
   const handleNextClick = () => {
-    console.log("next step", steps.length);
+    console.log("next step", currentStep, steps.length);
     if (currentStep < steps.length) {
       console.log("inside");
       const step = steps[currentStep];
@@ -22,7 +22,7 @@
       step.draw = true;
       step.drawShapes();
       console.log("after drawShapes");
-      currentStep = +1;
+      currentStep += 1;
     }
   };
 </script>
