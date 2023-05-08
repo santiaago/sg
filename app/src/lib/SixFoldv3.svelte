@@ -200,13 +200,11 @@
     return point;
   };
 
-  // todo: remove store part
-  const interceptCircleLineAndStore = (svg, circle, line, name, pointIndex) => {
+  const interceptCircleLine = (svg, circle, line, name, pointIndex) => {
     let points = interceptCircleAndLine(circle, line);
     if (points && points.length > 0) {
       const point = points[pointIndex];
       point.name = name;
-      //store.add(point, pointWithTooltip(svg, point, stroke));
       return point;
     }
     return null;
@@ -371,8 +369,8 @@
     steps.push(step11);
 
     // compute intersection between lines and cercles
-    let pi5 = interceptCircleLineAndStore(svg, c14, lpic14, "prx5", 0);
-    let pi6 = interceptCircleLineAndStore(svg, c12, lpic12, "prx6", 0);
+    let pi5 = interceptCircleLine(svg, c14, lpic14, "prx5", 0);
+    let pi6 = interceptCircleLine(svg, c12, lpic12, "prx6", 0);
 
     const step12 = new Step([pi5, pi6]);
     steps.push(step12);
@@ -390,13 +388,7 @@
       const pc23 = linesIntersection(l23, l14p);
       pc23.name = "pc23";
 
-      const c23s = interceptCircleLineAndStore(
-        svg,
-        c2,
-        new Line(pc23, cp2),
-        "c23s",
-        0
-      );
+      const c23s = interceptCircleLine(svg, c2, new Line(pc23, cp2), "c23s", 0);
       //[pc23, c23s].forEach(drawAndStorePoint);
 
       const d2 = pc23.distanceToPoint(c23s);
@@ -419,13 +411,7 @@
       const pc34 = linesIntersection(l34, lpic12c34n);
       pc34.name = "pc34";
 
-      const c34e = interceptCircleLineAndStore(
-        svg,
-        c4,
-        new Line(pc34, cp4),
-        "c34e",
-        0
-      );
+      const c34e = interceptCircleLine(svg, c4, new Line(pc34, cp4), "c34e", 0);
       //[pc34, c34e].forEach(drawAndStorePoint);
 
       d2 = pc34.distanceToPoint(c34e);
@@ -437,21 +423,18 @@
 
     let pii1, pii2;
     {
-      const pi = interceptCircleAndLine(c1, lpic14);
+      const pp = interceptCircleLine(svg, c1, lpic14, "pp", 0);
 
-      if (pi && pi.length > 0) {
-        const pp = pi[0];
-        //[pp].forEach(drawAndStorePoint);
-
+      if (pp != null) {
+        const l1 = new Line(pi3, pp);
         pii1 = linesIntersection(new Line(pi3, pp), l13);
         pii1.name = "pii1";
         pii2 = linesIntersection(new Line(pi3, pp), l24);
         pii2.name = "pii2";
+        const step15 = new Step([pp, l1, pii1, pii2]);
+        steps.push(step15);
       }
     }
-
-    const step15 = new Step([pii1, pii2]);
-    steps.push(step15);
 
     const lpii1pii2 = new Line(pii1, pii2, "lpii1pii2");
 
@@ -494,20 +477,20 @@
     pic2.name = "pic2";
     const ol2 = new Line(pii1, pic2);
 
-    const pic1w = interceptCircleLineAndStore(svg, c1d3, lcp1pi3, "pic1w", 0);
-    const pic34 = interceptCircleLineAndStore(svg, c34, l34, "pic34", 0);
+    const pic1w = interceptCircleLine(svg, c1d3, lcp1pi3, "pic1w", 0);
+    const pic34 = interceptCircleLine(svg, c34, l34, "pic34", 0);
     const ol3 = new Line(pic1w, pic34);
 
-    const pic1n = interceptCircleLineAndStore(svg, c1d3, lcp1pi4, "pic1n", 0);
-    const pic23 = interceptCircleLineAndStore(svg, c23, l23, "pic23", 1);
+    const pic1n = interceptCircleLine(svg, c1d3, lcp1pi4, "pic1n", 0);
+    const pic23 = interceptCircleLine(svg, c23, l23, "pic23", 1);
     const ol4 = new Line(pic1n, pic23);
 
-    const pc1w = interceptCircleLineAndStore(svg, c1, l12, "pc1w", 0);
-    const pc23s = interceptCircleLineAndStore(svg, c23, l23, "pc23s", 0);
+    const pc1w = interceptCircleLine(svg, c1, l12, "pc1w", 0);
+    const pc23s = interceptCircleLine(svg, c23, l23, "pc23s", 0);
     const ol5 = new Line(pc1w, pc23s);
 
-    const pc1n = interceptCircleLineAndStore(svg, c1, l41, "pc1n", 0);
-    const pc34e = interceptCircleLineAndStore(svg, c34, l34, "pc34e", 1);
+    const pc1n = interceptCircleLine(svg, c1, l41, "pc1n", 0);
+    const pc34e = interceptCircleLine(svg, c34, l34, "pc34e", 1);
     const ol6 = new Line(pc1n, pc34e);
 
     const ol7 = new Line(pc1n, pic1n);
@@ -517,8 +500,8 @@
 
     steps.push(step20);
 
-    const pc3sw = interceptCircleLineAndStore(svg, c3d3, l13, "pc3sw", 0);
-    const pc23e = interceptCircleLineAndStore(
+    const pc3sw = interceptCircleLine(svg, c3d3, l13, "pc3sw", 0);
+    const pc23e = interceptCircleLine(
       svg,
       c23,
       new Line(c23.p, cp1),
@@ -528,7 +511,7 @@
 
     const ol9 = new Line(pc3sw, pc23e);
 
-    const pc34s = interceptCircleLineAndStore(
+    const pc34s = interceptCircleLine(
       svg,
       c34,
       new Line(c34.p, cp1),
