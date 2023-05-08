@@ -467,32 +467,41 @@
 
     // finish step 8
 
-    const ol1 = new Line(pii1, pic4);
+    const outline1 = new Line(pii1, pic4);
 
     const pic2 = linesIntersection(lpii1pii2, lcp2pic14);
     pic2.name = "pic2";
-    const ol2 = new Line(pii1, pic2);
+    const outline2 = new Line(pii1, pic2);
 
     const pic1w = interceptCircleLine(svg, c1d3, lcp1pi3, "pic1w", 0);
     const pic34 = interceptCircleLine(svg, c34, l34, "pic34", 0);
-    const ol3 = new Line(pic1w, pic34);
+    const outline3 = new Line(pic1w, pic34);
 
     const pic1n = interceptCircleLine(svg, c1d3, lcp1pi4, "pic1n", 0);
     const pic23 = interceptCircleLine(svg, c23, l23, "pic23", 1);
-    const ol4 = new Line(pic1n, pic23);
+    const outline4 = new Line(pic1n, pic23);
 
     const pc1w = interceptCircleLine(svg, c1, l12, "pc1w", 0);
     const pc23s = interceptCircleLine(svg, c23, l23, "pc23s", 0);
-    const ol5 = new Line(pc1w, pc23s);
+    const outline5 = new Line(pc1w, pc23s);
 
     const pc1n = interceptCircleLine(svg, c1, l41, "pc1n", 0);
     const pc34e = interceptCircleLine(svg, c34, l34, "pc34e", 1);
-    const ol6 = new Line(pc1n, pc34e);
+    const outline6 = new Line(pc1n, pc34e);
 
-    const ol7 = new Line(pc1n, pic1n);
-    const ol8 = new Line(pc1w, pic1w);
+    const outline7 = new Line(pc1n, pic1n);
+    const outline8 = new Line(pc1w, pic1w);
 
-    const step20 = new Step([ol1, ol2, ol3, ol4, ol5, ol6, ol7, ol8]);
+    const step20 = new Step([
+      outline1,
+      outline2,
+      outline3,
+      outline4,
+      outline5,
+      outline6,
+      outline7,
+      outline8,
+    ]);
 
     steps.push(step20);
 
@@ -505,7 +514,7 @@
       0
     );
 
-    const ol9 = new Line(pc3sw, pc23e);
+    const outline9 = new Line(pc3sw, pc23e);
 
     const pc34s = interceptCircleLine(
       svg,
@@ -514,13 +523,20 @@
       "pc34s",
       0
     );
-    const ol10 = new Line(pc34s, pc3sw);
-    const ol11 = new Line(pc34e, pc34s);
-    const ol12 = new Line(pc23s, pc23e);
-    const ol13 = new Line(cp4, pic4);
-    const ol14 = new Line(cp2, pic2);
+    const outline10 = new Line(pc34s, pc3sw);
+    const outline11 = new Line(pc34e, pc34s);
+    const outline12 = new Line(pc23s, pc23e);
+    const outline13 = new Line(cp4, pic4);
+    const outline14 = new Line(cp2, pic2);
 
-    const step21 = new Step([ol9, ol10, ol11, ol12, ol13, ol14]);
+    const step21 = new Step([
+      outline9,
+      outline10,
+      outline11,
+      outline12,
+      outline13,
+      outline14,
+    ]);
 
     steps.push(step21);
     addDrawShapesToAllSteps(steps);
