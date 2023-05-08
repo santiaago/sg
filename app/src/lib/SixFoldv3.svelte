@@ -326,18 +326,14 @@
 
     const step6 = new Step([l13, l24]);
     steps.push(step6);
-    //[l13, l24].forEach(drawAndStoreLine);
 
     let pi2;
     {
-      const line1 = new Line(circles[0].p, circles[2].p);
-      const line2 = new Line(circles[1].p, circles[3].p);
-      //[line1, line2].forEach(drawAndStoreLine);
-      pi2 = linesIntersection(line1, line2);
+      pi2 = linesIntersection(l13, l24);
       pi2.name = "pi2";
+      const step7 = new Step([pi2]);
+      steps.push(step7);
     }
-    const step7 = new Step([pi2]);
-    steps.push(step7);
 
     // measure distance of intersection points
     const d1 = pic14.distanceToPoint(pi2);
