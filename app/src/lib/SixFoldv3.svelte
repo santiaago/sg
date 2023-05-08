@@ -30,17 +30,18 @@
   export let strokeLine = (1 + Math.sqrt(5)) / 2;
   export let debug = false;
   export let steps = [];
+  const CUT_LINE_BY = 8;
 
   // from a line
   // draw a square where the 2 points are a side of the square
   // returns an array with 4 elements
   // each element is the coordinates of each side of the square
   //
-  const drawSquareFromLine = (svg, line, stroke, drawDetails) => {
+  const circlesFromLine = (line, cutLineBy = 8) => {
     // draw right side circle
-    const cx1 = line.p1.x + ((line.p2.x - line.p1.x) * 5) / 8;
+    const cx1 = line.p1.x + ((line.p2.x - line.p1.x) * 5) / cutLineBy;
     const cy1 = line.p2.y;
-    const r = ((line.p2.x - line.p1.x) * 2) / 8;
+    const r = ((line.p2.x - line.p1.x) * 2) / cutLineBy;
 
     // draw left side circle
     const cx2 = cx1 - r;
@@ -68,73 +69,32 @@
     }
 
     const circleAtIntersection = new Circle(p, r);
-    // draw circle at intersection point
-    if (drawDetails) {
-      drawCircle(svg, circleAtIntersection, stroke);
-      drawDot(svg, circleAtIntersection.p, stroke);
-    }
 
-    // looking for intersection of
-    // line(center(c2), point(px,py)) AND
-    // circle(center(px, py))
     const p3 = bisectCircleAndPoint(circleAtIntersection, c2.p);
-    if (drawDetails) {
-      const l = new Line(c2.p, p3);
-      drawLine(svg, l, stroke);
-      drawDot(svg, p3, stroke);
-    }
-
-    // looking for intersection of
-    // line(center(c1), point(px,py)) AND
-    // circle(center(px, py))
     const p4 = bisectCircleAndPoint(circleAtIntersection, c1.p);
-    if (drawDetails) {
-      drawDot(svg, p4, stroke);
-      const l = new Line(c1.p, p4);
-      drawLine(svg, l, stroke);
-    }
 
-    // draw lines from cercle(c1) and cercle(c2) with new intersection points
-    // p3 and p4
     const l13 = new Line(c1.p, p3);
     const l24 = new Line(c2.p, p4);
-    const l34 = new Line(p3, p4);
-    if (drawDetails) {
-      drawLine(svg, l13, stroke);
-      drawLine(svg, l24, stroke);
-      drawLine(svg, l34, stroke);
-    }
 
-    // draw intersection between center(c2) AND
-    // p4
-    let cp24;
     let c3;
     {
       const tmp_points = interceptCircleAndLine(c2, l24);
       if (tmp_points && tmp_points.length > 0) {
-        cp24 = tmp_points[0];
+        const cp24 = tmp_points[0];
         c3 = new Circle(cp24, r, "c3");
-        if (drawDetails) {
-          drawDot(svg, cp24, stroke);
-        }
       }
     }
 
-    // draw intersection between circle (c1) AND
-    // p3
-    let cp13;
     let c4;
     {
       const tmp_points = interceptCircleAndLine(c1, l13);
       if (tmp_points && tmp_points.length > 0) {
-        cp13 = tmp_points[0];
+        const cp13 = tmp_points[0];
         c4 = new Circle(cp13, r, "c4");
-        if (drawDetails) {
-          drawDot(svg, cp13, stroke);
-        }
       }
     }
 
+    // return [c1, c2, c3, c4];
     return [c1, c2, c3, c4];
   };
 
@@ -273,9 +233,7 @@
     const step1 = new Step([p1, p2, line1]);
     steps.push(step1);
 
-    // step 1 finished here
-
-    const circles = drawSquareFromLine(svg, line1, stroke, false);
+    const circles = circlesFromLine(line1, CUT_LINE_BY);
 
     const [[cx1, cy1], [cx2, cy2], [cx3, cy3], [cx4, cy4]] = circles.map(
       (c) => [c.p.x, c.p.y, c.r]
@@ -366,8 +324,6 @@
     const step12 = new Step([pi5, pi6]);
     steps.push(step12);
 
-    // finish step 5
-
     let c23;
     {
       const c23w = bisectCircleAndPoint(c14, pi5);
@@ -441,8 +397,6 @@
     const step17 = new Step([c1d3, c2d3, c3d3, c4d3]);
     steps.push(step17);
 
-    // finish step 7
-
     const lcp2pic14 = new Line(cp2, pic14, "lcp2pic14");
     const lcp4pic12 = new Line(cp4, pic12, "lcp4pic12");
 
@@ -453,83 +407,72 @@
     const pic4 = linesIntersection(lpii1pi4, lcp4pic12);
     pic4.name = "pic4";
 
-    const step19 = new Step([lpii1pi4, pic4]);
-    steps.push(step19);
-
-    // finish step 8
-
     const outline1 = new Line(pii1, pic4);
+
+    const step19 = new Step([lpii1pi4, pic4, outline1]);
+    steps.push(step19);
 
     const pic2 = linesIntersection(lpii1pii2, lcp2pic14);
     pic2.name = "pic2";
     const outline2 = new Line(pii1, pic2);
 
+    steps.push(new Step([pii1, pic2, outline2]));
+
     const pic1w = interceptCircleLine(svg, c1d3, lcp1pi3, "pic1w", 0);
     const pic34 = interceptCircleLine(svg, c34, l34, "pic34", 0);
+
     const outline3 = new Line(pic1w, pic34);
+
+    steps.push(new Step([pic1w, pic34, outline3]));
 
     const pic1n = interceptCircleLine(svg, c1d3, lcp1pi4, "pic1n", 0);
     const pic23 = interceptCircleLine(svg, c23, l23, "pic23", 1);
     const outline4 = new Line(pic1n, pic23);
 
+    steps.push(new Step([pic1n, pic23, outline4]));
+
     const pc1w = interceptCircleLine(svg, c1, l12, "pc1w", 0);
     const pc23s = interceptCircleLine(svg, c23, l23, "pc23s", 0);
     const outline5 = new Line(pc1w, pc23s);
+
+    steps.push(new Step([pc1w, pc23s, outline5]));
 
     const pc1n = interceptCircleLine(svg, c1, l41, "pc1n", 0);
     const pc34e = interceptCircleLine(svg, c34, l34, "pc34e", 1);
     const outline6 = new Line(pc1n, pc34e);
 
+    steps.push(new Step([pc1n, pc34e, outline6]));
+
     const outline7 = new Line(pc1n, pic1n);
+
+    steps.push(new Step([outline7]));
+
     const outline8 = new Line(pc1w, pic1w);
 
-    const step20 = new Step([
-      outline1,
-      outline2,
-      outline3,
-      outline4,
-      outline5,
-      outline6,
-      outline7,
-      outline8,
-    ]);
-
-    steps.push(step20);
+    steps.push(new Step([outline8]));
 
     const pc3sw = interceptCircleLine(svg, c3d3, l13, "pc3sw", 0);
-    const pc23e = interceptCircleLine(
-      svg,
-      c23,
-      new Line(c23.p, cp1),
-      "pc23e",
-      0
-    );
+    const lc23cp1 = new Line(c23.p, cp1);
+    const pc23e = interceptCircleLine(svg, c23, lc23cp1, "pc23e", 0);
 
     const outline9 = new Line(pc3sw, pc23e);
 
-    const pc34s = interceptCircleLine(
-      svg,
-      c34,
-      new Line(c34.p, cp1),
-      "pc34s",
-      0
-    );
+    steps.push(new Step([pc3sw, lc23cp1, pc23e, outline9]));
+
+    const lc34cp1 = new Line(c34.p, cp1);
+    const pc34s = interceptCircleLine(svg, c34, lc34cp1, "pc34s", 0);
     const outline10 = new Line(pc34s, pc3sw);
+    steps.push(new Step([lc34cp1, pc34s, outline10]));
+
     const outline11 = new Line(pc34e, pc34s);
+    steps.push(new Step([outline11]));
     const outline12 = new Line(pc23s, pc23e);
+    steps.push(new Step([outline12]));
     const outline13 = new Line(cp4, pic4);
+    steps.push(new Step([outline13]));
     const outline14 = new Line(cp2, pic2);
+    steps.push(new Step([outline14]));
 
-    const step21 = new Step([
-      outline9,
-      outline10,
-      outline11,
-      outline12,
-      outline13,
-      outline14,
-    ]);
-
-    steps.push(step21);
     addDrawShapesToAllSteps(steps);
   });
 </script>
