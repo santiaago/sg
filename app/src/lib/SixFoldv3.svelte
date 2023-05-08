@@ -191,15 +191,6 @@
       });
   };
 
-  const intersectLinesAndStore = (svg, line1, line2, name) => {
-    let point = intersectLines(line1, line2);
-    if (point != null) {
-      point.name = name;
-      store.add(point, pointWithTooltip(svg, point, stroke));
-    }
-    return point;
-  };
-
   const interceptCircleLine = (svg, circle, line, name, pointIndex) => {
     let points = interceptCircleAndLine(circle, line);
     if (points && points.length > 0) {
