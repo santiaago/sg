@@ -21,6 +21,7 @@
   import { distance, Point } from "../math/points";
   import { Circle } from "../math/circles";
   import { Step } from "../timeline/step";
+  import { Geometry } from "../math/geometry";
 
   let el;
   export let store;
@@ -185,29 +186,43 @@
       store.add(circle, csvg);
     };
 
+    const drawAndStoreGeometry = (geometry, thisArg) => {
+      const self = thisArg;
+      console.log("drawAndStoreGeometry", thisArg);
+      geometry.inputs.forEach((shape) => drawShape(shape, self));
+      geometry.outputs.forEach((shape) => drawShape(shape, self));
+    };
+
+    const drawShape = (shape, thisArg) => {
+      const self = thisArg;
+      console.log(self, "scope");
+      if (!self.draw) return;
+      if (shape.type == "point") {
+        drawAndStorePoint(shape);
+        return;
+      }
+      if (shape.type == "line") {
+        drawAndStoreLine(shape);
+        return;
+      }
+      if (shape.type == "circle") {
+        drawAndStoreCircle(shape);
+        return;
+      }
+      if (shape.type == "geometry") {
+        drawAndStoreGeometry(shape, self);
+        return;
+      }
+      console.error("unknown shape type: " + shape.type);
+    };
     const addDrawShapesToAllSteps = (steps) => {
       console.log("addDrawShapesToAllSteps", steps);
       const newSteps = steps.map((step, i) => {
         return {
           ...step,
           drawShapes: (step.drawShapes = function () {
-            console.log("drawShapes new");
-            this.shapes.forEach((shape) => {
-              if (!this.draw) return;
-              if (shape.type == "point") {
-                drawAndStorePoint(shape);
-                return;
-              }
-              if (shape.type == "line") {
-                drawAndStoreLine(shape);
-                return;
-              }
-              if (shape.type == "circle") {
-                drawAndStoreCircle(shape);
-                return;
-              }
-              console.error("unknown shape type: " + shape.type);
-            });
+            console.log("drawShapes new", this);
+            this.shapes.forEach((shape) => drawShape(shape, this));
           }),
         };
       });
@@ -236,8 +251,16 @@
         pointWithTooltip(svg, lx1 + ((lx2 - lx1) * i) / 8, ly1 + 50);
       }
     }
-    const step1 = new Step([p1, p2, line1]);
-    steps.push(step1);
+    {
+      const geo = new Geometry({
+        inputs: [p1, p2],
+        outputs: [line1],
+      });
+      const step = new Step([geo]);
+      steps.push(step);
+    }
+    addDrawShapesToAllSteps(steps);
+    return;
 
     const circles = circlesFromLine(line1, CUT_LINE_BY);
 
