@@ -86,10 +86,11 @@ export const storev4 = {
       return {
         ...old,
         [shape.name]: {
-          name,
+          name: shape.name,
           element,
           selected: false,
           type: shape.type,
+          context: shape.context,
         },
       };
     }),

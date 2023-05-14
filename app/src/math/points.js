@@ -6,6 +6,7 @@ export class Point {
     this.y = y;
     this.type = "point";
     this.name = name;
+    this.context = null;
     if (this.name == null || this.name == undefined) {
       this.name = hashName(this);
     }

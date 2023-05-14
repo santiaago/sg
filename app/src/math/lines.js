@@ -12,6 +12,7 @@ export class Line {
     this.p2 = p2;
     this.type = "line";
     this.name = name;
+    this.context = null;
     if (this.name == null || this.name == undefined) {
       this.name = hashName(this);
     }

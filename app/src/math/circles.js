@@ -12,6 +12,7 @@ export class Circle {
     this.r = r;
     this.type = "circle";
     this.name = name;
+    this.context = null;
     if (this.name == null || this.name == undefined) {
       this.name = hashName(this);
     }

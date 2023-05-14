@@ -190,7 +190,9 @@
       const self = thisArg;
       console.log("drawAndStoreGeometry", thisArg);
       geometry.inputs.forEach((shape) => drawShape(shape, self));
-      geometry.outputs.forEach((shape) => drawShape(shape, self));
+      geometry.outputs.forEach((shape) =>
+        drawShape({ ...shape, context: geometry }, self)
+      );
     };
 
     const drawShape = (shape, thisArg) => {
@@ -215,6 +217,7 @@
       }
       console.error("unknown shape type: " + shape.type);
     };
+
     const addDrawShapesToAllSteps = (steps) => {
       console.log("addDrawShapesToAllSteps", steps);
       const newSteps = steps.map((step, i) => {
