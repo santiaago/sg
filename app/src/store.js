@@ -77,3 +77,29 @@ export const storev3 = {
       };
     }),
 };
+
+export const itemsv4 = writable({});
+export const storev4 = {
+  subscribe: itemsv4.subscribe,
+  add: (shape, element) =>
+    itemsv4.update((old) => {
+      return {
+        ...old,
+        [shape.name]: {
+          name,
+          element,
+          selected: false,
+          type: shape.type,
+        },
+      };
+    }),
+  update: (k, o) =>
+    itemsv4.update((old) => {
+      return {
+        ...old,
+        [k]: {
+          ...o,
+        },
+      };
+    }),
+};
