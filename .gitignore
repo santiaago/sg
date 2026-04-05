@@ -1,0 +1,3 @@
+# Ignore test coverage files
+app/.nyc_output/
+app/coverage/
