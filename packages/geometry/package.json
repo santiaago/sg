@@ -1,0 +1,16 @@
+{
+  "name": "@sg/geometry",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "test": "node __tests__/coverage-test.js"
+  },
+  "devDependencies": {
+    "vite": "^4.0.4",
+    "nyc": "^18.0.0"
+  }
+}
