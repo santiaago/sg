@@ -6,7 +6,6 @@ import { SixFoldv3 } from './components/SixFoldv3'
 import { SixFoldv4 } from './components/SixFoldv4'
 import { Square } from './components/Square'
 import { GeometryList } from './components/GeometryList'
-import './App.css'
 
 export default function App() {
   const stroke = 0.5
@@ -62,100 +61,94 @@ export default function App() {
   }
 
   return (
-    <main>
-      <h1>sg</h1>
+    <main className="p-8 bg-gray-900 text-white">
+      <h1 className="text-5xl font-bold mb-8 text-left text-blue-400">sg</h1>
       
       {/* v4 Section */}
-      <div className="row">
-        <div className="title">
-          <h1>1/4 Six fold pattern v4</h1>
-          <small>14/05/2023</small>
-          <p>1/4 Six fold pattern, with input output geometries</p>
+      <div className="mb-8 p-8 bg-dark-card rounded-lg">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v4</h1>
+          <small className="block text-gray-400 mb-2">14/05/2023</small>
+          <p className="text-gray-300 mb-4">1/4 Six fold pattern, with input output geometries</p>
         </div>
-        <div className="left">
-          <SixFoldv4
-            store={storev4}
-            stroke={stroke}
-            strokeMid={strokeMid}
-            strokeBig={strokeBig}
-            strokeLine={strokeLine}
-            steps={stepsv4}
-            updateSteps={updateStepsv4}
-          />
-          <div>
-            <button onClick={handleNextClickv4}>next</button>
-          </div>
-        </div>
-        <div className="right">
-          <h2>Right pane</h2>
-          <p>Current step {currentStepv4}/{stepsv4.length}</p>
-          <div>
-            <GeometryList
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-9">
+            <SixFoldv4
               store={storev4}
               stroke={stroke}
               strokeMid={strokeMid}
               strokeBig={strokeBig}
               strokeLine={strokeLine}
+              steps={stepsv4}
+              updateSteps={updateStepsv4}
             />
+            <div className="mt-4">
+              <button onClick={handleNextClickv4} className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700">next</button>
+            </div>
+          </div>
+          <div className="col-span-3 pl-4">
+            <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <p className="text-gray-300 mb-4">Current step {currentStepv4}/{stepsv4.length}</p>
+            <div>
+              <GeometryList
+                store={storev4}
+                stroke={stroke}
+                strokeMid={strokeMid}
+                strokeBig={strokeBig}
+                strokeLine={strokeLine}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* v3 Section */}
-      <div className="row">
-        <div className="title">
-          <h1>1/4 Six fold pattern v3</h1>
-          <small>11/03/2023</small>
-          <p>1/4 Six fold pattern, with steps to display geometry incrementally</p>
+      <div className="mb-8 p-8 bg-gray-900 rounded-lg">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v3</h1>
+          <small className="block text-gray-400 mb-2">11/03/2023</small>
+          <p className="text-gray-300 mb-4">1/4 Six fold pattern, with steps to display geometry incrementally</p>
         </div>
-        <div className="left">
-          <SixFoldv3
-            store={storev3}
-            stroke={stroke}
-            strokeMid={strokeMid}
-            strokeBig={strokeBig}
-            strokeLine={strokeLine}
-            steps={stepsv3}
-            updateSteps={updateStepsv3}
-          />
-          <div>
-            <button onClick={handleNextClickv3}>next</button>
-          </div>
-        </div>
-        <div className="right">
-          <h2>Right pane</h2>
-          <p>Current step {currentStepv3}/{stepsv3.length}</p>
-          <div>
-            <GeometryList
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-9">
+            <SixFoldv3
               store={storev3}
               stroke={stroke}
               strokeMid={strokeMid}
               strokeBig={strokeBig}
               strokeLine={strokeLine}
+              steps={stepsv3}
+              updateSteps={updateStepsv3}
             />
+            <div className="mt-4">
+              <button onClick={handleNextClickv3} className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700">next</button>
+            </div>
+          </div>
+          <div className="col-span-3 pl-4">
+            <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <p className="text-gray-300 mb-4">Current step {currentStepv3}/{stepsv3.length}</p>
+            <div>
+              <GeometryList
+                store={storev3}
+                stroke={stroke}
+                strokeMid={strokeMid}
+                strokeBig={strokeBig}
+                strokeLine={strokeLine}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       {/* v2 Section */}
-      <div className="row">
-        <div className="title">
-          <h1>1/4 Six fold pattern v2</h1>
-          <small>24/12/2022</small>
+      <div className="mb-8 p-8 bg-gray-900 rounded-lg">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v2</h1>
+          <small className="block text-gray-400 mb-2">24/12/2022</small>
         </div>
-        <div className="left">
-          <SixFoldv2
-            store={storev2}
-            stroke={stroke}
-            strokeMid={strokeMid}
-            strokeBig={strokeBig}
-            strokeLine={strokeLine}
-          />
-        </div>
-        <div className="right">
-          <h2>Right pane</h2>
-          <div>
-            <GeometryList
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-9">
+            <SixFoldv2
               store={storev2}
               stroke={stroke}
               strokeMid={strokeMid}
@@ -163,28 +156,30 @@ export default function App() {
               strokeLine={strokeLine}
             />
           </div>
+          <div className="col-span-3 pl-4">
+            <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <div>
+              <GeometryList
+                store={storev2}
+                stroke={stroke}
+                strokeMid={strokeMid}
+                strokeBig={strokeBig}
+                strokeLine={strokeLine}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* v1 Section */}
-      <div className="row">
-        <div className="title">
-          <h1>1/4 Six fold pattern</h1>
-          <small>08/10/2022</small>
+      <div className="mb-8 p-8 bg-gray-900 rounded-lg">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern</h1>
+          <small className="block text-gray-400 mb-2">08/10/2022</small>
         </div>
-        <div className="left">
-          <SixFold
-            store={store}
-            stroke={stroke}
-            strokeMid={strokeMid}
-            strokeBig={strokeBig}
-            strokeLine={strokeLine}
-          />
-        </div>
-        <div className="right">
-          <h2>Right pane</h2>
-          <div>
-            <GeometryList
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-9">
+            <SixFold
               store={store}
               stroke={stroke}
               strokeMid={strokeMid}
@@ -192,15 +187,29 @@ export default function App() {
               strokeLine={strokeLine}
             />
           </div>
+          <div className="col-span-3 pl-4">
+            <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <div>
+              <GeometryList
+                store={store}
+                stroke={stroke}
+                strokeMid={strokeMid}
+                strokeBig={strokeBig}
+                strokeLine={strokeLine}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Square Section */}
-      <div className="row">
-        <div className="title">
-          <h1>Drawing a square</h1>
+      <div className="p-8 bg-gray-900 rounded-lg">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold mb-1 text-left">Drawing a square</h1>
+          <small className="block text-gray-400 mb-2">08/10/2022</small>
+          <a href="https://www.youtube.com/watch?v=RSP5sm1e--4" target="_blank" className="text-blue-500 hover:underline text-sm">inspired by</a>
         </div>
-        <div className="left">
+        <div className="col-span-9">
           <Square />
         </div>
       </div>
