@@ -21,7 +21,7 @@
     "types"
   ],
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && node copy-package.js",
     "dev": "vite",
     "test": "vitest run",
     "test:ui": "vitest --ui",
