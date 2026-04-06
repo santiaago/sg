@@ -9,6 +9,13 @@
   } from "../draw/basic";
   import { text } from "../draw/text";
   import { onMount } from "svelte";
+  // OLD IMPORTS (commented out, kept for reference):
+  // import { bisectCircleAndPoint, circlesIntersection, circlesIntersectionPoint, directions, interceptCircleAndLine, linesIntersection } from "../math/intersection";
+  // import { intersectLines, Line } from "../math/lines";
+  // import { distance, Point } from "../math/points";
+  // import { Circle } from "../math/circles";
+  
+  // NEW IMPORTS from shared package:
   import {
     bisectCircleAndPoint,
     circlesIntersection,
@@ -16,10 +23,12 @@
     directions,
     interceptCircleAndLine,
     linesIntersection,
-  } from "../math/intersection";
-  import { intersectLines, Line } from "../math/lines";
-  import { distance, Point } from "../math/points";
-  import { Circle } from "../math/circles";
+    intersectLines,
+    Line,
+    distance,
+    Point,
+    Circle
+  } from "@sg/geometry";
 
   let el;
   export let store;

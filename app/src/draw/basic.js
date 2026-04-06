@@ -1,12 +1,16 @@
 import { text } from "./text";
 
 import * as d3 from "d3";
+// OLD IMPORTS (commented out, kept for reference):
 // @ts-ignore
-import { Point } from "../math/points";
+// import { Point } from "../math/points";
 // @ts-ignore
-import { Line } from "../math/lines";
+// import { Line } from "../math/lines";
 // @ts-ignore
-import { Circle } from "../math/circles";
+// import { Circle } from "../math/circles";
+
+// NEW IMPORTS from shared package:
+import { Point, Line, Circle } from "@sg/geometry";
 
 export const dot = (svg, x, y, stroke = 1.5) => {
   return svg

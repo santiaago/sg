@@ -3,6 +3,12 @@
   import { circle, dot, dotWithTooltip, line, rect } from "../draw/basic";
   import { text } from "../draw/text";
   import { onMount } from "svelte";
+  // OLD IMPORTS (commented out, kept for reference):
+  // import { bisect, cerclesIntersection, directions, inteceptCircleLineSeg, intersection, lineIntersect } from "../math/intersection";
+  // import { intersect } from "../math/lines";
+  // import { distance } from "../math/points";
+  
+  // NEW IMPORTS from shared package:
   import {
     bisect,
     cerclesIntersection,
@@ -10,9 +16,9 @@
     inteceptCircleLineSeg,
     intersection,
     lineIntersect,
-  } from "../math/intersection";
-  import { intersect } from "../math/lines";
-  import { distance } from "../math/points";
+    intersect,
+    distance
+  } from "@sg/geometry";
 
   let el;
   export let store;

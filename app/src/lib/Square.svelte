@@ -2,11 +2,15 @@
   import { Polygon } from "@svgdotjs/svg.js";
   import * as d3 from "d3";
   import { onMount } from "svelte";
+  // OLD IMPORTS (commented out, kept for reference):
+  // import { bisect, inteceptCircleLineSeg, intersection } from "../math/intersection";
+  
+  // NEW IMPORTS from shared package:
   import {
     bisect,
     inteceptCircleLineSeg,
-    intersection,
-  } from "../math/intersection";
+    intersection
+  } from "@sg/geometry";
 
   let el;
 
