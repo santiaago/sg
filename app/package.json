@@ -6,10 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node test-math.js",
+    "test:watch": "node --watch test-math.js",
+    "test:coverage": "nyc --extension=.js --reporter=text --reporter=html node test-math.js"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.2",
+    "nyc": "^18.0.0",
     "svelte": "^3.55.1",
     "vite": "^4.0.4"
   },

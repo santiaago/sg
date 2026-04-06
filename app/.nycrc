@@ -1,0 +1,17 @@
+{
+  "all": true,
+  "include": [
+    "src/math/__tests__/test-*.js"
+  ],
+  "exclude": [
+    "src/math/__tests__/*.test.js",
+    "test-math.js"
+  ],
+  "reporter": [
+    "text",
+    "html"
+  ],
+  "extension": [".js"],
+  "cache": false,
+  "temp-directory": ".nyc_output"
+}
