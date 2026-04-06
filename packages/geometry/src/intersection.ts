@@ -73,7 +73,7 @@ export function intersection(x0: number, y0: number, r0: number, x1: number, y1:
   return [xi, yi, xi_prime, yi_prime];
 }
 
-export function bisect(angle, radius, cx, cy) {
+export function bisect(angle: number, radius: number, cx: number, cy: number): [number, number] {
   // let x1 = cx + radius * Math.cos(angle);
   // let y1 = cy + radius * Math.sin(angle);
   let angle2 = 0;
@@ -83,8 +83,8 @@ export function bisect(angle, radius, cx, cy) {
     angle2 = angle + Math.PI;
   }
 
-  let x2 = cx + radius * Math.cos(angle2);
-  let y2 = cy + radius * Math.sin(angle2);
+  const x2 = cx + radius * Math.cos(angle2);
+  const y2 = cy + radius * Math.sin(angle2);
 
   return [x2, y2];
 }
@@ -96,15 +96,15 @@ export function bisect(angle, radius, cx, cy) {
  * line(circle(center)), point AND
  * circle(center)
  */
-export function bisectCircleAndPoint(circle, point) {
+export function bisectCircleAndPoint(circle: Circle, point: Point): Point {
   const cx0 = circle.p.x - circle.r;
   const cy0 = circle.p.y;
   const pointInCircle = new Point(cx0, cy0);
 
-  let angle = Math.atan2(pointInCircle.y - point.y, pointInCircle.x - point.x);
+  const angle = Math.atan2(pointInCircle.y - point.y, pointInCircle.x - point.x);
 
   // translate it into the interval [0,2 π] multiply by 2
-  let [x, y] = bisect(angle * 2, circle.r, circle.p.x, circle.p.y);
+  const [x, y] = bisect(angle * 2, circle.r, circle.p.x, circle.p.y);
   return new Point(x, y);
 }
 
@@ -112,7 +112,7 @@ export function bisectCircleAndPoint(circle, point) {
  * @param {Circle} circle
  * @param {Line} line
  */
-export function interceptCircleAndLine(circle, line) {
+export function interceptCircleAndLine(circle: Circle, line: Line): Point[] {
   const points = inteceptCircleLineSeg(
     circle.p.x,
     circle.p.y,
@@ -129,12 +129,12 @@ export function interceptCircleAndLine(circle, line) {
 }
 // https://stackoverflow.com/a/37225895
 // cercle line intercept
-export function inteceptCircleLineSeg(cx, cy, l1x, l1y, l2x, l2y, r) {
-  let a, b, c, d, u1, u2, ret, retP1, retP2, v1, v2;
-  let v1x = l2x - l1x;
-  let v1y = l2y - l1y;
-  let v2x = l1x - cx;
-  let v2y = l1y - cy;
+export function inteceptCircleLineSeg(cx: number, cy: number, l1x: number, l1y: number, l2x: number, l2y: number, r: number): Array<[number, number]> {
+  let a, b, c, d, u1, u2, retP1, retP2, v1, v2;
+  const v1x = l2x - l1x;
+  const v1y = l2y - l1y;
+  const v2x = l1x - cx;
+  const v2y = l1y - cy;
   b = v1x * v2x + v1y * v2y;
   c = 2 * (v1x * v1x + v1y * v1y);
   b *= -2;
@@ -145,17 +145,17 @@ export function inteceptCircleLineSeg(cx, cy, l1x, l1y, l2x, l2y, r) {
   }
   u1 = (b - d) / c; // these represent the unit distance of point one and two on the line
   u2 = (b + d) / c;
-  ret = []; // return array
+  const ret: Array<[number, number]> = []; // return array
   if (u1 <= 1 && u1 >= 0) {
     // add point if on the line segment
-    let retP1x = l1x + v1x * u1;
-    let retP1y = l1y + v1y * u1;
+    const retP1x = l1x + v1x * u1;
+    const retP1y = l1y + v1y * u1;
     ret.push([retP1x, retP1y]);
   }
   if (u2 <= 1 && u2 >= 0) {
     // second add point if on the line segment
-    let retP2x = l1x + v1x * u2;
-    let retP2y = l1y + v1y * u2;
+    const retP2x = l1x + v1x * u2;
+    const retP2y = l1y + v1y * u2;
     ret.push([retP2x, retP2y]);
   }
   return ret;
@@ -169,8 +169,8 @@ export const directions = {
 };
 
 // find intersection point between 2 circles
-export const cerclesIntersection = (cx1, cy1, r1, cx2, cy2, r2, direction) => {
-  let points = intersection(cx1, cy1, r1, cx2, cy2, r2);
+export const cerclesIntersection = (cx1: number, cy1: number, r1: number, cx2: number, cy2: number, r2: number, direction: number): [number, number] | null => {
+  const points = intersection(cx1, cy1, r1, cx2, cy2, r2);
   if (!points) {
     console.debug("no intersection found");
     return null;
@@ -179,7 +179,7 @@ export const cerclesIntersection = (cx1, cy1, r1, cx2, cy2, r2, direction) => {
   const py1 = points[1];
   const px2 = points[2];
   const py2 = points[3];
-  if (direction == directions.down || directions.up) {
+  if (direction == directions.down || direction == directions.up) {
     if (py1 < py2) {
       if (direction == directions.up) {
         return [px1, py1];
@@ -192,7 +192,7 @@ export const cerclesIntersection = (cx1, cy1, r1, cx2, cy2, r2, direction) => {
     }
     return [px1, py1];
   }
-  if (direction == directions.left || directions.right) {
+  if (direction == directions.left || direction == directions.right) {
     if (px1 < px2) {
       if (direction == directions.left) {
         return [px1, py1];
@@ -205,10 +205,11 @@ export const cerclesIntersection = (cx1, cy1, r1, cx2, cy2, r2, direction) => {
     }
     return [px1, py1];
   }
+  return null;
 };
 
 // find intersection point between 2 circles
-export const circlesIntersectionPoint = (circle1, circle2, direction) => {
+export const circlesIntersectionPoint = (circle1: Circle, circle2: Circle, direction: number): Point | null => {
   const p = cerclesIntersection(
     circle1.p.x,
     circle1.p.y,
@@ -224,7 +225,7 @@ export const circlesIntersectionPoint = (circle1, circle2, direction) => {
   return new Point(p[0], p[1]);
 };
 
-export const lineIntersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
+export const lineIntersect = (x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): [number, number] | null => {
   let ua,
     ub,
     denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
@@ -242,7 +243,7 @@ export const lineIntersect = (x1, y1, x2, y2, x3, y3, x4, y4) => {
   // };
 };
 
-export const linesIntersection = (l1, l2) => {
+export const linesIntersection = (l1: Line, l2: Line): Point | null => {
   const point = lineIntersect(
     l1.p1.x,
     l1.p1.y,

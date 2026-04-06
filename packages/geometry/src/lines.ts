@@ -1,5 +1,5 @@
-import { hashName } from "../src/hash.ts";
-import { Point } from "./points.ts";
+import { hashName } from "../src/hash";
+import { Point } from "./points";
 
 export class Line {
   p1: Point;

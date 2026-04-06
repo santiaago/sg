@@ -1,44 +1,46 @@
 class S {
-  constructor({ inputs: n = [], outputs: e = [] }) {
+  constructor({ inputs: n = [], outputs: e = [] } = {}) {
     this.inputs = n, this.outputs = e, this.type = "geometry";
   }
 }
-const I = 3;
+const d = 3;
 function b(t) {
-  return t.type == "line" ? `l${g(I)}` : t.type == "point" ? `p${g(I)}` : t.type == "circle" ? `c${g(I)}` : `${g(I)}`;
+  return t.type == "line" ? `l${g(d)}` : t.type == "point" ? `p${g(d)}` : t.type == "circle" ? `c${g(d)}` : `${g(d)}`;
 }
 const g = (t) => [...Array(t)].map(() => Math.floor(Math.random() * 16).toString(16)).join("");
-class m {
-  constructor(n, e, i) {
-    this.x = n, this.y = e, this.type = "point", this.name = i, this.context = null, (this.name == null || this.name == null) && (this.name = b(this));
+class x {
+  constructor(n, e, s) {
+    this.x = n, this.y = e, this.type = "point", this.name = s ?? b(this), this.context = null;
   }
   distanceToPoint(n) {
     return C(this.x, this.y, n.x, n.y);
   }
 }
-function C(t, n, e, i) {
-  return Math.hypot(t - e, n - i);
+function C(t, n, e, s) {
+  return Math.hypot(t - e, n - s);
 }
 function _(t, n) {
   return C(t.x, t.y, n.x, n.y);
 }
 class j {
   /**
-   * @param {Point} p1
-   * @param {Point} p2
+   * Create a line between two points
+   * @param p1 - first point
+   * @param p2 - second point
+   * @param name - optional name for the line
    */
-  constructor(n, e, i) {
-    this.p1 = n, this.p2 = e, this.type = "line", this.name = i, this.context = null, (this.name == null || this.name == null) && (this.name = b(this));
+  constructor(n, e, s) {
+    this.p1 = n, this.p2 = e, this.type = "line", this.name = s ?? b(this), this.context = null;
   }
 }
-function v(t, n, e, i, r, p, u, s) {
-  if (t === e && n === i || r === u && p === s)
+function v(t, n, e, s, i, c, r, o) {
+  if (t === e && n === s || i === r && c === o)
     return [];
-  const c = (s - p) * (e - t) - (u - r) * (i - n);
-  if (c === 0)
+  const p = (o - c) * (e - t) - (r - i) * (s - n);
+  if (p === 0)
     return [];
-  let o = ((u - r) * (n - p) - (s - p) * (t - r)) / c, l = t + o * (e - t), h = n + o * (i - n);
-  return [l, h];
+  const u = ((r - i) * (n - c) - (o - c) * (t - i)) / p, h = t + u * (e - t), f = n + u * (s - n);
+  return [h, f];
 }
 function B(t, n) {
   const e = v(
@@ -53,43 +55,44 @@ function B(t, n) {
   );
   if (e.length === 0)
     return null;
-  const [i, r] = e;
-  return new m(i, r);
+  const [s, i] = e;
+  return new x(s, i);
 }
 class E {
   /**
-   * @param {Point} p
-   * @param {number} r
+   * Create a circle
+   * @param p - center point
+   * @param r - radius
+   * @param name - optional name
    */
-  constructor(n, e, i) {
-    this.p = n, this.r = e, this.type = "circle", this.name = i, this.context = null, (this.name == null || this.name == null) && (this.name = b(this)), this.p.name = `p${this.name}`;
+  constructor(n, e, s) {
+    this.p = n, this.r = e, this.type = "circle", this.name = s ?? b(this), this.context = null, this.p.name = `p${this.name}`;
   }
 }
 function G(t, n) {
   const e = $(t.p.x, t.p.y, t.r, n.p.x, n.p.y, n.r);
   if (e == null)
     return null;
-  const [i, r, p, u] = e, s = new m(i, r), c = new m(p, u);
-  return [s, c];
+  const [s, i, c, r] = e, o = new x(s, i), p = new x(c, r);
+  return [o, p];
 }
-function $(t, n, e, i, r, p) {
-  let u, s, c, o, l, h, y, f, a;
-  if (s = i - t, c = r - n, o = Math.sqrt(c * c + s * s), o > e + p || o < Math.abs(e - p))
+function $(t, n, e, s, i, c) {
+  let r, o, p, u, h, f, a, l, m;
+  if (o = s - t, p = i - n, u = Math.sqrt(p * p + o * o), u > e + c || u < Math.abs(e - c))
     return null;
-  u = (e * e - p * p + o * o) / (2 * o), f = t + s * u / o, a = n + c * u / o, l = Math.sqrt(e * e - u * u), h = -c * (l / o), y = s * (l / o);
-  let d = f + h, M = f - h, P = a + y, w = a - y;
-  return [d, P, M, w];
+  r = (e * e - c * c + u * u) / (2 * u), l = t + o * r / u, m = n + p * r / u, h = Math.sqrt(e * e - r * r), f = -p * (h / u), a = o * (h / u);
+  let M = l + f, P = l - f, w = m + a, I = m - a;
+  return [M, w, P, I];
 }
-function L(t, n, e, i) {
-  let r = 0;
-  t > 2 * Math.PI ? r = t - Math.PI : r = t + Math.PI;
-  let p = e + n * Math.cos(r), u = i + n * Math.sin(r);
-  return [p, u];
+function L(t, n, e, s) {
+  let i = 0;
+  t > 2 * Math.PI ? i = t - Math.PI : i = t + Math.PI;
+  const c = e + n * Math.cos(i), r = s + n * Math.sin(i);
+  return [c, r];
 }
 function T(t, n) {
-  const e = t.p.x - t.r, i = t.p.y, r = new m(e, i);
-  let p = Math.atan2(r.y - n.y, r.x - n.x), [u, s] = L(p * 2, t.r, t.p.x, t.p.y);
-  return new m(u, s);
+  const e = t.p.x - t.r, s = t.p.y, i = new x(e, s), c = Math.atan2(i.y - n.y, i.x - n.x), [r, o] = L(c * 2, t.r, t.p.x, t.p.y);
+  return new x(r, o);
 }
 function Z(t, n) {
   return q(
@@ -100,41 +103,41 @@ function Z(t, n) {
     n.p2.x,
     n.p2.y,
     t.r
-  ).map((i) => {
-    const [r, p] = i;
-    return new m(r, p);
+  ).map((s) => {
+    const [i, c] = s;
+    return new x(i, c);
   });
 }
-function q(t, n, e, i, r, p, u) {
-  let s, c, o, l, h, y, f = r - e, a = p - i, d = e - t, M = i - n;
-  if (s = f * d + a * M, c = 2 * (f * f + a * a), s *= -2, o = Math.sqrt(s * s - 2 * c * (d * d + M * M - u * u)), isNaN(o))
+function q(t, n, e, s, i, c, r) {
+  let o, p, u, h, f;
+  const a = i - e, l = c - s, m = e - t, M = s - n;
+  if (o = a * m + l * M, p = 2 * (a * a + l * l), o *= -2, u = Math.sqrt(o * o - 2 * p * (m * m + M * M - r * r)), isNaN(u))
     return [];
-  if (l = (s - o) / c, h = (s + o) / c, y = [], l <= 1 && l >= 0) {
-    let P = e + f * l, w = i + a * l;
-    y.push([P, w]);
-  }
+  h = (o - u) / p, f = (o + u) / p;
+  const P = [];
   if (h <= 1 && h >= 0) {
-    let P = e + f * h, w = i + a * h;
-    y.push([P, w]);
+    const w = e + a * h, I = s + l * h;
+    P.push([w, I]);
   }
-  return y;
+  if (f <= 1 && f >= 0) {
+    const w = e + a * f, I = s + l * f;
+    P.push([w, I]);
+  }
+  return P;
 }
-const x = {
+const y = {
   up: 0,
   down: 1,
   left: 2,
   right: 3
-}, A = (t, n, e, i, r, p, u) => {
-  let s = $(t, n, e, i, r, p);
-  if (!s)
+}, A = (t, n, e, s, i, c, r) => {
+  const o = $(t, n, e, s, i, c);
+  if (!o)
     return console.debug("no intersection found"), null;
-  const c = s[0], o = s[1], l = s[2], h = s[3];
-  if (u == x.down || x.up)
-    return o < h ? u == x.up ? [c, o] : [l, h] : u == x.up ? [l, h] : [c, o];
-  if (u == x.left || x.right)
-    return c < l ? u == x.left ? [c, o] : [l, h] : u == x.left ? [l, h] : [c, o];
+  const p = o[0], u = o[1], h = o[2], f = o[3];
+  return r == y.down || r == y.up ? u < f ? r == y.up ? [p, u] : [h, f] : r == y.up ? [h, f] : [p, u] : r == y.left || r == y.right ? p < h ? r == y.left ? [p, u] : [h, f] : r == y.left ? [h, f] : [p, u] : null;
 }, k = (t, n, e) => {
-  const i = A(
+  const s = A(
     t.p.x,
     t.p.y,
     t.r,
@@ -143,10 +146,10 @@ const x = {
     n.r,
     e
   );
-  return i == null ? null : new m(i[0], i[1]);
-}, N = (t, n, e, i, r, p, u, s) => {
-  let c, o = (s - p) * (e - t) - (u - r) * (i - n);
-  return o == 0 ? null : (c = ((u - r) * (n - p) - (s - p) * (t - r)) / o, [t + c * (e - t), n + c * (i - n)]);
+  return s == null ? null : new x(s[0], s[1]);
+}, N = (t, n, e, s, i, c, r, o) => {
+  let p, u = (o - c) * (e - t) - (r - i) * (s - n);
+  return u == 0 ? null : (p = ((r - i) * (n - c) - (o - c) * (t - i)) / u, [t + p * (e - t), n + p * (s - n)]);
 }, z = (t, n) => {
   const e = N(
     t.p1.x,
@@ -158,19 +161,19 @@ const x = {
     n.p2.x,
     n.p2.y
   );
-  return e == null ? (console.log("linesIntersection, no intersection found"), null) : new m(e[0], e[1]);
+  return e == null ? (console.log("linesIntersection, no intersection found"), null) : new x(e[0], e[1]);
 };
 export {
   E as Circle,
   S as Geometry,
   j as Line,
-  m as Point,
+  x as Point,
   L as bisect,
   T as bisectCircleAndPoint,
   A as cerclesIntersection,
   G as circlesIntersection,
   k as circlesIntersectionPoint,
-  x as directions,
+  y as directions,
   C as distance,
   _ as distanceBetweenPoints,
   b as hashName,

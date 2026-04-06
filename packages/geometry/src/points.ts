@@ -1,4 +1,4 @@
-import { hashName } from "../src/hash.ts";
+import { hashName } from "../src/hash";
 
 export class Point {
   x: number;
