@@ -1,6 +1,10 @@
 const SIZE = 3;
 
-export function hashName(geometry) {
+interface GeometryWithType {
+  type: string;
+}
+
+export function hashName(geometry: GeometryWithType): string {
   if (geometry.type == "line") {
     return `l${hash(SIZE)}`;
   }
@@ -13,7 +17,7 @@ export function hashName(geometry) {
   return `${hash(SIZE)}`;
 }
 
-const hash = (size) =>
+const hash = (size: number): string =>
   [...Array(size)]
     .map(() => Math.floor(Math.random() * 16).toString(16))
     .join("");

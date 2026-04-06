@@ -1,21 +1,25 @@
-import { hashName } from "../src/hash.js";
-// @ts-ignore
+import { hashName } from "./hash.ts";
 import { Point } from "./points.ts";
 
 export class Circle {
+  p: Point;
+  r: number;
+  type: string;
+  name: string;
+  context: any;
+  
   /**
-   * @param {Point} p
-   * @param {number} r
+   * Create a circle
+   * @param p - center point
+   * @param r - radius
+   * @param name - optional name
    */
-  constructor(p, r, name) {
+  constructor(p: Point, r: number, name?: string) {
     this.p = p;
     this.r = r;
     this.type = "circle";
-    this.name = name;
+    this.name = name ?? hashName(this);
     this.context = null;
-    if (this.name == null || this.name == undefined) {
-      this.name = hashName(this);
-    }
     this.p.name = `p${this.name}`;
   }
 }

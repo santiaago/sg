@@ -1,13 +1,14 @@
-// @ts-ignore
 import { Circle } from "./circles";
 import { Line } from "./lines";
-import { Point } from "./points.ts";
+import { Point } from "./points";
 
 /**
- * @param {Circle} c1
- * @param {Circle} c2
+ * Find intersection points between two circles
+ * @param c1 - first circle
+ * @param c2 - second circle
+ * @returns array of intersection points or null if no intersection
  */
-export function circlesIntersection(c1, c2) {
+export function circlesIntersection(c1: Circle, c2: Circle): [Point, Point] | null {
   const ret = intersection(c1.p.x, c1.p.y, c1.r, c2.p.x, c2.p.y, c2.r);
   if (ret == null) {
     return null;
@@ -21,7 +22,7 @@ export function circlesIntersection(c1, c2) {
 
 // https://stackoverflow.com/questions/12219802/a-javascript-function-that-returns-the-x-y-points-of-intersection-between-two-ci/#answer-12221389
 // A JavaScript function that returns the x,y points of intersection between two circles
-export function intersection(x0, y0, r0, x1, y1, r1) {
+export function intersection(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): [number, number, number, number] | null {
   let a, dx, dy, d, h, rx, ry;
   let x2, y2;
 

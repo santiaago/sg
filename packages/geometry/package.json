@@ -2,12 +2,24 @@
   "name": "@sg/geometry",
   "version": "1.0.0",
   "type": "module",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": {
+      "import": "./dist/*",
+      "require": "./dist/*",
+      "types": "./dist/*"
+    }
   },
+  "files": [
+    "dist",
+    "types"
+  ],
   "scripts": {
     "build": "tsc && vite build",
     "dev": "vite",
