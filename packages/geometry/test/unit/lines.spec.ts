@@ -1,8 +1,8 @@
 // Vitest tests for Line class and functions
 import { describe, it, expect, beforeEach } from 'vitest';
-import { resetHashCounter } from './mock-hash.ts';
-import { Line, intersect, intersectLines } from '../src/lines';
-import { Point } from '../src/points';
+import { resetHashCounter } from './mock-hash';
+import { Line, intersect, intersectLines } from '../../src/lines';
+import { Point } from '../../src/points';
 
 describe('Line class', () => {
   beforeEach(() => {

@@ -1,7 +1,7 @@
 // Vitest tests for Point class and functions
 import { describe, it, expect, beforeEach } from 'vitest';
-import { resetHashCounter } from './mock-hash.ts';
-import { Point, distance, distanceBetweenPoints } from '../src/points';
+import { resetHashCounter } from './mock-hash';
+import { Point, distance, distanceBetweenPoints } from '../../src/points';
 
 describe('Point class', () => {
   beforeEach(() => {
