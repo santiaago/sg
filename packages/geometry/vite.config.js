@@ -4,7 +4,7 @@ import { resolve } from 'path'
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.js'),
+      entry: resolve(__dirname, 'src/index.ts'),
       name: 'Geometry',
       fileName: (format) => `geometry.${format}.js`
     },
@@ -13,6 +13,14 @@ export default defineConfig({
       output: {
         globals: {}
       }
+    }
+  },
+  test: {
+    environment: 'node',
+    globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html']
     }
   }
 })
