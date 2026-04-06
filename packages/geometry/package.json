@@ -2,18 +2,20 @@
   "name": "@sg/geometry",
   "version": "1.0.0",
   "type": "module",
-  "main": "src/index.js",
+  "main": "src/index.ts",
   "types": "dist/index.d.ts",
   "exports": {
-    ".": "./src/index.js",
+    ".": "./src/index.ts",
     "./*": "./src/*"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "tsc && vite build",
     "dev": "vite",
-    "test": "node __tests__/coverage-test.js"
+    "test": "node __tests__/coverage-test.js",
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
+    "typescript": "^5.0.0",
     "vite": "^4.0.4",
     "nyc": "^18.0.0"
   }

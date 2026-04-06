@@ -1,6 +1,6 @@
 import { hashName } from "../src/hash.js";
 // @ts-ignore
-import { Point } from "./points.js";
+import { Point } from "./points.ts";
 
 export class Circle {
   /**

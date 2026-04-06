@@ -1,7 +1,7 @@
 // @ts-ignore
 import { Circle } from "./circles";
 import { Line } from "./lines";
-import { Point } from "./points.js";
+import { Point } from "./points.ts";
 
 /**
  * @param {Circle} c1
