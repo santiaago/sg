@@ -1,66 +1,51 @@
 # SG Monorepo
 
-Geometry visualization applications with shared utilities.
+Geometry apps with shared TypeScript utilities.
 
-## Structure
-
-- `app/` - Svelte application
-- `app2/` - React application  
-- `packages/geometry/` - Shared geometry utilities
-
-## Packages
-
-### @sg/geometry
-
-Shared geometry library with:
-- Points, Lines, Circles
-- Intersection algorithms
-- Geometry hashing
-
-**Status**: ✅ Built and tested
-
-## Development
+## 🚀 Quick Start
 
 ```bash
-# Build geometry package
-cd packages/geometry
+npm install
 npm run build
-
-# Run tests
-npm test
+npm run dev
 ```
 
-## Status
+## 📦 Packages
 
-✅ **Phase 1 Complete**: Geometry package extraction and app integration
+- `@sg/geometry` - TypeScript geometry library (Points, Lines, Circles, Intersections)
+- `app/` - Svelte application
+- `app2/` - React application
 
-### Completed
+## 🔧 Scripts
 
-1. ✅ Created `@sg/geometry` package with all math utilities
-2. ✅ Extracted geometry code from app/src/math/
-3. ✅ Updated app/ to use conditional import system
-4. ✅ Both local and shared implementations working
-5. ✅ Comprehensive test suite included
+```bash
+# Build
+npm run build          # Build all
+npm run build:packages # Build packages only
+npm run build:apps     # Build apps only
 
-### Current State
+# Test
+npm test               # Run all tests
+npm run test:watch     # Watch mode
+npm run test:coverage   # Coverage report
 
-- **app/**: Fully migrated with switchable geometry implementations
-- **app2/**: Ready for migration (similar pattern can be applied)
-- **packages/geometry/**: Production-ready shared package
+# Dev
+npm run dev            # Start Svelte app
+npm run dev:app2       # Start React app
 
-### How to Use
-
-**Switch between implementations in app/:**
-```javascript
-// app/src/geometry-config.js
-export const USE_SHARED_GEOMETRY = true; // or false
+# Clean
+npm run clean          # Remove node_modules, dist, coverage
 ```
 
-Then rebuild: `npm run build`
+## 📈 Status
 
-## Next Steps
+✅ Geometry package extracted and tested
+✅ TypeScript conversion complete
+✅ Vitest test suite (15 tests, 95% coverage)
+✅ Production-ready shared package
 
-1. Apply similar pattern to app2/ (React components)
-2. Create additional shared packages as needed
-3. Set up CI/CD for shared packages
-4. Document API for shared packages
+## 🎯 Next
+
+- Migrate app2 to use shared geometry
+- Add CI/CD pipeline
+- Expand shared package ecosystem

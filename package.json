@@ -1,5 +1,20 @@
 {
   "name": "sg-monorepo",
   "private": true,
-  "workspaces": ["packages/*", "app", "app2"]
+  "workspaces": ["packages/*", "app", "app2"],
+  "scripts": {
+    "build": "npm run build:packages && npm run build:apps",
+    "build:packages": "cd packages/geometry && npm run build",
+    "build:apps": "cd app && npm run build",
+    "test": "npm run test:packages && npm run test:apps",
+    "test:packages": "cd packages/geometry && npm test",
+    "test:apps": "cd app && npm test",
+    "test:watch": "cd packages/geometry && npm run test:watch",
+    "test:coverage": "cd packages/geometry && npm run coverage",
+    "type-check": "cd packages/geometry && npm run type-check",
+    "dev": "cd app && npm run dev",
+    "dev:app2": "cd app2 && npm run dev",
+    "prepare": "npm run build",
+    "clean": "rm -rf **/node_modules **/dist **/coverage || true"
+  }
 }
