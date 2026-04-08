@@ -5,3 +5,6 @@ node_modules/
 # Ignore test coverage files
 app/.nyc_output/
 app/coverage/package-lock.json
+
+# Ignore package-lock.json
+package-lock.json
