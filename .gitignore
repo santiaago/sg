@@ -4,4 +4,4 @@ node_modules/
 
 # Ignore test coverage files
 app/.nyc_output/
-app/coverage/
+app/coverage/package-lock.json
