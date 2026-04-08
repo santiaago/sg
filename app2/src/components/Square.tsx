@@ -12,7 +12,7 @@ export function Square(): JSX.Element {
     circle.setAttribute('cx', x.toString())
     circle.setAttribute('cy', y.toString())
     circle.setAttribute('r', '2')
-    circle.setAttribute('fill', 'red')
+    circle.setAttribute('fill', 'black')
     svg.appendChild(circle)
   }
 
