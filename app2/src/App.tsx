@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { JSX } from 'react'
 import { useGeometryStore, useGeometryStorev2, useGeometryStorev3, useGeometryStorev4 } from './react-store'
 import { SixFold } from './components/SixFold'
 import { SixFoldv2 } from './components/SixFoldv2'
@@ -7,7 +8,7 @@ import { SixFoldv4 } from './components/SixFoldv4'
 import { Square } from './components/Square'
 import { GeometryList } from './components/GeometryList'
 
-export default function App() {
+export default function App(): JSX.Element {
   const stroke = 0.5
   const strokeMid = 0.5
   const strokeBig = 2
@@ -18,10 +19,10 @@ export default function App() {
   const storev3 = useGeometryStorev3()
   const storev4 = useGeometryStorev4()
 
-  const [stepsv3, setStepsv3] = useState([])
-  const [currentStepv3, setCurrentStepv3] = useState(0)
+  const [stepsv3, setStepsv3] = useState<any[]>([])
+  const [currentStepv3, setCurrentStepv3] = useState<number>(0)
   
-  const handleNextClickv3 = () => {
+  const handleNextClickv3 = (): void => {
     console.log("next step", currentStepv3, stepsv3.length)
     if (currentStepv3 < stepsv3.length) {
       console.log("inside")
@@ -34,15 +35,15 @@ export default function App() {
     }
   }
 
-  const updateStepsv3 = (newSteps) => {
+  const updateStepsv3 = (newSteps: any[]): void => {
     console.log("newSteps", newSteps, "stepsv3", stepsv3)
     setStepsv3(newSteps)
   }
 
-  const [stepsv4, setStepsv4] = useState([])
-  const [currentStepv4, setCurrentStepv4] = useState(0)
+  const [stepsv4, setStepsv4] = useState<any[]>([])
+  const [currentStepv4, setCurrentStepv4] = useState<number>(0)
   
-  const handleNextClickv4 = () => {
+  const handleNextClickv4 = (): void => {
     console.log("next step", currentStepv4, stepsv4.length)
     if (currentStepv4 < stepsv4.length) {
       console.log("inside")
@@ -55,7 +56,7 @@ export default function App() {
     }
   }
 
-  const updateStepsv4 = (newSteps) => {
+  const updateStepsv4 = (newSteps: any[]): void => {
     console.log("newSteps", newSteps, "stepsv4", stepsv4)
     setStepsv4(newSteps)
   }
