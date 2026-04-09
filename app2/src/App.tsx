@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import type { JSX } from 'react'
 import { useGeometryStore, useGeometryStorev2, useGeometryStorev3, useGeometryStorev4 } from './react-store'
 import { SixFold } from './components/SixFold'
@@ -7,12 +7,35 @@ import { SixFoldv3 } from './components/SixFoldv3'
 import { SixFoldv4 } from './components/SixFoldv4'
 import { Square } from './components/Square'
 import { GeometryList } from './components/GeometryList'
+import { Navigation } from './components/Navigation'
 
 export default function App(): JSX.Element {
   const stroke = 0.5
   const strokeMid = 0.5
   const strokeBig = 2
   const strokeLine = 1.4
+  
+  // Navigation menu state
+  const [activeSection, setActiveSection] = useState<string>('sixfold-v4')
+  const sectionRefs = {
+    'sixfold-v4': useRef<HTMLDivElement>(null),
+    'sixfold-v3': useRef<HTMLDivElement>(null),
+    'sixfold-v2': useRef<HTMLDivElement>(null),
+    'sixfold-v1': useRef<HTMLDivElement>(null),
+    'square': useRef<HTMLDivElement>(null)
+  }
+  
+  // Scroll to section when navigation changes
+  const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId)
+    const timeoutId = setTimeout(() => {
+      sectionRefs[sectionId].current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+      clearTimeout(timeoutId)
+    }, 100)
+  }
 
   const store = useGeometryStore()
   const storev2 = useGeometryStorev2()
@@ -65,8 +88,13 @@ export default function App(): JSX.Element {
     <main className="p-8 bg-gray-900 text-white">
       <h1 className="text-5xl font-bold mb-8 text-left text-blue-400">sg</h1>
       
+      <Navigation 
+        onNavigate={scrollToSection} 
+        activeSection={activeSection}
+      />
+      
       {/* v4 Section */}
-      <div className="mb-8 p-8 bg-dark-card rounded-lg">
+      <div ref={sectionRefs['sixfold-v4']} className="mb-8 p-8 bg-dark-card rounded-lg">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v4</h1>
           <small className="block text-gray-400 mb-2">14/05/2023</small>
@@ -104,7 +132,7 @@ export default function App(): JSX.Element {
       </div>
 
       {/* v3 Section */}
-      <div className="mb-8 p-8 bg-gray-900 rounded-lg">
+      <div ref={sectionRefs['sixfold-v3']} className="mb-8 p-8 bg-gray-900 rounded-lg">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v3</h1>
           <small className="block text-gray-400 mb-2">11/03/2023</small>
@@ -142,7 +170,7 @@ export default function App(): JSX.Element {
       </div>
 
       {/* v2 Section */}
-      <div className="mb-8 p-8 bg-gray-900 rounded-lg">
+      <div ref={sectionRefs['sixfold-v2']} className="mb-8 p-8 bg-gray-900 rounded-lg">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v2</h1>
           <small className="block text-gray-400 mb-2">24/12/2022</small>
@@ -173,7 +201,7 @@ export default function App(): JSX.Element {
       </div>
 
       {/* v1 Section */}
-      <div className="mb-8 p-8 bg-gray-900 rounded-lg">
+      <div ref={sectionRefs['sixfold-v1']} className="mb-8 p-8 bg-gray-900 rounded-lg">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern</h1>
           <small className="block text-gray-400 mb-2">08/10/2022</small>
@@ -204,7 +232,7 @@ export default function App(): JSX.Element {
       </div>
 
       {/* Square Section */}
-      <div className="p-8 bg-gray-900 rounded-lg">
+      <div ref={sectionRefs['square']} className="p-8 bg-gray-900 rounded-lg">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-1 text-left">Drawing a square</h1>
           <small className="block text-gray-400 mb-2">08/10/2022</small>
