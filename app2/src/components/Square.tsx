@@ -2,30 +2,59 @@ import { useEffect, useRef } from 'react'
 import type { JSX } from 'react'
 import { bisect, inteceptCircleLineSeg, intersection } from '@sg/geometry'
 
-export function Square(): JSX.Element {
+interface SquareProps {
+  store?: any
+  stroke?: number
+  strokeMid?: number
+  strokeBig?: number
+  strokeLine?: number
+}
+
+export function Square({ 
+  store,
+  stroke = 0.5,
+  strokeMid = 0.5,
+  strokeBig = 2,
+  strokeLine = (1 + Math.sqrt(5)) / 2
+}: SquareProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
 
   // Helper function to draw a dot
-  const dot = (svg: SVGSVGElement, x: number, y: number) => {
+  const dot = (svg: SVGSVGElement, x: number, y: number, strokeWidth: number = 1.5) => {
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
     circle.setAttribute('class', 'dot')
     circle.setAttribute('cx', x.toString())
     circle.setAttribute('cy', y.toString())
-    circle.setAttribute('r', '2')
+    circle.setAttribute('r', strokeWidth.toString())
     circle.setAttribute('fill', 'black')
     svg.appendChild(circle)
+    return circle
+  }
+
+  // Helper function to draw a dot with tooltip
+  const dotWithTooltip = (svg: SVGSVGElement, x: number, y: number, name: string, strokeWidth: number) => {
+    const dotElement = dot(svg, x, y, strokeWidth)
+    dotElement.setAttribute('data-tooltip', name)
+    dotElement.style.cursor = 'pointer'
+    
+    if (store) {
+      store.add(name, dotElement, 'point')
+    }
+    
+    return dotElement
   }
 
   // Helper function to draw a line
-  const line = (svg: SVGSVGElement, x1: number, y1: number, x2: number, y2: number, stroke: number = 5) => {
+  const line = (svg: SVGSVGElement, x1: number, y1: number, x2: number, y2: number, strokeWidth: number = 5) => {
     const lineEl = document.createElementNS('http://www.w3.org/2000/svg', 'line')
     lineEl.setAttribute('stroke', '#506')
-    lineEl.setAttribute('stroke-width', stroke.toString())
+    lineEl.setAttribute('stroke-width', strokeWidth.toString())
     lineEl.setAttribute('x1', x1.toString())
     lineEl.setAttribute('y1', y1.toString())
     lineEl.setAttribute('x2', x2.toString())
     lineEl.setAttribute('y2', y2.toString())
     svg.appendChild(lineEl)
+    return lineEl
   }
 
   // Helper function to draw a rectangle
@@ -78,20 +107,29 @@ export function Square(): JSX.Element {
     ]
 
     // draw first line
-    line(svg, lx1, ly1, lx2, ly2, stroke)
+    const mainLine = line(svg, lx1, ly1, lx2, ly2, stroke)
+    if (store) {
+      store.add('main_line', mainLine, 'line')
+    }
 
     // draw right side circle
     const cx1 = lx1 + ((lx2 - lx1) * 5) / 8
     const cy1 = ly2
     const r = ((lx2 - lx1) * 2) / 8
-    circle(svg, cx1, cy1, r, stroke)
-    dot(svg, cx1, cy1)
+    const circle1 = circle(svg, cx1, cy1, r, stroke)
+    dotWithTooltip(svg, cx1, cy1, 'c1', stroke)
+    if (store) {
+      store.add('c1_c', circle1, 'circle')
+    }
 
     // draw left side circle
     const cx2 = cx1 - r
     const cy2 = cy1
-    circle(svg, cx2, cy2, r, stroke)
-    dot(svg, cx2, cy2)
+    const circle2 = circle(svg, cx2, cy2, r, stroke)
+    dotWithTooltip(svg, cx2, cy2, 'c2', stroke)
+    if (store) {
+      store.add('c2_c', circle2, 'circle')
+    }
 
     // find intersection point between 2 circles
     let points = intersection(cx1, cy1, r, cx2, cy2, r)
@@ -113,8 +151,12 @@ export function Square(): JSX.Element {
     }
 
     // draw circle at intersection point
-    circle(svg, px, py, r, stroke)
-    dot(svg, px, py)
+    const intersectionCircle = circle(svg, px, py, r, stroke)
+    const intersectionDot = dot(svg, px, py)
+    if (store) {
+      store.add('intersection_circle', intersectionCircle, 'circle')
+      store.add('intersection_dot', intersectionDot, 'point')
+    }
 
     const x1 = cx2
     const y1 = cy2
@@ -127,8 +169,12 @@ export function Square(): JSX.Element {
     let angle = Math.atan2(cy0 - y1, cx0 - x1)
     // translate it into the interval [0,2 π] multiply by 2
     let [px3, py3] = bisect(angle * 2, r, px, py)
-    line(svg, x1, y1, px3, py3, stroke)
-    dot(svg, px3, py3)
+    const line_c2_p3 = line(svg, x1, y1, px3, py3, stroke)
+    const dot_p3 = dot(svg, px3, py3)
+    if (store) {
+      store.add('line_c2_p3', line_c2_p3, 'line')
+      store.add('dot_p3', dot_p3, 'point')
+    }
 
     // looking for intersection of
     // line(center(c1), point(px,py)) AND
@@ -136,16 +182,27 @@ export function Square(): JSX.Element {
     angle = Math.atan2(cy0 - cy1, cx0 - cx1)
     // translate it into the interval [0,2 π] multiply by 2
     let [px4, py4] = bisect(angle * 2, r, px, py)
-    dot(svg, px4, py4)
-    line(svg, cx1, cy1, px4, py4, stroke)
+    const dot_p4 = dot(svg, px4, py4)
+    const line_c1_p4 = line(svg, cx1, cy1, px4, py4, stroke)
+    if (store) {
+      store.add('dot_p4', dot_p4, 'point')
+      store.add('line_c1_p4', line_c1_p4, 'line')
+    }
 
     // draw lines from cercle(c1) and cercle(c2) with new intersection points
     // p3 and p4
-    line(svg, cx1, cy1, px3, py3, stroke)
-    line(svg, cx2, cy2, px4, py4, stroke)
+    const line_c1_p3 = line(svg, cx1, cy1, px3, py3, stroke)
+    const line_c2_p4 = line(svg, cx2, cy2, px4, py4, stroke)
+    if (store) {
+      store.add('line_c1_p3', line_c1_p3, 'line')
+      store.add('line_c2_p4', line_c2_p4, 'line')
+    }
 
     // draw line between p3 and p4
-    line(svg, px3, py3, px4, py4, stroke)
+    const line_p3_p4 = line(svg, px3, py3, px4, py4, stroke)
+    if (store) {
+      store.add('line_p3_p4', line_p3_p4, 'line')
+    }
 
     // draw intersection between center(c2) AND
     // p4
@@ -154,7 +211,10 @@ export function Square(): JSX.Element {
 
     if (lp_left && lp_left.length > 0) {
       [plx, ply] = lp_left[0]
-      dot(svg, plx, ply)
+      const dot_left_intersection = dot(svg, plx, ply)
+      if (store) {
+        store.add('dot_left_intersection', dot_left_intersection, 'point')
+      }
     }
 
     // draw intersection between center (c1) AND
@@ -164,16 +224,25 @@ export function Square(): JSX.Element {
 
     if (lp_right && lp_right.length > 0) {
       [prx, pry] = lp_right[0]
-      dot(svg, prx, pry)
+      const dot_right_intersection = dot(svg, prx, pry)
+      if (store) {
+        store.add('dot_right_intersection', dot_right_intersection, 'point')
+      }
     }
 
     // draw final square
     if (plx && ply && prx && pry) {
       const s = (1 + Math.sqrt(5)) / 2
-      line(svg, plx, ply, prx, pry, s)
-      line(svg, cx2, cy2, plx, ply, s)
-      line(svg, cx2, cy2, cx1, cy1, s)
-      line(svg, cx1, cy1, prx, pry, s)
+      const square_line1 = line(svg, plx, ply, prx, pry, s)
+      const square_line2 = line(svg, cx2, cy2, plx, ply, s)
+      const square_line3 = line(svg, cx2, cy2, cx1, cy1, s)
+      const square_line4 = line(svg, cx1, cy1, prx, pry, s)
+      if (store) {
+        store.add('square_line1', square_line1, 'line')
+        store.add('square_line2', square_line2, 'line')
+        store.add('square_line3', square_line3, 'line')
+        store.add('square_line4', square_line4, 'line')
+      }
     }
     
   }, [])
