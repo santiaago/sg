@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import type { JSX } from 'react'
-import { useGeometryStore, useGeometryStorev2, useGeometryStorev3, useGeometryStorev4 } from './react-store'
+import { useGeometryStore, useGeometryStoreSquare, useGeometryStorev2, useGeometryStorev3, useGeometryStorev4 } from './react-store'
 import { SixFold } from './components/SixFold'
 import { SixFoldv2 } from './components/SixFoldv2'
 import { SixFoldv3 } from './components/SixFoldv3'
@@ -38,6 +38,7 @@ export default function App(): JSX.Element {
   }
 
   const store = useGeometryStore()
+  const storeSquare = useGeometryStoreSquare()
   const storev2 = useGeometryStorev2()
   const storev3 = useGeometryStorev3()
   const storev4 = useGeometryStorev4()
@@ -232,14 +233,34 @@ export default function App(): JSX.Element {
       </div>
 
       {/* Square Section */}
-      <div ref={sectionRefs['square']} className="p-8 bg-gray-900 rounded-lg">
+      <div ref={sectionRefs['square']} className="mb-8 p-8 bg-gray-900 rounded-lg">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-1 text-left">Drawing a square</h1>
           <small className="block text-gray-400 mb-2">08/10/2022</small>
           <a href="https://www.youtube.com/watch?v=RSP5sm1e--4" target="_blank" className="text-blue-500 hover:underline text-sm">inspired by</a>
         </div>
-        <div className="col-span-9">
-          <Square />
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-9">
+            <Square 
+              store={storeSquare}
+              stroke={stroke}
+              strokeMid={strokeMid}
+              strokeBig={strokeBig}
+              strokeLine={strokeLine}
+            />
+          </div>
+          <div className="col-span-3 pl-4">
+            <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <div>
+              <GeometryList
+                store={storeSquare}
+                stroke={stroke}
+                strokeMid={strokeMid}
+                strokeBig={strokeBig}
+                strokeLine={strokeLine}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </main>
