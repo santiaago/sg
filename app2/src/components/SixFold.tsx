@@ -739,7 +739,7 @@ export function SixFold({
       }
     }
     
-  }, [store, stroke, strokeLine])
+  }, [stroke, strokeLine])
 
   return (
     <div className="sixfold-container">
