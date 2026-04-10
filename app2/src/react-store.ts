@@ -50,6 +50,36 @@ export function useGeometryStore(): GeometryStore {
   return { items, add, update }
 }
 
+export function useGeometryStoreSquare(): GeometryStore {
+  const [items, setItems] = useState<Record<string, GeometryItem>>({})
+
+  const add = useCallback((name: string, element: any, type: string) => {
+    setItems(old => {
+      const newItems = { ...old }
+      newItems[name] = {
+        name,
+        element,
+        selected: false,
+        type,
+      }
+      return newItems
+    })
+  }, [])
+
+  const update = useCallback((k: string, o: Partial<GeometryItem>) => {
+    setItems(old => {
+      const newItems = { ...old }
+      newItems[k] = {
+        ...old[k],
+        ...o,
+      }
+      return newItems
+    })
+  }, [])
+
+  return { items, add, update }
+}
+
 export function useGeometryStorev2(): GeometryStorev2v3v4 {
   const [items, setItems] = useState<Record<string, GeometryItem>>({})
 
