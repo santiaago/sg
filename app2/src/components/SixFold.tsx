@@ -44,6 +44,41 @@ export function SixFold({
     dotElement.setAttribute('data-tooltip', name)
     dotElement.style.cursor = 'pointer'
     
+    // Create tooltip element
+    const tooltip = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    tooltip.setAttribute('x', (x + 10).toString())
+    tooltip.setAttribute('y', (y - 5).toString())  // Adjusted y position for better visibility
+    tooltip.setAttribute('fill', 'white')  // White text for contrast
+    tooltip.setAttribute('font-size', '12')
+    tooltip.setAttribute('opacity', '0')  // Hidden initially - show only on selection
+    tooltip.setAttribute('data-tooltip-text', name)
+    tooltip.setAttribute('text-anchor', 'middle')  // Center text horizontally
+    tooltip.setAttribute('dominant-baseline', 'middle')  // Center text vertically
+    tooltip.textContent = name
+    
+    // Create background rectangle for better visibility
+    const tooltipBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    const textWidth = name.length * 8  // Approximate width
+    const bgX = x + 10 - textWidth/2  // Center background behind text
+    tooltipBg.setAttribute('x', bgX.toString())
+    tooltipBg.setAttribute('y', (y - 20).toString())
+    tooltipBg.setAttribute('width', textWidth.toString())
+    tooltipBg.setAttribute('height', '16')
+    tooltipBg.setAttribute('fill', 'black')
+    tooltipBg.setAttribute('opacity', '0')  // Hidden initially
+    tooltipBg.setAttribute('rx', '2')  // Slight rounding
+    svg.appendChild(tooltipBg)
+    
+    // Add both elements to SVG
+    svg.appendChild(tooltip)
+    
+    // Store both tooltip and background
+    dotElement.tooltip = tooltip
+    dotElement.tooltipBg = tooltipBg
+    
+    // Store tooltip reference for later manipulation
+    dotElement.tooltip = tooltip
+    
     // Add click handler for selection
     dotElement.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -51,14 +86,7 @@ export function SixFold({
         const item = store.items[name];
         if (item) {
           store.update(name, { selected: !item.selected });
-          // Apply visual feedback
-          if (item.selected) {
-            dotElement.setAttribute('fill', 'black');
-            dotElement.setAttribute('r', strokeWidth.toString());
-          } else {
-            dotElement.setAttribute('fill', 'red');
-            dotElement.setAttribute('r', (strokeWidth * 2).toString());
-          }
+          // Apply visual feedback (handled by GeometryList now)
         }
       }
     });
@@ -89,6 +117,40 @@ export function SixFold({
     const lineEl = line(svg, x1, y1, x2, y2, strokeWidth, color)
     lineEl.style.cursor = 'pointer'
     
+    // Create tooltip element (positioned at midpoint)
+    const midpointX = (x1 + x2) / 2
+    const midpointY = (y1 + y2) / 2
+    const tooltip = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    tooltip.setAttribute('x', midpointX.toString())
+    tooltip.setAttribute('y', (midpointY - 5).toString())  // Adjusted y position
+    tooltip.setAttribute('fill', 'white')  // White text for contrast
+    tooltip.setAttribute('font-size', '12')
+    tooltip.setAttribute('opacity', '0')  // Hidden initially - show only on selection
+    tooltip.setAttribute('data-tooltip-text', name)
+    tooltip.setAttribute('text-anchor', 'middle')  // Center text
+    tooltip.setAttribute('dominant-baseline', 'middle')  // Center text
+    tooltip.textContent = name
+    
+    // Create background rectangle for better visibility
+    const tooltipBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    const textWidth = name.length * 8
+    const bgX = midpointX - textWidth/2
+    tooltipBg.setAttribute('x', bgX.toString())
+    tooltipBg.setAttribute('y', (midpointY - 20).toString())
+    tooltipBg.setAttribute('width', textWidth.toString())
+    tooltipBg.setAttribute('height', '16')
+    tooltipBg.setAttribute('fill', 'black')
+    tooltipBg.setAttribute('opacity', '0')  // Hidden initially
+    tooltipBg.setAttribute('rx', '2')  // Slight rounding
+    svg.appendChild(tooltipBg)
+    
+    // Add both elements to SVG
+    svg.appendChild(tooltip)
+    
+    // Store both tooltip and background
+    lineEl.tooltip = tooltip
+    lineEl.tooltipBg = tooltipBg
+    
     // Add click handler for selection
     lineEl.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -96,12 +158,7 @@ export function SixFold({
         const item = store.items[name];
         if (item) {
           store.update(name, { selected: !item.selected });
-          // Apply visual feedback
-          if (item.selected) {
-            lineEl.setAttribute('stroke-width', strokeWidth.toString());
-          } else {
-            lineEl.setAttribute('stroke-width', (strokeWidth * 2).toString());
-          }
+          // Apply visual feedback (handled by GeometryList now)
         }
       }
     });
@@ -121,6 +178,38 @@ export function SixFold({
     circleEl.setAttribute('stroke', color)
     circleEl.style.cursor = 'pointer'
     
+    // Create tooltip element
+    const tooltip = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    tooltip.setAttribute('x', (cx + r + 5).toString())
+    tooltip.setAttribute('y', (cy - 5).toString())  // Adjusted y position
+    tooltip.setAttribute('fill', 'white')  // White text for contrast
+    tooltip.setAttribute('font-size', '12')
+    tooltip.setAttribute('opacity', '0')  // Hidden initially - show only on selection
+    tooltip.setAttribute('data-tooltip-text', name)
+    tooltip.setAttribute('text-anchor', 'middle')  // Center text
+    tooltip.setAttribute('dominant-baseline', 'middle')  // Center text
+    tooltip.textContent = name
+    
+    // Create background rectangle for better visibility
+    const tooltipBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    const textWidth = name.length * 8
+    const bgX = cx + r + 5 - textWidth/2
+    tooltipBg.setAttribute('x', bgX.toString())
+    tooltipBg.setAttribute('y', (cy - 20).toString())
+    tooltipBg.setAttribute('width', textWidth.toString())
+    tooltipBg.setAttribute('height', '16')
+    tooltipBg.setAttribute('fill', 'black')
+    tooltipBg.setAttribute('opacity', '0')  // Hidden initially
+    tooltipBg.setAttribute('rx', '2')  // Slight rounding
+    svg.appendChild(tooltipBg)
+    
+    // Add both elements to SVG
+    svg.appendChild(tooltip)
+    
+    // Store both tooltip and background
+    circleEl.tooltip = tooltip
+    circleEl.tooltipBg = tooltipBg
+    
     // Add click handler for selection
     circleEl.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -128,12 +217,7 @@ export function SixFold({
         const item = store.items[name];
         if (item) {
           store.update(name, { selected: !item.selected });
-          // Apply visual feedback
-          if (item.selected) {
-            circleEl.setAttribute('stroke-width', strokeWidth.toString());
-          } else {
-            circleEl.setAttribute('stroke-width', (strokeWidth * 2).toString());
-          }
+          // Apply visual feedback (handled by GeometryList now)
         }
       }
     });

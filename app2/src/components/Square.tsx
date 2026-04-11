@@ -37,6 +37,38 @@ export function Square({
     dotElement.setAttribute('data-tooltip', name)
     dotElement.style.cursor = 'pointer'
     
+    // Create tooltip element
+    const tooltip = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+    tooltip.setAttribute('x', (x + 10).toString())
+    tooltip.setAttribute('y', (y - 5).toString())  // Adjusted y position for better visibility
+    tooltip.setAttribute('fill', 'white')  // White text for contrast
+    tooltip.setAttribute('font-size', '12')
+    tooltip.setAttribute('opacity', '0')  // Hidden initially - show only on selection
+    tooltip.setAttribute('data-tooltip-text', name)
+    tooltip.setAttribute('text-anchor', 'middle')  // Center text horizontally
+    tooltip.setAttribute('dominant-baseline', 'middle')  // Center text vertically
+    tooltip.textContent = name
+    
+    // Create background rectangle for better visibility
+    const tooltipBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    const textWidth = name.length * 8  // Approximate width
+    const bgX = x + 10 - textWidth/2  // Center background behind text
+    tooltipBg.setAttribute('x', bgX.toString())
+    tooltipBg.setAttribute('y', (y - 20).toString())
+    tooltipBg.setAttribute('width', textWidth.toString())
+    tooltipBg.setAttribute('height', '16')
+    tooltipBg.setAttribute('fill', 'black')
+    tooltipBg.setAttribute('opacity', '0')  // Hidden initially
+    tooltipBg.setAttribute('rx', '2')  // Slight rounding
+    svg.appendChild(tooltipBg)
+    
+    // Add both elements to SVG
+    svg.appendChild(tooltip)
+    
+    // Store both tooltip and background
+    dotElement.tooltip = tooltip
+    dotElement.tooltipBg = tooltipBg
+    
     if (store) {
       store.add(name, dotElement, 'point')
     }
