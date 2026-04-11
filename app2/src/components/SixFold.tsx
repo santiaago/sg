@@ -44,9 +44,28 @@ export function SixFold({
     dotElement.setAttribute('data-tooltip', name)
     dotElement.style.cursor = 'pointer'
     
+    // Add click handler for selection
+    dotElement.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (store) {
+        const item = store.items[name];
+        if (item) {
+          store.update(name, { selected: !item.selected });
+          // Apply visual feedback
+          if (item.selected) {
+            dotElement.setAttribute('fill', 'black');
+            dotElement.setAttribute('r', strokeWidth.toString());
+          } else {
+            dotElement.setAttribute('fill', 'red');
+            dotElement.setAttribute('r', (strokeWidth * 2).toString());
+          }
+        }
+      }
+    });
+    
     // Add store item if store is provided
     if (store) {
-      store.add(name, { element: dotElement, name, type: 'point' }, 'point')
+      store.add(name, dotElement, 'point')
     }
     
     return dotElement
@@ -63,6 +82,68 @@ export function SixFold({
     lineEl.setAttribute('y2', y2.toString())
     svg.appendChild(lineEl)
     return lineEl
+  }
+
+  // Helper function to draw a line with selection support
+  const lineWithSelection = (svg: SVGSVGElement, x1: number, y1: number, x2: number, y2: number, name: string, strokeWidth: number = 5, color: string = '#506') => {
+    const lineEl = line(svg, x1, y1, x2, y2, strokeWidth, color)
+    lineEl.style.cursor = 'pointer'
+    
+    // Add click handler for selection
+    lineEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (store) {
+        const item = store.items[name];
+        if (item) {
+          store.update(name, { selected: !item.selected });
+          // Apply visual feedback
+          if (item.selected) {
+            lineEl.setAttribute('stroke-width', strokeWidth.toString());
+          } else {
+            lineEl.setAttribute('stroke-width', (strokeWidth * 2).toString());
+          }
+        }
+      }
+    });
+    
+    // Add to store if provided
+    if (store) {
+      store.add(name, lineEl, 'line')
+    }
+    
+    return lineEl
+  }
+
+  // Helper function to draw a circle with selection support
+  const circleWithSelection = (svg: SVGSVGElement, cx: number, cy: number, r: number, name: string, strokeWidth: number = 1, color: string = '#f06') => {
+    // Call the existing circle function to create the base circle
+    const circleEl = circle(svg, cx, cy, r, strokeWidth)
+    circleEl.setAttribute('stroke', color)
+    circleEl.style.cursor = 'pointer'
+    
+    // Add click handler for selection
+    circleEl.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (store) {
+        const item = store.items[name];
+        if (item) {
+          store.update(name, { selected: !item.selected });
+          // Apply visual feedback
+          if (item.selected) {
+            circleEl.setAttribute('stroke-width', strokeWidth.toString());
+          } else {
+            circleEl.setAttribute('stroke-width', (strokeWidth * 2).toString());
+          }
+        }
+      }
+    });
+    
+    // Add to store if provided
+    if (store) {
+      store.add(name, circleEl, 'circle')
+    }
+    
+    return circleEl
   }
 
   // Helper function to draw a rectangle
@@ -274,25 +355,19 @@ export function SixFold({
     circles.forEach(([cx, cy, r], i) => {
       const n = `c${i + 1}`
       if (store) {
-        const circleElement = circle(svg, cx, cy, r, stroke)
-        store.add(`${n}_c`, { element: circleElement, name: n, type: 'circle' }, 'circle')
+        circleWithSelection(svg, cx, cy, r, `${n}_c`, stroke)
       }
       dotWithTooltip(svg, cx, cy, n, stroke)
     })
 
     // Draw main lines
     const mainLines = [
-      line(svg, cx2, cy2, cx1, cy1, strokeLine),
-      line(svg, cx2, cy2, cx3, cy3, strokeLine),
-      line(svg, cx3, cy3, cx4, cy4, strokeLine),
-      line(svg, cx1, cy1, cx4, cy4, strokeLine),
+      lineWithSelection(svg, cx2, cy2, cx1, cy1, 'line_c2_c1', strokeLine),
+      lineWithSelection(svg, cx2, cy2, cx3, cy3, 'line_c2_c3', strokeLine),
+      lineWithSelection(svg, cx3, cy3, cx4, cy4, 'line_c3_c4', strokeLine),
+      lineWithSelection(svg, cx1, cy1, cx4, cy4, 'line_c1_c4', strokeLine),
     ]
     
-    mainLines.forEach((l, i) => {
-      if (store) {
-        store.add(`l${i}_l`, { element: l, name: `l${i}`, type: 'line' }, 'line')
-      }
-    })
 
     const [[pic12nx, pic12ny], [pic14x, pic14y]] = drawIntersectionPoints(svg, circles)
     
@@ -305,23 +380,15 @@ export function SixFold({
     intersectionPoints.forEach(([x, y, prefix]) => {
       const n = `pic${prefix}`
       dotWithTooltip(svg, x, y, n, stroke)
-      const l = line(svg, cx1, cy1, x, y, stroke)
-      if (store) {
-        store.add(`${n}_l`, { element: l, name: n, type: 'line' }, 'line')
-      }
+      lineWithSelection(svg, cx1, cy1, x, y, `${n}_l`, stroke)
     })
 
     // draw crossing lines of square
     const crossingLines = [
-      [line(svg, cx1, cy1, cx3, cy3, stroke), "l13"],
-      [line(svg, cx2, cy2, cx4, cy4, stroke), "l24"],
+      [lineWithSelection(svg, cx1, cy1, cx3, cy3, "l13", stroke), "l13"],
+      [lineWithSelection(svg, cx2, cy2, cx4, cy4, "l24", stroke), "l24"],
     ]
     
-    crossingLines.forEach(([l, name], i) => {
-      if (store) {
-        store.add(`${name}_l`, { element: l, name, type: 'line' }, 'line')
-      }
-    })
 
     const [pi2x, pi2y] = drawLinesIntersectionPoint(svg, circles)
     dotWithTooltip(svg, pi2x, pi2y, "pi2", stroke)
