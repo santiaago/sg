@@ -49,7 +49,7 @@ export function SixFold({
     tooltip.setAttribute('x', (x + 10).toString())
     tooltip.setAttribute('y', (y - 5).toString())  // Adjusted y position for better visibility
     tooltip.setAttribute('fill', 'white')  // White text for contrast
-    tooltip.setAttribute('font-size', '12')
+    tooltip.setAttribute('font-size', '10')  // Smaller font to match app
     tooltip.setAttribute('opacity', '0')  // Hidden initially - show only on selection
     tooltip.setAttribute('data-tooltip-text', name)
     tooltip.setAttribute('text-anchor', 'middle')  // Center text horizontally
@@ -61,7 +61,7 @@ export function SixFold({
     const textWidth = name.length * 8  // Approximate width
     const bgX = x + 10 - textWidth/2  // Center background behind text
     tooltipBg.setAttribute('x', bgX.toString())
-    tooltipBg.setAttribute('y', (y - 20).toString())
+    tooltipBg.setAttribute('y', (y - 15).toString())
     tooltipBg.setAttribute('width', textWidth.toString())
     tooltipBg.setAttribute('height', '16')
     tooltipBg.setAttribute('fill', 'black')
@@ -124,7 +124,7 @@ export function SixFold({
     tooltip.setAttribute('x', midpointX.toString())
     tooltip.setAttribute('y', (midpointY - 5).toString())  // Adjusted y position
     tooltip.setAttribute('fill', 'white')  // White text for contrast
-    tooltip.setAttribute('font-size', '12')
+    tooltip.setAttribute('font-size', '10')  // Smaller font to match app
     tooltip.setAttribute('opacity', '0')  // Hidden initially - show only on selection
     tooltip.setAttribute('data-tooltip-text', name)
     tooltip.setAttribute('text-anchor', 'middle')  // Center text
@@ -183,7 +183,7 @@ export function SixFold({
     tooltip.setAttribute('x', (cx + r + 5).toString())
     tooltip.setAttribute('y', (cy - 5).toString())  // Adjusted y position
     tooltip.setAttribute('fill', 'white')  // White text for contrast
-    tooltip.setAttribute('font-size', '12')
+    tooltip.setAttribute('font-size', '10')  // Smaller font to match app
     tooltip.setAttribute('opacity', '0')  // Hidden initially - show only on selection
     tooltip.setAttribute('data-tooltip-text', name)
     tooltip.setAttribute('text-anchor', 'middle')  // Center text
@@ -411,12 +411,12 @@ export function SixFold({
     }
     
     // Set up SVG dimensions
-    svg.setAttribute('viewBox', '0 0 300 150')
+    svg.setAttribute('viewBox', '0 0 800 1000')
     svg.setAttribute('width', '100%')
     svg.setAttribute('height', '100%')
     
-    const width = 300
-    const height = 150
+    let width = 647
+    let height = 400
 
     rect(svg, width, height)
 
@@ -893,8 +893,8 @@ export function SixFold({
   }, [stroke, strokeLine])
 
   return (
-    <div className="sixfold-container">
-      <svg ref={svgRef} className="sixfold-svg w-full h-auto" />
+    <div className="square-container">
+      <svg ref={svgRef} className="square-svg w-full h-auto" />
     </div>
   )
 }
