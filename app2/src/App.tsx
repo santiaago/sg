@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { JSX } from 'react'
 import { useGeometryStore, useGeometryStoreSquare, useGeometryStorev2, useGeometryStorev3, useGeometryStorev4 } from './react-store'
 import { SixFold } from './components/SixFold'
@@ -9,6 +9,7 @@ import { Square } from './components/Square'
 import { standardSvgConfig, sixFoldSvgConfig } from './config/svgConfig'
 import { GeometryList } from './components/GeometryList'
 import { Navigation } from './components/Navigation'
+import { CopyUrlButton } from './components/CopyUrlButton'
 
 export default function App(): JSX.Element {
   const stroke = 0.5
@@ -17,7 +18,7 @@ export default function App(): JSX.Element {
   const strokeLine = 1.4
   
   // Navigation menu state
-  const [activeSection, setActiveSection] = useState<string>('sixfold-v4')
+  const [activeSection, setActiveSection] = useState<'sixfold-v4' | 'sixfold-v3' | 'sixfold-v2' | 'sixfold-v1' | 'square'>('sixfold-v4')
   const sectionRefs = {
     'sixfold-v4': useRef<HTMLDivElement>(null),
     'sixfold-v3': useRef<HTMLDivElement>(null),
@@ -27,8 +28,10 @@ export default function App(): JSX.Element {
   }
   
   // Scroll to section when navigation changes
-  const scrollToSection = (sectionId: string) => {
+  const scrollToSection = (sectionId: 'sixfold-v4' | 'sixfold-v3' | 'sixfold-v2' | 'sixfold-v1' | 'square') => {
     setActiveSection(sectionId)
+    // Update URL hash
+    window.location.hash = sectionId
     const timeoutId = setTimeout(() => {
       sectionRefs[sectionId].current?.scrollIntoView({
         behavior: 'smooth',
@@ -37,6 +40,27 @@ export default function App(): JSX.Element {
       clearTimeout(timeoutId)
     }, 100)
   }
+  
+  // Handle URL hash changes
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.substring(1) as 'sixfold-v4' | 'sixfold-v3' | 'sixfold-v2' | 'sixfold-v1' | 'square' | ''
+      const validSections: readonly ['sixfold-v4', 'sixfold-v3', 'sixfold-v2', 'sixfold-v1', 'square'] = ['sixfold-v4', 'sixfold-v3', 'sixfold-v2', 'sixfold-v1', 'square']
+      if (hash && validSections.includes(hash as any)) {
+        scrollToSection(hash)
+      }
+    }
+    
+    // Check initial hash on load
+    handleHashChange()
+    
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange)
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange)
+    }
+  }, [])
 
   const store = useGeometryStore()
   const storeSquare = useGeometryStoreSquare()
@@ -96,9 +120,12 @@ export default function App(): JSX.Element {
       />
       
       {/* v4 Section */}
-      <div ref={sectionRefs['sixfold-v4']} className="mb-8 p-8 bg-dark-card rounded-lg">
-        <div className="mb-6">
+      <div ref={sectionRefs['sixfold-v4']} className="mb-8 p-8 bg-dark-card rounded-lg" id="sixfold-v4">
+        <div className="mb-6 flex items-center">
           <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v4</h1>
+          <CopyUrlButton />
+        </div>
+        <div className="mb-4">
           <small className="block text-gray-400 mb-2">14/05/2023</small>
           <p className="text-gray-300 mb-4">1/4 Six fold pattern, with input output geometries</p>
         </div>
@@ -134,9 +161,12 @@ export default function App(): JSX.Element {
       </div>
 
       {/* v3 Section */}
-      <div ref={sectionRefs['sixfold-v3']} className="mb-8 p-8 bg-gray-900 rounded-lg">
-        <div className="mb-6">
+      <div ref={sectionRefs['sixfold-v3']} className="mb-8 p-8 bg-gray-900 rounded-lg" id="sixfold-v3">
+        <div className="mb-6 flex items-center">
           <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v3</h1>
+          <CopyUrlButton />
+        </div>
+        <div className="mb-4">
           <small className="block text-gray-400 mb-2">11/03/2023</small>
           <p className="text-gray-300 mb-4">1/4 Six fold pattern, with steps to display geometry incrementally</p>
         </div>
@@ -172,9 +202,12 @@ export default function App(): JSX.Element {
       </div>
 
       {/* v2 Section */}
-      <div ref={sectionRefs['sixfold-v2']} className="mb-8 p-8 bg-gray-900 rounded-lg">
-        <div className="mb-6">
+      <div ref={sectionRefs['sixfold-v2']} className="mb-8 p-8 bg-gray-900 rounded-lg" id="sixfold-v2">
+        <div className="mb-6 flex items-center">
           <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v2</h1>
+          <CopyUrlButton />
+        </div>
+        <div className="mb-4">
           <small className="block text-gray-400 mb-2">24/12/2022</small>
         </div>
         <div className="grid grid-cols-12 gap-8">
@@ -203,9 +236,12 @@ export default function App(): JSX.Element {
       </div>
 
       {/* v1 Section */}
-      <div ref={sectionRefs['sixfold-v1']} className="mb-8 p-8 bg-gray-900 rounded-lg">
-        <div className="mb-6">
+      <div ref={sectionRefs['sixfold-v1']} className="mb-8 p-8 bg-gray-900 rounded-lg" id="sixfold-v1">
+        <div className="mb-6 flex items-center">
           <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern</h1>
+          <CopyUrlButton />
+        </div>
+        <div className="mb-4">
           <small className="block text-gray-400 mb-2">08/10/2022</small>
         </div>
         <div className="grid grid-cols-12 gap-8">
@@ -235,9 +271,12 @@ export default function App(): JSX.Element {
       </div>
 
       {/* Square Section */}
-      <div ref={sectionRefs['square']} className="mb-8 p-8 bg-gray-900 rounded-lg">
-        <div className="mb-6">
+      <div ref={sectionRefs['square']} className="mb-8 p-8 bg-gray-900 rounded-lg" id="square">
+        <div className="mb-6 flex items-center">
           <h1 className="text-2xl font-semibold mb-1 text-left">Drawing a square</h1>
+          <CopyUrlButton />
+        </div>
+        <div className="mb-4">
           <small className="block text-gray-400 mb-2">08/10/2022</small>
           <a href="https://www.youtube.com/watch?v=RSP5sm1e--4" target="_blank" className="text-blue-500 hover:underline text-sm">inspired by</a>
         </div>
