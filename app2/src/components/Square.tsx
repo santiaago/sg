@@ -109,7 +109,7 @@ export function Square({
     // draw first line
     const mainLine = line(svg, lx1, ly1, lx2, ly2, stroke)
     if (store) {
-      store.add('main_line', mainLine, 'line')
+      store.add('line_main', mainLine, 'line')
     }
 
     // draw right side circle
@@ -154,8 +154,8 @@ export function Square({
     const intersectionCircle = circle(svg, px, py, r, stroke)
     const intersectionDot = dot(svg, px, py)
     if (store) {
-      store.add('intersection_circle', intersectionCircle, 'circle')
-      store.add('intersection_dot', intersectionDot, 'point')
+      store.add('ci', intersectionCircle, 'circle')
+      store.add('pi', intersectionDot, 'point')
     }
 
     const x1 = cx2
@@ -173,7 +173,7 @@ export function Square({
     const dot_p3 = dot(svg, px3, py3)
     if (store) {
       store.add('line_c2_p3', line_c2_p3, 'line')
-      store.add('dot_p3', dot_p3, 'point')
+      store.add('p3', dot_p3, 'point')
     }
 
     // looking for intersection of
@@ -185,7 +185,7 @@ export function Square({
     const dot_p4 = dot(svg, px4, py4)
     const line_c1_p4 = line(svg, cx1, cy1, px4, py4, stroke)
     if (store) {
-      store.add('dot_p4', dot_p4, 'point')
+      store.add('p4', dot_p4, 'point')
       store.add('line_c1_p4', line_c1_p4, 'line')
     }
 
@@ -213,7 +213,7 @@ export function Square({
       [plx, ply] = lp_left[0]
       const dot_left_intersection = dot(svg, plx, ply)
       if (store) {
-        store.add('dot_left_intersection', dot_left_intersection, 'point')
+        store.add('pl', dot_left_intersection, 'point')
       }
     }
 
@@ -226,7 +226,7 @@ export function Square({
       [prx, pry] = lp_right[0]
       const dot_right_intersection = dot(svg, prx, pry)
       if (store) {
-        store.add('dot_right_intersection', dot_right_intersection, 'point')
+        store.add('pr', dot_right_intersection, 'point')
       }
     }
 
@@ -238,10 +238,10 @@ export function Square({
       const square_line3 = line(svg, cx2, cy2, cx1, cy1, s)
       const square_line4 = line(svg, cx1, cy1, prx, pry, s)
       if (store) {
-        store.add('square_line1', square_line1, 'line')
-        store.add('square_line2', square_line2, 'line')
-        store.add('square_line3', square_line3, 'line')
-        store.add('square_line4', square_line4, 'line')
+        store.add('ls1', square_line1, 'line')
+        store.add('ls2', square_line2, 'line')
+        store.add('ls3', square_line3, 'line')
+        store.add('ls4', square_line4, 'line')
       }
     }
     
