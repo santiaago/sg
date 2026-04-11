@@ -63,18 +63,34 @@ function applyVisualFeedback(element: any, shape: GeometryItem, stroke: number, 
   try {
     if (shape.type === "point") {
       if (shape.selected) {
-        element.setAttribute('fill', 'red');
-        element.setAttribute('r', strokeBig.toString());
-      } else {
         element.setAttribute('fill', 'black');
         element.setAttribute('r', stroke.toString());
+        // Show tooltip and background when selected
+        if (element.tooltip) {
+          element.tooltip.setAttribute('opacity', '1');
+        }
+        if (element.tooltipBg) {
+          element.tooltipBg.setAttribute('opacity', '1');
+        }
+      } else {
+        element.setAttribute('fill', 'red');
+        element.setAttribute('r', strokeBig.toString());
+        // Hide tooltip and background when not selected
+        if (element.tooltip) {
+          element.tooltip.setAttribute('opacity', '0');
+        }
+        if (element.tooltipBg) {
+          element.tooltipBg.setAttribute('opacity', '0');
+        }
       }
     }
     else if (shape.type === "circle" || shape.type === "line") {
       if (shape.selected) {
         element.setAttribute('stroke-width', strokeBig.toString());
+        element.setAttribute('stroke', 'red');  // Make selected items red for visibility
       } else {
         element.setAttribute('stroke-width', stroke.toString());
+        element.setAttribute('stroke', '#f06');  // Original color
       }
     }
   } catch (error) {

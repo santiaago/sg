@@ -42,7 +42,7 @@ export function Square({
     tooltip.setAttribute('x', (x + 10).toString())
     tooltip.setAttribute('y', (y - 5).toString())  // Adjusted y position for better visibility
     tooltip.setAttribute('fill', 'white')  // White text for contrast
-    tooltip.setAttribute('font-size', '12')
+    tooltip.setAttribute('font-size', '10')  // Smaller font to match app
     tooltip.setAttribute('opacity', '0')  // Hidden initially - show only on selection
     tooltip.setAttribute('data-tooltip-text', name)
     tooltip.setAttribute('text-anchor', 'middle')  // Center text horizontally
@@ -51,10 +51,10 @@ export function Square({
     
     // Create background rectangle for better visibility
     const tooltipBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-    const textWidth = name.length * 8  // Approximate width
+    const textWidth = name.length * 10  // Approximate width
     const bgX = x + 10 - textWidth/2  // Center background behind text
     tooltipBg.setAttribute('x', bgX.toString())
-    tooltipBg.setAttribute('y', (y - 20).toString())
+    tooltipBg.setAttribute('y', (y - 15).toString())
     tooltipBg.setAttribute('width', textWidth.toString())
     tooltipBg.setAttribute('height', '16')
     tooltipBg.setAttribute('fill', 'black')
