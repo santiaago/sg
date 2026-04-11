@@ -10,7 +10,7 @@ import {
   intersect,
   distance
 } from '@sg/geometry'
-import { SvgConfig } from '../config/svgConfig'
+import type { SvgConfig } from '../config/svgConfig'
 
 
 
