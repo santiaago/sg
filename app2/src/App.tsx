@@ -6,6 +6,7 @@ import { SixFoldv2 } from './components/SixFoldv2'
 import { SixFoldv3 } from './components/SixFoldv3'
 import { SixFoldv4 } from './components/SixFoldv4'
 import { Square } from './components/Square'
+import { standardSvgConfig, sixFoldSvgConfig } from './config/svgConfig'
 import { GeometryList } from './components/GeometryList'
 import { Navigation } from './components/Navigation'
 
@@ -215,6 +216,7 @@ export default function App(): JSX.Element {
               strokeMid={strokeMid}
               strokeBig={strokeBig}
               strokeLine={strokeLine}
+              svgConfig={sixFoldSvgConfig}
             />
           </div>
           <div className="col-span-3 pl-4">
@@ -247,6 +249,7 @@ export default function App(): JSX.Element {
               strokeMid={strokeMid}
               strokeBig={strokeBig}
               strokeLine={strokeLine}
+              svgConfig={standardSvgConfig}
             />
           </div>
           <div className="col-span-3 pl-4">

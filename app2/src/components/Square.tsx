@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react'
 import type { JSX } from 'react'
 import { bisect, inteceptCircleLineSeg, intersection } from '@sg/geometry'
+import type { SvgConfig } from '../config/svgConfig'
+
+
 
 interface SquareProps {
   store?: any
@@ -8,6 +11,7 @@ interface SquareProps {
   strokeMid?: number
   strokeBig?: number
   strokeLine?: number
+  svgConfig: SvgConfig
 }
 
 export function Square({ 
@@ -15,7 +19,8 @@ export function Square({
   stroke = 0.5,
   strokeMid = 0.5,
   strokeBig = 2,
-  strokeLine = (1 + Math.sqrt(5)) / 2
+  strokeLine = (1 + Math.sqrt(5)) / 2,
+  svgConfig
 }: SquareProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -51,7 +56,7 @@ export function Square({
     
     // Create background rectangle for better visibility
     const tooltipBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-    const textWidth = name.length * 10  // Approximate width
+    const textWidth = name.length * 8  // Approximate width
     const bgX = x + 10 - textWidth/2  // Center background behind text
     tooltipBg.setAttribute('x', bgX.toString())
     tooltipBg.setAttribute('y', (y - 15).toString())
@@ -120,12 +125,12 @@ export function Square({
     }
     
     // Set up SVG dimensions
-    svg.setAttribute('viewBox', '0 0 800 1000')
+    svg.setAttribute('viewBox', svgConfig.viewBox)
     svg.setAttribute('width', '100%')
     svg.setAttribute('height', '100%')
     
-    let width = 647
-    let height = 400
+    let width = svgConfig.width
+    let height = svgConfig.height
     rect(svg, width, height)
 
     const border = height / 3
@@ -280,8 +285,8 @@ export function Square({
   }, [])
 
   return (
-    <div className="square-container">
-      <svg ref={svgRef} className="square-svg w-full h-auto" />
+    <div className={svgConfig.containerClass}>
+      <svg ref={svgRef} className={svgConfig.svgClass} />
     </div>
   )
 }

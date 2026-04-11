@@ -10,19 +10,24 @@ import {
   intersect,
   distance
 } from '@sg/geometry'
+import { SvgConfig } from '../config/svgConfig'
+
+
 
 export function SixFold({ 
   store,
   stroke = 0.5,
   strokeMid = 0.5,
   strokeBig = 2,
-  strokeLine = (1 + Math.sqrt(5)) / 2
+  strokeLine = (1 + Math.sqrt(5)) / 2,
+  svgConfig
 }: {
   store: any
   stroke?: number
   strokeMid?: number
   strokeBig?: number
   strokeLine?: number
+  svgConfig: SvgConfig
 }): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -411,12 +416,12 @@ export function SixFold({
     }
     
     // Set up SVG dimensions
-    svg.setAttribute('viewBox', '0 0 800 1000')
+    svg.setAttribute('viewBox', svgConfig.viewBox)
     svg.setAttribute('width', '100%')
     svg.setAttribute('height', '100%')
     
-    let width = 647
-    let height = 400
+    let width = svgConfig.width
+    let height = svgConfig.height
 
     rect(svg, width, height)
 
@@ -893,8 +898,8 @@ export function SixFold({
   }, [stroke, strokeLine])
 
   return (
-    <div className="square-container">
-      <svg ref={svgRef} className="square-svg w-full h-auto" />
+    <div className={svgConfig.containerClass}>
+      <svg ref={svgRef} className={svgConfig.svgClass} />
     </div>
   )
 }
