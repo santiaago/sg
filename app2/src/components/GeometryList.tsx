@@ -48,7 +48,7 @@ export function GeometryList({ store, stroke = 0.5, strokeBig = 2 }: GeometryLis
             onClick={() => handleClick(key)}
             className={`cursor-pointer hover:underline ${getItemColor(key)}`}
           >
-            {(item as GeometryItem).name} ((item as GeometryItem).type)
+            {(item as GeometryItem).name} | {(item as GeometryItem).type}
           </li>
         ))}
       </ul>
