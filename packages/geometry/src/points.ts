@@ -6,7 +6,7 @@ export class Point {
   type: string;
   name: string;
   context: any;
-  
+
   constructor(x: number, y: number, name?: string) {
     this.x = x;
     this.y = y;
@@ -14,7 +14,7 @@ export class Point {
     this.name = name ?? hashName(this);
     this.context = null;
   }
-  
+
   distanceToPoint(p: Point): number {
     return distance(this.x, this.y, p.x, p.y);
   }

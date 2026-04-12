@@ -22,7 +22,14 @@ export function circlesIntersection(c1: Circle, c2: Circle): [Point, Point] | nu
 
 // https://stackoverflow.com/questions/12219802/a-javascript-function-that-returns-the-x-y-points-of-intersection-between-two-ci/#answer-12221389
 // A JavaScript function that returns the x,y points of intersection between two circles
-export function intersection(x0: number, y0: number, r0: number, x1: number, y1: number, r1: number): [number, number, number, number] | null {
+export function intersection(
+  x0: number,
+  y0: number,
+  r0: number,
+  x1: number,
+  y1: number,
+  r1: number,
+): [number, number, number, number] | null {
   let a, dx, dy, d, h, rx, ry;
   let x2, y2;
 
@@ -120,7 +127,7 @@ export function interceptCircleAndLine(circle: Circle, line: Line): Point[] {
     line.p1.y,
     line.p2.x,
     line.p2.y,
-    circle.r
+    circle.r,
   );
   return points.map((p) => {
     const [x, y] = p;
@@ -129,7 +136,15 @@ export function interceptCircleAndLine(circle: Circle, line: Line): Point[] {
 }
 // https://stackoverflow.com/a/37225895
 // cercle line intercept
-export function inteceptCircleLineSeg(cx: number, cy: number, l1x: number, l1y: number, l2x: number, l2y: number, r: number): Array<[number, number]> {
+export function inteceptCircleLineSeg(
+  cx: number,
+  cy: number,
+  l1x: number,
+  l1y: number,
+  l2x: number,
+  l2y: number,
+  r: number,
+): Array<[number, number]> {
   let a, b, c, d, u1, u2, retP1, retP2, v1, v2;
   const v1x = l2x - l1x;
   const v1y = l2y - l1y;
@@ -169,7 +184,15 @@ export const directions = {
 };
 
 // find intersection point between 2 circles
-export const cerclesIntersection = (cx1: number, cy1: number, r1: number, cx2: number, cy2: number, r2: number, direction: number): [number, number] | null => {
+export const cerclesIntersection = (
+  cx1: number,
+  cy1: number,
+  r1: number,
+  cx2: number,
+  cy2: number,
+  r2: number,
+  direction: number,
+): [number, number] | null => {
   const points = intersection(cx1, cy1, r1, cx2, cy2, r2);
   if (!points) {
     console.debug("no intersection found");
@@ -209,7 +232,11 @@ export const cerclesIntersection = (cx1: number, cy1: number, r1: number, cx2: n
 };
 
 // find intersection point between 2 circles
-export const circlesIntersectionPoint = (circle1: Circle, circle2: Circle, direction: number): Point | null => {
+export const circlesIntersectionPoint = (
+  circle1: Circle,
+  circle2: Circle,
+  direction: number,
+): Point | null => {
   const p = cerclesIntersection(
     circle1.p.x,
     circle1.p.y,
@@ -217,7 +244,7 @@ export const circlesIntersectionPoint = (circle1: Circle, circle2: Circle, direc
     circle2.p.x,
     circle2.p.y,
     circle2.r,
-    direction
+    direction,
   );
   if (p == null) {
     return null;
@@ -225,7 +252,16 @@ export const circlesIntersectionPoint = (circle1: Circle, circle2: Circle, direc
   return new Point(p[0], p[1]);
 };
 
-export const lineIntersect = (x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): [number, number] | null => {
+export const lineIntersect = (
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  x3: number,
+  y3: number,
+  x4: number,
+  y4: number,
+): [number, number] | null => {
   let ua,
     ub,
     denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
@@ -252,7 +288,7 @@ export const linesIntersection = (l1: Line, l2: Line): Point | null => {
     l2.p1.x,
     l2.p1.y,
     l2.p2.x,
-    l2.p2.y
+    l2.p2.y,
   );
   if (point == null) {
     console.log("linesIntersection, no intersection found");

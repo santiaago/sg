@@ -7,7 +7,7 @@ export class Line {
   type: string;
   name: string;
   context: any;
-  
+
   /**
    * Create a line between two points
    * @param p1 - first point
@@ -36,7 +36,16 @@ export class Line {
  * @param y4 - point y coordinate
  * @returns [x, y] coordinates of intersection point or empty array if no intersection
  */
-export function intersect(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number, x4: number, y4: number): [number, number] | [] {
+export function intersect(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  x3: number,
+  y3: number,
+  x4: number,
+  y4: number,
+): [number, number] | [] {
   // Check if none of the lines are of length 0
   if ((x1 === x2 && y1 === y2) || (x3 === x4 && y3 === y4)) {
     return [];
@@ -66,16 +75,7 @@ export function intersect(x1: number, y1: number, x2: number, y2: number, x3: nu
  * @returns Point at intersection or null if no intersection
  */
 export function intersectLines(l1: Line, l2: Line): Point | null {
-  const ret = intersect(
-    l1.p1.x,
-    l1.p1.y,
-    l1.p2.x,
-    l1.p2.y,
-    l2.p1.x,
-    l2.p1.y,
-    l2.p2.x,
-    l2.p2.y
-  );
+  const ret = intersect(l1.p1.x, l1.p1.y, l1.p2.x, l1.p2.y, l2.p1.x, l2.p1.y, l2.p2.x, l2.p2.y);
   if (ret.length === 0) {
     return null;
   }

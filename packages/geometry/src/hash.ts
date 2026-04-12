@@ -18,6 +18,4 @@ export function hashName(geometry: GeometryWithType): string {
 }
 
 const hash = (size: number): string =>
-  [...Array(size)]
-    .map(() => Math.floor(Math.random() * 16).toString(16))
-    .join("");
+  [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join("");

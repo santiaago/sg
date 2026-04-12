@@ -7,7 +7,7 @@ export class Circle {
   type: string;
   name: string;
   context: any;
-  
+
   /**
    * Create a circle
    * @param p - center point
