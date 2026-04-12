@@ -182,7 +182,7 @@ export function Square({
 
     // Create tooltip element (positioned to the right of the circle, moved down slightly)
     const tooltipX = cx + r + 5;
-    const tooltipY = cy;  // Moved down by 5 pixels to prevent cropping
+    const tooltipY = cy;
     const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, name, 15);
 
     // Store both tooltip and background
