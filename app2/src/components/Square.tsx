@@ -137,7 +137,7 @@ export function Square({
     // Create tooltip element (positioned at midpoint)
     const midpointX = (x1 + x2) / 2;
     const midpointY = (y1 + y2) / 2;
-    const { tooltip, tooltipBg } = createTooltip(svg, midpointX, midpointY, name, 20);
+    const { tooltip, tooltipBg } = createTooltip(svg, midpointX, midpointY, name, 15);
 
     // Store both tooltip and background
     lineEl.tooltip = tooltip;
@@ -180,10 +180,10 @@ export function Square({
     const circleEl = circle(svg, cx, cy, r, stroke);
     circleEl.style.cursor = "pointer";
 
-    // Create tooltip element (positioned to the right of the circle)
+    // Create tooltip element (positioned to the right of the circle, moved down slightly)
     const tooltipX = cx + r + 5;
-    const tooltipY = cy;
-    const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, name, 20);
+    const tooltipY = cy;  // Moved down by 5 pixels to prevent cropping
+    const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, name, 15);
 
     // Store both tooltip and background
     circleEl.tooltip = tooltip;
