@@ -90,7 +90,12 @@ export default function App(): JSX.Element {
   const storev3 = useGeometryStorev3();
   const storev4 = useGeometryStorev4();
 
-  const [stepsv3, setStepsv3] = useState<any[]>([]);
+interface Step {
+  draw: boolean;
+  drawShapes: () => void;
+}
+
+  const [stepsv3, setStepsv3] = useState<Step[]>([]);
   const [currentStepv3, setCurrentStepv3] = useState<number>(0);
 
   const handleNextClickv3 = (): void => {
@@ -106,12 +111,12 @@ export default function App(): JSX.Element {
     }
   };
 
-  const updateStepsv3 = (newSteps: any[]): void => {
+  const updateStepsv3 = (newSteps: Step[]): void => {
     console.log("newSteps", newSteps, "stepsv3", stepsv3);
     setStepsv3(newSteps);
   };
 
-  const [stepsv4, setStepsv4] = useState<any[]>([]);
+  const [stepsv4, setStepsv4] = useState<Step[]>([]);
   const [currentStepv4, setCurrentStepv4] = useState<number>(0);
 
   const handleNextClickv4 = (): void => {
@@ -127,9 +132,30 @@ export default function App(): JSX.Element {
     }
   };
 
-  const updateStepsv4 = (newSteps: any[]): void => {
+  const updateStepsv4 = (newSteps: Step[]): void => {
     console.log("newSteps", newSteps, "stepsv4", stepsv4);
     setStepsv4(newSteps);
+  };
+
+  const [stepsSquare, setStepsSquare] = useState<Step[]>([]);
+  const [currentStepSquare, setCurrentStepSquare] = useState<number>(0);
+
+  const handleNextClickSquare = (): void => {
+    console.log("next step", currentStepSquare, stepsSquare.length);
+    if (currentStepSquare < stepsSquare.length) {
+      console.log("inside");
+      const step = stepsSquare[currentStepSquare];
+      console.log(step);
+      step.draw = true;
+      step.drawShapes();
+      console.log("after drawShapes");
+      setCurrentStepSquare(currentStepSquare + 1);
+    }
+  };
+
+  const updateStepsSquare = (newSteps: Step[]): void => {
+    console.log("newSteps", newSteps, "stepsSquare", stepsSquare);
+    setStepsSquare(newSteps);
   };
 
   return (
@@ -346,10 +372,23 @@ export default function App(): JSX.Element {
               strokeBig={strokeBig}
               strokeLine={strokeLine}
               svgConfig={standardSvgConfig}
+              steps={stepsSquare}
+              updateSteps={updateStepsSquare}
             />
+            <div className="mt-4">
+              <button
+                onClick={handleNextClickSquare}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              >
+                next
+              </button>
+            </div>
           </div>
           <div className="col-span-3 pl-4">
             <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <p className="text-gray-300 mb-4">
+              Current step {currentStepSquare}/{stepsSquare.length}
+            </p>
             <div>
               <GeometryList
                 store={storeSquare}
