@@ -14,6 +14,7 @@ interface GeometryItem {
   selected: boolean
   type: string
   context?: any
+  initialState?: Record<string, string>
 }
 
 export function GeometryList({ store, stroke = 0.5, strokeBig = 2 }: GeometryListProps): JSX.Element {
@@ -61,13 +62,9 @@ function applyVisualFeedback(element: any, shape: GeometryItem, stroke: number, 
   if (!element) return;
   
   try {
-    if (shape.type === "point") {
-      // Store original radius if not already stored
-      if (!element.originalRadius) {
-        element.originalRadius = element.getAttribute('r');
-      }
-      
-      if (shape.selected) {
+    if (shape.selected) {
+      // Apply selection styles (consistent red highlighting)
+      if (shape.type === "point") {
         element.setAttribute('fill', 'red');
         element.setAttribute('r', strokeBig.toString());
         // Show tooltip and background when selected
@@ -77,33 +74,27 @@ function applyVisualFeedback(element: any, shape: GeometryItem, stroke: number, 
         if (element.tooltipBg) {
           element.tooltipBg.setAttribute('opacity', '1');
         }
-      } else {
-        element.setAttribute('fill', 'black');
-        element.setAttribute('r', element.originalRadius);
-        // Hide tooltip and background when not selected
+      }
+      else if (shape.type === "circle" || shape.type === "line") {
+        element.setAttribute('stroke-width', strokeBig.toString());
+        element.setAttribute('stroke', 'red');
+      }
+    } else {
+      // Restore original state from store
+      if (shape.initialState) {
+        Object.entries(shape.initialState).forEach(([attr, value]) => {
+          element.setAttribute(attr, value);
+        });
+      }
+      
+      // Hide tooltips for points when unselected
+      if (shape.type === "point") {
         if (element.tooltip) {
           element.tooltip.setAttribute('opacity', '0');
         }
         if (element.tooltipBg) {
           element.tooltipBg.setAttribute('opacity', '0');
         }
-      }
-    }
-    else if (shape.type === "circle" || shape.type === "line") {
-      // Store original properties if not already stored
-      if (!element.originalStroke) {
-        element.originalStroke = element.getAttribute('stroke');
-      }
-      if (!element.originalStrokeWidth) {
-        element.originalStrokeWidth = element.getAttribute('stroke-width');
-      }
-      
-      if (shape.selected) {
-        element.setAttribute('stroke-width', strokeBig.toString());
-        element.setAttribute('stroke', 'red');  // Make selected items red for visibility
-      } else {
-        element.setAttribute('stroke-width', element.originalStrokeWidth);  // Restore original width
-        element.setAttribute('stroke', element.originalStroke);  // Restore original color
       }
     }
   } catch (error) {
