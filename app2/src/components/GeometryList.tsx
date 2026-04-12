@@ -62,9 +62,14 @@ function applyVisualFeedback(element: any, shape: GeometryItem, stroke: number, 
   
   try {
     if (shape.type === "point") {
+      // Store original radius if not already stored
+      if (!element.originalRadius) {
+        element.originalRadius = element.getAttribute('r');
+      }
+      
       if (shape.selected) {
-        element.setAttribute('fill', 'black');
-        element.setAttribute('r', stroke.toString());
+        element.setAttribute('fill', 'red');
+        element.setAttribute('r', strokeBig.toString());
         // Show tooltip and background when selected
         if (element.tooltip) {
           element.tooltip.setAttribute('opacity', '1');
@@ -73,8 +78,8 @@ function applyVisualFeedback(element: any, shape: GeometryItem, stroke: number, 
           element.tooltipBg.setAttribute('opacity', '1');
         }
       } else {
-        element.setAttribute('fill', 'red');
-        element.setAttribute('r', strokeBig.toString());
+        element.setAttribute('fill', 'black');
+        element.setAttribute('r', element.originalRadius);
         // Hide tooltip and background when not selected
         if (element.tooltip) {
           element.tooltip.setAttribute('opacity', '0');
@@ -85,12 +90,20 @@ function applyVisualFeedback(element: any, shape: GeometryItem, stroke: number, 
       }
     }
     else if (shape.type === "circle" || shape.type === "line") {
+      // Store original properties if not already stored
+      if (!element.originalStroke) {
+        element.originalStroke = element.getAttribute('stroke');
+      }
+      if (!element.originalStrokeWidth) {
+        element.originalStrokeWidth = element.getAttribute('stroke-width');
+      }
+      
       if (shape.selected) {
         element.setAttribute('stroke-width', strokeBig.toString());
         element.setAttribute('stroke', 'red');  // Make selected items red for visibility
       } else {
-        element.setAttribute('stroke-width', stroke.toString());
-        element.setAttribute('stroke', '#f06');  // Original color
+        element.setAttribute('stroke-width', element.originalStrokeWidth);  // Restore original width
+        element.setAttribute('stroke', element.originalStroke);  // Restore original color
       }
     }
   } catch (error) {
