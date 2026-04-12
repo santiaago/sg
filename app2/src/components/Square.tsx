@@ -189,7 +189,7 @@ export function Square({
 
     // draw circle at intersection point
     const intersectionCircle = circle(svg, px, py, r, stroke)
-    const intersectionDot = dot(svg, px, py)
+    const intersectionDot = dotWithTooltip(svg, px, py, 'pi', stroke)
     if (store) {
       store.add('ci', intersectionCircle, 'circle')
       store.add('pi', intersectionDot, 'point')
@@ -207,7 +207,7 @@ export function Square({
     // translate it into the interval [0,2 π] multiply by 2
     let [px3, py3] = bisect(angle * 2, r, px, py)
     const line_c2_p3 = line(svg, x1, y1, px3, py3, stroke)
-    const dot_p3 = dot(svg, px3, py3)
+    const dot_p3 = dotWithTooltip(svg, px3, py3, 'p3', stroke)
     if (store) {
       store.add('line_c2_p3', line_c2_p3, 'line')
       store.add('p3', dot_p3, 'point')
@@ -219,7 +219,7 @@ export function Square({
     angle = Math.atan2(cy0 - cy1, cx0 - cx1)
     // translate it into the interval [0,2 π] multiply by 2
     let [px4, py4] = bisect(angle * 2, r, px, py)
-    const dot_p4 = dot(svg, px4, py4)
+    const dot_p4 = dotWithTooltip(svg, px4, py4, 'p4', stroke)
     const line_c1_p4 = line(svg, cx1, cy1, px4, py4, stroke)
     if (store) {
       store.add('p4', dot_p4, 'point')
@@ -248,7 +248,7 @@ export function Square({
 
     if (lp_left && lp_left.length > 0) {
       [plx, ply] = lp_left[0]
-      const dot_left_intersection = dot(svg, plx, ply)
+      const dot_left_intersection = dotWithTooltip(svg, plx, ply, 'pl', stroke)
       if (store) {
         store.add('pl', dot_left_intersection, 'point')
       }
@@ -261,7 +261,7 @@ export function Square({
 
     if (lp_right && lp_right.length > 0) {
       [prx, pry] = lp_right[0]
-      const dot_right_intersection = dot(svg, prx, pry)
+      const dot_right_intersection = dotWithTooltip(svg, prx, pry, 'pr', stroke)
       if (store) {
         store.add('pr', dot_right_intersection, 'point')
       }
