@@ -1,5 +1,5 @@
 // Test version of points.js that uses mock hash
-import { hashName } from './mock-hash.js';
+import { hashName } from "./mock-hash.js";
 
 class Point {
   constructor(x, y, name) {

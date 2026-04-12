@@ -1,6 +1,6 @@
 // Test version of lines.js that uses mock hash
-import { hashName } from './mock-hash.js';
-import { Point } from './test-points.js';
+import { hashName } from "./mock-hash.js";
+import { Point } from "./test-points.js";
 
 class Line {
   /**
@@ -60,16 +60,7 @@ function intersect(x1, y1, x2, y2, x3, y3, x4, y4) {
  * @param {Line} l2
  */
 function intersectLines(l1, l2) {
-  const ret = intersect(
-    l1.p1.x,
-    l1.p1.y,
-    l1.p2.x,
-    l1.p2.y,
-    l2.p1.x,
-    l2.p1.y,
-    l2.p2.x,
-    l2.p2.y
-  );
+  const ret = intersect(l1.p1.x, l1.p1.y, l1.p2.x, l1.p2.y, l2.p1.x, l2.p1.y, l2.p2.x, l2.p2.y);
   if (ret.length === 0) {
     return null;
   }

@@ -74,11 +74,7 @@ export function drawLine(svg, l, stroke) {
 }
 
 export const rect = (svg, width, height) => {
-  return svg
-    .append("rect")
-    .attr("width", width)
-    .attr("height", height)
-    .attr("fill", "#fff");
+  return svg.append("rect").attr("width", width).attr("height", height).attr("fill", "#fff");
 };
 
 export const circle = (svg, cx, cy, r, stroke = 1) => {

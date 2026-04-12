@@ -119,7 +119,7 @@ export function interceptCircleAndLine(circle, line) {
     line.p1.y,
     line.p2.x,
     line.p2.y,
-    circle.r
+    circle.r,
   );
   return points.map((p) => {
     const [x, y] = p;
@@ -215,7 +215,7 @@ export const circlesIntersectionPoint = (circle1, circle2, direction) => {
     circle2.p.x,
     circle2.p.y,
     circle2.r,
-    direction
+    direction,
   );
   if (p == null) {
     return null;
@@ -250,7 +250,7 @@ export const linesIntersection = (l1, l2) => {
     l2.p1.x,
     l2.p1.y,
     l2.p2.x,
-    l2.p2.y
+    l2.p2.y,
   );
   if (point == null) {
     console.log("linesIntersection, no intersection found");
