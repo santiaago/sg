@@ -20,6 +20,7 @@ interface GeometryStorev2v3v4 {
   items: Record<string, GeometryItem>;
   add: (shape: { name: string; type: string; context?: any }, element: any) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
+  clear: () => void;
 }
 
 // Attributes to preserve for each geometry type
