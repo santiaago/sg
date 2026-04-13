@@ -30,6 +30,8 @@ interface SquareProps {
   svgConfig: SvgConfig;
   steps?: Step[];
   updateSteps?: (steps: Step[]) => void;
+  restartKey?: number;
+  currentStep?: number;
 }
 
 export function Square({
@@ -41,6 +43,8 @@ export function Square({
   svgConfig,
   steps = [],
   updateSteps = () => {},
+  restartKey = 0,
+  currentStep = 0,
 }: SquareProps): JSX.Element {
   // Use parameters to avoid unused warnings
   console.log("Square params:", { stroke, strokeMid, strokeBig, strokeLine, steps });
@@ -52,8 +56,9 @@ export function Square({
     circle.setAttribute("class", "dot");
     circle.setAttribute("cx", x.toString());
     circle.setAttribute("cy", y.toString());
-    circle.setAttribute("r", strokeWidth.toString());
+    circle.setAttribute("r", strokeBig.toString()); // Use strokeBig for better visibility
     circle.setAttribute("fill", "black");
+    circle.setAttribute("opacity", "1"); // Ensure dot is visible
     svg.appendChild(circle);
     return circle;
   };
@@ -247,6 +252,12 @@ export function Square({
     const circleRadius = lineLength * 2 / 8; // 1/4 of line length
     const c1XPosition = lx1 + lineLength * 5 / 8; // c1 at 5/8 from left
     const c2XPosition = c1XPosition - circleRadius; // c2 at 3/8 from left (5/8 - 2/8)
+    
+    // Circle intersection parameters (calculated once for efficiency)
+    const intersectionCx1 = lx1 + ((lx2 - lx1) * 5) / 8;
+    const intersectionCy1 = ly2;
+    const intersectionCx2 = intersectionCx1 - circleRadius;
+    const intersectionCy2 = ly2;
 
     // Step creator functions (defined inside useEffect where they can access all variables)
     const createLineStep = (x1: number, y1: number, x2: number, y2: number, name: string): Step => ({
@@ -257,60 +268,80 @@ export function Square({
       }
     });
 
-    const createCircleStep = (cx: number, cy: number, r: number, circleName: string, dotName: string): Step => ({
+    const createCircleStep = (cx: number, cy: number, r: number, circleName: string): Step => ({
       draw: false,
       drawShapes: () => {
         const circleEl = circleWithTooltip(svg, cx, cy, r, circleName, stroke);
-        const dotEl = dotWithTooltip(svg, cx, cy, dotName, stroke);
         if (store) {
           store.add(circleName, circleEl, "circle");
+        }
+      }
+    });
+
+    const createDotStep = (cx: number, cy: number, dotName: string): Step => ({
+      draw: false,
+      drawShapes: () => {
+        const dotEl = dotWithTooltip(svg, cx, cy, dotName, stroke);
+        if (store) {
           store.add(dotName, dotEl, "point");
         }
       }
     });
 
-    const createCircleIntersectionStep = (): Step => {
-      const cx1 = lx1 + ((lx2 - lx1) * 5) / 8;
-      const cy1 = ly2;
-      const r = ((lx2 - lx1) * 2) / 8;
-      const cx2 = cx1 - r;
-      const cy2 = cy1;
+    // Helper function to get circle intersection point
+    const getCircleIntersectionPoint = (): {px: number, py: number} | null => {
+      const points = intersection(intersectionCx1, intersectionCy1, circleRadius, intersectionCx2, intersectionCy2, circleRadius);
+      if (!points) return null;
       
+      const px1 = points[0], py1 = points[1];
+      const px2 = points[2], py2 = points[3];
+      const px = py1 < py2 ? px1 : px2;
+      const py = py1 < py2 ? py1 : py2;
+      
+      return { px, py };
+    };
+
+    const createCircleIntersectionDotStep = (): Step => {
       return {
         draw: false,
         drawShapes: () => {
-          // find intersection point between 2 circles
-          let points = intersection(cx1, cy1, r, cx2, cy2, r);
-          if (!points) return;
+          const intersectionPoint = getCircleIntersectionPoint();
+          if (!intersectionPoint) return;
           
-          let px, py;
-          const px1 = points[0], py1 = points[1];
-          const px2 = points[2], py2 = points[3];
-          px = py1 < py2 ? px1 : px2;
-          py = py1 < py2 ? py1 : py2;
+          const { px, py } = intersectionPoint;
           
-          // draw circle at intersection point
-          const intersectionCircle = circleWithTooltip(svg, px, py, r, "ci", stroke);
+          // draw dot at intersection point
           const intersectionDot = dotWithTooltip(svg, px, py, "pi", stroke);
           if (store) {
-            store.add("ci", intersectionCircle, "circle");
             store.add("pi", intersectionDot, "point");
           }
         }
       };
     };
 
-    const createLinesToIntersectionPointsStep = (): Step => {
-      const cx1 = lx1 + ((lx2 - lx1) * 5) / 8;
-      const cy1 = ly2;
-      const r = ((lx2 - lx1) * 2) / 8;
-      const cx2 = cx1 - r;
-      const cy2 = cy1;
-      
+    const createCircleIntersectionCircleStep = (): Step => {
       return {
         draw: false,
         drawShapes: () => {
-          let points = intersection(cx1, cy1, r, cx2, cy2, r);
+          const intersectionPoint = getCircleIntersectionPoint();
+          if (!intersectionPoint) return;
+          
+          const { px, py } = intersectionPoint;
+          const r = circleRadius;          
+          // draw circle at intersection point
+          const intersectionCircle = circleWithTooltip(svg, px, py, r, "ci", stroke);
+          if (store) {
+            store.add("ci", intersectionCircle, "circle");
+          }
+        }
+      };
+    };
+
+    const createLinesToIntersectionPointsStep = (): Step => {
+      return {
+        draw: false,
+        drawShapes: () => {
+          let points = intersection(intersectionCx1, intersectionCy1, circleRadius, intersectionCx2, intersectionCy2, circleRadius);
           if (!points) return;
           
           let px, py;
@@ -319,13 +350,13 @@ export function Square({
           px = py1 < py2 ? px1 : px2;
           py = py1 < py2 ? py1 : py2;
           
-          const x1 = cx2, y1 = cy2;
-          const cx0 = px - r, cy0 = py;
+          const x1 = intersectionCx2, y1 = intersectionCy2;
+          const cx0 = px - circleRadius, cy0 = py;
           
           // looking for intersection of line(center(c2), point(px,py)) AND circle(center(px, py))
           let angle = Math.atan2(cy0 - y1, cx0 - x1);
           // translate it into the interval [0,2 π] multiply by 2
-          let [px3, py3] = bisect(angle * 2, r, px, py);
+          let [px3, py3] = bisect(angle * 2, circleRadius, px, py);
           const line_c2_p3 = lineWithTooltip(svg, x1, y1, px3, py3, "line_c2_p3", stroke);
           const dot_p3 = dotWithTooltip(svg, px3, py3, "p3", stroke);
           if (store) {
@@ -334,11 +365,11 @@ export function Square({
           }
           
           // looking for intersection of line(center(c1), point(px,py)) AND circle(center(px, py))
-          angle = Math.atan2(cy0 - cy1, cx0 - cx1);
+          angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
           // translate it into the interval [0,2 π] multiply by 2
-          let [px4, py4] = bisect(angle * 2, r, px, py);
+          let [px4, py4] = bisect(angle * 2, circleRadius, px, py);
           const dot_p4 = dotWithTooltip(svg, px4, py4, "p4", stroke);
-          const line_c1_p4 = lineWithTooltip(svg, cx1, cy1, px4, py4, "line_c1_p4", stroke);
+          const line_c1_p4 = lineWithTooltip(svg, intersectionCx1, intersectionCy1, px4, py4, "line_c1_p4", stroke);
           if (store) {
             store.add("p4", dot_p4, "point");
             store.add("line_c1_p4", line_c1_p4, "line");
@@ -348,16 +379,10 @@ export function Square({
     };
 
     const createLinesBetweenPointsStep = (): Step => {
-      const cx1 = lx1 + ((lx2 - lx1) * 5) / 8;
-      const cy1 = ly2;
-      const r = ((lx2 - lx1) * 2) / 8;
-      const cx2 = cx1 - r;
-      const cy2 = cy1;
-      
       return {
         draw: false,
         drawShapes: () => {
-          let points = intersection(cx1, cy1, r, cx2, cy2, r);
+          let points = intersection(intersectionCx1, intersectionCy1, circleRadius, intersectionCx2, intersectionCy2, circleRadius);
           if (!points) return;
           
           let px, py;
@@ -366,16 +391,16 @@ export function Square({
           px = py1 < py2 ? px1 : px2;
           py = py1 < py2 ? py1 : py2;
           
-          const cx0 = px - r, cy0 = py;
-          let angle = Math.atan2(cy0 - cy2, cx0 - cx2);
-          let [px3, py3] = bisect(angle * 2, r, px, py);
-          angle = Math.atan2(cy0 - cy1, cx0 - cx1);
-          let [px4, py4] = bisect(angle * 2, r, px, py);
+          const cx0 = px - circleRadius, cy0 = py;
+          let angle = Math.atan2(cy0 - intersectionCy2, cx0 - intersectionCx2);
+          let [px3, py3] = bisect(angle * 2, circleRadius, px, py);
+          angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
+          let [px4, py4] = bisect(angle * 2, circleRadius, px, py);
           
           // draw lines from cercle(c1) and cercle(c2) with new intersection points
           // p3 and p4
-          const line_c1_p3 = lineWithTooltip(svg, cx1, cy1, px3, py3, "line_c1_p3", stroke);
-          const line_c2_p4 = lineWithTooltip(svg, cx2, cy2, px4, py4, "line_c2_p4", stroke);
+          const line_c1_p3 = lineWithTooltip(svg, intersectionCx1, intersectionCy1, px3, py3, "line_c1_p3", stroke);
+          const line_c2_p4 = lineWithTooltip(svg, intersectionCx2, intersectionCy2, px4, py4, "line_c2_p4", stroke);
           if (store) {
             store.add("line_c1_p3", line_c1_p3, "line");
             store.add("line_c2_p4", line_c2_p4, "line");
@@ -385,16 +410,10 @@ export function Square({
     };
 
     const createLineBetweenP3P4Step = (): Step => {
-      const cx1 = lx1 + ((lx2 - lx1) * 5) / 8;
-      const cy1 = ly2;
-      const r = ((lx2 - lx1) * 2) / 8;
-      const cx2 = cx1 - r;
-      const cy2 = cy1;
-      
       return {
         draw: false,
         drawShapes: () => {
-          let points = intersection(cx1, cy1, r, cx2, cy2, r);
+          let points = intersection(intersectionCx1, intersectionCy1, circleRadius, intersectionCx2, intersectionCy2, circleRadius);
           if (!points) return;
           
           let px, py;
@@ -403,11 +422,11 @@ export function Square({
           px = py1 < py2 ? px1 : px2;
           py = py1 < py2 ? py1 : py2;
           
-          const cx0 = px - r, cy0 = py;
-          let angle = Math.atan2(cy0 - cy2, cx0 - cx2);
-          let [px3, py3] = bisect(angle * 2, r, px, py);
-          angle = Math.atan2(cy0 - cy1, cx0 - cx1);
-          let [px4, py4] = bisect(angle * 2, r, px, py);
+          const cx0 = px - circleRadius, cy0 = py;
+          let angle = Math.atan2(cy0 - intersectionCy2, cx0 - intersectionCx2);
+          let [px3, py3] = bisect(angle * 2, circleRadius, px, py);
+          angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
+          let [px4, py4] = bisect(angle * 2, circleRadius, px, py);
           
           // draw line between p3 and p4
           const line_p3_p4 = lineWithTooltip(svg, px3, py3, px4, py4, "line_p3_p4", stroke);
@@ -417,16 +436,10 @@ export function Square({
     };
 
     const createCircleIntersectionsStep = (): Step => {
-      const cx1 = lx1 + ((lx2 - lx1) * 5) / 8;
-      const cy1 = ly2;
-      const r = ((lx2 - lx1) * 2) / 8;
-      const cx2 = cx1 - r;
-      const cy2 = cy1;
-      
       return {
         draw: false,
         drawShapes: () => {
-          let points = intersection(cx1, cy1, r, cx2, cy2, r);
+          let points = intersection(intersectionCx1, intersectionCy1, circleRadius, intersectionCx2, intersectionCy2, circleRadius);
           if (!points) return;
           
           let px, py;
@@ -435,16 +448,16 @@ export function Square({
           px = py1 < py2 ? px1 : px2;
           py = py1 < py2 ? py1 : py2;
           
-          const cx0 = px - r, cy0 = py;
-          let angle = Math.atan2(cy0 - cy2, cx0 - cx2);
-          let [px3, py3] = bisect(angle * 2, r, px, py);
-          angle = Math.atan2(cy0 - cy1, cx0 - cx1);
-          let [px4, py4] = bisect(angle * 2, r, px, py);
+          const cx0 = px - circleRadius, cy0 = py;
+          let angle = Math.atan2(cy0 - intersectionCy2, cx0 - intersectionCx2);
+          let [px3, py3] = bisect(angle * 2, circleRadius, px, py);
+          angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
+          let [px4, py4] = bisect(angle * 2, circleRadius, px, py);
           
           // draw intersection between center(c2) AND
           // p4
           let plx, ply;
-          let lp_left = inteceptCircleLineSeg(cx2, cy2, cx2, cy2, px4, py4, r);
+          let lp_left = inteceptCircleLineSeg(intersectionCx2, intersectionCy2, intersectionCx2, intersectionCy2, px4, py4, circleRadius);
           if (lp_left && lp_left.length > 0) {
             [plx, ply] = lp_left[0];
             const dot_left_intersection = dotWithTooltip(svg, plx, ply, "pl", stroke);
@@ -454,7 +467,7 @@ export function Square({
           // draw intersection between center (c1) AND
           // p3
           let prx, pry;
-          let lp_right = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, px3, py3, r);
+          let lp_right = inteceptCircleLineSeg(intersectionCx1, intersectionCy1, intersectionCx1, intersectionCy1, px3, py3, circleRadius);
           if (lp_right && lp_right.length > 0) {
             [prx, pry] = lp_right[0];
             const dot_right_intersection = dotWithTooltip(svg, prx, pry, "pr", stroke);
@@ -465,16 +478,10 @@ export function Square({
     };
 
     const createFinalSquareStep = (): Step => {
-      const cx1 = lx1 + ((lx2 - lx1) * 5) / 8;
-      const cy1 = ly2;
-      const r = ((lx2 - lx1) * 2) / 8;
-      const cx2 = cx1 - r;
-      const cy2 = cy1;
-      
       return {
         draw: false,
         drawShapes: () => {
-          let points = intersection(cx1, cy1, r, cx2, cy2, r);
+          let points = intersection(intersectionCx1, intersectionCy1, circleRadius, intersectionCx2, intersectionCy2, circleRadius);
           if (!points) return;
           
           let px, py;
@@ -483,25 +490,25 @@ export function Square({
           px = py1 < py2 ? px1 : px2;
           py = py1 < py2 ? py1 : py2;
           
-          const cx0 = px - r, cy0 = py;
-          let angle = Math.atan2(cy0 - cy2, cx0 - cx2);
-          let [px3, py3] = bisect(angle * 2, r, px, py);
-          angle = Math.atan2(cy0 - cy1, cx0 - cx1);
-          let [px4, py4] = bisect(angle * 2, r, px, py);
+          const cx0 = px - circleRadius, cy0 = py;
+          let angle = Math.atan2(cy0 - intersectionCy2, cx0 - intersectionCx2);
+          let [px3, py3] = bisect(angle * 2, circleRadius, px, py);
+          angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
+          let [px4, py4] = bisect(angle * 2, circleRadius, px, py);
           
           let plx, ply, prx, pry;
-          let lp_left = inteceptCircleLineSeg(cx2, cy2, cx2, cy2, px4, py4, r);
+          let lp_left = inteceptCircleLineSeg(intersectionCx2, intersectionCy2, intersectionCx2, intersectionCy2, px4, py4, circleRadius);
           if (lp_left && lp_left.length > 0) [plx, ply] = lp_left[0];
-          let lp_right = inteceptCircleLineSeg(cx1, cy1, cx1, cy1, px3, py3, r);
+          let lp_right = inteceptCircleLineSeg(intersectionCx1, intersectionCy1, intersectionCx1, intersectionCy1, px3, py3, circleRadius);
           if (lp_right && lp_right.length > 0) [prx, pry] = lp_right[0];
           
           if (plx && ply && prx && pry) {
             const s = (1 + Math.sqrt(5)) / 2;
             // draw final square
             const square_line1 = lineWithTooltip(svg, plx, ply, prx, pry, "ls1", s);
-            const square_line2 = lineWithTooltip(svg, cx2, cy2, plx, ply, "ls2", s);
-            const square_line3 = lineWithTooltip(svg, cx2, cy2, cx1, cy1, "ls3", s);
-            const square_line4 = lineWithTooltip(svg, cx1, cy1, prx, pry, "ls4", s);
+            const square_line2 = lineWithTooltip(svg, intersectionCx2, intersectionCy2, plx, ply, "ls2", s);
+            const square_line3 = lineWithTooltip(svg, intersectionCx2, intersectionCy2, intersectionCx1, intersectionCy1, "ls3", s);
+            const square_line4 = lineWithTooltip(svg, intersectionCx1, intersectionCy1, prx, pry, "ls4", s);
             if (store) {
               store.add("ls1", square_line1, "line");
               store.add("ls2", square_line2, "line");
@@ -516,14 +523,17 @@ export function Square({
     // Create steps using the cleaner step creator functions with named variables
     const steps = [
       createLineStep(lx1, ly1, lx2, ly2, "line_main"),          // Step 1: Draw main baseline
-      createCircleStep(c1XPosition, ly2, circleRadius, "c1_c", "c1"),  // Step 2: Draw right circle (c1)
-      createCircleStep(c2XPosition, ly2, circleRadius, "c2_c", "c2"),  // Step 3: Draw left circle (c2)
-      createCircleIntersectionStep(),                           // Step 4: Find circle intersections
-      createLinesToIntersectionPointsStep(),                    // Step 5: Draw lines to intersection points
-      createLinesBetweenPointsStep(),                            // Step 6: Connect circle centers to new points
-      createLineBetweenP3P4Step(),                              // Step 7: Connect p3 and p4
-      createCircleIntersectionsStep(),                           // Step 8: Find final circle intersections
-      createFinalSquareStep()                                    // Step 9: Draw the completed square
+      createDotStep(c1XPosition, ly2, "c1"),                    // Step 2: Draw right dot (c1)
+      createCircleStep(c1XPosition, ly2, circleRadius, "c1_c"),  // Step 3: Draw right circle (c1)
+      createDotStep(c2XPosition, ly2, "c2"),                    // Step 4: Draw left dot (c2)
+      createCircleStep(c2XPosition, ly2, circleRadius, "c2_c"),  // Step 5: Draw left circle (c2)
+      createCircleIntersectionDotStep(),                         // Step 6: Find circle intersection dot (pi)
+      createCircleIntersectionCircleStep(),                     // Step 7: Find circle intersection circle (ci)
+      createLinesToIntersectionPointsStep(),                    // Step 8: Draw lines to intersection points
+      createLinesBetweenPointsStep(),                            // Step 9: Connect circle centers to new points
+      createLineBetweenP3P4Step(),                              // Step 10: Connect p3 and p4
+      createCircleIntersectionsStep(),                           // Step 11: Find final circle intersections
+      createFinalSquareStep()                                    // Step 12: Draw the completed square
     ];
 
     // Update steps in parent component
@@ -534,7 +544,17 @@ export function Square({
       steps[0].draw = true;
       steps[0].drawShapes();
     }
-  }, []);
+  }, [restartKey]); // Re-run when restartKey changes
+
+  // Handle step execution when currentStep changes
+  useEffect(() => {
+    if (currentStep > 0 && currentStep <= steps.length) {
+      const stepToExecute = steps[currentStep - 1]; // steps are 0-indexed, currentStep is 1-indexed
+      if (stepToExecute) {
+        stepToExecute.drawShapes();
+      }
+    }
+  }, [currentStep]);
 
   return (
     <div className={svgConfig.containerClass} style={{ display: 'flex', justifyContent: 'center' }}>

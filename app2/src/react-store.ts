@@ -13,6 +13,7 @@ interface GeometryStore {
   items: Record<string, GeometryItem>;
   add: (name: string, element: any, type: string) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
+  clear: () => void;
 }
 
 interface GeometryStorev2v3v4 {
@@ -83,7 +84,11 @@ export function useGeometryStore(): GeometryStore {
     });
   }, []);
 
-  return { items, add, update };
+  const clear = useCallback(() => {
+    setItems({});
+  }, []);
+
+  return { items, add, update, clear };
 }
 
 export function useGeometryStoreSquare(): GeometryStore {
@@ -116,7 +121,11 @@ export function useGeometryStoreSquare(): GeometryStore {
     });
   }, []);
 
-  return { items, add, update };
+  const clear = useCallback(() => {
+    setItems({});
+  }, []);
+
+  return { items, add, update, clear };
 }
 
 export function useGeometryStorev2(): GeometryStorev2v3v4 {
@@ -150,7 +159,11 @@ export function useGeometryStorev2(): GeometryStorev2v3v4 {
     });
   }, []);
 
-  return { items, add, update };
+  const clear = useCallback(() => {
+    setItems({});
+  }, []);
+
+  return { items, add, update, clear };
 }
 
 export function useGeometryStorev3(): GeometryStorev2v3v4 {

@@ -97,6 +97,7 @@ interface Step {
 
   const [stepsv3, setStepsv3] = useState<Step[]>([]);
   const [currentStepv3, setCurrentStepv3] = useState<number>(0);
+  const [restartKeyv3, setRestartKeyv3] = useState<number>(0);
 
   const handleNextClickv3 = (): void => {
     console.log("next step", currentStepv3, stepsv3.length);
@@ -111,6 +112,34 @@ interface Step {
     }
   };
 
+  const handleRestartv3 = (): void => {
+    // Reset all steps
+    const resetSteps = stepsv3.map(step => ({ ...step, draw: false }));
+    setStepsv3(resetSteps);
+    setCurrentStepv3(0);
+    
+    // Clear the store using the proper clear method
+    if (storev3 && storev3.clear) {
+      // Remove elements from SVG if they exist
+      Object.keys(storev3.items).forEach(key => {
+        const item = storev3.items[key];
+        if (item && item.element && item.element.parentNode) {
+          item.element.parentNode.removeChild(item.element);
+        }
+        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
+          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
+        }
+        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
+          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
+        }
+      });
+      storev3.clear();
+    }
+    
+    // Trigger re-render by incrementing restart key
+    setRestartKeyv3(restartKeyv3 + 1);
+  };
+
   const updateStepsv3 = (newSteps: Step[]): void => {
     console.log("newSteps", newSteps, "stepsv3", stepsv3);
     setStepsv3(newSteps);
@@ -118,6 +147,7 @@ interface Step {
 
   const [stepsv4, setStepsv4] = useState<Step[]>([]);
   const [currentStepv4, setCurrentStepv4] = useState<number>(0);
+  const [restartKeyv4, setRestartKeyv4] = useState<number>(0);
 
   const handleNextClickv4 = (): void => {
     console.log("next step", currentStepv4, stepsv4.length);
@@ -132,6 +162,34 @@ interface Step {
     }
   };
 
+  const handleRestartv4 = (): void => {
+    // Reset all steps
+    const resetSteps = stepsv4.map(step => ({ ...step, draw: false }));
+    setStepsv4(resetSteps);
+    setCurrentStepv4(0);
+    
+    // Clear the store using the proper clear method
+    if (storev4 && storev4.clear) {
+      // Remove elements from SVG if they exist
+      Object.keys(storev4.items).forEach(key => {
+        const item = storev4.items[key];
+        if (item && item.element && item.element.parentNode) {
+          item.element.parentNode.removeChild(item.element);
+        }
+        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
+          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
+        }
+        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
+          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
+        }
+      });
+      storev4.clear();
+    }
+    
+    // Trigger re-render by incrementing restart key
+    setRestartKeyv4(restartKeyv4 + 1);
+  };
+
   const updateStepsv4 = (newSteps: Step[]): void => {
     console.log("newSteps", newSteps, "stepsv4", stepsv4);
     setStepsv4(newSteps);
@@ -139,18 +197,42 @@ interface Step {
 
   const [stepsSquare, setStepsSquare] = useState<Step[]>([]);
   const [currentStepSquare, setCurrentStepSquare] = useState<number>(0);
+  const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
 
   const handleNextClickSquare = (): void => {
     console.log("next step", currentStepSquare, stepsSquare.length);
     if (currentStepSquare < stepsSquare.length) {
       console.log("inside");
-      const step = stepsSquare[currentStepSquare];
-      console.log(step);
-      step.draw = true;
-      step.drawShapes();
-      console.log("after drawShapes");
       setCurrentStepSquare(currentStepSquare + 1);
     }
+  };
+
+  const handleRestartSquare = (): void => {
+    // Reset all steps
+    const resetSteps = stepsSquare.map(step => ({ ...step, draw: false }));
+    setStepsSquare(resetSteps);
+    setCurrentStepSquare(0);
+    
+    // Clear the store using the proper clear method
+    if (storeSquare && storeSquare.clear) {
+      // Remove elements from SVG if they exist
+      Object.keys(storeSquare.items).forEach(key => {
+        const item = storeSquare.items[key];
+        if (item && item.element && item.element.parentNode) {
+          item.element.parentNode.removeChild(item.element);
+        }
+        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
+          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
+        }
+        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
+          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
+        }
+      });
+      storeSquare.clear();
+    }
+    
+    // Trigger re-render by incrementing restart key
+    setRestartKeySquare(restartKeySquare + 1);
   };
 
   const updateStepsSquare = (newSteps: Step[]): void => {
@@ -189,12 +271,23 @@ interface Step {
               steps={stepsv4}
               updateSteps={updateStepsv4}
             />
-            <div className="mt-4">
+            <div className="mt-4 flex gap-2">
               <button
                 onClick={handleNextClickv4}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                className={`px-4 py-2 text-white rounded ${
+                  currentStepv4 >= stepsv4.length
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
+                disabled={currentStepv4 >= stepsv4.length}
               >
                 next
+              </button>
+              <button
+                onClick={handleRestartv4}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              >
+                restart
               </button>
             </div>
           </div>
@@ -243,12 +336,23 @@ interface Step {
               steps={stepsv3}
               updateSteps={updateStepsv3}
             />
-            <div className="mt-4">
+            <div className="mt-4 flex gap-2">
               <button
                 onClick={handleNextClickv3}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                className={`px-4 py-2 text-white rounded ${
+                  currentStepv3 >= stepsv3.length
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
+                disabled={currentStepv3 >= stepsv3.length}
               >
                 next
+              </button>
+              <button
+                onClick={handleRestartv3}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              >
+                restart
               </button>
             </div>
           </div>
@@ -374,13 +478,26 @@ interface Step {
               svgConfig={standardSvgConfig}
               steps={stepsSquare}
               updateSteps={updateStepsSquare}
+              restartKey={restartKeySquare}
+              currentStep={currentStepSquare}
             />
-            <div className="mt-4">
+            <div className="mt-4 flex gap-2">
               <button
                 onClick={handleNextClickSquare}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                className={`px-4 py-2 text-white rounded ${
+                  currentStepSquare >= stepsSquare.length
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
+                disabled={currentStepSquare >= stepsSquare.length}
               >
                 next
+              </button>
+              <button
+                onClick={handleRestartSquare}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              >
+                restart
               </button>
             </div>
           </div>
