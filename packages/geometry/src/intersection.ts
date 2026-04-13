@@ -145,7 +145,7 @@ export function inteceptCircleLineSeg(
   l2y: number,
   r: number,
 ): Array<[number, number]> {
-  let a, b, c, d, u1, u2, retP1, retP2, v1, v2;
+  let b, c;
   const v1x = l2x - l1x;
   const v1y = l2y - l1y;
   const v2x = l1x - cx;
@@ -262,14 +262,12 @@ export const lineIntersect = (
   x4: number,
   y4: number,
 ): [number, number] | null => {
-  let ua,
-    ub,
-    denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+  const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
   if (denom == 0) {
     return null;
   }
-  ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
-  ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
+  const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
+  // const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
   return [x1 + ua * (x2 - x1), y1 + ua * (y2 - y1)];
   // return {
   //   x: x1 + ua * (x2 - x1),

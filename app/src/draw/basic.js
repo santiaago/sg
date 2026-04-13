@@ -10,7 +10,7 @@ import * as d3 from "d3";
 // import { Circle } from "../math/circles";
 
 // NEW IMPORTS from shared package:
-import { Point, Line, Circle } from "@sg/geometry";
+import { Circle } from "@sg/geometry";
 
 export const dot = (svg, x, y, stroke = 1.5) => {
   return svg

@@ -1,4 +1,4 @@
-import * as d3 from "d3";
+
 
 export const text = (svg, x, y, prefix, index) => {
   const r = svg.append("rect").attr("x", x).attr("y", y).style("fill", "black");

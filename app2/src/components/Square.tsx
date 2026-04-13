@@ -51,7 +51,7 @@ export function Square({
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Helper function to draw a dot
-  const dot = (svg: SVGSVGElement, x: number, y: number, strokeWidth: number = 1.5) => {
+  const dot = (svg: SVGSVGElement, x: number, y: number) => {
     const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     circle.setAttribute("class", "dot");
     circle.setAttribute("cx", x.toString());
@@ -69,9 +69,8 @@ export function Square({
     x: number,
     y: number,
     name: string,
-    strokeWidth: number,
   ) => {
-    const dotElement = dot(svg, x, y, strokeWidth);
+    const dotElement = dot(svg, x, y);
     dotElement.setAttribute("data-tooltip", name);
     dotElement.style.cursor = "pointer";
 
@@ -281,7 +280,7 @@ export function Square({
     const createDotStep = (cx: number, cy: number, dotName: string): Step => ({
       draw: false,
       drawShapes: () => {
-        const dotEl = dotWithTooltip(svg, cx, cy, dotName, stroke);
+        const dotEl = dotWithTooltip(svg, cx, cy, dotName);
         if (store) {
           store.add(dotName, dotEl, "point");
         }
@@ -311,7 +310,7 @@ export function Square({
           const { px, py } = intersectionPoint;
           
           // draw dot at intersection point
-          const intersectionDot = dotWithTooltip(svg, px, py, "pi", stroke);
+          const intersectionDot = dotWithTooltip(svg, px, py, "pi");
           if (store) {
             store.add("pi", intersectionDot, "point");
           }
@@ -358,7 +357,7 @@ export function Square({
           // translate it into the interval [0,2 π] multiply by 2
           let [px3, py3] = bisect(angle * 2, circleRadius, px, py);
           const line_c2_p3 = lineWithTooltip(svg, x1, y1, px3, py3, "line_c2_p3", stroke);
-          const dot_p3 = dotWithTooltip(svg, px3, py3, "p3", stroke);
+          const dot_p3 = dotWithTooltip(svg, px3, py3, "p3");
           if (store) {
             store.add("line_c2_p3", line_c2_p3, "line");
             store.add("p3", dot_p3, "point");
@@ -368,7 +367,7 @@ export function Square({
           angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
           // translate it into the interval [0,2 π] multiply by 2
           let [px4, py4] = bisect(angle * 2, circleRadius, px, py);
-          const dot_p4 = dotWithTooltip(svg, px4, py4, "p4", stroke);
+          const dot_p4 = dotWithTooltip(svg, px4, py4, "p4");
           const line_c1_p4 = lineWithTooltip(svg, intersectionCx1, intersectionCy1, px4, py4, "line_c1_p4", stroke);
           if (store) {
             store.add("p4", dot_p4, "point");
@@ -460,7 +459,7 @@ export function Square({
           let lp_left = inteceptCircleLineSeg(intersectionCx2, intersectionCy2, intersectionCx2, intersectionCy2, px4, py4, circleRadius);
           if (lp_left && lp_left.length > 0) {
             [plx, ply] = lp_left[0];
-            const dot_left_intersection = dotWithTooltip(svg, plx, ply, "pl", stroke);
+            const dot_left_intersection = dotWithTooltip(svg, plx, ply, "pl");
             if (store) store.add("pl", dot_left_intersection, "point");
           }
           
@@ -470,7 +469,7 @@ export function Square({
           let lp_right = inteceptCircleLineSeg(intersectionCx1, intersectionCy1, intersectionCx1, intersectionCy1, px3, py3, circleRadius);
           if (lp_right && lp_right.length > 0) {
             [prx, pry] = lp_right[0];
-            const dot_right_intersection = dotWithTooltip(svg, prx, pry, "pr", stroke);
+            const dot_right_intersection = dotWithTooltip(svg, prx, pry, "pr");
             if (store) store.add("pr", dot_right_intersection, "point");
           }
         }
