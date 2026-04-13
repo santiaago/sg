@@ -145,7 +145,7 @@ export function inteceptCircleLineSeg(
   l2y: number,
   r: number,
 ): Array<[number, number]> {
-  let b, c;
+  let b, c, d, u1, u2;
   const v1x = l2x - l1x;
   const v1y = l2y - l1y;
   const v2x = l1x - cx;

@@ -22,7 +22,7 @@
     "test:apps": "cd app && pnpm test",
     "test:watch": "cd packages/geometry && pnpm run test:watch",
     "test:coverage": "cd packages/geometry && pnpm run coverage",
-    "type-check": "cd packages/geometry && pnpm run type-check && cd ../app2 && npx tsc --noEmit",
+    "type-check": "cd packages/geometry && pnpm run type-check && cd ../../app2 && npx tsc --noEmit",
     "type-check:geometry": "cd packages/geometry && pnpm run type-check",
     "type-check:app2": "cd app2 && npx tsc --noEmit",
     "type-check:all": "pnpm --parallel type-check",
