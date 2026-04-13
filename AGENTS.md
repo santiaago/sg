@@ -17,7 +17,10 @@
 
 - Install deps: `pnpm install`
 - Type-check/build: `pnpm build`
-- TypeScript checks: `pnpm type-check`
+- TypeScript checks: `pnpm type-check` (checks geometry + app2)
+- TypeScript checks (geometry only): `pnpm type-check:geometry`
+- TypeScript checks (app2 only): `pnpm type-check:app2`
+- Manual TypeScript check: `cd app2 && npx tsc --noEmit`
 - Lint/format: `pnpm check`
 - Format check: `pnpm format` (oxfmt --check)
 - Format fix: `pnpm format:fix` (oxfmt --write)
