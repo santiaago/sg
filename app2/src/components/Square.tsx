@@ -4,6 +4,15 @@ import { bisect, inteceptCircleLineSeg, intersection } from "@sg/geometry";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
 
+// Magic number constants
+const TOOLTIP_OFFSET_X = 10;
+const TOOLTIP_OFFSET_Y = -5;
+const TOOLTIP_BG_HEIGHT = 16;
+const TOOLTIP_FONT_SIZE = 10;
+const TOOLTIP_TEXT_WIDTH_PER_CHAR = 8;
+const TOOLTIP_BG_ROUNDING = 2;
+const DEFAULT_STROKE_WIDTH = 5;
+
 // Extend SVG element types to include custom tooltip properties
 declare global {
   interface SVGCircleElement {
@@ -68,7 +77,7 @@ export function Square({
     dotElement.style.cursor = "pointer";
 
     // Create tooltip element (positioned near the dot)
-    const tooltipX = x + 10;
+    const tooltipX = x + TOOLTIP_OFFSET_X;
     const tooltipY = y;
     const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, name, 15);
 
@@ -90,7 +99,7 @@ export function Square({
     y1: number,
     x2: number,
     y2: number,
-    strokeWidth: number = 5,
+    strokeWidth: number = DEFAULT_STROKE_WIDTH,
   ) => {
     const lineEl = document.createElementNS("http://www.w3.org/2000/svg", "line");
     lineEl.setAttribute("stroke", "#506");
@@ -114,26 +123,26 @@ export function Square({
     // Create tooltip element
     const tooltip = document.createElementNS("http://www.w3.org/2000/svg", "text");
     tooltip.setAttribute("x", x.toString());
-    tooltip.setAttribute("y", (y - 5).toString()); // Adjusted y position
-    tooltip.setAttribute("fill", "white"); // White text for contrast
-    tooltip.setAttribute("font-size", "10"); // Smaller font to match app
-    tooltip.setAttribute("opacity", "0"); // Hidden initially - show only on selection
+    tooltip.setAttribute("y", (y + TOOLTIP_OFFSET_Y).toString());
+    tooltip.setAttribute("fill", "white");
+    tooltip.setAttribute("font-size", TOOLTIP_FONT_SIZE.toString());
+    tooltip.setAttribute("opacity", "0");
     tooltip.setAttribute("data-tooltip-text", name);
-    tooltip.setAttribute("text-anchor", "middle"); // Center text
-    tooltip.setAttribute("dominant-baseline", "middle"); // Center text
+    tooltip.setAttribute("text-anchor", "middle");
+    tooltip.setAttribute("dominant-baseline", "middle");
     tooltip.textContent = name;
 
     // Create background rectangle for better visibility
     const tooltipBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    const textWidth = name.length * 8;
+    const textWidth = name.length * TOOLTIP_TEXT_WIDTH_PER_CHAR;
     const bgX = x - textWidth / 2;
     tooltipBg.setAttribute("x", bgX.toString());
     tooltipBg.setAttribute("y", (y - bgYOffset).toString());
     tooltipBg.setAttribute("width", textWidth.toString());
-    tooltipBg.setAttribute("height", "16");
+    tooltipBg.setAttribute("height", TOOLTIP_BG_HEIGHT.toString());
     tooltipBg.setAttribute("fill", "black");
-    tooltipBg.setAttribute("opacity", "0"); // Hidden initially
-    tooltipBg.setAttribute("rx", "2"); // Slight rounding
+    tooltipBg.setAttribute("opacity", "0");
+    tooltipBg.setAttribute("rx", TOOLTIP_BG_ROUNDING.toString());
     svg.appendChild(tooltipBg);
 
     // Add both elements to SVG
@@ -150,7 +159,7 @@ export function Square({
     x2: number,
     y2: number,
     name: string,
-    strokeWidth: number = 5,
+    strokeWidth: number = DEFAULT_STROKE_WIDTH,
   ) => {
     const lineEl = line(svg, x1, y1, x2, y2, strokeWidth);
     lineEl.style.cursor = "pointer";
@@ -201,8 +210,8 @@ export function Square({
     const circleEl = circle(svg, cx, cy, r, stroke);
     circleEl.style.cursor = "pointer";
 
-    // Create tooltip element (positioned to the right of the circle, moved down slightly)
-    const tooltipX = cx + r + 5;
+    // Create tooltip element (positioned to the right of the circle)
+    const tooltipX = cx + r + TOOLTIP_OFFSET_X;
     const tooltipY = cy;
     const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, name, 15);
 
