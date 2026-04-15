@@ -90,10 +90,10 @@ export default function App(): JSX.Element {
   const storev3 = useGeometryStorev3();
   const storev4 = useGeometryStorev4();
 
-interface Step {
-  draw: boolean;
-  drawShapes: () => void;
-}
+  interface Step {
+    draw: boolean;
+    drawShapes: () => void;
+  }
 
   const [stepsv3, setStepsv3] = useState<Step[]>([]);
   const [currentStepv3, setCurrentStepv3] = useState<number>(0);
@@ -114,14 +114,14 @@ interface Step {
 
   const handleRestartv3 = (): void => {
     // Reset all steps
-    const resetSteps = stepsv3.map(step => ({ ...step, draw: false }));
+    const resetSteps = stepsv3.map((step) => ({ ...step, draw: false }));
     setStepsv3(resetSteps);
     setCurrentStepv3(0);
-    
+
     // Clear the store using the proper clear method
     if (storev3 && storev3.clear) {
       // Remove elements from SVG if they exist
-      Object.keys(storev3.items).forEach(key => {
+      Object.keys(storev3.items).forEach((key) => {
         const item = storev3.items[key];
         if (item && item.element && item.element.parentNode) {
           item.element.parentNode.removeChild(item.element);
@@ -135,7 +135,7 @@ interface Step {
       });
       storev3.clear();
     }
-    
+
     // Trigger re-render by incrementing restart key
     setRestartKeyv3(restartKeyv3 + 1);
   };
@@ -164,14 +164,14 @@ interface Step {
 
   const handleRestartv4 = (): void => {
     // Reset all steps
-    const resetSteps = stepsv4.map(step => ({ ...step, draw: false }));
+    const resetSteps = stepsv4.map((step) => ({ ...step, draw: false }));
     setStepsv4(resetSteps);
     setCurrentStepv4(0);
-    
+
     // Clear the store using the proper clear method
     if (storev4 && storev4.clear) {
       // Remove elements from SVG if they exist
-      Object.keys(storev4.items).forEach(key => {
+      Object.keys(storev4.items).forEach((key) => {
         const item = storev4.items[key];
         if (item && item.element && item.element.parentNode) {
           item.element.parentNode.removeChild(item.element);
@@ -185,7 +185,7 @@ interface Step {
       });
       storev4.clear();
     }
-    
+
     // Trigger re-render by incrementing restart key
     setRestartKeyv4(restartKeyv4 + 1);
   };
@@ -216,13 +216,13 @@ interface Step {
 
   const handleRestartSquare = (): void => {
     // Reset all steps
-    const resetSteps = stepsSquare.map(step => ({ ...step, draw: false }));
+    const resetSteps = stepsSquare.map((step) => ({ ...step, draw: false }));
     setStepsSquare(resetSteps);
-    
+
     // Clear the store using the proper clear method
     if (storeSquare && storeSquare.clear) {
       // Remove elements from SVG if they exist
-      Object.keys(storeSquare.items).forEach(key => {
+      Object.keys(storeSquare.items).forEach((key) => {
         const item = storeSquare.items[key];
         if (item && item.element && item.element.parentNode) {
           item.element.parentNode.removeChild(item.element);
@@ -236,7 +236,7 @@ interface Step {
       });
       storeSquare.clear();
     }
-    
+
     // Reset to step 1 and trigger re-render
     setCurrentStepSquare(1);
     setRestartKeySquare(restartKeySquare + 1);
@@ -478,10 +478,7 @@ interface Step {
           <div className="col-span-9">
             <Square
               store={storeSquare}
-              stroke={stroke}
-              strokeMid={strokeMid}
               strokeBig={strokeBig}
-              strokeLine={strokeLine}
               svgConfig={standardSvgConfig}
               steps={stepsSquare}
               updateSteps={updateStepsSquare}
