@@ -164,7 +164,15 @@ export function useGeometryStorev2(): GeometryStorev2v3v4 {
     setItems({});
   }, []);
 
-  return { items, add, update, clear };
+  const remove = useCallback((key: string) => {
+    setItems((old) => {
+      const newItems = { ...old };
+      delete newItems[key];
+      return newItems;
+    });
+  }, []);
+
+  return { items, add, update, clear, remove };
 }
 
 export function useGeometryStorev3(): GeometryStorev2v3v4 {

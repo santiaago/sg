@@ -196,7 +196,7 @@ interface Step {
   };
 
   const [stepsSquare, setStepsSquare] = useState<Step[]>([]);
-  const [currentStepSquare, setCurrentStepSquare] = useState<number>(0);
+  const [currentStepSquare, setCurrentStepSquare] = useState<number>(1);
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
 
   const handleNextClickSquare = (): void => {
@@ -207,11 +207,17 @@ interface Step {
     }
   };
 
+  const handlePrevClickSquare = (): void => {
+    console.log("prev step", currentStepSquare);
+    if (currentStepSquare > 1) {
+      setCurrentStepSquare(currentStepSquare - 1);
+    }
+  };
+
   const handleRestartSquare = (): void => {
     // Reset all steps
     const resetSteps = stepsSquare.map(step => ({ ...step, draw: false }));
     setStepsSquare(resetSteps);
-    setCurrentStepSquare(0);
     
     // Clear the store using the proper clear method
     if (storeSquare && storeSquare.clear) {
@@ -231,7 +237,8 @@ interface Step {
       storeSquare.clear();
     }
     
-    // Trigger re-render by incrementing restart key
+    // Reset to step 1 and trigger re-render
+    setCurrentStepSquare(1);
     setRestartKeySquare(restartKeySquare + 1);
   };
 
@@ -482,6 +489,17 @@ interface Step {
               currentStep={currentStepSquare}
             />
             <div className="mt-4 flex gap-2">
+              <button
+                onClick={handlePrevClickSquare}
+                className={`px-4 py-2 text-white rounded ${
+                  currentStepSquare <= 1
+                    ? "bg-gray-600 cursor-not-allowed"
+                    : "bg-gray-800 hover:bg-gray-700"
+                }`}
+                disabled={currentStepSquare <= 1}
+              >
+                prev
+              </button>
               <button
                 onClick={handleNextClickSquare}
                 className={`px-4 py-2 text-white rounded ${
