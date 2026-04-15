@@ -12,6 +12,7 @@ const TOOLTIP_FONT_SIZE = 10;
 const TOOLTIP_TEXT_WIDTH_PER_CHAR = 8;
 const TOOLTIP_BG_ROUNDING = 2;
 const DEFAULT_STROKE_WIDTH = 5;
+const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
 
 // Extend SVG element types to include custom tooltip properties
 declare global {
@@ -523,7 +524,7 @@ export function Square({
         }
 
         if (plx && ply && prx && pry) {
-          const s = (1 + Math.sqrt(5)) / 2;
+          const s = GOLDEN_RATIO;
           // draw final square
           const square_line1 = lineWithTooltip(svg, plx, ply, prx, pry, "ls1", s);
           const square_line2 = lineWithTooltip(
