@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { JSX } from "react";
 import { bisect, inteceptCircleLineSeg, intersection } from "@sg/geometry";
 import type { SvgConfig } from "../config/svgConfig";
+import type { GeometryStore } from "../react-store";
 
 // Extend SVG element types to include custom tooltip properties
 declare global {
@@ -22,7 +23,7 @@ interface Step {
 }
 
 interface SquareProps {
-  store?: any;
+  store?: GeometryStore;
   stroke?: number;
   strokeMid?: number;
   strokeBig?: number;
@@ -46,8 +47,6 @@ export function Square({
   restartKey = 0,
   currentStep = 0,
 }: SquareProps): JSX.Element {
-  // Use parameters to avoid unused warnings
-  console.log("Square params:", { stroke, strokeMid, strokeBig, strokeLine, steps });
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Helper function to draw a dot
