@@ -334,22 +334,9 @@ export function Square({
 
     const createLinesToIntersectionPointsStep = (): Step => ({
       drawShapes: () => {
-        const points = intersection(
-          intersectionCx1,
-          intersectionCy1,
-          circleRadius,
-          intersectionCx2,
-          intersectionCy2,
-          circleRadius,
-        );
-        if (!points) return;
-
-        const px1 = points[0],
-          py1 = points[1];
-        const px2 = points[2],
-          py2 = points[3];
-        const px = py1 < py2 ? px1 : px2;
-        const py = py1 < py2 ? py1 : py2;
+        const intersectionPoint = getCircleIntersectionPoint();
+        if (!intersectionPoint) return;
+        const { px, py } = intersectionPoint;
 
         const x1 = intersectionCx2,
           y1 = intersectionCy2;
@@ -390,22 +377,9 @@ export function Square({
 
     const createLinesBetweenPointsStep = (): Step => ({
       drawShapes: () => {
-        const points = intersection(
-          intersectionCx1,
-          intersectionCy1,
-          circleRadius,
-          intersectionCx2,
-          intersectionCy2,
-          circleRadius,
-        );
-        if (!points) return;
-
-        const px1 = points[0],
-          py1 = points[1];
-        const px2 = points[2],
-          py2 = points[3];
-        const px = py1 < py2 ? px1 : px2;
-        const py = py1 < py2 ? py1 : py2;
+        const intersectionPoint = getCircleIntersectionPoint();
+        if (!intersectionPoint) return;
+        const { px, py } = intersectionPoint;
 
         const cx0 = px - circleRadius,
           cy0 = py;
@@ -443,22 +417,9 @@ export function Square({
 
     const createLineBetweenP3P4Step = (): Step => ({
       drawShapes: () => {
-        const points = intersection(
-          intersectionCx1,
-          intersectionCy1,
-          circleRadius,
-          intersectionCx2,
-          intersectionCy2,
-          circleRadius,
-        );
-        if (!points) return;
-
-        const px1 = points[0],
-          py1 = points[1];
-        const px2 = points[2],
-          py2 = points[3];
-        const px = py1 < py2 ? px1 : px2;
-        const py = py1 < py2 ? py1 : py2;
+        const intersectionPoint = getCircleIntersectionPoint();
+        if (!intersectionPoint) return;
+        const { px, py } = intersectionPoint;
 
         const cx0 = px - circleRadius,
           cy0 = py;
@@ -475,22 +436,9 @@ export function Square({
 
     const createCircleIntersectionsStep = (): Step => ({
       drawShapes: () => {
-        const points = intersection(
-          intersectionCx1,
-          intersectionCy1,
-          circleRadius,
-          intersectionCx2,
-          intersectionCy2,
-          circleRadius,
-        );
-        if (!points) return;
-
-        const px1 = points[0],
-          py1 = points[1];
-        const px2 = points[2],
-          py2 = points[3];
-        const px = py1 < py2 ? px1 : px2;
-        const py = py1 < py2 ? py1 : py2;
+        const intersectionPoint = getCircleIntersectionPoint();
+        if (!intersectionPoint) return;
+        const { px, py } = intersectionPoint;
 
         const cx0 = px - circleRadius,
           cy0 = py;
@@ -537,22 +485,9 @@ export function Square({
 
     const createFinalSquareStep = (): Step => ({
       drawShapes: () => {
-        const points = intersection(
-          intersectionCx1,
-          intersectionCy1,
-          circleRadius,
-          intersectionCx2,
-          intersectionCy2,
-          circleRadius,
-        );
-        if (!points) return;
-
-        const px1 = points[0],
-          py1 = points[1];
-        const px2 = points[2],
-          py2 = points[3];
-        const px = py1 < py2 ? px1 : px2;
-        const py = py1 < py2 ? py1 : py2;
+        const intersectionPoint = getCircleIntersectionPoint();
+        if (!intersectionPoint) return;
+        const { px, py } = intersectionPoint;
 
         const cx0 = px - circleRadius,
           cy0 = py;
