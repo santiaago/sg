@@ -303,6 +303,28 @@ export function Square({
       return { px, py };
     };
 
+    // Helper function to get bisected points from two circle centers through intersection point
+    // Used for finding p3 and p4 points in multiple step functions
+    const getBisectedPoints = (
+      px: number,
+      py: number,
+      c1x: number,
+      c1y: number,
+      c2x: number,
+      c2y: number,
+    ): { px3: number; py3: number; px4: number; py4: number } => {
+      const cx0 = px - circleRadius,
+        cy0 = py;
+
+      const angle1 = Math.atan2(cy0 - c2y, cx0 - c2x);
+      const [px3, py3] = bisect(angle1 * 2, circleRadius, px, py);
+
+      const angle2 = Math.atan2(cy0 - c1y, cx0 - c1x);
+      const [px4, py4] = bisect(angle2 * 2, circleRadius, px, py);
+
+      return { px3, py3, px4, py4 };
+    };
+
     const createCircleIntersectionDotStep = (): Step => ({
       drawShapes: () => {
         const intersectionPoint = getCircleIntersectionPoint();
@@ -341,13 +363,17 @@ export function Square({
 
         const x1 = intersectionCx2,
           y1 = intersectionCy2;
-        const cx0 = px - circleRadius,
-          cy0 = py;
 
-        // looking for intersection of line(center(c2), point(px,py)) AND circle(center(px, py))
-        let angle = Math.atan2(cy0 - y1, cx0 - x1);
-        // translate it into the interval [0,2 π] multiply by 2
-        const [px3, py3] = bisect(angle * 2, circleRadius, px, py);
+        // Get p3 and p4 points using bisected angles
+        const { px3, py3, px4, py4 } = getBisectedPoints(
+          px,
+          py,
+          intersectionCx1,
+          intersectionCy1,
+          x1,
+          y1,
+        );
+
         const line_c2_p3 = lineWithTooltip(svg, x1, y1, px3, py3, "line_c2_p3", stroke);
         const dot_p3 = dotWithTooltip(svg, px3, py3, "p3");
         if (store) {
@@ -355,10 +381,6 @@ export function Square({
           store.add("p3", dot_p3, "point");
         }
 
-        // looking for intersection of line(center(c1), point(px,py)) AND circle(center(px, py))
-        angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
-        // translate it into the interval [0,2 π] multiply by 2
-        const [px4, py4] = bisect(angle * 2, circleRadius, px, py);
         const dot_p4 = dotWithTooltip(svg, px4, py4, "p4");
         const line_c1_p4 = lineWithTooltip(
           svg,
@@ -382,12 +404,15 @@ export function Square({
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
 
-        const cx0 = px - circleRadius,
-          cy0 = py;
-        let angle = Math.atan2(cy0 - intersectionCy2, cx0 - intersectionCx2);
-        const [px3, py3] = bisect(angle * 2, circleRadius, px, py);
-        angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
-        const [px4, py4] = bisect(angle * 2, circleRadius, px, py);
+        // Get p3 and p4 points using bisected angles
+        const { px3, py3, px4, py4 } = getBisectedPoints(
+          px,
+          py,
+          intersectionCx1,
+          intersectionCy1,
+          intersectionCx2,
+          intersectionCy2,
+        );
 
         // draw lines from cercle(c1) and cercle(c2) with new intersection points
         // p3 and p4
@@ -422,12 +447,15 @@ export function Square({
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
 
-        const cx0 = px - circleRadius,
-          cy0 = py;
-        let angle = Math.atan2(cy0 - intersectionCy2, cx0 - intersectionCx2);
-        const [px3, py3] = bisect(angle * 2, circleRadius, px, py);
-        angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
-        const [px4, py4] = bisect(angle * 2, circleRadius, px, py);
+        // Get p3 and p4 points using bisected angles
+        const { px3, py3, px4, py4 } = getBisectedPoints(
+          px,
+          py,
+          intersectionCx1,
+          intersectionCy1,
+          intersectionCx2,
+          intersectionCy2,
+        );
 
         // draw line between p3 and p4
         const line_p3_p4 = lineWithTooltip(svg, px3, py3, px4, py4, "line_p3_p4", stroke);
@@ -441,12 +469,15 @@ export function Square({
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
 
-        const cx0 = px - circleRadius,
-          cy0 = py;
-        let angle = Math.atan2(cy0 - intersectionCy2, cx0 - intersectionCx2);
-        const [px3, py3] = bisect(angle * 2, circleRadius, px, py);
-        angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
-        const [px4, py4] = bisect(angle * 2, circleRadius, px, py);
+        // Get p3 and p4 points using bisected angles
+        const { px3, py3, px4, py4 } = getBisectedPoints(
+          px,
+          py,
+          intersectionCx1,
+          intersectionCy1,
+          intersectionCx2,
+          intersectionCy2,
+        );
 
         // draw intersection between center(c2) AND
         // p4
@@ -490,12 +521,15 @@ export function Square({
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
 
-        const cx0 = px - circleRadius,
-          cy0 = py;
-        let angle = Math.atan2(cy0 - intersectionCy2, cx0 - intersectionCx2);
-        const [px3, py3] = bisect(angle * 2, circleRadius, px, py);
-        angle = Math.atan2(cy0 - intersectionCy1, cx0 - intersectionCx1);
-        const [px4, py4] = bisect(angle * 2, circleRadius, px, py);
+        // Get p3 and p4 points using bisected angles
+        const { px3, py3, px4, py4 } = getBisectedPoints(
+          px,
+          py,
+          intersectionCx1,
+          intersectionCy1,
+          intersectionCx2,
+          intersectionCy2,
+        );
 
         let plx, ply, prx, pry;
         const lp_left = inteceptCircleLineSeg(
