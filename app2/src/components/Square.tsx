@@ -18,7 +18,6 @@ declare global {
 }
 
 interface Step {
-  draw: boolean;
   drawShapes: () => void;
 }
 
@@ -258,7 +257,6 @@ export function Square({
       y2: number,
       name: string,
     ): Step => ({
-      draw: false,
       drawShapes: () => {
         const lineEl = lineWithTooltip(svg, x1, y1, x2, y2, name, stroke);
         if (store) store.add(name, lineEl, "line");
@@ -266,7 +264,6 @@ export function Square({
     });
 
     const createCircleStep = (cx: number, cy: number, r: number, circleName: string): Step => ({
-      draw: false,
       drawShapes: () => {
         const circleEl = circleWithTooltip(svg, cx, cy, r, circleName, stroke);
         if (store) store.add(circleName, circleEl, "circle");
@@ -274,7 +271,6 @@ export function Square({
     });
 
     const createDotStep = (cx: number, cy: number, dotName: string): Step => ({
-      draw: false,
       drawShapes: () => {
         const dotEl = dotWithTooltip(svg, cx, cy, dotName);
         if (store) store.add(dotName, dotEl, "point");
@@ -304,7 +300,6 @@ export function Square({
     };
 
     const createCircleIntersectionDotStep = (): Step => ({
-      draw: false,
       drawShapes: () => {
         const intersectionPoint = getCircleIntersectionPoint();
         if (!intersectionPoint) return;
@@ -320,7 +315,6 @@ export function Square({
     });
 
     const createCircleIntersectionCircleStep = (): Step => ({
-      draw: false,
       drawShapes: () => {
         const intersectionPoint = getCircleIntersectionPoint();
         if (!intersectionPoint) return;
@@ -336,7 +330,6 @@ export function Square({
     });
 
     const createLinesToIntersectionPointsStep = (): Step => ({
-      draw: false,
       drawShapes: () => {
         let points = intersection(
           intersectionCx1,
@@ -394,7 +387,6 @@ export function Square({
     });
 
     const createLinesBetweenPointsStep = (): Step => ({
-      draw: false,
       drawShapes: () => {
         let points = intersection(
           intersectionCx1,
@@ -449,7 +441,6 @@ export function Square({
     });
 
     const createLineBetweenP3P4Step = (): Step => ({
-      draw: false,
       drawShapes: () => {
         let points = intersection(
           intersectionCx1,
@@ -483,7 +474,6 @@ export function Square({
     });
 
     const createCircleIntersectionsStep = (): Step => ({
-      draw: false,
       drawShapes: () => {
         let points = intersection(
           intersectionCx1,
@@ -549,7 +539,6 @@ export function Square({
     });
 
     const createFinalSquareStep = (): Step => ({
-      draw: false,
       drawShapes: () => {
         let points = intersection(
           intersectionCx1,
