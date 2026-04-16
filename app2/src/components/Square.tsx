@@ -17,6 +17,30 @@ function setupSvg(svg: SVGSVGElement, config: SvgConfig): void {
   svg.setAttribute("height", config.height.toString());
 }
 
+// Geometry configuration computed from width and height
+function computeSquareGeometry(width: number, height: number) {
+  const STROKE = 0.5;
+  const BORDER = height / 3;
+  const LINE_LENGTH = width - 2 * BORDER;
+  const CIRCLE_RADIUS = LINE_LENGTH / 4;
+  const C1_X_POSITION = BORDER + LINE_LENGTH * (5 / 8);
+  const C2_X_POSITION = C1_X_POSITION - CIRCLE_RADIUS;
+  const ly2 = height - BORDER;
+
+  return {
+    STROKE,
+    BORDER,
+    LINE_LENGTH,
+    CIRCLE_RADIUS,
+    C1_X_POSITION,
+    C2_X_POSITION,
+    lx1: BORDER,
+    ly1: ly2,
+    lx2: width - BORDER,
+    ly2,
+  };
+}
+
 interface Step {
   draw: boolean;
   drawShapes: () => void;
@@ -31,11 +55,6 @@ interface SquareProps {
   restartKey?: number;
   currentStep?: number;
 }
-
-// Type aliases for geometry functions to allow dependency injection
-type IntersectionFn = typeof intersection;
-type BisectFn = typeof bisect;
-type InteceptCircleLineSegFn = typeof inteceptCircleLineSeg;
 
 export function Square({
   store,
@@ -55,9 +74,8 @@ export function Square({
     cx2: number,
     cy2: number,
     r: number,
-    intersectionFn: IntersectionFn,
   ): { px: number; py: number } | null => {
-    const points = intersectionFn(cx1, cy1, r, cx2, cy2, r);
+    const points = intersection(cx1, cy1, r, cx2, cy2, r);
     if (!points) return null;
 
     const px1 = points[0],
@@ -79,16 +97,15 @@ export function Square({
     c2x: number,
     c2y: number,
     circleRadius: number,
-    bisectFn: BisectFn,
   ): { px3: number; py3: number; px4: number; py4: number } => {
     const cx0 = px - circleRadius,
       cy0 = py;
 
     const angle1 = Math.atan2(cy0 - c2y, cx0 - c2x);
-    const [px3, py3] = bisectFn(angle1 * 2, circleRadius, px, py);
+    const [px3, py3] = bisect(angle1 * 2, circleRadius, px, py);
 
     const angle2 = Math.atan2(cy0 - c1y, cx0 - c1x);
-    const [px4, py4] = bisectFn(angle2 * 2, circleRadius, px, py);
+    const [px4, py4] = bisect(angle2 * 2, circleRadius, px, py);
 
     return { px3, py3, px4, py4 };
   };
@@ -104,23 +121,16 @@ export function Square({
     const height = svgConfig.height;
     rect(svg, width, height);
 
-    // Named constants for geometry calculations
-    const STROKE = 0.5;
-    const BORDER = height / 3;
-    const LINE_LENGTH = width - 2 * BORDER;
-    const CIRCLE_RADIUS = LINE_LENGTH / 4;
-    const C1_X_POSITION = BORDER + LINE_LENGTH * (5 / 8);
-    const C2_X_POSITION = C1_X_POSITION - CIRCLE_RADIUS;
-
-    const [lx1, ly1, lx2, ly2] = [BORDER, height - BORDER, width - BORDER, height - BORDER];
+    // Compute all geometry configuration once
+    const geom = computeSquareGeometry(width, height);
 
     // Circle intersection parameters
-    const intersectionCx1 = C1_X_POSITION;
-    const intersectionCy1 = ly2;
-    const intersectionCx2 = C2_X_POSITION;
-    const intersectionCy2 = ly2;
+    const intersectionCx1 = geom.C1_X_POSITION;
+    const intersectionCy1 = geom.ly2;
+    const intersectionCx2 = geom.C2_X_POSITION;
+    const intersectionCy2 = geom.ly2;
 
-    const stroke = STROKE;
+    const stroke = geom.STROKE;
 
     // Step creator functions with all dependencies passed as parameters
     const createLineStep = (
@@ -178,20 +188,11 @@ export function Square({
       name: string,
       dotRadius: number,
       store?: GeometryStore,
-      intersectionFn: IntersectionFn = intersection,
     ): Step => ({
       draw: true,
       drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint(
-          cx1,
-          cy1,
-          cx2,
-          cy2,
-          radius,
-          intersectionFn,
-        );
+        const intersectionPoint = getCircleIntersectionPoint(cx1, cy1, cx2, cy2, radius);
         if (!intersectionPoint) return;
-
         const { px, py } = intersectionPoint;
         dotWithTooltip(svg, px, py, name, dotRadius, store);
       },
@@ -207,20 +208,11 @@ export function Square({
       name: string,
       strokeWidth: number,
       store?: GeometryStore,
-      intersectionFn: IntersectionFn = intersection,
     ): Step => ({
       draw: true,
       drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint(
-          cx1,
-          cy1,
-          cx2,
-          cy2,
-          radius,
-          intersectionFn,
-        );
+        const intersectionPoint = getCircleIntersectionPoint(cx1, cy1, cx2, cy2, radius);
         if (!intersectionPoint) return;
-
         const { px, py } = intersectionPoint;
         circleWithTooltip(svg, px, py, radius, name, strokeWidth, store);
       },
@@ -236,36 +228,16 @@ export function Square({
       strokeWidth: number,
       dotRadius: number,
       store?: GeometryStore,
-      intersectionFn: IntersectionFn = intersection,
-      bisectFn: BisectFn = bisect,
     ): Step => ({
       draw: true,
       drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint(
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          intersectionFn,
-        );
+        const intersectionPoint = getCircleIntersectionPoint(c1x, c1y, c2x, c2y, radius);
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
-
-        const { px3, py3, px4, py4 } = getBisectedPoints(
-          px,
-          py,
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          bisectFn,
-        );
+        const { px3, py3, px4, py4 } = getBisectedPoints(px, py, c1x, c1y, c2x, c2y, radius);
 
         lineWithTooltip(svg, c2x, c2y, px3, py3, "line_c2_p3", strokeWidth, store);
         dotWithTooltip(svg, px3, py3, "p3", dotRadius, store);
-
         dotWithTooltip(svg, px4, py4, "p4", dotRadius, store);
         lineWithTooltip(svg, c1x, c1y, px4, py4, "line_c1_p4", strokeWidth, store);
       },
@@ -280,32 +252,13 @@ export function Square({
       radius: number,
       strokeWidth: number,
       store?: GeometryStore,
-      intersectionFn: IntersectionFn = intersection,
-      bisectFn: BisectFn = bisect,
     ): Step => ({
       draw: true,
       drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint(
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          intersectionFn,
-        );
+        const intersectionPoint = getCircleIntersectionPoint(c1x, c1y, c2x, c2y, radius);
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
-
-        const { px3, py3, px4, py4 } = getBisectedPoints(
-          px,
-          py,
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          bisectFn,
-        );
+        const { px3, py3, px4, py4 } = getBisectedPoints(px, py, c1x, c1y, c2x, c2y, radius);
 
         lineWithTooltip(svg, c1x, c1y, px3, py3, "line_c1_p3", strokeWidth, store);
         lineWithTooltip(svg, c2x, c2y, px4, py4, "line_c2_p4", strokeWidth, store);
@@ -321,32 +274,13 @@ export function Square({
       radius: number,
       strokeWidth: number,
       store?: GeometryStore,
-      intersectionFn: IntersectionFn = intersection,
-      bisectFn: BisectFn = bisect,
     ): Step => ({
       draw: true,
       drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint(
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          intersectionFn,
-        );
+        const intersectionPoint = getCircleIntersectionPoint(c1x, c1y, c2x, c2y, radius);
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
-
-        const { px3, py3, px4, py4 } = getBisectedPoints(
-          px,
-          py,
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          bisectFn,
-        );
+        const { px3, py3, px4, py4 } = getBisectedPoints(px, py, c1x, c1y, c2x, c2y, radius);
 
         lineWithTooltip(svg, px3, py3, px4, py4, "line_p3_p4", strokeWidth, store);
       },
@@ -361,41 +295,21 @@ export function Square({
       radius: number,
       dotRadius: number,
       store?: GeometryStore,
-      intersectionFn: IntersectionFn = intersection,
-      bisectFn: BisectFn = bisect,
-      inteceptCircleLineSegFn: InteceptCircleLineSegFn = inteceptCircleLineSeg,
     ): Step => ({
       draw: true,
       drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint(
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          intersectionFn,
-        );
+        const intersectionPoint = getCircleIntersectionPoint(c1x, c1y, c2x, c2y, radius);
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
+        const { px3, py3, px4, py4 } = getBisectedPoints(px, py, c1x, c1y, c2x, c2y, radius);
 
-        const { px3, py3, px4, py4 } = getBisectedPoints(
-          px,
-          py,
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          bisectFn,
-        );
-
-        const lp_left = inteceptCircleLineSegFn(c2x, c2y, c2x, c2y, px4, py4, radius);
+        const lp_left = inteceptCircleLineSeg(c2x, c2y, c2x, c2y, px4, py4, radius);
         if (lp_left && lp_left.length > 0) {
           const [plx, ply] = lp_left[0];
           dotWithTooltip(svg, plx, ply, "pl", dotRadius, store);
         }
 
-        const lp_right = inteceptCircleLineSegFn(c1x, c1y, c1x, c1y, px3, py3, radius);
+        const lp_right = inteceptCircleLineSeg(c1x, c1y, c1x, c1y, px3, py3, radius);
         if (lp_right && lp_right.length > 0) {
           const [prx, pry] = lp_right[0];
           dotWithTooltip(svg, prx, pry, "pr", dotRadius, store);
@@ -412,43 +326,23 @@ export function Square({
       radius: number,
       goldenRatio: number,
       store?: GeometryStore,
-      intersectionFn: IntersectionFn = intersection,
-      bisectFn: BisectFn = bisect,
-      inteceptCircleLineSegFn: InteceptCircleLineSegFn = inteceptCircleLineSeg,
     ): Step => ({
       draw: true,
       drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint(
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          intersectionFn,
-        );
+        const intersectionPoint = getCircleIntersectionPoint(c1x, c1y, c2x, c2y, radius);
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
-
-        const { px3, py3, px4, py4 } = getBisectedPoints(
-          px,
-          py,
-          c1x,
-          c1y,
-          c2x,
-          c2y,
-          radius,
-          bisectFn,
-        );
+        const { px3, py3, px4, py4 } = getBisectedPoints(px, py, c1x, c1y, c2x, c2y, radius);
 
         let plx: number | undefined,
           ply: number | undefined,
           prx: number | undefined,
           pry: number | undefined;
-        const lp_left = inteceptCircleLineSegFn(c2x, c2y, c2x, c2y, px4, py4, radius);
+        const lp_left = inteceptCircleLineSeg(c2x, c2y, c2x, c2y, px4, py4, radius);
         if (lp_left && lp_left.length > 0) {
           [plx, ply] = lp_left[0];
         }
-        const lp_right = inteceptCircleLineSegFn(c1x, c1y, c1x, c1y, px3, py3, radius);
+        const lp_right = inteceptCircleLineSeg(c1x, c1y, c1x, c1y, px3, py3, radius);
         if (lp_right && lp_right.length > 0) {
           [prx, pry] = lp_right[0];
         }
@@ -465,18 +359,34 @@ export function Square({
 
     // Create steps with all dependencies passed explicitly
     const steps = [
-      createLineStep(svg, lx1, ly1, lx2, ly2, "line_main", stroke, store),
-      createDotStep(svg, C1_X_POSITION, ly2, "c1", strokeBig, store),
-      createCircleStep(svg, C1_X_POSITION, ly2, CIRCLE_RADIUS, "c1_c", stroke, store),
-      createDotStep(svg, C2_X_POSITION, ly2, "c2", strokeBig, store),
-      createCircleStep(svg, C2_X_POSITION, ly2, CIRCLE_RADIUS, "c2_c", stroke, store),
+      createLineStep(svg, geom.lx1, geom.ly1, geom.lx2, geom.ly2, "line_main", stroke, store),
+      createDotStep(svg, geom.C1_X_POSITION, geom.ly2, "c1", strokeBig, store),
+      createCircleStep(
+        svg,
+        geom.C1_X_POSITION,
+        geom.ly2,
+        geom.CIRCLE_RADIUS,
+        "c1_c",
+        stroke,
+        store,
+      ),
+      createDotStep(svg, geom.C2_X_POSITION, geom.ly2, "c2", strokeBig, store),
+      createCircleStep(
+        svg,
+        geom.C2_X_POSITION,
+        geom.ly2,
+        geom.CIRCLE_RADIUS,
+        "c2_c",
+        stroke,
+        store,
+      ),
       createCircleIntersectionDotStep(
         svg,
         intersectionCx1,
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        CIRCLE_RADIUS,
+        geom.CIRCLE_RADIUS,
         "pi",
         strokeBig,
         store,
@@ -487,7 +397,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        CIRCLE_RADIUS,
+        geom.CIRCLE_RADIUS,
         "ci",
         stroke,
         store,
@@ -498,7 +408,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        CIRCLE_RADIUS,
+        geom.CIRCLE_RADIUS,
         stroke,
         strokeBig,
         store,
@@ -509,7 +419,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        CIRCLE_RADIUS,
+        geom.CIRCLE_RADIUS,
         stroke,
         store,
       ),
@@ -519,7 +429,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        CIRCLE_RADIUS,
+        geom.CIRCLE_RADIUS,
         stroke,
         store,
       ),
@@ -529,7 +439,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        CIRCLE_RADIUS,
+        geom.CIRCLE_RADIUS,
         strokeBig,
         store,
       ),
@@ -539,7 +449,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        CIRCLE_RADIUS,
+        geom.CIRCLE_RADIUS,
         GOLDEN_RATIO,
         store,
       ),
