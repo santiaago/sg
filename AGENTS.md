@@ -17,14 +17,19 @@
 
 - Install deps: `pnpm install`
 - Type-check/build: `pnpm build`
-- TypeScript checks: `pnpm type-check` (checks geometry + app2)
-- TypeScript checks (geometry only): `pnpm type-check:geometry`
-- TypeScript checks (app2 only): `pnpm type-check:app2`
-- Manual TypeScript check: `cd app2 && npx tsc --noEmit`
+- TypeScript checks via `tsc` (TypeScript compiler):
+  - `pnpm type-check` (checks geometry + app2)
+  - `pnpm type-check:geometry` (geometry package only)
+  - `pnpm type-check:app2` (React app only)
+  - Manual: `cd app2 && npx tsc --noEmit`
 - Lint/format: `pnpm check`
 - Format check: `pnpm format` (oxfmt --check)
 - Format fix: `pnpm format:fix` (oxfmt --write)
 - Tests: `pnpm test` (vitest); coverage: `pnpm test:coverage`
+
+## Agent Instructions
+
+- When user says "check app": run `pnpm lint && pnpm fmt:check && pnpm type-check` to verify lint, format, and TypeScript.
 
 ## Commit Guidelines
 
