@@ -7,6 +7,16 @@ import { rect, dotWithTooltip, lineWithTooltip, circleWithTooltip } from "../svg
 
 const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
 
+// Helper to set up SVG element with dimensions from config
+function setupSvg(svg: SVGSVGElement, config: SvgConfig): void {
+  while (svg.firstChild) {
+    svg.removeChild(svg.firstChild);
+  }
+  svg.setAttribute("viewBox", config.viewBox);
+  svg.setAttribute("width", config.width.toString());
+  svg.setAttribute("height", config.height.toString());
+}
+
 interface Step {
   draw: boolean;
   drawShapes: () => void;
@@ -88,36 +98,29 @@ export function Square({
     if (!svgRef.current) return;
 
     const svg = svgRef.current;
-    // Clear any existing content
-    while (svg.firstChild) {
-      svg.removeChild(svg.firstChild);
-    }
-
-    // Set up SVG dimensions to match the actual content size
-    svg.setAttribute("viewBox", svgConfig.viewBox);
-    svg.setAttribute("width", svgConfig.width.toString());
-    svg.setAttribute("height", svgConfig.height.toString());
+    setupSvg(svg, svgConfig);
 
     const width = svgConfig.width;
     const height = svgConfig.height;
     rect(svg, width, height);
 
-    const border = height / 3;
-    const stroke = 0.5;
+    // Named constants for geometry calculations
+    const STROKE = 0.5;
+    const BORDER = height / 3;
+    const LINE_LENGTH = width - 2 * BORDER;
+    const CIRCLE_RADIUS = LINE_LENGTH / 4;
+    const C1_X_POSITION = BORDER + LINE_LENGTH * (5 / 8);
+    const C2_X_POSITION = C1_X_POSITION - CIRCLE_RADIUS;
 
-    const [lx1, ly1, lx2, ly2] = [border, height - border, width - border, height - border];
+    const [lx1, ly1, lx2, ly2] = [BORDER, height - BORDER, width - BORDER, height - BORDER];
 
-    // Calculate geometric parameters for better readability
-    const lineLength = lx2 - lx1;
-    const circleRadius = (lineLength * 2) / 8; // 1/4 of line length
-    const c1XPosition = lx1 + (lineLength * 5) / 8; // c1 at 5/8 from left
-    const c2XPosition = c1XPosition - circleRadius; // c2 at 3/8 from left (5/8 - 2/8)
-
-    // Circle intersection parameters (calculated once for efficiency)
-    const intersectionCx1 = lx1 + ((lx2 - lx1) * 5) / 8;
+    // Circle intersection parameters
+    const intersectionCx1 = C1_X_POSITION;
     const intersectionCy1 = ly2;
-    const intersectionCx2 = intersectionCx1 - circleRadius;
+    const intersectionCx2 = C2_X_POSITION;
     const intersectionCy2 = ly2;
+
+    const stroke = STROKE;
 
     // Step creator functions with all dependencies passed as parameters
     const createLineStep = (
@@ -463,17 +466,17 @@ export function Square({
     // Create steps with all dependencies passed explicitly
     const steps = [
       createLineStep(svg, lx1, ly1, lx2, ly2, "line_main", stroke, store),
-      createDotStep(svg, c1XPosition, ly2, "c1", strokeBig, store),
-      createCircleStep(svg, c1XPosition, ly2, circleRadius, "c1_c", stroke, store),
-      createDotStep(svg, c2XPosition, ly2, "c2", strokeBig, store),
-      createCircleStep(svg, c2XPosition, ly2, circleRadius, "c2_c", stroke, store),
+      createDotStep(svg, C1_X_POSITION, ly2, "c1", strokeBig, store),
+      createCircleStep(svg, C1_X_POSITION, ly2, CIRCLE_RADIUS, "c1_c", stroke, store),
+      createDotStep(svg, C2_X_POSITION, ly2, "c2", strokeBig, store),
+      createCircleStep(svg, C2_X_POSITION, ly2, CIRCLE_RADIUS, "c2_c", stroke, store),
       createCircleIntersectionDotStep(
         svg,
         intersectionCx1,
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        circleRadius,
+        CIRCLE_RADIUS,
         "pi",
         strokeBig,
         store,
@@ -484,7 +487,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        circleRadius,
+        CIRCLE_RADIUS,
         "ci",
         stroke,
         store,
@@ -495,7 +498,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        circleRadius,
+        CIRCLE_RADIUS,
         stroke,
         strokeBig,
         store,
@@ -506,7 +509,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        circleRadius,
+        CIRCLE_RADIUS,
         stroke,
         store,
       ),
@@ -516,7 +519,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        circleRadius,
+        CIRCLE_RADIUS,
         stroke,
         store,
       ),
@@ -526,7 +529,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        circleRadius,
+        CIRCLE_RADIUS,
         strokeBig,
         store,
       ),
@@ -536,7 +539,7 @@ export function Square({
         intersectionCy1,
         intersectionCx2,
         intersectionCy2,
-        circleRadius,
+        CIRCLE_RADIUS,
         GOLDEN_RATIO,
         store,
       ),
@@ -552,20 +555,12 @@ export function Square({
 
     const svg = svgRef.current;
 
-    // Clear existing content
-    while (svg.firstChild) {
-      svg.removeChild(svg.firstChild);
-    }
-
     // Clear the store
     if (store && store.clear) {
       store.clear();
     }
 
-    // Reset SVG dimensions
-    svg.setAttribute("viewBox", svgConfig.viewBox);
-    svg.setAttribute("width", svgConfig.width.toString());
-    svg.setAttribute("height", svgConfig.height.toString());
+    setupSvg(svg, svgConfig);
 
     const width = svgConfig.width;
     const height = svgConfig.height;
