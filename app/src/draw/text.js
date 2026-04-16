@@ -1,5 +1,3 @@
-
-
 export const text = (svg, x, y, prefix, index) => {
   const r = svg.append("rect").attr("x", x).attr("y", y).style("fill", "black");
   const t = svg
