@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 
-interface GeometryItem {
+export interface GeometryItem {
   name: string;
   element: any;
   selected: boolean;
@@ -9,7 +9,7 @@ interface GeometryItem {
   initialState?: Record<string, string>; // Store original attributes
 }
 
-interface GeometryStore {
+export interface GeometryStore {
   items: Record<string, GeometryItem>;
   add: (name: string, element: any, type: string) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
