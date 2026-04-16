@@ -28,6 +28,7 @@ declare global {
 }
 
 interface Step {
+  draw: boolean;
   drawShapes: () => void;
 }
 
@@ -41,6 +42,11 @@ interface SquareProps {
   currentStep?: number;
 }
 
+// Type aliases for geometry functions to allow dependency injection
+type IntersectionFn = typeof intersection;
+type BisectFn = typeof bisect;
+type InteceptCircleLineSegFn = typeof inteceptCircleLineSeg;
+
 export function Square({
   store,
   strokeBig,
@@ -51,61 +57,6 @@ export function Square({
   currentStep = 0,
 }: SquareProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
-
-  // Helper function to draw a dot
-  const dot = (svg: SVGSVGElement, x: number, y: number) => {
-    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    circle.setAttribute("class", "dot");
-    circle.setAttribute("cx", x.toString());
-    circle.setAttribute("cy", y.toString());
-    circle.setAttribute("r", strokeBig.toString()); // Use strokeBig for better visibility
-    circle.setAttribute("fill", "black");
-    circle.setAttribute("opacity", "1"); // Ensure dot is visible
-    svg.appendChild(circle);
-    return circle;
-  };
-
-  // Helper function to draw a dot with tooltip
-  const dotWithTooltip = (svg: SVGSVGElement, x: number, y: number, name: string) => {
-    const dotElement = dot(svg, x, y);
-    dotElement.setAttribute("data-tooltip", name);
-    dotElement.style.cursor = "pointer";
-
-    // Create tooltip element (positioned near the dot)
-    const tooltipX = x + TOOLTIP_OFFSET_X;
-    const tooltipY = y;
-    const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, name, 15);
-
-    // Store both tooltip and background
-    dotElement.tooltip = tooltip;
-    dotElement.tooltipBg = tooltipBg;
-
-    if (store) {
-      store.add(name, dotElement, "point");
-    }
-
-    return dotElement;
-  };
-
-  // Helper function to draw a line
-  const line = (
-    svg: SVGSVGElement,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    strokeWidth: number = DEFAULT_STROKE_WIDTH,
-  ) => {
-    const lineEl = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    lineEl.setAttribute("stroke", "#506");
-    lineEl.setAttribute("stroke-width", strokeWidth.toString());
-    lineEl.setAttribute("x1", x1.toString());
-    lineEl.setAttribute("y1", y1.toString());
-    lineEl.setAttribute("x2", x2.toString());
-    lineEl.setAttribute("y2", y2.toString());
-    svg.appendChild(lineEl);
-    return lineEl;
-  };
 
   // Helper function to create tooltip elements
   const createTooltip = (
@@ -146,31 +97,6 @@ export function Square({
     return { tooltip, tooltipBg };
   };
 
-  // Helper function to draw a line with tooltip
-  const lineWithTooltip = (
-    svg: SVGSVGElement,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    name: string,
-    strokeWidth: number = DEFAULT_STROKE_WIDTH,
-  ) => {
-    const lineEl = line(svg, x1, y1, x2, y2, strokeWidth);
-    lineEl.style.cursor = "pointer";
-
-    // Create tooltip element (positioned at midpoint)
-    const midpointX = (x1 + x2) / 2;
-    const midpointY = (y1 + y2) / 2;
-    const { tooltip, tooltipBg } = createTooltip(svg, midpointX, midpointY, name, 15);
-
-    // Store both tooltip and background
-    lineEl.tooltip = tooltip;
-    lineEl.tooltipBg = tooltipBg;
-
-    return lineEl;
-  };
-
   // Helper function to draw a rectangle
   const rect = (svg: SVGSVGElement, width: number, height: number) => {
     const rectEl = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -178,6 +104,39 @@ export function Square({
     rectEl.setAttribute("height", height.toString());
     rectEl.setAttribute("fill", "#fff");
     svg.appendChild(rectEl);
+  };
+
+  // Helper function to draw a dot
+  const dot = (svg: SVGSVGElement, x: number, y: number, radius: number) => {
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("class", "dot");
+    circle.setAttribute("cx", x.toString());
+    circle.setAttribute("cy", y.toString());
+    circle.setAttribute("r", radius.toString());
+    circle.setAttribute("fill", "black");
+    circle.setAttribute("opacity", "1");
+    svg.appendChild(circle);
+    return circle;
+  };
+
+  // Helper function to draw a line
+  const line = (
+    svg: SVGSVGElement,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    strokeWidth: number = DEFAULT_STROKE_WIDTH,
+  ) => {
+    const lineEl = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    lineEl.setAttribute("stroke", "#506");
+    lineEl.setAttribute("stroke-width", strokeWidth.toString());
+    lineEl.setAttribute("x1", x1.toString());
+    lineEl.setAttribute("y1", y1.toString());
+    lineEl.setAttribute("x2", x2.toString());
+    lineEl.setAttribute("y2", y2.toString());
+    svg.appendChild(lineEl);
+    return lineEl;
   };
 
   // Helper function to draw a circle
@@ -193,6 +152,65 @@ export function Square({
     return circleEl;
   };
 
+  // Helper function to draw a dot with tooltip
+  const dotWithTooltip = (
+    svg: SVGSVGElement,
+    x: number,
+    y: number,
+    name: string,
+    radius: number,
+    _store?: GeometryStore,
+  ) => {
+    const dotElement = dot(svg, x, y, radius);
+    dotElement.setAttribute("data-tooltip", name);
+    dotElement.style.cursor = "pointer";
+
+    // Create tooltip element (positioned near the dot)
+    const tooltipX = x + TOOLTIP_OFFSET_X;
+    const tooltipY = y;
+    const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, name, 15);
+
+    // Store both tooltip and background
+    dotElement.tooltip = tooltip;
+    dotElement.tooltipBg = tooltipBg;
+
+    if (_store) {
+      _store.add(name, dotElement, "point");
+    }
+
+    return dotElement;
+  };
+
+  // Helper function to draw a line with tooltip
+  const lineWithTooltip = (
+    svg: SVGSVGElement,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    name: string,
+    strokeWidth: number = DEFAULT_STROKE_WIDTH,
+    _store?: GeometryStore,
+  ) => {
+    const lineEl = line(svg, x1, y1, x2, y2, strokeWidth);
+    lineEl.style.cursor = "pointer";
+
+    // Create tooltip element (positioned at midpoint)
+    const midpointX = (x1 + x2) / 2;
+    const midpointY = (y1 + y2) / 2;
+    const { tooltip, tooltipBg } = createTooltip(svg, midpointX, midpointY, name, 15);
+
+    // Store both tooltip and background
+    lineEl.tooltip = tooltip;
+    lineEl.tooltipBg = tooltipBg;
+
+    if (_store) {
+      _store.add(name, lineEl, "line");
+    }
+
+    return lineEl;
+  };
+
   // Helper function to draw a circle with tooltip
   const circleWithTooltip = (
     svg: SVGSVGElement,
@@ -201,6 +219,7 @@ export function Square({
     r: number,
     name: string,
     stroke: number = 1,
+    _store?: GeometryStore,
   ) => {
     const circleEl = circle(svg, cx, cy, r, stroke);
     circleEl.style.cursor = "pointer";
@@ -214,7 +233,56 @@ export function Square({
     circleEl.tooltip = tooltip;
     circleEl.tooltipBg = tooltipBg;
 
+    if (_store) {
+      _store.add(name, circleEl, "circle");
+    }
+
     return circleEl;
+  };
+
+  // Helper function to get circle intersection point
+  const getCircleIntersectionPoint = (
+    cx1: number,
+    cy1: number,
+    cx2: number,
+    cy2: number,
+    r: number,
+    intersectionFn: IntersectionFn,
+  ): { px: number; py: number } | null => {
+    const points = intersectionFn(cx1, cy1, r, cx2, cy2, r);
+    if (!points) return null;
+
+    const px1 = points[0],
+      py1 = points[1];
+    const px2 = points[2],
+      py2 = points[3];
+    const px = py1 < py2 ? px1 : px2;
+    const py = py1 < py2 ? py1 : py2;
+
+    return { px, py };
+  };
+
+  // Helper function to get bisected points
+  const getBisectedPoints = (
+    px: number,
+    py: number,
+    c1x: number,
+    c1y: number,
+    c2x: number,
+    c2y: number,
+    circleRadius: number,
+    bisectFn: BisectFn,
+  ): { px3: number; py3: number; px4: number; py4: number } => {
+    const cx0 = px - circleRadius,
+      cy0 = py;
+
+    const angle1 = Math.atan2(cy0 - c2y, cx0 - c2x);
+    const [px3, py3] = bisectFn(angle1 * 2, circleRadius, px, py);
+
+    const angle2 = Math.atan2(cy0 - c1y, cx0 - c1x);
+    const [px4, py4] = bisectFn(angle2 * 2, circleRadius, px, py);
+
+    return { px3, py3, px4, py4 };
   };
 
   // Create steps for incremental drawing
@@ -253,365 +321,390 @@ export function Square({
     const intersectionCx2 = intersectionCx1 - circleRadius;
     const intersectionCy2 = ly2;
 
-    // Step creator functions (defined inside useEffect where they can access all variables)
+    // Step creator functions with all dependencies passed as parameters
     const createLineStep = (
+      svg: SVGSVGElement,
       x1: number,
       y1: number,
       x2: number,
       y2: number,
       name: string,
+      strokeWidth: number,
+      _store?: GeometryStore,
     ): Step => ({
+      draw: true,
       drawShapes: () => {
-        const lineEl = lineWithTooltip(svg, x1, y1, x2, y2, name, stroke);
-        if (store) store.add(name, lineEl, "line");
+        lineWithTooltip(svg, x1, y1, x2, y2, name, strokeWidth, _store);
       },
     });
 
-    const createCircleStep = (cx: number, cy: number, r: number, circleName: string): Step => ({
+    const createCircleStep = (
+      svg: SVGSVGElement,
+      cx: number,
+      cy: number,
+      r: number,
+      circleName: string,
+      strokeWidth: number,
+      _store?: GeometryStore,
+    ): Step => ({
+      draw: true,
       drawShapes: () => {
-        const circleEl = circleWithTooltip(svg, cx, cy, r, circleName, stroke);
-        if (store) store.add(circleName, circleEl, "circle");
+        circleWithTooltip(svg, cx, cy, r, circleName, strokeWidth, _store);
       },
     });
 
-    const createDotStep = (cx: number, cy: number, dotName: string): Step => ({
+    const createDotStep = (
+      svg: SVGSVGElement,
+      cx: number,
+      cy: number,
+      dotName: string,
+      radius: number,
+      _store?: GeometryStore,
+    ): Step => ({
+      draw: true,
       drawShapes: () => {
-        const dotEl = dotWithTooltip(svg, cx, cy, dotName);
-        if (store) store.add(dotName, dotEl, "point");
+        dotWithTooltip(svg, cx, cy, dotName, radius, _store);
       },
     });
 
-    // Helper function to get circle intersection point
-    const getCircleIntersectionPoint = (): { px: number; py: number } | null => {
-      const points = intersection(
-        intersectionCx1,
-        intersectionCy1,
-        circleRadius,
-        intersectionCx2,
-        intersectionCy2,
-        circleRadius,
-      );
-      if (!points) return null;
+    const createCircleIntersectionDotStep = (
+      svg: SVGSVGElement,
+      cx1: number,
+      cy1: number,
+      cx2: number,
+      cy2: number,
+      radius: number,
+      name: string,
+      dotRadius: number,
+      _store?: GeometryStore,
+      intersectionFn: IntersectionFn = intersection,
+    ): Step => ({
+      draw: true,
+      drawShapes: () => {
+        const intersectionPoint = getCircleIntersectionPoint(
+          cx1,
+          cy1,
+          cx2,
+          cy2,
+          radius,
+          intersectionFn,
+        );
+        if (!intersectionPoint) return;
 
-      const px1 = points[0],
-        py1 = points[1];
-      const px2 = points[2],
-        py2 = points[3];
-      const px = py1 < py2 ? px1 : px2;
-      const py = py1 < py2 ? py1 : py2;
+        const { px, py } = intersectionPoint;
+        dotWithTooltip(svg, px, py, name, dotRadius, _store);
+      },
+    });
 
-      return { px, py };
-    };
+    const createCircleIntersectionCircleStep = (
+      svg: SVGSVGElement,
+      cx1: number,
+      cy1: number,
+      cx2: number,
+      cy2: number,
+      radius: number,
+      name: string,
+      strokeWidth: number,
+      _store?: GeometryStore,
+      intersectionFn: IntersectionFn = intersection,
+    ): Step => ({
+      draw: true,
+      drawShapes: () => {
+        const intersectionPoint = getCircleIntersectionPoint(
+          cx1,
+          cy1,
+          cx2,
+          cy2,
+          radius,
+          intersectionFn,
+        );
+        if (!intersectionPoint) return;
 
-    // Helper function to get bisected points from two circle centers through intersection point
-    // Used for finding p3 and p4 points in multiple step functions
-    const getBisectedPoints = (
-      px: number,
-      py: number,
+        const { px, py } = intersectionPoint;
+        circleWithTooltip(svg, px, py, radius, name, strokeWidth, _store);
+      },
+    });
+
+    const createLinesToIntersectionPointsStep = (
+      svg: SVGSVGElement,
       c1x: number,
       c1y: number,
       c2x: number,
       c2y: number,
-    ): { px3: number; py3: number; px4: number; py4: number } => {
-      const cx0 = px - circleRadius,
-        cy0 = py;
-
-      const angle1 = Math.atan2(cy0 - c2y, cx0 - c2x);
-      const [px3, py3] = bisect(angle1 * 2, circleRadius, px, py);
-
-      const angle2 = Math.atan2(cy0 - c1y, cx0 - c1x);
-      const [px4, py4] = bisect(angle2 * 2, circleRadius, px, py);
-
-      return { px3, py3, px4, py4 };
-    };
-
-    const createCircleIntersectionDotStep = (): Step => ({
+      radius: number,
+      strokeWidth: number,
+      dotRadius: number,
+      _store?: GeometryStore,
+      intersectionFn: IntersectionFn = intersection,
+      bisectFn: BisectFn = bisect,
+    ): Step => ({
+      draw: true,
       drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint();
-        if (!intersectionPoint) return;
-
-        const { px, py } = intersectionPoint;
-
-        // draw dot at intersection point
-        const intersectionDot = dotWithTooltip(svg, px, py, "pi");
-        if (store) {
-          store.add("pi", intersectionDot, "point");
-        }
-      },
-    });
-
-    const createCircleIntersectionCircleStep = (): Step => ({
-      drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint();
-        if (!intersectionPoint) return;
-
-        const { px, py } = intersectionPoint;
-        const r = circleRadius;
-        // draw circle at intersection point
-        const intersectionCircle = circleWithTooltip(svg, px, py, r, "ci", stroke);
-        if (store) {
-          store.add("ci", intersectionCircle, "circle");
-        }
-      },
-    });
-
-    const createLinesToIntersectionPointsStep = (): Step => ({
-      drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint();
+        const intersectionPoint = getCircleIntersectionPoint(
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          intersectionFn,
+        );
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
 
-        const x1 = intersectionCx2,
-          y1 = intersectionCy2;
-
-        // Get p3 and p4 points using bisected angles
         const { px3, py3, px4, py4 } = getBisectedPoints(
           px,
           py,
-          intersectionCx1,
-          intersectionCy1,
-          x1,
-          y1,
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          bisectFn,
         );
 
-        const line_c2_p3 = lineWithTooltip(svg, x1, y1, px3, py3, "line_c2_p3", stroke);
-        const dot_p3 = dotWithTooltip(svg, px3, py3, "p3");
-        if (store) {
-          store.add("line_c2_p3", line_c2_p3, "line");
-          store.add("p3", dot_p3, "point");
-        }
+        lineWithTooltip(svg, c2x, c2y, px3, py3, "line_c2_p3", strokeWidth, _store);
+        dotWithTooltip(svg, px3, py3, "p3", dotRadius, _store);
 
-        const dot_p4 = dotWithTooltip(svg, px4, py4, "p4");
-        const line_c1_p4 = lineWithTooltip(
-          svg,
-          intersectionCx1,
-          intersectionCy1,
+        dotWithTooltip(svg, px4, py4, "p4", dotRadius, _store);
+        lineWithTooltip(svg, c1x, c1y, px4, py4, "line_c1_p4", strokeWidth, _store);
+      },
+    });
+
+    const createLinesBetweenPointsStep = (
+      svg: SVGSVGElement,
+      c1x: number,
+      c1y: number,
+      c2x: number,
+      c2y: number,
+      radius: number,
+      strokeWidth: number,
+      _store?: GeometryStore,
+      intersectionFn: IntersectionFn = intersection,
+      bisectFn: BisectFn = bisect,
+    ): Step => ({
+      draw: true,
+      drawShapes: () => {
+        const intersectionPoint = getCircleIntersectionPoint(
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          intersectionFn,
+        );
+        if (!intersectionPoint) return;
+        const { px, py } = intersectionPoint;
+
+        const { px3, py3, px4, py4 } = getBisectedPoints(
+          px,
+          py,
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          bisectFn,
+        );
+
+        lineWithTooltip(svg, c1x, c1y, px3, py3, "line_c1_p3", strokeWidth, _store);
+        lineWithTooltip(svg, c2x, c2y, px4, py4, "line_c2_p4", strokeWidth, _store);
+      },
+    });
+
+    const createLineBetweenP3P4Step = (
+      svg: SVGSVGElement,
+      c1x: number,
+      c1y: number,
+      c2x: number,
+      c2y: number,
+      radius: number,
+      strokeWidth: number,
+      _store?: GeometryStore,
+      intersectionFn: IntersectionFn = intersection,
+      bisectFn: BisectFn = bisect,
+    ): Step => ({
+      draw: true,
+      drawShapes: () => {
+        const intersectionPoint = getCircleIntersectionPoint(
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          intersectionFn,
+        );
+        if (!intersectionPoint) return;
+        const { px, py } = intersectionPoint;
+
+        const { px3, py3, px4, py4 } = getBisectedPoints(
+          px,
+          py,
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          bisectFn,
+        );
+
+        lineWithTooltip(svg, px3, py3, px4, py4, "line_p3_p4", strokeWidth, _store);
+      },
+    });
+
+    const createCircleIntersectionsStep = (
+      svg: SVGSVGElement,
+      c1x: number,
+      c1y: number,
+      c2x: number,
+      c2y: number,
+      radius: number,
+      dotRadius: number,
+      _store?: GeometryStore,
+      intersectionFn: IntersectionFn = intersection,
+      bisectFn: BisectFn = bisect,
+      inteceptCircleLineSegFn: InteceptCircleLineSegFn = inteceptCircleLineSeg,
+    ): Step => ({
+      draw: true,
+      drawShapes: () => {
+        const intersectionPoint = getCircleIntersectionPoint(
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          intersectionFn,
+        );
+        if (!intersectionPoint) return;
+        const { px, py } = intersectionPoint;
+
+        const { px3, py3, px4, py4 } = getBisectedPoints(
+          px,
+          py,
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          bisectFn,
+        );
+
+        const lp_left = inteceptCircleLineSegFn(
+          c2x,
+          c2y,
+          c2x,
+          c2y,
           px4,
           py4,
-          "line_c1_p4",
-          stroke,
-        );
-        if (store) {
-          store.add("p4", dot_p4, "point");
-          store.add("line_c1_p4", line_c1_p4, "line");
-        }
-      },
-    });
-
-    const createLinesBetweenPointsStep = (): Step => ({
-      drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint();
-        if (!intersectionPoint) return;
-        const { px, py } = intersectionPoint;
-
-        // Get p3 and p4 points using bisected angles
-        const { px3, py3, px4, py4 } = getBisectedPoints(
-          px,
-          py,
-          intersectionCx1,
-          intersectionCy1,
-          intersectionCx2,
-          intersectionCy2,
-        );
-
-        // draw lines from cercle(c1) and cercle(c2) with new intersection points
-        // p3 and p4
-        const line_c1_p3 = lineWithTooltip(
-          svg,
-          intersectionCx1,
-          intersectionCy1,
-          px3,
-          py3,
-          "line_c1_p3",
-          stroke,
-        );
-        const line_c2_p4 = lineWithTooltip(
-          svg,
-          intersectionCx2,
-          intersectionCy2,
-          px4,
-          py4,
-          "line_c2_p4",
-          stroke,
-        );
-        if (store) {
-          store.add("line_c1_p3", line_c1_p3, "line");
-          store.add("line_c2_p4", line_c2_p4, "line");
-        }
-      },
-    });
-
-    const createLineBetweenP3P4Step = (): Step => ({
-      drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint();
-        if (!intersectionPoint) return;
-        const { px, py } = intersectionPoint;
-
-        // Get p3 and p4 points using bisected angles
-        const { px3, py3, px4, py4 } = getBisectedPoints(
-          px,
-          py,
-          intersectionCx1,
-          intersectionCy1,
-          intersectionCx2,
-          intersectionCy2,
-        );
-
-        // draw line between p3 and p4
-        const line_p3_p4 = lineWithTooltip(svg, px3, py3, px4, py4, "line_p3_p4", stroke);
-        if (store) store.add("line_p3_p4", line_p3_p4, "line");
-      },
-    });
-
-    const createCircleIntersectionsStep = (): Step => ({
-      drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint();
-        if (!intersectionPoint) return;
-        const { px, py } = intersectionPoint;
-
-        // Get p3 and p4 points using bisected angles
-        const { px3, py3, px4, py4 } = getBisectedPoints(
-          px,
-          py,
-          intersectionCx1,
-          intersectionCy1,
-          intersectionCx2,
-          intersectionCy2,
-        );
-
-        // draw intersection between center(c2) AND
-        // p4
-        const lp_left = inteceptCircleLineSeg(
-          intersectionCx2,
-          intersectionCy2,
-          intersectionCx2,
-          intersectionCy2,
-          px4,
-          py4,
-          circleRadius,
+          radius,
         );
         if (lp_left && lp_left.length > 0) {
           const [plx, ply] = lp_left[0];
-          const dot_left_intersection = dotWithTooltip(svg, plx, ply, "pl");
-          if (store) store.add("pl", dot_left_intersection, "point");
+          dotWithTooltip(svg, plx, ply, "pl", dotRadius, _store);
         }
 
-        // draw intersection between center (c1) AND
-        // p3
-        const lp_right = inteceptCircleLineSeg(
-          intersectionCx1,
-          intersectionCy1,
-          intersectionCx1,
-          intersectionCy1,
+        const lp_right = inteceptCircleLineSegFn(
+          c1x,
+          c1y,
+          c1x,
+          c1y,
           px3,
           py3,
-          circleRadius,
+          radius,
         );
         if (lp_right && lp_right.length > 0) {
           const [prx, pry] = lp_right[0];
-          const dot_right_intersection = dotWithTooltip(svg, prx, pry, "pr");
-          if (store) store.add("pr", dot_right_intersection, "point");
+          dotWithTooltip(svg, prx, pry, "pr", dotRadius, _store);
         }
       },
     });
 
-    const createFinalSquareStep = (): Step => ({
+    const createFinalSquareStep = (
+      svg: SVGSVGElement,
+      c1x: number,
+      c1y: number,
+      c2x: number,
+      c2y: number,
+      radius: number,
+      goldenRatio: number,
+      _store?: GeometryStore,
+      intersectionFn: IntersectionFn = intersection,
+      bisectFn: BisectFn = bisect,
+      inteceptCircleLineSegFn: InteceptCircleLineSegFn = inteceptCircleLineSeg,
+    ): Step => ({
+      draw: true,
       drawShapes: () => {
-        const intersectionPoint = getCircleIntersectionPoint();
+        const intersectionPoint = getCircleIntersectionPoint(
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          intersectionFn,
+        );
         if (!intersectionPoint) return;
         const { px, py } = intersectionPoint;
 
-        // Get p3 and p4 points using bisected angles
         const { px3, py3, px4, py4 } = getBisectedPoints(
           px,
           py,
-          intersectionCx1,
-          intersectionCy1,
-          intersectionCx2,
-          intersectionCy2,
+          c1x,
+          c1y,
+          c2x,
+          c2y,
+          radius,
+          bisectFn,
         );
 
-        let plx, ply, prx, pry;
-        const lp_left = inteceptCircleLineSeg(
-          intersectionCx2,
-          intersectionCy2,
-          intersectionCx2,
-          intersectionCy2,
+        let plx: number | undefined, ply: number | undefined, prx: number | undefined, pry: number | undefined;
+        const lp_left = inteceptCircleLineSegFn(
+          c2x,
+          c2y,
+          c2x,
+          c2y,
           px4,
           py4,
-          circleRadius,
+          radius,
         );
         if (lp_left && lp_left.length > 0) {
           [plx, ply] = lp_left[0];
         }
-        const lp_right = inteceptCircleLineSeg(
-          intersectionCx1,
-          intersectionCy1,
-          intersectionCx1,
-          intersectionCy1,
+        const lp_right = inteceptCircleLineSegFn(
+          c1x,
+          c1y,
+          c1x,
+          c1y,
           px3,
           py3,
-          circleRadius,
+          radius,
         );
         if (lp_right && lp_right.length > 0) {
           [prx, pry] = lp_right[0];
         }
 
-        if (plx && ply && prx && pry) {
-          const s = GOLDEN_RATIO;
-          // draw final square
-          const square_line1 = lineWithTooltip(svg, plx, ply, prx, pry, "ls1", s);
-          const square_line2 = lineWithTooltip(
-            svg,
-            intersectionCx2,
-            intersectionCy2,
-            plx,
-            ply,
-            "ls2",
-            s,
-          );
-          const square_line3 = lineWithTooltip(
-            svg,
-            intersectionCx2,
-            intersectionCy2,
-            intersectionCx1,
-            intersectionCy1,
-            "ls3",
-            s,
-          );
-          const square_line4 = lineWithTooltip(
-            svg,
-            intersectionCx1,
-            intersectionCy1,
-            prx,
-            pry,
-            "ls4",
-            s,
-          );
-          if (store) {
-            store.add("ls1", square_line1, "line");
-            store.add("ls2", square_line2, "line");
-            store.add("ls3", square_line3, "line");
-            store.add("ls4", square_line4, "line");
-          }
+        if (plx !== undefined && ply !== undefined && prx !== undefined && pry !== undefined) {
+          const s = goldenRatio;
+          lineWithTooltip(svg, plx, ply, prx, pry, "ls1", s, _store);
+          lineWithTooltip(svg, c2x, c2y, plx, ply, "ls2", s, _store);
+          lineWithTooltip(svg, c2x, c2y, c1x, c1y, "ls3", s, _store);
+          lineWithTooltip(svg, c1x, c1y, prx, pry, "ls4", s, _store);
         }
       },
     });
 
-    // Create steps using the cleaner step creator functions with named variables
+    // Create steps with all dependencies passed explicitly
     const steps = [
-      createLineStep(lx1, ly1, lx2, ly2, "line_main"), // Step 1: Draw main baseline
-      createDotStep(c1XPosition, ly2, "c1"), // Step 2: Draw right dot (c1)
-      createCircleStep(c1XPosition, ly2, circleRadius, "c1_c"), // Step 3: Draw right circle (c1)
-      createDotStep(c2XPosition, ly2, "c2"), // Step 4: Draw left dot (c2)
-      createCircleStep(c2XPosition, ly2, circleRadius, "c2_c"), // Step 5: Draw left circle (c2)
-      createCircleIntersectionDotStep(), // Step 6: Find circle intersection dot (pi)
-      createCircleIntersectionCircleStep(), // Step 7: Find circle intersection circle (ci)
-      createLinesToIntersectionPointsStep(), // Step 8: Draw lines to intersection points
-      createLinesBetweenPointsStep(), // Step 9: Connect circle centers to new points
-      createLineBetweenP3P4Step(), // Step 10: Connect p3 and p4
-      createCircleIntersectionsStep(), // Step 11: Find final circle intersections
-      createFinalSquareStep(), // Step 12: Draw the completed square
+      createLineStep(svg, lx1, ly1, lx2, ly2, "line_main", stroke, store),
+      createDotStep(svg, c1XPosition, ly2, "c1", strokeBig, store),
+      createCircleStep(svg, c1XPosition, ly2, circleRadius, "c1_c", stroke, store),
+      createDotStep(svg, c2XPosition, ly2, "c2", strokeBig, store),
+      createCircleStep(svg, c2XPosition, ly2, circleRadius, "c2_c", stroke, store),
+      createCircleIntersectionDotStep(svg, intersectionCx1, intersectionCy1, intersectionCx2, intersectionCy2, circleRadius, "pi", strokeBig, store),
+      createCircleIntersectionCircleStep(svg, intersectionCx1, intersectionCy1, intersectionCx2, intersectionCy2, circleRadius, "ci", stroke, store),
+      createLinesToIntersectionPointsStep(svg, intersectionCx1, intersectionCy1, intersectionCx2, intersectionCy2, circleRadius, stroke, strokeBig, store),
+      createLinesBetweenPointsStep(svg, intersectionCx1, intersectionCy1, intersectionCx2, intersectionCy2, circleRadius, stroke, store),
+      createLineBetweenP3P4Step(svg, intersectionCx1, intersectionCy1, intersectionCx2, intersectionCy2, circleRadius, stroke, store),
+      createCircleIntersectionsStep(svg, intersectionCx1, intersectionCy1, intersectionCx2, intersectionCy2, circleRadius, strokeBig, store),
+      createFinalSquareStep(svg, intersectionCx1, intersectionCy1, intersectionCx2, intersectionCy2, circleRadius, GOLDEN_RATIO, store),
     ];
 
     // Update steps in parent component
@@ -619,7 +712,6 @@ export function Square({
   }, [restartKey]); // Re-run when restartKey changes
 
   // Handle step execution when currentStep, steps, or restartKey changes
-  // Uses a simpler approach: clear everything and redraw all steps up to currentStep
   useEffect(() => {
     if (!svgRef.current) return;
 
