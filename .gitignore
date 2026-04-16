@@ -9,3 +9,7 @@ packages/geometry/coverage/
 
 # Ignore package-lock.json
 package-lock.json
+
+# Ignore build outputs
+dist/
+*.tsbuildinfo
