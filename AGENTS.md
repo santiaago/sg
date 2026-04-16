@@ -43,6 +43,7 @@ git commit -m"<type>(<optional scope>): <description>" \
   -m"<optional footer>"
 ```
 
+- Use **repo-root relative paths** for scope (e.g., `app2/squares`, `packages/geometry`, `app`), never `src/` or directory-only scopes like `app2`
 - Group related changes; avoid bundling unrelated refactors.
 - You can be author of commit messages
 
