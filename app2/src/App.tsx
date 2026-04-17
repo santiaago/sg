@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import type { JSX } from "react";
 import {
   useGeometryStore,
@@ -140,10 +140,10 @@ export default function App(): JSX.Element {
     setRestartKeyv3(restartKeyv3 + 1);
   };
 
-  const updateStepsv3 = (newSteps: Step[]): void => {
+  const updateStepsv3 = useCallback((newSteps: Step[]): void => {
     console.log("newSteps", newSteps, "stepsv3", stepsv3);
     setStepsv3(newSteps);
-  };
+  }, []);
 
   const [stepsv4, setStepsv4] = useState<Step[]>([]);
   const [currentStepv4, setCurrentStepv4] = useState<number>(0);
@@ -190,10 +190,10 @@ export default function App(): JSX.Element {
     setRestartKeyv4(restartKeyv4 + 1);
   };
 
-  const updateStepsv4 = (newSteps: Step[]): void => {
+  const updateStepsv4 = useCallback((newSteps: Step[]): void => {
     console.log("newSteps", newSteps, "stepsv4", stepsv4);
     setStepsv4(newSteps);
-  };
+  }, []);
 
   const [stepsSquare, setStepsSquare] = useState<Step[]>([]);
   const [currentStepSquare, setCurrentStepSquare] = useState<number>(1);
@@ -242,10 +242,10 @@ export default function App(): JSX.Element {
     setRestartKeySquare(restartKeySquare + 1);
   };
 
-  const updateStepsSquare = (newSteps: Step[]): void => {
+  const updateStepsSquare = useCallback((newSteps: Step[]): void => {
     console.log("newSteps", newSteps, "stepsSquare", stepsSquare);
     setStepsSquare(newSteps);
-  };
+  }, []);
 
   return (
     <main className="p-8 bg-gray-900 text-white">
