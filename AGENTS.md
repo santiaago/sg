@@ -25,11 +25,13 @@
 - Lint/format: `pnpm check`
 - Format check: `pnpm format` (oxfmt --check)
 - Format fix: `pnpm format:fix` (oxfmt --write)
-- Tests: `pnpm test` (vitest); coverage: `pnpm test:coverage`
+- Tests (all): `pnpm test` (vitest for geometry + app2); coverage: `pnpm test:coverage`
+- Tests (geometry only): `cd packages/geometry && pnpm test`
+- Tests (app2 only): `cd app2 && pnpm test`
 
 ## Agent Instructions
 
-- When user says "check app": run `pnpm lint && pnpm fmt:check && pnpm type-check` to verify lint, format, and TypeScript.
+- When user says "check app": run `pnpm lint && pnpm fmt:check && pnpm type-check && pnpm test` to verify lint, format, TypeScript, and tests.
 
 ## Commit Guidelines
 
