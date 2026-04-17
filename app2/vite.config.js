@@ -14,4 +14,14 @@ export default defineConfig({
       "@sg/geometry": path.resolve(__dirname, "../packages/geometry/src/index.ts"),
     },
   },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    setupFiles: "./test/setup.ts",
+    include: ["test/**/*.{test,spec}.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+    },
+  },
 });
