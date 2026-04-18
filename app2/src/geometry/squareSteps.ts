@@ -1,11 +1,30 @@
-// Step definitions for the square geometric construction.
-// Each step declares:
-// - inputs: Geometry IDs this step depends on
-// - outputs: Geometry IDs this step produces
-// - compute: Pure function that calculates outputs from inputs
-// - draw: Function that renders the step's geometries
-// This enables lazy calculation, automatic dependency tracking,
-// and separation of math and rendering
+/**
+ * Square geometric construction - Step definitions
+ *
+ * This module implements a step-by-step geometric construction for drawing a square
+ * using compass and straightedge techniques adapted for digital rendering.
+ *
+ * ALGORITHM OVERVIEW:
+ * 1. Draw main horizontal line (base line)
+ * 2. Place first circle center (C1) on the line
+ * 3. Draw first circle (C1_C) with given radius
+ * 4. Find second circle center (C2) at left intersection of C1_C with main line
+ * 5. Draw second circle (C2_C) with same radius
+ * 6. Compute intersection point (PI) of both circles (north/instep point)
+ * 7. Draw intersection circle (CI) centered at PI with same radius
+ * 8-9. Draw extended lines from C2 and C1 towards PI
+ * 10-11. Find P4 and P3 as intersections of extended lines with CI
+ * 12-13. Draw connecting lines between circle centers and these points
+ * 14-15. Compute tangent points (PL, PR) on these lines
+ * 16. Construct final square from the four corner points (C1, C2, PR, PL)
+ *
+ * ARCHITECTURE:
+ * Each step declares its inputs, outputs, compute function, and draw function.
+ * This enables:
+ * - Lazy step-by-step calculation
+ * - Automatic dependency tracking
+ * - Separation of math (compute) and rendering (draw)
+ */
 
 import type { Step, GeometryValue, SquareParameters } from "../types/geometry";
 import { point, line, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
@@ -44,9 +63,11 @@ export {
 };
 export type { SquareConfig };
 
-// Step 1: Draw the main horizontal line
-// Inputs: none (uses SVG config)
-// Outputs: line_main
+/**
+ * Step 1: Draw the main horizontal line
+ * Base line for the entire construction.
+ * Uses SVG config coordinates to draw the initial horizontal reference line.
+ */
 const STEP_MAIN_LINE: Step = {
   id: "step_main_line",
   inputs: [],
@@ -62,9 +83,11 @@ const STEP_MAIN_LINE: Step = {
   },
 };
 
-// Step 2: Draw circle center c1
-// Inputs: line_main (C1 must lie on the main line)
-// Outputs: c1
+/**
+ * Step 2: Draw circle center C1
+ * First circle center positioned at C1_POSITION_RATIO along the main line.
+ * C1 must lie on the main line as it's the center of the first circle.
+ */
 const STEP_C1: Step = {
   id: "step_c1",
   inputs: [GEOM.MAIN_LINE],
@@ -83,9 +106,11 @@ const STEP_C1: Step = {
   },
 };
 
-// Step 3: Draw circle outline c1_c
-// Inputs: c1
-// Outputs: c1_c
+/**
+ * Step 3: Draw circle outline C1_C
+ * First circle centered at C1 with the configured radius.
+ * This circle will intersect with the main line at C2.
+ */
 const STEP_C1_CIRCLE: Step = {
   id: "step_c1_circle",
   inputs: [GEOM.C1],
@@ -102,9 +127,11 @@ const STEP_C1_CIRCLE: Step = {
   },
 };
 
-// Step 4: Draw circle center c2
-// Inputs: line_main, c1_c (C2 is the intersection of MAIN_LINE and C1_CIRCLE)
-// Outputs: c2
+/**
+ * Step 4: Draw circle center C2
+ * Second circle center at the left intersection of C1_CIRCLE with MAIN_LINE.
+ * C2 lies on the main line, left of C1, at a distance of circleRadius.
+ */
 const STEP_C2: Step = {
   id: "step_c2",
   inputs: [GEOM.MAIN_LINE, GEOM.C1_CIRCLE],
@@ -123,9 +150,11 @@ const STEP_C2: Step = {
   },
 };
 
-// Step 5: Draw circle outline c2_c
-// Inputs: c2
-// Outputs: c2_c
+/**
+ * Step 5: Draw circle outline C2_C
+ * Second circle centered at C2 with the same radius as C1_C.
+ * These two circles will intersect at point PI (north and south).
+ */
 const STEP_C2_CIRCLE: Step = {
   id: "step_c2_circle",
   inputs: [GEOM.C2],
@@ -142,9 +171,12 @@ const STEP_C2_CIRCLE: Step = {
   },
 };
 
-// Step 6: Compute intersection point (pi) from the two circles, picking the north point
-// Inputs: c1_c, c2_c
-// Outputs: pi
+/**
+ * Step 6: Compute intersection point PI
+ * Finds where the two circles (C1_C and C2_C) intersect.
+ * Selects north (top) intersection point using selectMinY parameter.
+ * This is the apex of the triangle formed by C1, C2, and PI.
+ */
 const STEP_INTERSECTION_POINT: Step = {
   id: "step_intersection_point",
   inputs: [GEOM.C1_CIRCLE, GEOM.C2_CIRCLE],
@@ -166,9 +198,11 @@ const STEP_INTERSECTION_POINT: Step = {
   },
 };
 
-// Step 7: Draw intersection circle (ci) at the intersection point with same radius
-// Inputs: pi, c1_c
-// Outputs: ci
+/**
+ * Step 7: Draw intersection circle CI
+ * Circle centered at PI with the same radius as C1_C and C2_C.
+ * Used as reference for finding points P3 and P4 in subsequent steps.
+ */
 const STEP_INTERSECTION_CIRCLE: Step = {
   id: "step_intersection_circle",
   inputs: [GEOM.INTERSECTION_POINT, GEOM.C1_CIRCLE],
@@ -186,11 +220,11 @@ const STEP_INTERSECTION_CIRCLE: Step = {
   },
 };
 
-// Step 8: Draw line from C2 with length = 1.1 * diameter of ci, towards pi
-// The line length is 1.1 * 2 * circleRadius = 2.2 * circleRadius
-// This line will be used to find P3 as the intersection with INTERSECTION_CIRCLE (other than C2)
-// Inputs: c2, pi, ci
-// Outputs: line_c2_pi
+/**
+ * Step 8: Draw line from C2 towards PI
+ * Extended line from C2 through PI with length = 1.1 * diameter of CI (2.2 * radius).
+ * Used to find P3 as the intersection with CI (other than C2).
+ */
 const STEP_LINE_C2_PI: Step = {
   id: "step_line_c2_pi",
   inputs: [GEOM.C2, GEOM.INTERSECTION_POINT, GEOM.INTERSECTION_CIRCLE],
@@ -210,10 +244,11 @@ const STEP_LINE_C2_PI: Step = {
   },
 };
 
-// Step 9: Compute P3 as intersection of line_c2_pi with INTERSECTION_CIRCLE
-// P3 is the other intersection point (not C2)
-// Inputs: line_c2_pi, ci, c2
-// Outputs: p3
+/**
+ * Step 9: Compute P3 as intersection of line_c2_pi with CI
+ * P3 is the second intersection point of LINE_C2_PI with CI (excluding C2).
+ * Forms one corner of the square construction.
+ */
 const STEP_P3: Step = {
   id: "step_p3",
   inputs: [GEOM.LINE_C2_PI, GEOM.INTERSECTION_CIRCLE, GEOM.C2],
@@ -237,11 +272,11 @@ const STEP_P3: Step = {
   },
 };
 
-// Step 10: Draw line from C1 with length = 1.1 * diameter of ci, towards pi
-// The line length is 1.1 * 2 * circleRadius = 2.2 * circleRadius
-// This line will be used to find P4 as the intersection with INTERSECTION_CIRCLE (other than C1)
-// Inputs: c1, pi, ci
-// Outputs: line_c1_pi
+/**
+ * Step 10: Draw line from C1 towards PI
+ * Extended line from C1 through PI with length = 1.1 * diameter of CI (2.2 * radius).
+ * Used to find P4 as the intersection with CI (other than C1).
+ */
 const STEP_LINE_C1_PI: Step = {
   id: "step_line_c1_pi",
   inputs: [GEOM.C1, GEOM.INTERSECTION_POINT, GEOM.INTERSECTION_CIRCLE],
@@ -261,10 +296,11 @@ const STEP_LINE_C1_PI: Step = {
   },
 };
 
-// Step 11: Compute P4 as intersection of line_c1_pi with INTERSECTION_CIRCLE
-// P4 is the other intersection point (not C1)
-// Inputs: line_c1_pi, ci, c1
-// Outputs: p4
+/**
+ * Step 11: Compute P4 as intersection of line_c1_pi with CI
+ * P4 is the second intersection point of LINE_C1_PI with CI (excluding C1).
+ * Forms the opposite corner of the square from P3.
+ */
 const STEP_P4: Step = {
   id: "step_p4",
   inputs: [GEOM.LINE_C1_PI, GEOM.INTERSECTION_CIRCLE, GEOM.C1],
@@ -288,9 +324,11 @@ const STEP_P4: Step = {
   },
 };
 
-// Step 12: Draw line from C2 to P4
-// Inputs: c2, p4
-// Outputs: line_c2_p4
+/**
+ * Step 12: Draw line from C2 to P4
+ * Connecting line between circle center C2 and point P4.
+ * Used to find tangent point PL in the next step.
+ */
 const STEP_LINE_C2_P4: Step = {
   id: "step_line_c2_p4",
   inputs: [GEOM.C2, GEOM.P4],
@@ -308,9 +346,11 @@ const STEP_LINE_C2_P4: Step = {
   },
 };
 
-// Step 13: Compute and draw pl (tangent point from c2 to p4 line)
-// Inputs: c2, p4, line_c2_p4
-// Outputs: pl
+/**
+ * Step 13: Compute PL (tangent point from C2 to P4 line)
+ * PL is the intersection of a circle centered at C2 with LINE_C2_P4.
+ * This represents the tangent point on the left side of the square.
+ */
 const STEP_PL: Step = {
   id: "step_pl",
   inputs: [GEOM.C2, GEOM.P4, GEOM.LINE_C2_P4],
@@ -332,9 +372,11 @@ const STEP_PL: Step = {
   },
 };
 
-// Step 14: Draw line from C1 to P3
-// Inputs: c1, p3
-// Outputs: line_c1_p3
+/**
+ * Step 14: Draw line from C1 to P3
+ * Connecting line between circle center C1 and point P3.
+ * Used to find tangent point PR in the next step.
+ */
 const STEP_LINE_C1_P3: Step = {
   id: "step_line_c1_p3",
   inputs: [GEOM.C1, GEOM.P3],
@@ -352,9 +394,11 @@ const STEP_LINE_C1_P3: Step = {
   },
 };
 
-// Step 15: Compute and draw pr (tangent point from c1 to p3 line)
-// Inputs: c1, p3, line_c1_p3
-// Outputs: pr
+/**
+ * Step 15: Compute PR (tangent point from C1 to P3 line)
+ * PR is the intersection of a circle centered at C1 with LINE_C1_P3.
+ * This represents the tangent point on the right side of the square.
+ */
 const STEP_PR: Step = {
   id: "step_pr",
   inputs: [GEOM.C1, GEOM.P3, GEOM.LINE_C1_P3],
@@ -376,9 +420,11 @@ const STEP_PR: Step = {
   },
 };
 
-// Step 16: Draw square polygon
-// Inputs: c1, c2, pr, pl
-// Outputs: square (polygon with 4 vertices)
+/**
+ * Step 16: Draw final square polygon
+ * Constructs the square polygon from the four corner points: PL, PR, C1, C2.
+ * This is the final step that connects all computed points into the complete square geometry.
+ */
 const STEP_FINAL_SQUARE: Step = {
   id: "step_final_square",
   inputs: [GEOM.C1, GEOM.C2, GEOM.PR, GEOM.PL],
