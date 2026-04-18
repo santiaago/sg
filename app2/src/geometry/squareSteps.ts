@@ -8,8 +8,8 @@
 // and separation of math and rendering
 
 import type { Step, GeometryValue, StepConfig, SquareParameters } from "../types/geometry";
-import { point, line, polygon, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
-import type { Point, Line, Circle, Polygon } from "../types/geometry";
+import { point, line, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
+import type { Point, Line, Circle } from "../types/geometry";
 import {
   computeSquareConfig,
   GEOM,
