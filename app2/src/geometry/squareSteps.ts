@@ -216,7 +216,7 @@ const STEP_INTERSECTION_CIRCLE: Step = {
   },
 };
 
-// Step 7: Draw line from C2 with length = 1.1 * diameter of ci, towards pi
+// Step 8: Draw line from C2 with length = 1.1 * diameter of ci, towards pi
 // The line length is 1.1 * 2 * circleRadius = 2.2 * circleRadius
 // This line will be used to find P3 as the intersection with INTERSECTION_CIRCLE (other than C2)
 // Inputs: c2, pi, ci
@@ -252,7 +252,7 @@ const STEP_LINE_C2_PI: Step = {
   },
 };
 
-// Step 8: Compute P3 as intersection of line_c2_pi with INTERSECTION_CIRCLE
+// Step 9: Compute P3 as intersection of line_c2_pi with INTERSECTION_CIRCLE
 // P3 is the other intersection point (not C2)
 // Inputs: line_c2_pi, ci, c2
 // Outputs: p3
@@ -281,7 +281,7 @@ const STEP_P3: Step = {
   },
 };
 
-// Step 9: Draw line from C1 with length = 1.1 * diameter of ci, towards pi
+// Step 10: Draw line from C1 with length = 1.1 * diameter of ci, towards pi
 // The line length is 1.1 * 2 * circleRadius = 2.2 * circleRadius
 // This line will be used to find P4 as the intersection with INTERSECTION_CIRCLE (other than C1)
 // Inputs: c1, pi, ci
@@ -317,7 +317,7 @@ const STEP_LINE_C1_PI: Step = {
   },
 };
 
-// Step 10: Compute P4 as intersection of line_c1_pi with INTERSECTION_CIRCLE
+// Step 11: Compute P4 as intersection of line_c1_pi with INTERSECTION_CIRCLE
 // P4 is the other intersection point (not C1)
 // Inputs: line_c1_pi, ci, c1
 // Outputs: p4
@@ -346,7 +346,7 @@ const STEP_P4: Step = {
   },
 };
 
-// Step 10: Draw line from C2 to P4
+// Step 12: Draw line from C2 to P4
 // Inputs: c2, p4
 // Outputs: line_c2_p4
 const STEP_LINE_C2_P4: Step = {
@@ -383,7 +383,7 @@ const STEP_LINE_C2_P4: Step = {
   },
 };
 
-// Step 11: Compute and draw pl (tangent point from c2 to p4 line)
+// Step 13: Compute and draw pl (tangent point from c2 to p4 line)
 // Inputs: c2, p4, line_c2_p4
 // Outputs: pl
 const STEP_PL: Step = {
@@ -394,9 +394,7 @@ const STEP_PL: Step = {
 
   compute: (inputs, params) => {
     const c2 = inputs.get(GEOM.C2) as Point;
-    const p4 = inputs.get(GEOM.P4) as Point;
-    // Create line from c2 to p4
-    const line_c2_p4 = line(c2.x, c2.y, p4.x, p4.y);
+    const line_c2_p4 = inputs.get(GEOM.LINE_C2_P4) as Line;
     // Circle at c2 with given radius
     const circle_c2 = circleFromPoint(c2, params.circleRadius);
     const pl = pointFromCircleAndLine(circle_c2, line_c2_p4);
@@ -411,7 +409,7 @@ const STEP_PL: Step = {
   },
 };
 
-// Step 12: Draw line from C1 to P3
+// Step 14: Draw line from C1 to P3
 // Inputs: c1, p3
 // Outputs: line_c1_p3
 const STEP_LINE_C1_P3: Step = {
@@ -448,7 +446,7 @@ const STEP_LINE_C1_P3: Step = {
   },
 };
 
-// Step 13: Compute and draw pr (tangent point from c1 to p3 line)
+// Step 15: Compute and draw pr (tangent point from c1 to p3 line)
 // Inputs: c1, p3, line_c1_p3
 // Outputs: pr
 const STEP_PR: Step = {
@@ -459,9 +457,7 @@ const STEP_PR: Step = {
 
   compute: (inputs, params) => {
     const c1 = inputs.get(GEOM.C1) as Point;
-    const p3 = inputs.get(GEOM.P3) as Point;
-    // Create line from c1 to p3
-    const line_c1_p3 = line(c1.x, c1.y, p3.x, p3.y);
+    const line_c1_p3 = inputs.get(GEOM.LINE_C1_P3) as Line;
     // Circle at c1 with given radius
     const circle_c1 = circleFromPoint(c1, params.circleRadius);
     const pr = pointFromCircleAndLine(circle_c1, line_c1_p3);
