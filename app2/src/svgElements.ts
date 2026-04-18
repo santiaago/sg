@@ -2,6 +2,13 @@ import type { GeometryStore } from "./react-store";
 import type { GeometryValue } from "./types/geometry";
 import { isPoint, isLine, isCircle } from "./types/geometry";
 
+// Color constants for SVG rendering
+export const COLOR_PRIMARY = "#506";
+export const COLOR_SECONDARY = "#f06";
+export const COLOR_TEXT = "black";
+export const COLOR_BACKGROUND = "white";
+export const COLOR_WHITE = "#fff";
+
 // Magic number constants for tooltip styling
 export const TOOLTIP_OFFSET_X = 10;
 export const TOOLTIP_OFFSET_Y = -5;
@@ -38,7 +45,7 @@ export function createTooltip(
   const tooltip = document.createElementNS("http://www.w3.org/2000/svg", "text");
   tooltip.setAttribute("x", x.toString());
   tooltip.setAttribute("y", (y + TOOLTIP_OFFSET_Y).toString());
-  tooltip.setAttribute("fill", "white");
+  tooltip.setAttribute("fill", COLOR_BACKGROUND);
   tooltip.setAttribute("font-size", TOOLTIP_FONT_SIZE.toString());
   tooltip.setAttribute("opacity", "0");
   tooltip.setAttribute("data-tooltip-text", name);
@@ -54,7 +61,7 @@ export function createTooltip(
   tooltipBg.setAttribute("y", (y - bgYOffset).toString());
   tooltipBg.setAttribute("width", textWidth.toString());
   tooltipBg.setAttribute("height", TOOLTIP_BG_HEIGHT.toString());
-  tooltipBg.setAttribute("fill", "black");
+  tooltipBg.setAttribute("fill", COLOR_TEXT);
   tooltipBg.setAttribute("opacity", "0");
   tooltipBg.setAttribute("rx", TOOLTIP_BG_ROUNDING.toString());
   svg.appendChild(tooltipBg);
@@ -72,7 +79,7 @@ export function rect(svg: SVGSVGElement, width: number, height: number): SVGRect
   const rectEl = document.createElementNS("http://www.w3.org/2000/svg", "rect");
   rectEl.setAttribute("width", width.toString());
   rectEl.setAttribute("height", height.toString());
-  rectEl.setAttribute("fill", "#fff");
+  rectEl.setAttribute("fill", COLOR_WHITE);
   svg.appendChild(rectEl);
   return rectEl;
 }
@@ -86,7 +93,7 @@ export function dot(svg: SVGSVGElement, x: number, y: number, radius: number): S
   circle.setAttribute("cx", x.toString());
   circle.setAttribute("cy", y.toString());
   circle.setAttribute("r", radius.toString());
-  circle.setAttribute("fill", "black");
+  circle.setAttribute("fill", COLOR_TEXT);
   circle.setAttribute("opacity", "1");
   svg.appendChild(circle);
   return circle;
@@ -104,7 +111,7 @@ export function line(
   strokeWidth: number = DEFAULT_STROKE_WIDTH,
 ): SVGLineElement {
   const lineEl = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  lineEl.setAttribute("stroke", "#506");
+  lineEl.setAttribute("stroke", COLOR_PRIMARY);
   lineEl.setAttribute("stroke-width", strokeWidth.toString());
   lineEl.setAttribute("x1", x1.toString());
   lineEl.setAttribute("y1", y1.toString());
@@ -125,7 +132,7 @@ export function circle(
   stroke: number = 1,
 ): SVGCircleElement {
   const circleEl = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  circleEl.setAttribute("stroke", "#f06");
+  circleEl.setAttribute("stroke", COLOR_SECONDARY);
   circleEl.setAttribute("stroke-width", stroke.toString());
   circleEl.setAttribute("fill", "none");
   circleEl.setAttribute("cx", cx.toString());

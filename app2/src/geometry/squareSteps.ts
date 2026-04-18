@@ -7,7 +7,7 @@
 // This enables lazy calculation, automatic dependency tracking,
 // and separation of math and rendering
 
-import type { Step, GeometryValue, StepConfig, SquareParameters } from "../types/geometry";
+import type { Step, GeometryValue, SquareParameters } from "../types/geometry";
 import { point, line, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
 import {
   computeSquareConfig,
@@ -29,10 +29,19 @@ import {
   lineTowards,
   circleWithRadiusFrom,
 } from "./constructors";
-import { createTooltip, drawPoint, drawLine, drawCircle } from "../svgElements";
+import { createTooltip, drawPoint, drawLine, drawCircle, COLOR_PRIMARY } from "../svgElements";
 import type { GeometryStore } from "../react-store";
 
-export { computeSquareConfig, GEOM, GOLDEN_RATIO, LINE_EXTENSION_MULTIPLIER, DEFAULT_TOLERANCE, getGeometry, computeSingle, computeMultiple };
+export {
+  computeSquareConfig,
+  GEOM,
+  GOLDEN_RATIO,
+  LINE_EXTENSION_MULTIPLIER,
+  DEFAULT_TOLERANCE,
+  getGeometry,
+  computeSingle,
+  computeMultiple,
+};
 export type { SquareConfig };
 
 // Step 1: Draw the main horizontal line
@@ -392,7 +401,7 @@ const STEP_FINAL_SQUARE: Step = {
     const svgPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
     const points = square.points.map((p) => `${p.x},${p.y}`).join(" ");
     svgPolygon.setAttribute("points", points);
-    svgPolygon.setAttribute("stroke", "#506");
+    svgPolygon.setAttribute("stroke", COLOR_PRIMARY);
     svgPolygon.setAttribute("stroke-width", GOLDEN_RATIO.toString());
     svgPolygon.setAttribute("fill", "none");
     svgPolygon.setAttribute("data-tooltip", GEOM.SQUARE);
@@ -475,23 +484,8 @@ export function executeStep(
     selectMinY: true,
   };
 
-  // Create config for compute function with all needed values
-  const stepConfig: StepConfig = {
-    width: ctx.config.width,
-    height: ctx.config.height,
-    stroke: ctx.config.stroke,
-    strokeBig: ctx.config.strokeBig,
-    circleRadius: squareConfig.circleRadius,
-    c1x: squareConfig.c1x,
-    c2x: squareConfig.c2x,
-    ly1: squareConfig.ly1,
-    ly2: squareConfig.ly2,
-    lx1: squareConfig.lx1,
-    lx2: squareConfig.lx2,
-  };
-
   // Compute outputs
-  const outputValues = step.compute(inputValues, params, stepConfig);
+  const outputValues = step.compute(inputValues, params);
 
   // Add outputs to allValues
   const newAllValues = new Map(allValues);

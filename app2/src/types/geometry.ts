@@ -68,21 +68,6 @@ export interface GeometryNode {
 
 // Step Definition (for lazy execution)
 
-export interface StepConfig {
-  width: number;
-  height: number;
-  stroke: number;
-  strokeBig: number;
-  circleRadius: number;
-  // Geometry positions
-  c1x: number;
-  c2x: number;
-  ly1: number;
-  ly2: number;
-  lx1: number;
-  lx2: number;
-}
-
 // Represents a single step in the geometric construction.
 // Each step:
 // 1. Declares its input geometry IDs (dependencies)
@@ -110,12 +95,10 @@ export interface Step {
   // Called only when this step becomes current.
   // inputs - Map of input geometry IDs to their values
   // params - SquareParameters object with all parameter values
-  // config - SVG configuration and styling values (kept for backward compatibility)
   // returns Map of output geometry IDs to their computed values
   compute: (
     inputs: Map<string, GeometryValue>,
     params: SquareParameters,
-    config: StepConfig,
   ) => Map<string, GeometryValue>;
 
   // Draws the geometries for this step.

@@ -12,7 +12,7 @@ import {
   bisect,
   inteceptCircleLineSeg as interceptCircleLineSeg,
 } from "@sg/geometry";
-import type { Point, Circle, GeometryValue, SquareParameters, StepConfig } from "../types/geometry";
+import type { Point, Circle, GeometryValue, SquareParameters } from "../types/geometry";
 import { point, line, circle } from "../types/geometry";
 
 // Constants
@@ -120,7 +120,7 @@ export function getGeometry<T extends GeometryValue>(
 export function computeSingle<T extends GeometryValue>(
   geomId: string,
   fn: (inputs: Map<string, GeometryValue>, params: SquareParameters) => T,
-): (inputs: Map<string, GeometryValue>, params: SquareParameters, _config: StepConfig) => Map<string, GeometryValue> {
+): (inputs: Map<string, GeometryValue>, params: SquareParameters) => Map<string, GeometryValue> {
   return (inputs, params) => {
     const value = fn(inputs, params);
     return new Map([[geomId, value]]);
@@ -134,7 +134,7 @@ export function computeSingle<T extends GeometryValue>(
  */
 export function computeMultiple(
   fn: (inputs: Map<string, GeometryValue>, params: SquareParameters) => Map<string, GeometryValue>,
-): (inputs: Map<string, GeometryValue>, params: SquareParameters, _config: StepConfig) => Map<string, GeometryValue> {
+): (inputs: Map<string, GeometryValue>, params: SquareParameters) => Map<string, GeometryValue> {
   return (inputs, params) => fn(inputs, params);
 }
 
@@ -169,11 +169,8 @@ export const GEOM = {
   LINE_C1_PI: "line_c1_pi",
 
   // Connecting lines
-  LINE_C2_P3: "line_c2_p3",
-  LINE_C1_P4: "line_c1_p4",
   LINE_C1_P3: "line_c1_p3",
   LINE_C2_P4: "line_c2_p4",
-  LINE_P3_P4: "line_p3_p4",
 
   // Square
   SQUARE: "square",
