@@ -7,7 +7,7 @@
 // This enables lazy calculation, automatic dependency tracking,
 // and separation of math and rendering
 
-import type { Step, GeometryValue, StepConfig } from "../types/geometry";
+import type { Step, GeometryValue, StepConfig, SquareParameters } from "../types/geometry";
 import { point, line, polygon, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
 import { inteceptCircleLineSeg as interceptCircleLineSeg } from "@sg/geometry";
 import {
@@ -33,16 +33,9 @@ const STEP_MAIN_LINE: Step = {
   outputs: [GEOM.MAIN_LINE],
   parameters: ["lx1", "ly1", "lx2", "ly2"],
 
-  compute: (_inputs, parameters, _config) => {
+  compute: (_inputs, params, _config) => {
     const result = new Map<string, GeometryValue>();
-    const lx1 = parameters.get("lx1");
-    const ly1 = parameters.get("ly1");
-    const lx2 = parameters.get("lx2");
-    const ly2 = parameters.get("ly2");
-    if (lx1 === undefined || ly1 === undefined || lx2 === undefined || ly2 === undefined) {
-      throw new Error(`Missing required parameters: lx1, ly1, lx2, ly2`);
-    }
-    result.set(GEOM.MAIN_LINE, line(lx1, ly1, lx2, ly2));
+    result.set(GEOM.MAIN_LINE, line(params.lx1, params.ly1, params.lx2, params.ly2));
     return result;
   },
 
@@ -71,17 +64,13 @@ const STEP_C1: Step = {
   outputs: [GEOM.C1],
   parameters: ["C1_POSITION_RATIO"],
 
-  compute: (inputs, parameters, _config) => {
+  compute: (inputs, params, _config) => {
     const mainLine = inputs.get(GEOM.MAIN_LINE);
     if (!mainLine || !isLine(mainLine)) {
       throw new Error(`Missing or invalid input: ${GEOM.MAIN_LINE}`);
     }
     const lineLength = mainLine.x2 - mainLine.x1;
-    const c1PosRatio = parameters.get("C1_POSITION_RATIO");
-    if (c1PosRatio === undefined) {
-      throw new Error(`Missing parameter: C1_POSITION_RATIO`);
-    }
-    const c1x = mainLine.x1 + lineLength * c1PosRatio;
+    const c1x = mainLine.x1 + lineLength * params.C1_POSITION_RATIO;
     const result = new Map<string, GeometryValue>();
     result.set(GEOM.C1, point(c1x, mainLine.y1));
     return result;
@@ -103,22 +92,17 @@ const STEP_C1_CIRCLE: Step = {
   outputs: [GEOM.C1_CIRCLE],
   parameters: ["circleRadius"],
 
-  compute: (inputs, parameters, _config) => {
+  compute: (inputs, params, _config) => {
     const c1 = inputs.get(GEOM.C1);
 
     if (!c1 || !isPoint(c1)) throw new Error(`Missing or invalid input: ${GEOM.C1}`);
-
-    const radius = parameters.get("circleRadius");
-    if (radius === undefined) {
-      throw new Error(`Missing parameter: circleRadius`);
-    }
 
     const result = new Map<string, GeometryValue>();
     result.set(GEOM.C1_CIRCLE, {
       type: "circle" as const,
       cx: c1.x,
       cy: c1.y,
-      r: radius,
+      r: params.circleRadius,
     });
     return result;
   },
@@ -138,7 +122,7 @@ const STEP_C2: Step = {
   inputs: [GEOM.MAIN_LINE, GEOM.C1_CIRCLE],
   outputs: [GEOM.C2],
 
-  compute: (inputs, _parameters, _config) => {
+  compute: (inputs, _params, _config) => {
     const mainLine = inputs.get(GEOM.MAIN_LINE);
     const c1_c = inputs.get(GEOM.C1_CIRCLE);
 
@@ -171,22 +155,17 @@ const STEP_C2_CIRCLE: Step = {
   outputs: [GEOM.C2_CIRCLE],
   parameters: ["circleRadius"],
 
-  compute: (inputs, parameters, _config) => {
+  compute: (inputs, params, _config) => {
     const c2 = inputs.get(GEOM.C2);
 
     if (!c2 || !isPoint(c2)) throw new Error(`Missing or invalid input: ${GEOM.C2}`);
-
-    const radius = parameters.get("circleRadius");
-    if (radius === undefined) {
-      throw new Error(`Missing parameter: circleRadius`);
-    }
 
     const result = new Map<string, GeometryValue>();
     result.set(GEOM.C2_CIRCLE, {
       type: "circle" as const,
       cx: c2.x,
       cy: c2.y,
-      r: radius,
+      r: params.circleRadius,
     });
     return result;
   },
@@ -207,19 +186,14 @@ const STEP_INTERSECTION_POINT: Step = {
   outputs: [GEOM.INTERSECTION_POINT],
   parameters: ["selectMinY"],
 
-  compute: (inputs, parameters, _config) => {
+  compute: (inputs, params, _config) => {
     const c1_c = inputs.get(GEOM.C1_CIRCLE);
     const c2_c = inputs.get(GEOM.C2_CIRCLE);
 
     if (!c1_c || !isCircle(c1_c)) throw new Error(`Missing or invalid input: ${GEOM.C1_CIRCLE}`);
     if (!c2_c || !isCircle(c2_c)) throw new Error(`Missing or invalid input: ${GEOM.C2_CIRCLE}`);
 
-    const selectMinY = parameters.get("selectMinY");
-    if (selectMinY === undefined) {
-      throw new Error(`Missing parameter: selectMinY`);
-    }
-
-    const { pi } = computeCircleIntersection(c1_c, c2_c, selectMinY);
+    const { pi } = computeCircleIntersection(c1_c, c2_c, params.selectMinY);
     const result = new Map<string, GeometryValue>();
     result.set(GEOM.INTERSECTION_POINT, pi);
     return result;
@@ -240,7 +214,7 @@ const STEP_INTERSECTION_CIRCLE: Step = {
   inputs: [GEOM.INTERSECTION_POINT, GEOM.C1_CIRCLE],
   outputs: [GEOM.INTERSECTION_CIRCLE],
 
-  compute: (inputs, _parameters, _config) => {
+  compute: (inputs, _params, _config) => {
     const pi = inputs.get(GEOM.INTERSECTION_POINT);
     const c1_c = inputs.get(GEOM.C1_CIRCLE);
 
@@ -276,7 +250,7 @@ const STEP_LINE_C2_PI: Step = {
   inputs: [GEOM.C2, GEOM.INTERSECTION_POINT, GEOM.INTERSECTION_CIRCLE],
   outputs: [GEOM.LINE_C2_PI],
 
-  compute: (inputs, _parameters, _config) => {
+  compute: (inputs, _params, _config) => {
     const c2 = inputs.get(GEOM.C2);
     const pi = inputs.get(GEOM.INTERSECTION_POINT);
     const ci = inputs.get(GEOM.INTERSECTION_CIRCLE);
@@ -330,7 +304,7 @@ const STEP_P3: Step = {
   outputs: [GEOM.P3],
   parameters: ["tolerance"],
 
-  compute: (inputs, parameters, _config) => {
+  compute: (inputs, params, _config) => {
     const line_c2_pi = inputs.get(GEOM.LINE_C2_PI);
     const ci = inputs.get(GEOM.INTERSECTION_CIRCLE);
     const c2 = inputs.get(GEOM.C2);
@@ -360,16 +334,12 @@ const STEP_P3: Step = {
     // There should be 2 points: C2 and P3
     // Find which one is not C2 (or approximately not C2)
     const result = new Map<string, GeometryValue>();
-    const tolerance = parameters.get("tolerance");
-    if (tolerance === undefined) {
-      throw new Error(`Missing parameter: tolerance`);
-    }
 
     for (const [x, y] of intersections) {
       const dx = x - c2.x;
       const dy = y - c2.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > tolerance) {
+      if (dist > params.tolerance) {
         result.set(GEOM.P3, point(x, y));
         break; // Found P3
       }
@@ -395,7 +365,7 @@ const STEP_LINE_C1_PI: Step = {
   inputs: [GEOM.C1, GEOM.INTERSECTION_POINT, GEOM.INTERSECTION_CIRCLE],
   outputs: [GEOM.LINE_C1_PI],
 
-  compute: (inputs, _parameters, _config) => {
+  compute: (inputs, _params, _config) => {
     const c1 = inputs.get(GEOM.C1);
     const pi = inputs.get(GEOM.INTERSECTION_POINT);
     const ci = inputs.get(GEOM.INTERSECTION_CIRCLE);
@@ -449,7 +419,7 @@ const STEP_P4: Step = {
   outputs: [GEOM.P4],
   parameters: ["tolerance"],
 
-  compute: (inputs, parameters, _config) => {
+  compute: (inputs, params, _config) => {
     const line_c1_pi = inputs.get(GEOM.LINE_C1_PI);
     const ci = inputs.get(GEOM.INTERSECTION_CIRCLE);
     const c1 = inputs.get(GEOM.C1);
@@ -479,16 +449,12 @@ const STEP_P4: Step = {
     // There should be 2 points: C1 and P4
     // Find which one is not C1 (or approximately not C1)
     const result = new Map<string, GeometryValue>();
-    const tolerance = parameters.get("tolerance");
-    if (tolerance === undefined) {
-      throw new Error(`Missing parameter: tolerance`);
-    }
 
     for (const [x, y] of intersections) {
       const dx = x - c1.x;
       const dy = y - c1.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > tolerance) {
+      if (dist > params.tolerance) {
         result.set(GEOM.P4, point(x, y));
         break; // Found P4
       }
@@ -512,7 +478,7 @@ const STEP_LINE_C2_P4: Step = {
   inputs: [GEOM.C2, GEOM.P4],
   outputs: [GEOM.LINE_C2_P4],
 
-  compute: (inputs, _parameters, _config) => {
+  compute: (inputs, _params, _config) => {
     const c2 = inputs.get(GEOM.C2);
     const p4 = inputs.get(GEOM.P4);
 
@@ -549,17 +515,12 @@ const STEP_PL: Step = {
   outputs: [GEOM.PL],
   parameters: ["circleRadius"],
 
-  compute: (inputs, parameters, _config) => {
+  compute: (inputs, params, _config) => {
     const c2 = inputs.get(GEOM.C2);
     const p4 = inputs.get(GEOM.P4);
 
     if (!c2 || !isPoint(c2)) throw new Error(`Missing or invalid input: ${GEOM.C2}`);
     if (!p4 || !isPoint(p4)) throw new Error(`Missing or invalid input: ${GEOM.P4}`);
-
-    const radius = parameters.get("circleRadius");
-    if (radius === undefined) {
-      throw new Error(`Missing parameter: circleRadius`);
-    }
 
     // Compute pl: intersection of circle at c2 with line from c2 to p4
     const lp_left = interceptCircleLineSeg(
@@ -569,7 +530,7 @@ const STEP_PL: Step = {
       c2.y, // Line segment start (l1x, l1y) - same as circle center
       p4.x,
       p4.y, // Line segment end (l2x, l2y)
-      radius, // Radius (r)
+      params.circleRadius, // Radius (r)
     );
 
     const result = new Map<string, GeometryValue>();
@@ -594,7 +555,7 @@ const STEP_LINE_C1_P3: Step = {
   inputs: [GEOM.C1, GEOM.P3],
   outputs: [GEOM.LINE_C1_P3],
 
-  compute: (inputs, _parameters, _config) => {
+  compute: (inputs, _params, _config) => {
     const c1 = inputs.get(GEOM.C1);
     const p3 = inputs.get(GEOM.P3);
 
@@ -631,17 +592,12 @@ const STEP_PR: Step = {
   outputs: [GEOM.PR],
   parameters: ["circleRadius"],
 
-  compute: (inputs, parameters, _config) => {
+  compute: (inputs, params, _config) => {
     const c1 = inputs.get(GEOM.C1);
     const p3 = inputs.get(GEOM.P3);
 
     if (!c1 || !isPoint(c1)) throw new Error(`Missing or invalid input: ${GEOM.C1}`);
     if (!p3 || !isPoint(p3)) throw new Error(`Missing or invalid input: ${GEOM.P3}`);
-
-    const radius = parameters.get("circleRadius");
-    if (radius === undefined) {
-      throw new Error(`Missing parameter: circleRadius`);
-    }
 
     // Compute pr: intersection of circle at c1 with line from c1 to p3
     const lp_right = interceptCircleLineSeg(
@@ -651,7 +607,7 @@ const STEP_PR: Step = {
       c1.y, // Line segment start (l1x, l1y) - same as circle center
       p3.x,
       p3.y, // Line segment end (l2x, l2y)
-      radius, // Radius (r)
+      params.circleRadius, // Radius (r)
     );
 
     const result = new Map<string, GeometryValue>();
@@ -676,7 +632,7 @@ const STEP_FINAL_SQUARE: Step = {
   inputs: [GEOM.C1, GEOM.C2, GEOM.PR, GEOM.PL],
   outputs: [GEOM.SQUARE],
 
-  compute: (inputs, _parameters, _config) => {
+  compute: (inputs, _params, _config) => {
     const c1 = inputs.get(GEOM.C1);
     const c2 = inputs.get(GEOM.C2);
     const pr = inputs.get(GEOM.PR);
@@ -772,29 +728,17 @@ export function executeStep(
     inputValues.set(inputId, value);
   }
 
-  // Collect parameter values for this step
-  const stepParameters = new Map<string, number>();
-  if (step.parameters && step.parameters.length > 0) {
-    // Build full parameter map from config and constants
-    const allParams = new Map<string, number>([
-      ["lx1", squareConfig.lx1],
-      ["ly1", squareConfig.ly1],
-      ["lx2", squareConfig.lx2],
-      ["ly2", squareConfig.ly2],
-      ["circleRadius", squareConfig.circleRadius],
-      ["C1_POSITION_RATIO", C1_POSITION_RATIO],
-      ["tolerance", 0.001],
-      ["selectMinY", 1],
-    ]);
-
-    // Filter to only the parameters this step needs
-    for (const paramName of step.parameters) {
-      const value = allParams.get(paramName);
-      if (value !== undefined) {
-        stepParameters.set(paramName, value);
-      }
-    }
-  }
+  // Build SquareParameters object from config and constants
+  const params: SquareParameters = {
+    lx1: squareConfig.lx1,
+    ly1: squareConfig.ly1,
+    lx2: squareConfig.lx2,
+    ly2: squareConfig.ly2,
+    circleRadius: squareConfig.circleRadius,
+    C1_POSITION_RATIO,
+    tolerance: 0.001,
+    selectMinY: 1,
+  };
 
   // Create config for compute function with all needed values
   const stepConfig: StepConfig = {
@@ -812,7 +756,7 @@ export function executeStep(
   };
 
   // Compute outputs
-  const outputValues = step.compute(inputValues, stepParameters, stepConfig);
+  const outputValues = step.compute(inputValues, params, stepConfig);
 
   // Add outputs to allValues
   const newAllValues = new Map(allValues);

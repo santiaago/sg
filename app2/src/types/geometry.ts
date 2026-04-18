@@ -4,6 +4,18 @@
 // - Lazy step-by-step calculation
 // - Dependency graph tracking for visualization
 
+// Parameters for square construction steps
+export interface SquareParameters {
+  lx1: number;
+  ly1: number;
+  lx2: number;
+  ly2: number;
+  circleRadius: number;
+  C1_POSITION_RATIO: number;
+  tolerance: number;
+  selectMinY: number;
+}
+
 // Geometry Value Types
 
 export interface Point {
@@ -90,18 +102,18 @@ export interface Step {
   outputs: string[];
 
   // Names of parameters (non-geometry values) this step requires.
-  // Parameters are passed as a map in compute(), alongside input geometries.
-  parameters?: string[];
+  // Declared for documentation; actual params passed as SquareParameters object.
+  parameters?: (keyof SquareParameters)[];
 
   // Computes output geometries from input geometries and parameters.
   // Called only when this step becomes current.
   // inputs - Map of input geometry IDs to their values
-  // parameters - Map of parameter names to their numeric values
+  // params - SquareParameters object with all parameter values
   // config - SVG configuration and styling values (kept for backward compatibility)
   // returns Map of output geometry IDs to their computed values
   compute: (
     inputs: Map<string, GeometryValue>,
-    parameters: Map<string, number>,
+    params: SquareParameters,
     config: StepConfig,
   ) => Map<string, GeometryValue>;
 
