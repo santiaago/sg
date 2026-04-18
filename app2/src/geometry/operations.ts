@@ -12,7 +12,7 @@ import {
   bisect,
   inteceptCircleLineSeg as interceptCircleLineSeg,
 } from "@sg/geometry";
-import type { Point, Circle, GeometryValue } from "../types/geometry";
+import type { Point, Circle, GeometryValue, SquareParameters, StepConfig } from "../types/geometry";
 import { point, line, circle } from "../types/geometry";
 
 // Constants
@@ -102,6 +102,40 @@ export function getGeometry<T extends GeometryValue>(
     throw new Error(`Expected ${typeName} for ${id}, got ${value.type}`);
   }
   return value;
+}
+
+// ========================================
+// Compute Helper Functions for Step Definitions
+// ========================================
+// These helpers reduce boilerplate in step.compute functions by:
+// 1. Creating the result Map automatically
+// 2. Providing consistent return types
+
+/**
+ * Create a compute function that produces a single geometry output.
+ * @param geomId - The geometry ID to produce
+ * @param fn - Function that takes inputs and params, returns the geometry value
+ * @returns A compute function for use in a Step definition
+ */
+export function computeSingle<T extends GeometryValue>(
+  geomId: string,
+  fn: (inputs: Map<string, GeometryValue>, params: SquareParameters) => T,
+): (inputs: Map<string, GeometryValue>, params: SquareParameters, _config: StepConfig) => Map<string, GeometryValue> {
+  return (inputs, params) => {
+    const value = fn(inputs, params);
+    return new Map([[geomId, value]]);
+  };
+}
+
+/**
+ * Create a compute function that produces multiple geometry outputs.
+ * @param fn - Function that takes inputs and params, returns a Map of geometry outputs
+ * @returns A compute function for use in a Step definition
+ */
+export function computeMultiple(
+  fn: (inputs: Map<string, GeometryValue>, params: SquareParameters) => Map<string, GeometryValue>,
+): (inputs: Map<string, GeometryValue>, params: SquareParameters, _config: StepConfig) => Map<string, GeometryValue> {
+  return (inputs, params) => fn(inputs, params);
 }
 
 // Geometry ID Constants

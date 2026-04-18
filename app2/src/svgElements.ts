@@ -1,4 +1,6 @@
 import type { GeometryStore } from "./react-store";
+import type { GeometryValue } from "./types/geometry";
+import { isPoint, isLine, isCircle } from "./types/geometry";
 
 // Magic number constants for tooltip styling
 export const TOOLTIP_OFFSET_X = 10;
@@ -131,6 +133,74 @@ export function circle(
   circleEl.setAttribute("r", r.toString());
   svg.appendChild(circleEl);
   return circleEl;
+}
+
+// ========================================
+// Draw Helper Functions for Step Definitions
+// ========================================
+// These helpers reduce boilerplate in step.draw functions by:
+// 1. Retrieving geometry from the values Map
+// 2. Type checking the geometry
+// 3. Calling the appropriate draw function with tooltip
+
+/**
+ * Draw a point geometry with tooltip.
+ * @param svg - The SVG element to draw into
+ * @param values - Map of all geometry values
+ * @param geomId - The geometry ID to draw
+ * @param radius - The radius of the dot
+ * @param store - Optional store for managing SVG elements
+ */
+export function drawPoint(
+  svg: SVGSVGElement,
+  values: Map<string, GeometryValue>,
+  geomId: string,
+  radius: number,
+  store?: GeometryStore,
+): void {
+  const p = values.get(geomId);
+  if (!p || !isPoint(p)) return;
+  dotWithTooltip(svg, p.x, p.y, geomId, radius, store);
+}
+
+/**
+ * Draw a line geometry with tooltip.
+ * @param svg - The SVG element to draw into
+ * @param values - Map of all geometry values
+ * @param geomId - The geometry ID to draw
+ * @param strokeWidth - The width of the line stroke
+ * @param store - Optional store for managing SVG elements
+ */
+export function drawLine(
+  svg: SVGSVGElement,
+  values: Map<string, GeometryValue>,
+  geomId: string,
+  strokeWidth: number = DEFAULT_STROKE_WIDTH,
+  store?: GeometryStore,
+): void {
+  const l = values.get(geomId);
+  if (!l || !isLine(l)) return;
+  lineWithTooltip(svg, l.x1, l.y1, l.x2, l.y2, geomId, strokeWidth, store);
+}
+
+/**
+ * Draw a circle geometry with tooltip.
+ * @param svg - The SVG element to draw into
+ * @param values - Map of all geometry values
+ * @param geomId - The geometry ID to draw
+ * @param strokeWidth - The width of the circle stroke
+ * @param store - Optional store for managing SVG elements
+ */
+export function drawCircle(
+  svg: SVGSVGElement,
+  values: Map<string, GeometryValue>,
+  geomId: string,
+  strokeWidth: number = 1,
+  store?: GeometryStore,
+): void {
+  const c = values.get(geomId);
+  if (!c || !isCircle(c)) return;
+  circleWithTooltip(svg, c.cx, c.cy, c.r, geomId, strokeWidth, store);
 }
 
 /**

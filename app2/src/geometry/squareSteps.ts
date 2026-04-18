@@ -17,6 +17,8 @@ import {
   LINE_EXTENSION_MULTIPLIER,
   DEFAULT_TOLERANCE,
   getGeometry,
+  computeSingle,
+  computeMultiple,
   type SquareConfig,
 } from "./operations";
 import {
@@ -27,10 +29,10 @@ import {
   lineTowards,
   circleWithRadiusFrom,
 } from "./constructors";
-import { dotWithTooltip, lineWithTooltip, circleWithTooltip, createTooltip } from "../svgElements";
+import { createTooltip, drawPoint, drawLine, drawCircle } from "../svgElements";
 import type { GeometryStore } from "../react-store";
 
-export { computeSquareConfig, GEOM, GOLDEN_RATIO, LINE_EXTENSION_MULTIPLIER, DEFAULT_TOLERANCE, getGeometry };
+export { computeSquareConfig, GEOM, GOLDEN_RATIO, LINE_EXTENSION_MULTIPLIER, DEFAULT_TOLERANCE, getGeometry, computeSingle, computeMultiple };
 export type { SquareConfig };
 
 // Step 1: Draw the main horizontal line
@@ -42,25 +44,12 @@ const STEP_MAIN_LINE: Step = {
   outputs: [GEOM.MAIN_LINE],
   parameters: ["lx1", "ly1", "lx2", "ly2"],
 
-  compute: (_inputs, params, _config) => {
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.MAIN_LINE, line(params.lx1, params.ly1, params.lx2, params.ly2));
-    return result;
-  },
+  compute: computeSingle(GEOM.MAIN_LINE, (_inputs, params) => {
+    return line(params.lx1, params.ly1, params.lx2, params.ly2);
+  }),
 
   draw: (svg, values, store) => {
-    const mainLine = values.get(GEOM.MAIN_LINE);
-    if (!mainLine || !isLine(mainLine)) return;
-    lineWithTooltip(
-      svg,
-      mainLine.x1,
-      mainLine.y1,
-      mainLine.x2,
-      mainLine.y2,
-      GEOM.MAIN_LINE,
-      0.5,
-      store,
-    );
+    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store);
   },
 };
 
@@ -73,22 +62,15 @@ const STEP_C1: Step = {
   outputs: [GEOM.C1],
   parameters: ["C1_POSITION_RATIO"],
 
-  compute: (inputs, params, _config) => {
-    const mainLine = inputs.get(GEOM.MAIN_LINE);
-    if (!mainLine || !isLine(mainLine)) {
-      throw new Error(`Missing or invalid input: ${GEOM.MAIN_LINE}`);
-    }
+  compute: computeSingle(GEOM.C1, (inputs, params) => {
+    const mainLine = getGeometry(inputs, GEOM.MAIN_LINE, isLine, "Line");
     const lineLength = mainLine.x2 - mainLine.x1;
     const c1x = mainLine.x1 + lineLength * params.C1_POSITION_RATIO;
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.C1, point(c1x, mainLine.y1));
-    return result;
-  },
+    return point(c1x, mainLine.y1);
+  }),
 
   draw: (svg, values, store) => {
-    const c1 = values.get(GEOM.C1);
-    if (!c1 || !isPoint(c1)) return;
-    dotWithTooltip(svg, c1.x, c1.y, GEOM.C1, 2.0, store);
+    drawPoint(svg, values, GEOM.C1, 2.0, store);
   },
 };
 
@@ -101,16 +83,13 @@ const STEP_C1_CIRCLE: Step = {
   outputs: [GEOM.C1_CIRCLE],
   parameters: ["circleRadius"],
 
-  compute: (inputs, params) => {
+  compute: computeSingle(GEOM.C1_CIRCLE, (inputs, params) => {
     const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
-    const c1_c = circleFromPoint(c1, params.circleRadius);
-    return new Map([[GEOM.C1_CIRCLE, c1_c]]);
-  },
+    return circleFromPoint(c1, params.circleRadius);
+  }),
 
   draw: (svg, values, store) => {
-    const c1_c = values.get(GEOM.C1_CIRCLE);
-    if (!c1_c || !isCircle(c1_c)) return;
-    circleWithTooltip(svg, c1_c.cx, c1_c.cy, c1_c.r, GEOM.C1_CIRCLE, 0.5, store);
+    drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store);
   },
 };
 
@@ -123,27 +102,15 @@ const STEP_C2: Step = {
   outputs: [GEOM.C2],
   parameters: [],
 
-  compute: (inputs, _params, _config) => {
-    const mainLine = inputs.get(GEOM.MAIN_LINE);
-    const c1_c = inputs.get(GEOM.C1_CIRCLE);
-
-    if (!mainLine || !isLine(mainLine)) {
-      throw new Error(`Missing or invalid input: ${GEOM.MAIN_LINE}`);
-    }
-    if (!c1_c || !isCircle(c1_c)) {
-      throw new Error(`Missing or invalid input: ${GEOM.C1_CIRCLE}`);
-    }
-
-    const result = new Map<string, GeometryValue>();
+  compute: computeSingle(GEOM.C2, (inputs) => {
+    const mainLine = getGeometry(inputs, GEOM.MAIN_LINE, isLine, "Line");
+    const c1_c = getGeometry(inputs, GEOM.C1_CIRCLE, isCircle, "Circle");
     // C2 is the left intersection point of C1_CIRCLE with MAIN_LINE
-    result.set(GEOM.C2, point(c1_c.cx - c1_c.r, mainLine.y1));
-    return result;
-  },
+    return point(c1_c.cx - c1_c.r, mainLine.y1);
+  }),
 
   draw: (svg, values, store) => {
-    const c2 = values.get(GEOM.C2);
-    if (!c2 || !isPoint(c2)) return;
-    dotWithTooltip(svg, c2.x, c2.y, GEOM.C2, 2.0, store);
+    drawPoint(svg, values, GEOM.C2, 2.0, store);
   },
 };
 
@@ -156,16 +123,13 @@ const STEP_C2_CIRCLE: Step = {
   outputs: [GEOM.C2_CIRCLE],
   parameters: ["circleRadius"],
 
-  compute: (inputs, params) => {
+  compute: computeSingle(GEOM.C2_CIRCLE, (inputs, params) => {
     const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
-    const c2_c = circleFromPoint(c2, params.circleRadius);
-    return new Map([[GEOM.C2_CIRCLE, c2_c]]);
-  },
+    return circleFromPoint(c2, params.circleRadius);
+  }),
 
   draw: (svg, values, store) => {
-    const c2_c = values.get(GEOM.C2_CIRCLE);
-    if (!c2_c || !isCircle(c2_c)) return;
-    circleWithTooltip(svg, c2_c.cx, c2_c.cy, c2_c.r, GEOM.C2_CIRCLE, 0.5, store);
+    drawCircle(svg, values, GEOM.C2_CIRCLE, 0.5, store);
   },
 };
 
@@ -178,20 +142,18 @@ const STEP_INTERSECTION_POINT: Step = {
   outputs: [GEOM.INTERSECTION_POINT],
   parameters: ["selectMinY"],
 
-  compute: (inputs, params) => {
+  compute: computeSingle(GEOM.INTERSECTION_POINT, (inputs, params) => {
     const c1_c = getGeometry(inputs, GEOM.C1_CIRCLE, isCircle, "Circle");
     const c2_c = getGeometry(inputs, GEOM.C2_CIRCLE, isCircle, "Circle");
     const pi = pointFromCircles(c1_c, c2_c, {
       select: params.selectMinY ? "north" : "south",
     });
     if (!pi) throw new Error("Circles do not intersect");
-    return new Map([[GEOM.INTERSECTION_POINT, pi]]);
-  },
+    return pi;
+  }),
 
   draw: (svg, values, store) => {
-    const pi = values.get(GEOM.INTERSECTION_POINT);
-    if (!pi || !isPoint(pi)) return;
-    dotWithTooltip(svg, pi.x, pi.y, GEOM.INTERSECTION_POINT, 2.0, store);
+    drawPoint(svg, values, GEOM.INTERSECTION_POINT, 2.0, store);
   },
 };
 
@@ -204,17 +166,14 @@ const STEP_INTERSECTION_CIRCLE: Step = {
   outputs: [GEOM.INTERSECTION_CIRCLE],
   parameters: [],
 
-  compute: (inputs) => {
+  compute: computeSingle(GEOM.INTERSECTION_CIRCLE, (inputs) => {
     const pi = getGeometry(inputs, GEOM.INTERSECTION_POINT, isPoint, "Point");
     const c1_c = getGeometry(inputs, GEOM.C1_CIRCLE, isCircle, "Circle");
-    const ci = circleWithRadiusFrom(pi, c1_c);
-    return new Map([[GEOM.INTERSECTION_CIRCLE, ci]]);
-  },
+    return circleWithRadiusFrom(pi, c1_c);
+  }),
 
   draw: (svg, values, store) => {
-    const ci = values.get(GEOM.INTERSECTION_CIRCLE);
-    if (!ci || !isCircle(ci)) return;
-    circleWithTooltip(svg, ci.cx, ci.cy, ci.r, GEOM.INTERSECTION_CIRCLE, 0.5, store);
+    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, 0.5, store);
   },
 };
 
@@ -229,28 +188,16 @@ const STEP_LINE_C2_PI: Step = {
   outputs: [GEOM.LINE_C2_PI],
   parameters: [],
 
-  compute: (inputs) => {
+  compute: computeSingle(GEOM.LINE_C2_PI, (inputs) => {
     const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
     const pi = getGeometry(inputs, GEOM.INTERSECTION_POINT, isPoint, "Point");
     const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
-    const l = lineTowards(c2, pi, LINE_EXTENSION_MULTIPLIER * ci.r);
-    return new Map([[GEOM.LINE_C2_PI, l]]);
-  },
+    return lineTowards(c2, pi, LINE_EXTENSION_MULTIPLIER * ci.r);
+  }),
 
   draw: (svg, values, store) => {
-    const line_c2_pi = values.get(GEOM.LINE_C2_PI);
-    if (!line_c2_pi || !isLine(line_c2_pi)) return;
     // Keep default stroke, only length is 1.1 * diameter
-    lineWithTooltip(
-      svg,
-      line_c2_pi.x1,
-      line_c2_pi.y1,
-      line_c2_pi.x2,
-      line_c2_pi.y2,
-      GEOM.LINE_C2_PI,
-      0.5,
-      store,
-    );
+    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store);
   },
 };
 
@@ -264,7 +211,7 @@ const STEP_P3: Step = {
   outputs: [GEOM.P3],
   parameters: ["tolerance"],
 
-  compute: (inputs, params) => {
+  compute: computeSingle(GEOM.P3, (inputs, params) => {
     const line_c2_pi = getGeometry(inputs, GEOM.LINE_C2_PI, isLine, "Line");
     const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
     const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
@@ -273,13 +220,11 @@ const STEP_P3: Step = {
       tolerance: params.tolerance,
     });
     if (!p3) throw new Error("No valid intersection found for P3");
-    return new Map([[GEOM.P3, p3]]);
-  },
+    return p3;
+  }),
 
   draw: (svg, values, store) => {
-    const p3 = values.get(GEOM.P3);
-    if (!p3 || !isPoint(p3)) return;
-    dotWithTooltip(svg, p3.x, p3.y, GEOM.P3, 2.0, store);
+    drawPoint(svg, values, GEOM.P3, 2.0, store);
   },
 };
 
@@ -294,28 +239,16 @@ const STEP_LINE_C1_PI: Step = {
   outputs: [GEOM.LINE_C1_PI],
   parameters: [],
 
-  compute: (inputs) => {
+  compute: computeSingle(GEOM.LINE_C1_PI, (inputs) => {
     const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
     const pi = getGeometry(inputs, GEOM.INTERSECTION_POINT, isPoint, "Point");
     const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
-    const l = lineTowards(c1, pi, LINE_EXTENSION_MULTIPLIER * ci.r);
-    return new Map([[GEOM.LINE_C1_PI, l]]);
-  },
+    return lineTowards(c1, pi, LINE_EXTENSION_MULTIPLIER * ci.r);
+  }),
 
   draw: (svg, values, store) => {
-    const line_c1_pi = values.get(GEOM.LINE_C1_PI);
-    if (!line_c1_pi || !isLine(line_c1_pi)) return;
     // Keep default stroke, only length is 1.1 * diameter
-    lineWithTooltip(
-      svg,
-      line_c1_pi.x1,
-      line_c1_pi.y1,
-      line_c1_pi.x2,
-      line_c1_pi.y2,
-      GEOM.LINE_C1_PI,
-      0.5,
-      store,
-    );
+    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store);
   },
 };
 
@@ -329,7 +262,7 @@ const STEP_P4: Step = {
   outputs: [GEOM.P4],
   parameters: ["tolerance"],
 
-  compute: (inputs, params) => {
+  compute: computeSingle(GEOM.P4, (inputs, params) => {
     const line_c1_pi = getGeometry(inputs, GEOM.LINE_C1_PI, isLine, "Line");
     const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
     const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
@@ -338,13 +271,11 @@ const STEP_P4: Step = {
       tolerance: params.tolerance,
     });
     if (!p4) throw new Error("No valid intersection found for P4");
-    return new Map([[GEOM.P4, p4]]);
-  },
+    return p4;
+  }),
 
   draw: (svg, values, store) => {
-    const p4 = values.get(GEOM.P4);
-    if (!p4 || !isPoint(p4)) return;
-    dotWithTooltip(svg, p4.x, p4.y, GEOM.P4, 2.0, store);
+    drawPoint(svg, values, GEOM.P4, 2.0, store);
   },
 };
 
@@ -357,31 +288,14 @@ const STEP_LINE_C2_P4: Step = {
   outputs: [GEOM.LINE_C2_P4],
   parameters: [],
 
-  compute: (inputs, _params, _config) => {
-    const c2 = inputs.get(GEOM.C2);
-    const p4 = inputs.get(GEOM.P4);
-
-    if (!c2 || !isPoint(c2)) throw new Error(`Missing or invalid input: ${GEOM.C2}`);
-    if (!p4 || !isPoint(p4)) throw new Error(`Missing or invalid input: ${GEOM.P4}`);
-
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.LINE_C2_P4, line(c2.x, c2.y, p4.x, p4.y));
-    return result;
-  },
+  compute: computeSingle(GEOM.LINE_C2_P4, (inputs) => {
+    const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
+    const p4 = getGeometry(inputs, GEOM.P4, isPoint, "Point");
+    return line(c2.x, c2.y, p4.x, p4.y);
+  }),
 
   draw: (svg, values, store) => {
-    const line_c2_p4 = values.get(GEOM.LINE_C2_P4);
-    if (!line_c2_p4 || !isLine(line_c2_p4)) return;
-    lineWithTooltip(
-      svg,
-      line_c2_p4.x1,
-      line_c2_p4.y1,
-      line_c2_p4.x2,
-      line_c2_p4.y2,
-      GEOM.LINE_C2_P4,
-      0.5,
-      store,
-    );
+    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store);
   },
 };
 
@@ -394,20 +308,18 @@ const STEP_PL: Step = {
   outputs: [GEOM.PL],
   parameters: ["circleRadius"],
 
-  compute: (inputs, params) => {
+  compute: computeSingle(GEOM.PL, (inputs, params) => {
     const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
     const line_c2_p4 = getGeometry(inputs, GEOM.LINE_C2_P4, isLine, "Line");
     // Circle at c2 with given radius
     const circle_c2 = circleFromPoint(c2, params.circleRadius);
     const pl = pointFromCircleAndLine(circle_c2, line_c2_p4);
     if (!pl) throw new Error("No valid intersection found for PL");
-    return new Map([[GEOM.PL, pl]]);
-  },
+    return pl;
+  }),
 
   draw: (svg, values, store) => {
-    const pl = values.get(GEOM.PL);
-    if (!pl || !isPoint(pl)) return;
-    dotWithTooltip(svg, pl.x, pl.y, GEOM.PL, 2.0, store);
+    drawPoint(svg, values, GEOM.PL, 2.0, store);
   },
 };
 
@@ -420,31 +332,14 @@ const STEP_LINE_C1_P3: Step = {
   outputs: [GEOM.LINE_C1_P3],
   parameters: [],
 
-  compute: (inputs, _params, _config) => {
-    const c1 = inputs.get(GEOM.C1);
-    const p3 = inputs.get(GEOM.P3);
-
-    if (!c1 || !isPoint(c1)) throw new Error(`Missing or invalid input: ${GEOM.C1}`);
-    if (!p3 || !isPoint(p3)) throw new Error(`Missing or invalid input: ${GEOM.P3}`);
-
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.LINE_C1_P3, line(c1.x, c1.y, p3.x, p3.y));
-    return result;
-  },
+  compute: computeSingle(GEOM.LINE_C1_P3, (inputs) => {
+    const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
+    const p3 = getGeometry(inputs, GEOM.P3, isPoint, "Point");
+    return line(c1.x, c1.y, p3.x, p3.y);
+  }),
 
   draw: (svg, values, store) => {
-    const line_c1_p3 = values.get(GEOM.LINE_C1_P3);
-    if (!line_c1_p3 || !isLine(line_c1_p3)) return;
-    lineWithTooltip(
-      svg,
-      line_c1_p3.x1,
-      line_c1_p3.y1,
-      line_c1_p3.x2,
-      line_c1_p3.y2,
-      GEOM.LINE_C1_P3,
-      0.5,
-      store,
-    );
+    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store);
   },
 };
 
@@ -457,20 +352,18 @@ const STEP_PR: Step = {
   outputs: [GEOM.PR],
   parameters: ["circleRadius"],
 
-  compute: (inputs, params) => {
+  compute: computeSingle(GEOM.PR, (inputs, params) => {
     const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
     const line_c1_p3 = getGeometry(inputs, GEOM.LINE_C1_P3, isLine, "Line");
     // Circle at c1 with given radius
     const circle_c1 = circleFromPoint(c1, params.circleRadius);
     const pr = pointFromCircleAndLine(circle_c1, line_c1_p3);
     if (!pr) throw new Error("No valid intersection found for PR");
-    return new Map([[GEOM.PR, pr]]);
-  },
+    return pr;
+  }),
 
   draw: (svg, values, store) => {
-    const pr = values.get(GEOM.PR);
-    if (!pr || !isPoint(pr)) return;
-    dotWithTooltip(svg, pr.x, pr.y, GEOM.PR, 2.0, store);
+    drawPoint(svg, values, GEOM.PR, 2.0, store);
   },
 };
 
@@ -483,14 +376,13 @@ const STEP_FINAL_SQUARE: Step = {
   outputs: [GEOM.SQUARE],
   parameters: [],
 
-  compute: (inputs) => {
+  compute: computeSingle(GEOM.SQUARE, (inputs) => {
     const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
     const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
     const pr = getGeometry(inputs, GEOM.PR, isPoint, "Point");
     const pl = getGeometry(inputs, GEOM.PL, isPoint, "Point");
-    const sq = makeSquare(pl, pr, c1, c2);
-    return new Map([[GEOM.SQUARE, sq]]);
-  },
+    return makeSquare(pl, pr, c1, c2);
+  }),
 
   draw: (svg, values, store) => {
     const square = values.get(GEOM.SQUARE);
