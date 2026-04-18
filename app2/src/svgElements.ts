@@ -2,6 +2,13 @@ import type { GeometryStore } from "./react-store";
 import type { GeometryValue } from "./types/geometry";
 import { isPoint, isLine, isCircle } from "./types/geometry";
 
+// Tooltip Positioning Strategy:
+// - Points (dots): Tooltip positioned to the right at (x + 10, y)
+// - Lines: Tooltip positioned at the midpoint ((x1+x2)/2, (y1+y2)/2)
+// - Circles: Tooltip positioned to the right of the circle at (cx + r + 10, cy)
+// - Polygons: Tooltip positioned near first vertex at (points[0].x + 15, points[0].y)
+// All tooltips have their background positioned above the text (y - 15) for visibility.
+
 // Color constants for SVG rendering
 export const COLOR_PRIMARY = "#506";
 export const COLOR_SECONDARY = "#f06";

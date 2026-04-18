@@ -451,7 +451,7 @@ export interface StepExecutionContext {
 }
 
 // Executes a single step: computes outputs and draws them.
-// step - The step to execute
+// Step - The step to execute
 // allValues - Map of ALL geometry values computed so far (including previous steps)
 // ctx - Execution context (SVG, config, store)
 // squareConfig - Square geometry configuration
@@ -500,7 +500,7 @@ export function executeStep(
 }
 
 // Executes all steps up to a given index.
-// steps - Array of steps to execute
+// Steps - Array of steps to execute
 // upToIndex - Execute steps[0] through steps[upToIndex-1]
 // ctx - Execution context
 // squareConfig - Square geometry configuration
