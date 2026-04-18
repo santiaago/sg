@@ -35,6 +35,7 @@
 
 ## Commit Guidelines
 
+- **NEVER COMMIT WITHOUT EXPLICIT PERMISSION** - I will always say "commit" or "do it" or similar to authorize a commit
 - Don't commit until I have reviewed the code
 - Follow concise, action-oriented commit messages (e.g., `CLI: add verbose flag to send`).
 - Follow commit message pattern
