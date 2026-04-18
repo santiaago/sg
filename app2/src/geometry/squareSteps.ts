@@ -121,6 +121,7 @@ const STEP_C2: Step = {
   id: "step_c2",
   inputs: [GEOM.MAIN_LINE, GEOM.C1_CIRCLE],
   outputs: [GEOM.C2],
+  parameters: [],
 
   compute: (inputs, _params, _config) => {
     const mainLine = inputs.get(GEOM.MAIN_LINE);
@@ -213,6 +214,7 @@ const STEP_INTERSECTION_CIRCLE: Step = {
   id: "step_intersection_circle",
   inputs: [GEOM.INTERSECTION_POINT, GEOM.C1_CIRCLE],
   outputs: [GEOM.INTERSECTION_CIRCLE],
+  parameters: [],
 
   compute: (inputs, _params, _config) => {
     const pi = inputs.get(GEOM.INTERSECTION_POINT);
@@ -249,6 +251,7 @@ const STEP_LINE_C2_PI: Step = {
   id: "step_line_c2_pi",
   inputs: [GEOM.C2, GEOM.INTERSECTION_POINT, GEOM.INTERSECTION_CIRCLE],
   outputs: [GEOM.LINE_C2_PI],
+  parameters: [],
 
   compute: (inputs, _params, _config) => {
     const c2 = inputs.get(GEOM.C2);
@@ -364,6 +367,7 @@ const STEP_LINE_C1_PI: Step = {
   id: "step_line_c1_pi",
   inputs: [GEOM.C1, GEOM.INTERSECTION_POINT, GEOM.INTERSECTION_CIRCLE],
   outputs: [GEOM.LINE_C1_PI],
+  parameters: [],
 
   compute: (inputs, _params, _config) => {
     const c1 = inputs.get(GEOM.C1);
@@ -477,6 +481,7 @@ const STEP_LINE_C2_P4: Step = {
   id: "step_line_c2_p4",
   inputs: [GEOM.C2, GEOM.P4],
   outputs: [GEOM.LINE_C2_P4],
+  parameters: [],
 
   compute: (inputs, _params, _config) => {
     const c2 = inputs.get(GEOM.C2);
@@ -554,6 +559,7 @@ const STEP_LINE_C1_P3: Step = {
   id: "step_line_c1_p3",
   inputs: [GEOM.C1, GEOM.P3],
   outputs: [GEOM.LINE_C1_P3],
+  parameters: [],
 
   compute: (inputs, _params, _config) => {
     const c1 = inputs.get(GEOM.C1);
@@ -624,13 +630,14 @@ const STEP_PR: Step = {
   },
 };
 
-// Step 12: Draw square polygon
+// Step 16: Draw square polygon
 // Inputs: c1, c2, pr, pl
 // Outputs: square (polygon with 4 vertices)
 const STEP_FINAL_SQUARE: Step = {
   id: "step_final_square",
   inputs: [GEOM.C1, GEOM.C2, GEOM.PR, GEOM.PL],
   outputs: [GEOM.SQUARE],
+  parameters: [],
 
   compute: (inputs, _params, _config) => {
     const c1 = inputs.get(GEOM.C1);
