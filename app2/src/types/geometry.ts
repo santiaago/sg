@@ -35,8 +35,13 @@ export interface Rectangle {
   height: number;
 }
 
+export interface Polygon {
+  type: "polygon";
+  points: { x: number; y: number }[];
+}
+
 // Union type for all geometry values
-export type GeometryValue = Point | Line | Circle | Rectangle;
+export type GeometryValue = Point | Line | Circle | Rectangle | Polygon;
 
 // Geometry Node (for dependency tracking)
 
@@ -95,7 +100,7 @@ export interface Step {
   // svg - The SVG element to draw into
   // values - Map of ALL geometry values (including those from previous steps)
   // store - Optional store for managing SVG elements and tooltips
-  draw: (svg: SVGSVGElement, values: Map<string, GeometryValue>, store?: GeometryStore) => void;
+  draw: (svg: SVGSVGElement, values: Map<string, GeometryValue>, store?: any) => void;
 }
 
 // Dependency Graph Types
@@ -144,4 +149,12 @@ export function circle(cx: number, cy: number, r: number): Circle {
 
 export function rectangle(x: number, y: number, width: number, height: number): Rectangle {
   return { type: "rectangle", x, y, width, height };
+}
+
+export function polygon(points: { x: number; y: number }[]): Polygon {
+  return { type: "polygon", points };
+}
+
+export function isPolygon(value: GeometryValue): value is Polygon {
+  return value.type === "polygon";
 }

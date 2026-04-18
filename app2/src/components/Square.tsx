@@ -105,11 +105,9 @@ export function Square({
     // Draw the background rectangle
     rect(svg, svgConfig.width, svgConfig.height);
 
-    // Clear the geometry value store for dependency tracking
+    // Clear both stores to ensure right pane updates correctly when going to previous steps
     geometryValueStore?.clear?.();
-
-    // Note: We don't clear the SVG element store (store) to preserve selection state
-    // This allows geometry highlighting to persist when clicking on items in GeometryList
+    store?.clear?.();
 
     // If no steps to draw, exit
     if (currentStep <= 0) return;

@@ -182,6 +182,7 @@ const ATTRIBUTES_TO_PRESERVE: Record<string, string[]> = {
   point: ["fill", "r", "cx", "cy"],
   line: ["stroke", "stroke-width", "x1", "y1", "x2", "y2"],
   circle: ["stroke", "stroke-width", "cx", "cy", "r"],
+  polygon: ["stroke", "stroke-width", "fill", "points"],
 };
 
 // Capture the initial state of an SVG element by preserving relevant attributes

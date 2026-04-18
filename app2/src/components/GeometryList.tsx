@@ -62,7 +62,12 @@ export function GeometryList({
 }
 
 // Apply visual feedback to SVG elements based on selection state
-function applyVisualFeedback(element: any, shape: GeometryItem, stroke: number, strokeBig: number) {
+function applyVisualFeedback(
+  element: any,
+  shape: GeometryItem,
+  _stroke: number,
+  strokeBig: number,
+) {
   if (!element) return;
 
   try {
@@ -78,7 +83,7 @@ function applyVisualFeedback(element: any, shape: GeometryItem, stroke: number, 
         if (element.tooltipBg) {
           element.tooltipBg.setAttribute("opacity", "1");
         }
-      } else if (shape.type === "circle" || shape.type === "line") {
+      } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
         element.setAttribute("stroke-width", strokeBig.toString());
         element.setAttribute("stroke", "red");
         // Show tooltip and background when selected

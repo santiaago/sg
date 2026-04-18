@@ -19,6 +19,10 @@ import { point, line, circle } from "../types/geometry";
 
 export const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
 
+// Position ratios along the main line (from x1)
+export const C1_POSITION_RATIO = 5 / 8;
+export const C2_POSITION_RATIO = 3 / 8;
+
 // Geometry Configuration
 
 export interface SquareConfig {
@@ -45,8 +49,8 @@ export function computeSquareConfig(width: number, height: number): SquareConfig
   const BORDER = height / 3;
   const LINE_LENGTH = width - 2 * BORDER;
   const CIRCLE_RADIUS = LINE_LENGTH / 4;
-  const C1_X_POSITION = BORDER + LINE_LENGTH * (5 / 8);
-  const C2_X_POSITION = C1_X_POSITION - CIRCLE_RADIUS;
+  const C1_X_POSITION = BORDER + LINE_LENGTH * C1_POSITION_RATIO;
+  const C2_X_POSITION = BORDER + LINE_LENGTH * C2_POSITION_RATIO;
   const ly2 = height - BORDER;
 
   return {
@@ -92,6 +96,10 @@ export const GEOM = {
   PL: "pl", // Tangent point on left
   PR: "pr", // Tangent point on right
 
+  // Lines from circle centers to intersection point
+  LINE_C2_PI: "line_c2_pi",
+  LINE_C1_PI: "line_c1_pi",
+
   // Connecting lines
   LINE_C2_P3: "line_c2_p3",
   LINE_C1_P4: "line_c1_p4",
@@ -99,11 +107,8 @@ export const GEOM = {
   LINE_C2_P4: "line_c2_p4",
   LINE_P3_P4: "line_p3_p4",
 
-  // Final square lines
-  LS1: "ls1",
-  LS2: "ls2",
-  LS3: "ls3",
-  LS4: "ls4",
+  // Square
+  SQUARE: "square",
 } as const;
 
 // Type for geometry ID
