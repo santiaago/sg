@@ -9,15 +9,22 @@
 
 import type { Step, GeometryValue, StepConfig, SquareParameters } from "../types/geometry";
 import { point, line, polygon, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
-import { inteceptCircleLineSeg as interceptCircleLineSeg } from "@sg/geometry";
+import type { Point, Line, Circle, Polygon } from "../types/geometry";
 import {
   computeSquareConfig,
   GEOM,
-  computeCircleIntersection,
   GOLDEN_RATIO,
   C1_POSITION_RATIO,
   type SquareConfig,
 } from "./operations";
+import {
+  circleFromPoint,
+  pointFromCircles,
+  pointFromCircleAndLine,
+  square as makeSquare,
+  lineTowards,
+  circleWithRadiusFrom,
+} from "./constructors";
 import { dotWithTooltip, lineWithTooltip, circleWithTooltip, createTooltip } from "../svgElements";
 import type { GeometryStore } from "../react-store";
 
@@ -92,19 +99,10 @@ const STEP_C1_CIRCLE: Step = {
   outputs: [GEOM.C1_CIRCLE],
   parameters: ["circleRadius"],
 
-  compute: (inputs, params, _config) => {
-    const c1 = inputs.get(GEOM.C1);
-
-    if (!c1 || !isPoint(c1)) throw new Error(`Missing or invalid input: ${GEOM.C1}`);
-
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.C1_CIRCLE, {
-      type: "circle" as const,
-      cx: c1.x,
-      cy: c1.y,
-      r: params.circleRadius,
-    });
-    return result;
+  compute: (inputs, params) => {
+    const c1 = inputs.get(GEOM.C1) as Point;
+    const c1_c = circleFromPoint(c1, params.circleRadius);
+    return new Map([[GEOM.C1_CIRCLE, c1_c]]);
   },
 
   draw: (svg, values, store) => {
@@ -156,19 +154,10 @@ const STEP_C2_CIRCLE: Step = {
   outputs: [GEOM.C2_CIRCLE],
   parameters: ["circleRadius"],
 
-  compute: (inputs, params, _config) => {
-    const c2 = inputs.get(GEOM.C2);
-
-    if (!c2 || !isPoint(c2)) throw new Error(`Missing or invalid input: ${GEOM.C2}`);
-
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.C2_CIRCLE, {
-      type: "circle" as const,
-      cx: c2.x,
-      cy: c2.y,
-      r: params.circleRadius,
-    });
-    return result;
+  compute: (inputs, params) => {
+    const c2 = inputs.get(GEOM.C2) as Point;
+    const c2_c = circleFromPoint(c2, params.circleRadius);
+    return new Map([[GEOM.C2_CIRCLE, c2_c]]);
   },
 
   draw: (svg, values, store) => {
@@ -187,17 +176,14 @@ const STEP_INTERSECTION_POINT: Step = {
   outputs: [GEOM.INTERSECTION_POINT],
   parameters: ["selectMinY"],
 
-  compute: (inputs, params, _config) => {
-    const c1_c = inputs.get(GEOM.C1_CIRCLE);
-    const c2_c = inputs.get(GEOM.C2_CIRCLE);
-
-    if (!c1_c || !isCircle(c1_c)) throw new Error(`Missing or invalid input: ${GEOM.C1_CIRCLE}`);
-    if (!c2_c || !isCircle(c2_c)) throw new Error(`Missing or invalid input: ${GEOM.C2_CIRCLE}`);
-
-    const { pi } = computeCircleIntersection(c1_c, c2_c, params.selectMinY);
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.INTERSECTION_POINT, pi);
-    return result;
+  compute: (inputs, params) => {
+    const c1_c = inputs.get(GEOM.C1_CIRCLE) as Circle;
+    const c2_c = inputs.get(GEOM.C2_CIRCLE) as Circle;
+    const pi = pointFromCircles(c1_c, c2_c, {
+      select: params.selectMinY ? "north" : "south",
+    });
+    if (!pi) throw new Error("Circles do not intersect");
+    return new Map([[GEOM.INTERSECTION_POINT, pi]]);
   },
 
   draw: (svg, values, store) => {
@@ -216,23 +202,11 @@ const STEP_INTERSECTION_CIRCLE: Step = {
   outputs: [GEOM.INTERSECTION_CIRCLE],
   parameters: [],
 
-  compute: (inputs, _params, _config) => {
-    const pi = inputs.get(GEOM.INTERSECTION_POINT);
-    const c1_c = inputs.get(GEOM.C1_CIRCLE);
-
-    if (!pi || !isPoint(pi))
-      throw new Error(`Missing or invalid input: ${GEOM.INTERSECTION_POINT}`);
-    if (!c1_c || !isCircle(c1_c)) throw new Error(`Missing or invalid input: ${GEOM.C1_CIRCLE}`);
-
-    const result = new Map<string, GeometryValue>();
-    // Circle at intersection point with same radius as C1_CIRCLE
-    result.set(GEOM.INTERSECTION_CIRCLE, {
-      type: "circle" as const,
-      cx: pi.x,
-      cy: pi.y,
-      r: c1_c.r,
-    });
-    return result;
+  compute: (inputs) => {
+    const pi = inputs.get(GEOM.INTERSECTION_POINT) as Point;
+    const c1_c = inputs.get(GEOM.C1_CIRCLE) as Circle;
+    const ci = circleWithRadiusFrom(pi, c1_c);
+    return new Map([[GEOM.INTERSECTION_CIRCLE, ci]]);
   },
 
   draw: (svg, values, store) => {
@@ -253,31 +227,12 @@ const STEP_LINE_C2_PI: Step = {
   outputs: [GEOM.LINE_C2_PI],
   parameters: [],
 
-  compute: (inputs, _params, _config) => {
-    const c2 = inputs.get(GEOM.C2);
-    const pi = inputs.get(GEOM.INTERSECTION_POINT);
-    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE);
-
-    if (!c2 || !isPoint(c2)) throw new Error(`Missing or invalid input: ${GEOM.C2}`);
-    if (!pi || !isPoint(pi))
-      throw new Error(`Missing or invalid input: ${GEOM.INTERSECTION_POINT}`);
-    if (!ci || !isCircle(ci))
-      throw new Error(`Missing or invalid input: ${GEOM.INTERSECTION_CIRCLE}`);
-
-    // Length = 1.1 * diameter = 1.1 * 2 * radius = 2.2 * radius
-    const lineLength = 2.2 * ci.r;
-    // Direction vector from C2 to pi
-    const dx = pi.x - c2.x;
-    const dy = pi.y - c2.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    // Normalize and scale
-    const scale = lineLength / dist;
-    const ex = c2.x + scale * dx;
-    const ey = c2.y + scale * dy;
-
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.LINE_C2_PI, line(c2.x, c2.y, ex, ey));
-    return result;
+  compute: (inputs) => {
+    const c2 = inputs.get(GEOM.C2) as Point;
+    const pi = inputs.get(GEOM.INTERSECTION_POINT) as Point;
+    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE) as Circle;
+    const l = lineTowards(c2, pi, 2.2 * ci.r);
+    return new Map([[GEOM.LINE_C2_PI, l]]);
   },
 
   draw: (svg, values, store) => {
@@ -307,48 +262,16 @@ const STEP_P3: Step = {
   outputs: [GEOM.P3],
   parameters: ["tolerance"],
 
-  compute: (inputs, params, _config) => {
-    const line_c2_pi = inputs.get(GEOM.LINE_C2_PI);
-    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE);
-    const c2 = inputs.get(GEOM.C2);
-
-    if (!line_c2_pi || !isLine(line_c2_pi)) {
-      throw new Error(`Missing or invalid input: ${GEOM.LINE_C2_PI}`);
-    }
-    if (!ci || !isCircle(ci)) {
-      throw new Error(`Missing or invalid input: ${GEOM.INTERSECTION_CIRCLE}`);
-    }
-    if (!c2 || !isPoint(c2)) {
-      throw new Error(`Missing or invalid input: ${GEOM.C2}`);
-    }
-
-    // Find intersections of line_c2_pi with INTERSECTION_CIRCLE
-    const intersections = interceptCircleLineSeg(
-      ci.cx,
-      ci.cy,
-      line_c2_pi.x1,
-      line_c2_pi.y1,
-      line_c2_pi.x2,
-      line_c2_pi.y2,
-      ci.r,
-    );
-
-    // intersections is array of [x, y] coordinate pairs from circle-line-segment intersection
-    // There should be 2 points: C2 and P3
-    // Find which one is not C2 (or approximately not C2)
-    const result = new Map<string, GeometryValue>();
-
-    for (const [x, y] of intersections) {
-      const dx = x - c2.x;
-      const dy = y - c2.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > params.tolerance) {
-        result.set(GEOM.P3, point(x, y));
-        break; // Found P3
-      }
-    }
-
-    return result;
+  compute: (inputs, params) => {
+    const line_c2_pi = inputs.get(GEOM.LINE_C2_PI) as Line;
+    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE) as Circle;
+    const c2 = inputs.get(GEOM.C2) as Point;
+    const p3 = pointFromCircleAndLine(ci, line_c2_pi, {
+      exclude: c2,
+      tolerance: params.tolerance,
+    });
+    if (!p3) throw new Error("No valid intersection found for P3");
+    return new Map([[GEOM.P3, p3]]);
   },
 
   draw: (svg, values, store) => {
@@ -369,31 +292,12 @@ const STEP_LINE_C1_PI: Step = {
   outputs: [GEOM.LINE_C1_PI],
   parameters: [],
 
-  compute: (inputs, _params, _config) => {
-    const c1 = inputs.get(GEOM.C1);
-    const pi = inputs.get(GEOM.INTERSECTION_POINT);
-    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE);
-
-    if (!c1 || !isPoint(c1)) throw new Error(`Missing or invalid input: ${GEOM.C1}`);
-    if (!pi || !isPoint(pi))
-      throw new Error(`Missing or invalid input: ${GEOM.INTERSECTION_POINT}`);
-    if (!ci || !isCircle(ci))
-      throw new Error(`Missing or invalid input: ${GEOM.INTERSECTION_CIRCLE}`);
-
-    // Length = 1.1 * diameter = 1.1 * 2 * radius = 2.2 * radius
-    const lineLength = 2.2 * ci.r;
-    // Direction vector from C1 to pi
-    const dx = pi.x - c1.x;
-    const dy = pi.y - c1.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    // Normalize and scale
-    const scale = lineLength / dist;
-    const ex = c1.x + scale * dx;
-    const ey = c1.y + scale * dy;
-
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.LINE_C1_PI, line(c1.x, c1.y, ex, ey));
-    return result;
+  compute: (inputs) => {
+    const c1 = inputs.get(GEOM.C1) as Point;
+    const pi = inputs.get(GEOM.INTERSECTION_POINT) as Point;
+    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE) as Circle;
+    const l = lineTowards(c1, pi, 2.2 * ci.r);
+    return new Map([[GEOM.LINE_C1_PI, l]]);
   },
 
   draw: (svg, values, store) => {
@@ -423,48 +327,16 @@ const STEP_P4: Step = {
   outputs: [GEOM.P4],
   parameters: ["tolerance"],
 
-  compute: (inputs, params, _config) => {
-    const line_c1_pi = inputs.get(GEOM.LINE_C1_PI);
-    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE);
-    const c1 = inputs.get(GEOM.C1);
-
-    if (!line_c1_pi || !isLine(line_c1_pi)) {
-      throw new Error(`Missing or invalid input: ${GEOM.LINE_C1_PI}`);
-    }
-    if (!ci || !isCircle(ci)) {
-      throw new Error(`Missing or invalid input: ${GEOM.INTERSECTION_CIRCLE}`);
-    }
-    if (!c1 || !isPoint(c1)) {
-      throw new Error(`Missing or invalid input: ${GEOM.C1}`);
-    }
-
-    // Find intersections of line_c1_pi with INTERSECTION_CIRCLE
-    const intersections = interceptCircleLineSeg(
-      ci.cx,
-      ci.cy,
-      line_c1_pi.x1,
-      line_c1_pi.y1,
-      line_c1_pi.x2,
-      line_c1_pi.y2,
-      ci.r,
-    );
-
-    // intersections is array of [x, y] coordinate pairs from circle-line-segment intersection
-    // There should be 2 points: C1 and P4
-    // Find which one is not C1 (or approximately not C1)
-    const result = new Map<string, GeometryValue>();
-
-    for (const [x, y] of intersections) {
-      const dx = x - c1.x;
-      const dy = y - c1.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > params.tolerance) {
-        result.set(GEOM.P4, point(x, y));
-        break; // Found P4
-      }
-    }
-
-    return result;
+  compute: (inputs, params) => {
+    const line_c1_pi = inputs.get(GEOM.LINE_C1_PI) as Line;
+    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE) as Circle;
+    const c1 = inputs.get(GEOM.C1) as Point;
+    const p4 = pointFromCircleAndLine(ci, line_c1_pi, {
+      exclude: c1,
+      tolerance: params.tolerance,
+    });
+    if (!p4) throw new Error("No valid intersection found for P4");
+    return new Map([[GEOM.P4, p4]]);
   },
 
   draw: (svg, values, store) => {
@@ -520,29 +392,16 @@ const STEP_PL: Step = {
   outputs: [GEOM.PL],
   parameters: ["circleRadius"],
 
-  compute: (inputs, params, _config) => {
-    const c2 = inputs.get(GEOM.C2);
-    const p4 = inputs.get(GEOM.P4);
-
-    if (!c2 || !isPoint(c2)) throw new Error(`Missing or invalid input: ${GEOM.C2}`);
-    if (!p4 || !isPoint(p4)) throw new Error(`Missing or invalid input: ${GEOM.P4}`);
-
-    // Compute pl: intersection of circle at c2 with line from c2 to p4
-    const lp_left = interceptCircleLineSeg(
-      c2.x,
-      c2.y, // Circle center (cx, cy)
-      c2.x,
-      c2.y, // Line segment start (l1x, l1y) - same as circle center
-      p4.x,
-      p4.y, // Line segment end (l2x, l2y)
-      params.circleRadius, // Radius (r)
-    );
-
-    const result = new Map<string, GeometryValue>();
-    if (lp_left?.[0]) {
-      result.set(GEOM.PL, point(lp_left[0][0], lp_left[0][1]));
-    }
-    return result;
+  compute: (inputs, params) => {
+    const c2 = inputs.get(GEOM.C2) as Point;
+    const p4 = inputs.get(GEOM.P4) as Point;
+    // Create line from c2 to p4
+    const line_c2_p4 = line(c2.x, c2.y, p4.x, p4.y);
+    // Circle at c2 with given radius
+    const circle_c2 = circleFromPoint(c2, params.circleRadius);
+    const pl = pointFromCircleAndLine(circle_c2, line_c2_p4);
+    if (!pl) throw new Error("No valid intersection found for PL");
+    return new Map([[GEOM.PL, pl]]);
   },
 
   draw: (svg, values, store) => {
@@ -598,29 +457,16 @@ const STEP_PR: Step = {
   outputs: [GEOM.PR],
   parameters: ["circleRadius"],
 
-  compute: (inputs, params, _config) => {
-    const c1 = inputs.get(GEOM.C1);
-    const p3 = inputs.get(GEOM.P3);
-
-    if (!c1 || !isPoint(c1)) throw new Error(`Missing or invalid input: ${GEOM.C1}`);
-    if (!p3 || !isPoint(p3)) throw new Error(`Missing or invalid input: ${GEOM.P3}`);
-
-    // Compute pr: intersection of circle at c1 with line from c1 to p3
-    const lp_right = interceptCircleLineSeg(
-      c1.x,
-      c1.y, // Circle center (cx, cy)
-      c1.x,
-      c1.y, // Line segment start (l1x, l1y) - same as circle center
-      p3.x,
-      p3.y, // Line segment end (l2x, l2y)
-      params.circleRadius, // Radius (r)
-    );
-
-    const result = new Map<string, GeometryValue>();
-    if (lp_right?.[0]) {
-      result.set(GEOM.PR, point(lp_right[0][0], lp_right[0][1]));
-    }
-    return result;
+  compute: (inputs, params) => {
+    const c1 = inputs.get(GEOM.C1) as Point;
+    const p3 = inputs.get(GEOM.P3) as Point;
+    // Create line from c1 to p3
+    const line_c1_p3 = line(c1.x, c1.y, p3.x, p3.y);
+    // Circle at c1 with given radius
+    const circle_c1 = circleFromPoint(c1, params.circleRadius);
+    const pr = pointFromCircleAndLine(circle_c1, line_c1_p3);
+    if (!pr) throw new Error("No valid intersection found for PR");
+    return new Map([[GEOM.PR, pr]]);
   },
 
   draw: (svg, values, store) => {
@@ -639,21 +485,13 @@ const STEP_FINAL_SQUARE: Step = {
   outputs: [GEOM.SQUARE],
   parameters: [],
 
-  compute: (inputs, _params, _config) => {
-    const c1 = inputs.get(GEOM.C1);
-    const c2 = inputs.get(GEOM.C2);
-    const pr = inputs.get(GEOM.PR);
-    const pl = inputs.get(GEOM.PL);
-
-    if (!c1 || !isPoint(c1)) throw new Error(`Missing or invalid input: ${GEOM.C1}`);
-    if (!c2 || !isPoint(c2)) throw new Error(`Missing or invalid input: ${GEOM.C2}`);
-    if (!pr || !isPoint(pr)) throw new Error(`Missing or invalid input: ${GEOM.PR}`);
-    if (!pl || !isPoint(pl)) throw new Error(`Missing or invalid input: ${GEOM.PL}`);
-
-    // Create polygon with vertices in order: pl, pr, c1, c2
-    const result = new Map<string, GeometryValue>();
-    result.set(GEOM.SQUARE, polygon([pl, pr, c1, c2]));
-    return result;
+  compute: (inputs) => {
+    const c1 = inputs.get(GEOM.C1) as Point;
+    const c2 = inputs.get(GEOM.C2) as Point;
+    const pr = inputs.get(GEOM.PR) as Point;
+    const pl = inputs.get(GEOM.PL) as Point;
+    const sq = makeSquare(pl, pr, c1, c2);
+    return new Map([[GEOM.SQUARE, sq]]);
   },
 
   draw: (svg, values, store) => {
