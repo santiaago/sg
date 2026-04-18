@@ -1,4 +1,5 @@
 // Type definitions for geometry operations and dependency tracking.
+import type { GeometryStore } from "../react-store";
 // These types enable:
 // - Explicit declaration of geometry inputs and outputs
 // - Lazy step-by-step calculation
@@ -13,7 +14,7 @@ export interface SquareParameters {
   circleRadius: number;
   C1_POSITION_RATIO: number;
   tolerance: number;
-  selectMinY: number;
+  selectMinY: boolean;
 }
 
 // Geometry Value Types
@@ -122,7 +123,7 @@ export interface Step {
   // svg - The SVG element to draw into
   // values - Map of ALL geometry values (including those from previous steps)
   // store - Optional store for managing SVG elements and tooltips
-  draw: (svg: SVGSVGElement, values: Map<string, GeometryValue>, store?: any) => void;
+  draw: (svg: SVGSVGElement, values: Map<string, GeometryValue>, store?: GeometryStore) => void;
 }
 
 // Dependency Graph Types

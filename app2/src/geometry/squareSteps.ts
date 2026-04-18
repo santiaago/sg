@@ -9,12 +9,14 @@
 
 import type { Step, GeometryValue, StepConfig, SquareParameters } from "../types/geometry";
 import { point, line, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
-import type { Point, Line, Circle } from "../types/geometry";
 import {
   computeSquareConfig,
   GEOM,
   GOLDEN_RATIO,
   C1_POSITION_RATIO,
+  LINE_EXTENSION_MULTIPLIER,
+  DEFAULT_TOLERANCE,
+  getGeometry,
   type SquareConfig,
 } from "./operations";
 import {
@@ -28,7 +30,7 @@ import {
 import { dotWithTooltip, lineWithTooltip, circleWithTooltip, createTooltip } from "../svgElements";
 import type { GeometryStore } from "../react-store";
 
-export { computeSquareConfig, GEOM, GOLDEN_RATIO };
+export { computeSquareConfig, GEOM, GOLDEN_RATIO, LINE_EXTENSION_MULTIPLIER, DEFAULT_TOLERANCE, getGeometry };
 export type { SquareConfig };
 
 // Step 1: Draw the main horizontal line
@@ -100,7 +102,7 @@ const STEP_C1_CIRCLE: Step = {
   parameters: ["circleRadius"],
 
   compute: (inputs, params) => {
-    const c1 = inputs.get(GEOM.C1) as Point;
+    const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
     const c1_c = circleFromPoint(c1, params.circleRadius);
     return new Map([[GEOM.C1_CIRCLE, c1_c]]);
   },
@@ -155,7 +157,7 @@ const STEP_C2_CIRCLE: Step = {
   parameters: ["circleRadius"],
 
   compute: (inputs, params) => {
-    const c2 = inputs.get(GEOM.C2) as Point;
+    const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
     const c2_c = circleFromPoint(c2, params.circleRadius);
     return new Map([[GEOM.C2_CIRCLE, c2_c]]);
   },
@@ -177,8 +179,8 @@ const STEP_INTERSECTION_POINT: Step = {
   parameters: ["selectMinY"],
 
   compute: (inputs, params) => {
-    const c1_c = inputs.get(GEOM.C1_CIRCLE) as Circle;
-    const c2_c = inputs.get(GEOM.C2_CIRCLE) as Circle;
+    const c1_c = getGeometry(inputs, GEOM.C1_CIRCLE, isCircle, "Circle");
+    const c2_c = getGeometry(inputs, GEOM.C2_CIRCLE, isCircle, "Circle");
     const pi = pointFromCircles(c1_c, c2_c, {
       select: params.selectMinY ? "north" : "south",
     });
@@ -203,8 +205,8 @@ const STEP_INTERSECTION_CIRCLE: Step = {
   parameters: [],
 
   compute: (inputs) => {
-    const pi = inputs.get(GEOM.INTERSECTION_POINT) as Point;
-    const c1_c = inputs.get(GEOM.C1_CIRCLE) as Circle;
+    const pi = getGeometry(inputs, GEOM.INTERSECTION_POINT, isPoint, "Point");
+    const c1_c = getGeometry(inputs, GEOM.C1_CIRCLE, isCircle, "Circle");
     const ci = circleWithRadiusFrom(pi, c1_c);
     return new Map([[GEOM.INTERSECTION_CIRCLE, ci]]);
   },
@@ -228,10 +230,10 @@ const STEP_LINE_C2_PI: Step = {
   parameters: [],
 
   compute: (inputs) => {
-    const c2 = inputs.get(GEOM.C2) as Point;
-    const pi = inputs.get(GEOM.INTERSECTION_POINT) as Point;
-    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE) as Circle;
-    const l = lineTowards(c2, pi, 2.2 * ci.r);
+    const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
+    const pi = getGeometry(inputs, GEOM.INTERSECTION_POINT, isPoint, "Point");
+    const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
+    const l = lineTowards(c2, pi, LINE_EXTENSION_MULTIPLIER * ci.r);
     return new Map([[GEOM.LINE_C2_PI, l]]);
   },
 
@@ -263,9 +265,9 @@ const STEP_P3: Step = {
   parameters: ["tolerance"],
 
   compute: (inputs, params) => {
-    const line_c2_pi = inputs.get(GEOM.LINE_C2_PI) as Line;
-    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE) as Circle;
-    const c2 = inputs.get(GEOM.C2) as Point;
+    const line_c2_pi = getGeometry(inputs, GEOM.LINE_C2_PI, isLine, "Line");
+    const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
+    const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
     const p3 = pointFromCircleAndLine(ci, line_c2_pi, {
       exclude: c2,
       tolerance: params.tolerance,
@@ -293,10 +295,10 @@ const STEP_LINE_C1_PI: Step = {
   parameters: [],
 
   compute: (inputs) => {
-    const c1 = inputs.get(GEOM.C1) as Point;
-    const pi = inputs.get(GEOM.INTERSECTION_POINT) as Point;
-    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE) as Circle;
-    const l = lineTowards(c1, pi, 2.2 * ci.r);
+    const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
+    const pi = getGeometry(inputs, GEOM.INTERSECTION_POINT, isPoint, "Point");
+    const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
+    const l = lineTowards(c1, pi, LINE_EXTENSION_MULTIPLIER * ci.r);
     return new Map([[GEOM.LINE_C1_PI, l]]);
   },
 
@@ -328,9 +330,9 @@ const STEP_P4: Step = {
   parameters: ["tolerance"],
 
   compute: (inputs, params) => {
-    const line_c1_pi = inputs.get(GEOM.LINE_C1_PI) as Line;
-    const ci = inputs.get(GEOM.INTERSECTION_CIRCLE) as Circle;
-    const c1 = inputs.get(GEOM.C1) as Point;
+    const line_c1_pi = getGeometry(inputs, GEOM.LINE_C1_PI, isLine, "Line");
+    const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
+    const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
     const p4 = pointFromCircleAndLine(ci, line_c1_pi, {
       exclude: c1,
       tolerance: params.tolerance,
@@ -393,8 +395,8 @@ const STEP_PL: Step = {
   parameters: ["circleRadius"],
 
   compute: (inputs, params) => {
-    const c2 = inputs.get(GEOM.C2) as Point;
-    const line_c2_p4 = inputs.get(GEOM.LINE_C2_P4) as Line;
+    const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
+    const line_c2_p4 = getGeometry(inputs, GEOM.LINE_C2_P4, isLine, "Line");
     // Circle at c2 with given radius
     const circle_c2 = circleFromPoint(c2, params.circleRadius);
     const pl = pointFromCircleAndLine(circle_c2, line_c2_p4);
@@ -456,8 +458,8 @@ const STEP_PR: Step = {
   parameters: ["circleRadius"],
 
   compute: (inputs, params) => {
-    const c1 = inputs.get(GEOM.C1) as Point;
-    const line_c1_p3 = inputs.get(GEOM.LINE_C1_P3) as Line;
+    const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
+    const line_c1_p3 = getGeometry(inputs, GEOM.LINE_C1_P3, isLine, "Line");
     // Circle at c1 with given radius
     const circle_c1 = circleFromPoint(c1, params.circleRadius);
     const pr = pointFromCircleAndLine(circle_c1, line_c1_p3);
@@ -482,10 +484,10 @@ const STEP_FINAL_SQUARE: Step = {
   parameters: [],
 
   compute: (inputs) => {
-    const c1 = inputs.get(GEOM.C1) as Point;
-    const c2 = inputs.get(GEOM.C2) as Point;
-    const pr = inputs.get(GEOM.PR) as Point;
-    const pl = inputs.get(GEOM.PL) as Point;
+    const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
+    const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
+    const pr = getGeometry(inputs, GEOM.PR, isPoint, "Point");
+    const pl = getGeometry(inputs, GEOM.PL, isPoint, "Point");
     const sq = makeSquare(pl, pr, c1, c2);
     return new Map([[GEOM.SQUARE, sq]]);
   },
@@ -577,8 +579,8 @@ export function executeStep(
     ly2: squareConfig.ly2,
     circleRadius: squareConfig.circleRadius,
     C1_POSITION_RATIO,
-    tolerance: 0.001,
-    selectMinY: 1,
+    tolerance: DEFAULT_TOLERANCE,
+    selectMinY: true,
   };
 
   // Create config for compute function with all needed values

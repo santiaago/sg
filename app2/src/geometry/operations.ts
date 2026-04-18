@@ -23,6 +23,12 @@ export const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
 export const C1_POSITION_RATIO = 5 / 8;
 export const C2_POSITION_RATIO = 3 / 8;
 
+// Line extension multiplier (1.1 * diameter = 2.2 * radius)
+export const LINE_EXTENSION_MULTIPLIER = 2.2;
+
+// Default tolerance for geometry calculations
+export const DEFAULT_TOLERANCE = 0.001;
+
 // Geometry Configuration
 
 export interface SquareConfig {
@@ -68,6 +74,34 @@ export function computeSquareConfig(width: number, height: number): SquareConfig
     lx1: BORDER,
     lx2: width - BORDER,
   };
+}
+
+// Validated Geometry Accessor
+// Provides type-safe access to geometry values from a Map with runtime validation.
+// Throws descriptive errors if geometry is missing or has wrong type.
+/**
+ * Get a geometry value from a Map with type validation.
+ * @param values - Map of geometry IDs to GeometryValue
+ * @param id - The geometry ID to retrieve
+ * @param typeGuard - Type guard function (isPoint, isLine, isCircle, etc.)
+ * @param typeName - Human-readable type name for error messages
+ * @returns The validated geometry value
+ * @throws Error if geometry is missing or has wrong type
+ */
+export function getGeometry<T extends GeometryValue>(
+  values: Map<string, GeometryValue>,
+  id: string,
+  typeGuard: (v: GeometryValue) => v is T,
+  typeName: string,
+): T {
+  const value = values.get(id);
+  if (!value) {
+    throw new Error(`Missing geometry: ${id}`);
+  }
+  if (!typeGuard(value)) {
+    throw new Error(`Expected ${typeName} for ${id}, got ${value.type}`);
+  }
+  return value;
 }
 
 // Geometry ID Constants
@@ -117,12 +151,12 @@ export type GeometryId = (typeof GEOM)[keyof typeof GEOM];
 // Core Geometry Operations
 
 // Computes the intersection point of two circles.
-// Inputs: c1_circle, c2_circle, selectMinY (1 = north/min Y, 0 = south/max Y)
+// Inputs: c1_circle, c2_circle, selectMinY (true = north/min Y, false = south/max Y)
 // Outputs: pi (intersection point), ci (circle at intersection)
 export function computeCircleIntersection(
   c1: Circle,
   c2: Circle,
-  selectMinY: number = 1,
+  selectMinY: boolean = true,
 ): { pi: Point; ci: Circle } {
   // Use the raw intersection function which takes coordinates directly
   const result = rawIntersection(c1.cx, c1.cy, c1.r, c2.cx, c2.cy, c2.r);
