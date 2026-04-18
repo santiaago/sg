@@ -117,9 +117,13 @@ export type GeometryId = (typeof GEOM)[keyof typeof GEOM];
 // Core Geometry Operations
 
 // Computes the intersection point of two circles.
-// Inputs: c1_circle, c2_circle
+// Inputs: c1_circle, c2_circle, selectMinY (1 = north/min Y, 0 = south/max Y)
 // Outputs: pi (intersection point), ci (circle at intersection)
-export function computeCircleIntersection(c1: Circle, c2: Circle): { pi: Point; ci: Circle } {
+export function computeCircleIntersection(
+  c1: Circle,
+  c2: Circle,
+  selectMinY: number = 1,
+): { pi: Point; ci: Circle } {
   // Use the raw intersection function which takes coordinates directly
   const result = rawIntersection(c1.cx, c1.cy, c1.r, c2.cx, c2.cy, c2.r);
 
@@ -127,9 +131,16 @@ export function computeCircleIntersection(c1: Circle, c2: Circle): { pi: Point; 
     throw new Error("Circle intersection: expected exactly 4 values (x1, y1, x2, y2)");
   }
 
-  // Get the lower intersection point (lower y-coordinate)
+  // Select intersection point based on selectMinY parameter
   const [x1, y1, x2, y2] = result;
-  const pi = y1 < y2 ? { x: x1, y: y1 } : { x: x2, y: y2 };
+  let pi: { x: number; y: number };
+  if (selectMinY) {
+    // Pick north point (lower y-coordinate in SVG where y increases downward)
+    pi = y1 < y2 ? { x: x1, y: y1 } : { x: x2, y: y2 };
+  } else {
+    // Pick south point (higher y-coordinate)
+    pi = y1 > y2 ? { x: x1, y: y1 } : { x: x2, y: y2 };
+  }
 
   return {
     pi: point(pi.x, pi.y),

@@ -74,8 +74,9 @@ export interface StepConfig {
 // Each step:
 // 1. Declares its input geometry IDs (dependencies)
 // 2. Declares its output geometry IDs (what it produces)
-// 3. Provides a compute function to calculate outputs from inputs
-// 4. Provides a draw function to render the geometries
+// 3. Declares its parameter names (non-geometry values it needs)
+// 4. Provides a compute function to calculate outputs from inputs and parameters
+// 5. Provides a draw function to render the geometries
 // This design enables lazy calculation, automatic dependency tracking,
 // and separation of calculation and rendering
 export interface Step {
@@ -88,12 +89,21 @@ export interface Step {
   // IDs of geometries this step produces as output
   outputs: string[];
 
-  // Computes output geometries from input geometries.
+  // Names of parameters (non-geometry values) this step requires.
+  // Parameters are passed as a map in compute(), alongside input geometries.
+  parameters?: string[];
+
+  // Computes output geometries from input geometries and parameters.
   // Called only when this step becomes current.
   // inputs - Map of input geometry IDs to their values
-  // config - SVG configuration and styling values
+  // parameters - Map of parameter names to their numeric values
+  // config - SVG configuration and styling values (kept for backward compatibility)
   // returns Map of output geometry IDs to their computed values
-  compute: (inputs: Map<string, GeometryValue>, config: StepConfig) => Map<string, GeometryValue>;
+  compute: (
+    inputs: Map<string, GeometryValue>,
+    parameters: Map<string, number>,
+    config: StepConfig,
+  ) => Map<string, GeometryValue>;
 
   // Draws the geometries for this step.
   // Called after compute() to render the step's output.
