@@ -279,7 +279,7 @@ export default function App(): JSX.Element {
               steps={stepsv4}
               updateSteps={updateStepsv4}
             />
-            <div className="mt-4 flex gap-2">
+            <div className="mt-1 flex gap-2">
               <button
                 onClick={handleNextClickv4}
                 className={`px-4 py-2 text-white rounded ${
@@ -344,7 +344,7 @@ export default function App(): JSX.Element {
               steps={stepsv3}
               updateSteps={updateStepsv3}
             />
-            <div className="mt-4 flex gap-2">
+            <div className="mt-1 flex gap-2">
               <button
                 onClick={handleNextClickv3}
                 className={`px-4 py-2 text-white rounded ${
@@ -486,7 +486,7 @@ export default function App(): JSX.Element {
               restartKey={restartKeySquare}
               currentStep={currentStepSquare}
             />
-            <div className="mt-4 flex gap-2">
+            <div className="mt-1 flex gap-2">
               <button
                 onClick={handlePrevClickSquare}
                 className={`px-4 py-2 text-white rounded ${
