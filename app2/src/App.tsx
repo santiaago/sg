@@ -198,7 +198,7 @@ export default function App(): JSX.Element {
   const [stepsSquare, setStepsSquare] = useState<Step[]>([]);
   const [currentStepSquare, setCurrentStepSquare] = useState<number>(1);
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
-  const [showInputHighlight, setShowInputHighlight] = useState(false);
+  const [showInputHighlight, setShowInputHighlight] = useState(true);
 
   const handleNextClickSquare = (): void => {
     console.log("next step", currentStepSquare, stepsSquare.length);

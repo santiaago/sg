@@ -164,6 +164,7 @@ export function circle(
  * @param geomId - The geometry ID to draw
  * @param radius - The radius of the dot
  * @param store - Optional store for managing SVG elements
+ * @param dependsOn - IDs of geometries this one depends on (for dependency tracking)
  */
 export function drawPoint(
   svg: SVGSVGElement,
@@ -171,10 +172,11 @@ export function drawPoint(
   geomId: string,
   radius: number,
   store?: GeometryStore,
+  dependsOn: string[] = [],
 ): void {
   const p = values.get(geomId);
   if (!p || !isPoint(p)) return;
-  dotWithTooltip(svg, p.x, p.y, geomId, radius, store);
+  dotWithTooltip(svg, p.x, p.y, geomId, radius, store, dependsOn);
 }
 
 /**
@@ -184,6 +186,7 @@ export function drawPoint(
  * @param geomId - The geometry ID to draw
  * @param strokeWidth - The width of the line stroke
  * @param store - Optional store for managing SVG elements
+ * @param dependsOn - IDs of geometries this one depends on (for dependency tracking)
  */
 export function drawLine(
   svg: SVGSVGElement,
@@ -191,10 +194,11 @@ export function drawLine(
   geomId: string,
   strokeWidth: number = DEFAULT_STROKE_WIDTH,
   store?: GeometryStore,
+  dependsOn: string[] = [],
 ): void {
   const l = values.get(geomId);
   if (!l || !isLine(l)) return;
-  lineWithTooltip(svg, l.x1, l.y1, l.x2, l.y2, geomId, strokeWidth, store);
+  lineWithTooltip(svg, l.x1, l.y1, l.x2, l.y2, geomId, strokeWidth, store, dependsOn);
 }
 
 /**
@@ -204,6 +208,7 @@ export function drawLine(
  * @param geomId - The geometry ID to draw
  * @param strokeWidth - The width of the circle stroke
  * @param store - Optional store for managing SVG elements
+ * @param dependsOn - IDs of geometries this one depends on (for dependency tracking)
  */
 export function drawCircle(
   svg: SVGSVGElement,
@@ -211,10 +216,11 @@ export function drawCircle(
   geomId: string,
   strokeWidth: number = 1,
   store?: GeometryStore,
+  dependsOn: string[] = [],
 ): void {
   const c = values.get(geomId);
   if (!c || !isCircle(c)) return;
-  circleWithTooltip(svg, c.cx, c.cy, c.r, geomId, strokeWidth, store);
+  circleWithTooltip(svg, c.cx, c.cy, c.r, geomId, strokeWidth, store, dependsOn);
 }
 
 /**
@@ -227,6 +233,7 @@ export function dotWithTooltip(
   name: string,
   radius: number,
   store?: GeometryStore,
+  dependsOn: string[] = [],
 ): SVGCircleElement {
   const dotElement = dot(svg, x, y, radius);
   dotElement.setAttribute("data-tooltip", name);
@@ -242,7 +249,7 @@ export function dotWithTooltip(
   dotElement.tooltipBg = tooltipBg;
 
   if (store) {
-    store.add(name, dotElement, "point", []);
+    store.add(name, dotElement, "point", dependsOn);
   }
 
   return dotElement;
@@ -260,6 +267,7 @@ export function lineWithTooltip(
   name: string,
   strokeWidth: number = DEFAULT_STROKE_WIDTH,
   store?: GeometryStore,
+  dependsOn: string[] = [],
 ): SVGLineElement {
   const lineEl = line(svg, x1, y1, x2, y2, strokeWidth);
   lineEl.style.cursor = "pointer";
@@ -274,7 +282,7 @@ export function lineWithTooltip(
   lineEl.tooltipBg = tooltipBg;
 
   if (store) {
-    store.add(name, lineEl, "line", []);
+    store.add(name, lineEl, "line", dependsOn);
   }
 
   return lineEl;
@@ -291,6 +299,7 @@ export function circleWithTooltip(
   name: string,
   stroke: number = 1,
   store?: GeometryStore,
+  dependsOn: string[] = [],
 ): SVGCircleElement {
   const circleEl = circle(svg, cx, cy, r, stroke);
   circleEl.style.cursor = "pointer";
@@ -305,7 +314,7 @@ export function circleWithTooltip(
   circleEl.tooltipBg = tooltipBg;
 
   if (store) {
-    store.add(name, circleEl, "circle", []);
+    store.add(name, circleEl, "circle", dependsOn);
   }
 
   return circleEl;

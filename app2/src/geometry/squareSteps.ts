@@ -79,7 +79,7 @@ const STEP_MAIN_LINE: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store);
+    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store, []);
   },
 };
 
@@ -102,7 +102,7 @@ const STEP_C1: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.C1, 2.0, store);
+    drawPoint(svg, values, GEOM.C1, 2.0, store, [GEOM.MAIN_LINE]);
   },
 };
 
@@ -123,7 +123,7 @@ const STEP_C1_CIRCLE: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store);
+    drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store, [GEOM.C1]);
   },
 };
 
@@ -136,17 +136,21 @@ const STEP_C2: Step = {
   id: "step_c2",
   inputs: [GEOM.MAIN_LINE, GEOM.C1_CIRCLE],
   outputs: [GEOM.C2],
-  parameters: [],
+  parameters: ["tolerance"],
 
-  compute: computeSingle(GEOM.C2, (inputs) => {
+  compute: computeSingle(GEOM.C2, (inputs, params) => {
     const mainLine = getGeometry(inputs, GEOM.MAIN_LINE, isLine, "Line");
     const c1_c = getGeometry(inputs, GEOM.C1_CIRCLE, isCircle, "Circle");
     // C2 is the left intersection point of C1_CIRCLE with MAIN_LINE
-    return point(c1_c.cx - c1_c.r, mainLine.y1);
+    const c2 = pointFromCircleAndLine(c1_c, mainLine, {
+      tolerance: params.tolerance,
+    });
+    if (!c2) throw new Error("C1_CIRCLE and MAIN_LINE do not intersect");
+    return c2;
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.C2, 2.0, store);
+    drawPoint(svg, values, GEOM.C2, 2.0, store, [GEOM.MAIN_LINE, GEOM.C1_CIRCLE]);
   },
 };
 
@@ -167,7 +171,7 @@ const STEP_C2_CIRCLE: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawCircle(svg, values, GEOM.C2_CIRCLE, 0.5, store);
+    drawCircle(svg, values, GEOM.C2_CIRCLE, 0.5, store, [GEOM.C2]);
   },
 };
 
@@ -194,7 +198,7 @@ const STEP_INTERSECTION_POINT: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.INTERSECTION_POINT, 2.0, store);
+    drawPoint(svg, values, GEOM.INTERSECTION_POINT, 2.0, store, [GEOM.C1_CIRCLE, GEOM.C2_CIRCLE]);
   },
 };
 
@@ -205,18 +209,17 @@ const STEP_INTERSECTION_POINT: Step = {
  */
 const STEP_INTERSECTION_CIRCLE: Step = {
   id: "step_intersection_circle",
-  inputs: [GEOM.INTERSECTION_POINT, GEOM.C1_CIRCLE],
+  inputs: [GEOM.INTERSECTION_POINT],
   outputs: [GEOM.INTERSECTION_CIRCLE],
-  parameters: [],
+  parameters: ["circleRadius"],
 
-  compute: computeSingle(GEOM.INTERSECTION_CIRCLE, (inputs) => {
+  compute: computeSingle(GEOM.INTERSECTION_CIRCLE, (inputs, params) => {
     const pi = getGeometry(inputs, GEOM.INTERSECTION_POINT, isPoint, "Point");
-    const c1_c = getGeometry(inputs, GEOM.C1_CIRCLE, isCircle, "Circle");
-    return circleWithRadiusFrom(pi, c1_c);
+    return circleFromPoint(pi, params.circleRadius);
   }),
 
   draw: (svg, values, store) => {
-    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, 0.5, store);
+    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, 0.5, store, [GEOM.INTERSECTION_POINT]);
   },
 };
 
@@ -227,38 +230,39 @@ const STEP_INTERSECTION_CIRCLE: Step = {
  */
 const STEP_LINE_C2_PI: Step = {
   id: "step_line_c2_pi",
-  inputs: [GEOM.C2, GEOM.INTERSECTION_POINT, GEOM.INTERSECTION_CIRCLE],
+  inputs: [GEOM.C2, GEOM.INTERSECTION_POINT],
   outputs: [GEOM.LINE_C2_PI],
-  parameters: [],
+  parameters: ["circleRadius"],
 
-  compute: computeSingle(GEOM.LINE_C2_PI, (inputs) => {
+  compute: computeSingle(GEOM.LINE_C2_PI, (inputs, params) => {
     const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
     const pi = getGeometry(inputs, GEOM.INTERSECTION_POINT, isPoint, "Point");
-    const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
-    return lineTowards(c2, pi, LINE_EXTENSION_MULTIPLIER * ci.r);
+    return lineTowards(c2, pi, LINE_EXTENSION_MULTIPLIER * params.circleRadius);
   }),
 
   draw: (svg, values, store) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store);
+    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store, [GEOM.C2, GEOM.INTERSECTION_POINT]);
   },
 };
 
 /**
  * Step 9: Compute P3 as intersection of line_c2_pi with CI
  * P3 is the second intersection point of LINE_C2_PI with CI (excluding C2).
+ * C2 is derived from the start of LINE_C2_PI.
  * Forms one corner of the square construction.
  */
 const STEP_P3: Step = {
   id: "step_p3",
-  inputs: [GEOM.LINE_C2_PI, GEOM.INTERSECTION_CIRCLE, GEOM.C2],
+  inputs: [GEOM.LINE_C2_PI, GEOM.INTERSECTION_CIRCLE],
   outputs: [GEOM.P3],
   parameters: ["tolerance"],
 
   compute: computeSingle(GEOM.P3, (inputs, params) => {
     const line_c2_pi = getGeometry(inputs, GEOM.LINE_C2_PI, isLine, "Line");
     const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
-    const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
+    // Derive C2 from the start of LINE_C2_PI (C2 is at x1, y1)
+    const c2 = point(line_c2_pi.x1, line_c2_pi.y1);
     const p3 = pointFromCircleAndLine(ci, line_c2_pi, {
       exclude: c2,
       tolerance: params.tolerance,
@@ -268,7 +272,10 @@ const STEP_P3: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.P3, 2.0, store);
+    drawPoint(svg, values, GEOM.P3, 2.0, store, [
+      GEOM.LINE_C2_PI,
+      GEOM.INTERSECTION_CIRCLE,
+    ]);
   },
 };
 
@@ -279,38 +286,39 @@ const STEP_P3: Step = {
  */
 const STEP_LINE_C1_PI: Step = {
   id: "step_line_c1_pi",
-  inputs: [GEOM.C1, GEOM.INTERSECTION_POINT, GEOM.INTERSECTION_CIRCLE],
+  inputs: [GEOM.C1, GEOM.INTERSECTION_POINT],
   outputs: [GEOM.LINE_C1_PI],
-  parameters: [],
+  parameters: ["circleRadius"],
 
-  compute: computeSingle(GEOM.LINE_C1_PI, (inputs) => {
+  compute: computeSingle(GEOM.LINE_C1_PI, (inputs, params) => {
     const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
     const pi = getGeometry(inputs, GEOM.INTERSECTION_POINT, isPoint, "Point");
-    const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
-    return lineTowards(c1, pi, LINE_EXTENSION_MULTIPLIER * ci.r);
+    return lineTowards(c1, pi, LINE_EXTENSION_MULTIPLIER * params.circleRadius);
   }),
 
   draw: (svg, values, store) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store);
+    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store, [GEOM.C1, GEOM.INTERSECTION_POINT]);
   },
 };
 
 /**
  * Step 11: Compute P4 as intersection of line_c1_pi with CI
  * P4 is the second intersection point of LINE_C1_PI with CI (excluding C1).
+ * C1 is derived from the start of LINE_C1_PI.
  * Forms the opposite corner of the square from P3.
  */
 const STEP_P4: Step = {
   id: "step_p4",
-  inputs: [GEOM.LINE_C1_PI, GEOM.INTERSECTION_CIRCLE, GEOM.C1],
+  inputs: [GEOM.LINE_C1_PI, GEOM.INTERSECTION_CIRCLE],
   outputs: [GEOM.P4],
   parameters: ["tolerance"],
 
   compute: computeSingle(GEOM.P4, (inputs, params) => {
     const line_c1_pi = getGeometry(inputs, GEOM.LINE_C1_PI, isLine, "Line");
     const ci = getGeometry(inputs, GEOM.INTERSECTION_CIRCLE, isCircle, "Circle");
-    const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
+    // Derive C1 from the start of LINE_C1_PI (C1 is at x1, y1)
+    const c1 = point(line_c1_pi.x1, line_c1_pi.y1);
     const p4 = pointFromCircleAndLine(ci, line_c1_pi, {
       exclude: c1,
       tolerance: params.tolerance,
@@ -320,7 +328,10 @@ const STEP_P4: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.P4, 2.0, store);
+    drawPoint(svg, values, GEOM.P4, 2.0, store, [
+      GEOM.LINE_C1_PI,
+      GEOM.INTERSECTION_CIRCLE,
+    ]);
   },
 };
 
@@ -342,33 +353,33 @@ const STEP_LINE_C2_P4: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store);
+    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store, [GEOM.C2, GEOM.P4]);
   },
 };
 
 /**
  * Step 13: Compute PL (tangent point from C2 to P4 line)
- * PL is the intersection of a circle centered at C2 with LINE_C2_P4.
+ * PL is the intersection of C2_CIRCLE with LINE_C2_P4.
+ * Uses the existing C2_CIRCLE instead of creating a new one.
  * This represents the tangent point on the left side of the square.
  */
 const STEP_PL: Step = {
   id: "step_pl",
-  inputs: [GEOM.C2, GEOM.P4, GEOM.LINE_C2_P4],
+  inputs: [GEOM.C2_CIRCLE, GEOM.LINE_C2_P4],
   outputs: [GEOM.PL],
-  parameters: ["circleRadius"],
+  parameters: [],
 
-  compute: computeSingle(GEOM.PL, (inputs, params) => {
-    const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
+  compute: computeSingle(GEOM.PL, (inputs) => {
+    const c2_circle = getGeometry(inputs, GEOM.C2_CIRCLE, isCircle, "Circle");
     const line_c2_p4 = getGeometry(inputs, GEOM.LINE_C2_P4, isLine, "Line");
-    // Circle at c2 with given radius
-    const circle_c2 = circleFromPoint(c2, params.circleRadius);
-    const pl = pointFromCircleAndLine(circle_c2, line_c2_p4);
+    // Use the existing C2_CIRCLE
+    const pl = pointFromCircleAndLine(c2_circle, line_c2_p4);
     if (!pl) throw new Error("No valid intersection found for PL");
     return pl;
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.PL, 2.0, store);
+    drawPoint(svg, values, GEOM.PL, 2.0, store, [GEOM.C2_CIRCLE, GEOM.LINE_C2_P4]);
   },
 };
 
@@ -390,33 +401,33 @@ const STEP_LINE_C1_P3: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store);
+    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store, [GEOM.C1, GEOM.P3]);
   },
 };
 
 /**
  * Step 15: Compute PR (tangent point from C1 to P3 line)
- * PR is the intersection of a circle centered at C1 with LINE_C1_P3.
+ * PR is the intersection of C1_CIRCLE with LINE_C1_P3.
+ * Uses the existing C1_CIRCLE instead of creating a new one.
  * This represents the tangent point on the right side of the square.
  */
 const STEP_PR: Step = {
   id: "step_pr",
-  inputs: [GEOM.C1, GEOM.P3, GEOM.LINE_C1_P3],
+  inputs: [GEOM.C1_CIRCLE, GEOM.LINE_C1_P3],
   outputs: [GEOM.PR],
-  parameters: ["circleRadius"],
+  parameters: [],
 
-  compute: computeSingle(GEOM.PR, (inputs, params) => {
-    const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
+  compute: computeSingle(GEOM.PR, (inputs) => {
+    const c1_circle = getGeometry(inputs, GEOM.C1_CIRCLE, isCircle, "Circle");
     const line_c1_p3 = getGeometry(inputs, GEOM.LINE_C1_P3, isLine, "Line");
-    // Circle at c1 with given radius
-    const circle_c1 = circleFromPoint(c1, params.circleRadius);
-    const pr = pointFromCircleAndLine(circle_c1, line_c1_p3);
+    // Use the existing C1_CIRCLE
+    const pr = pointFromCircleAndLine(c1_circle, line_c1_p3);
     if (!pr) throw new Error("No valid intersection found for PR");
     return pr;
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.PR, 2.0, store);
+    drawPoint(svg, values, GEOM.PR, 2.0, store, [GEOM.C1_CIRCLE, GEOM.LINE_C1_P3]);
   },
 };
 
@@ -463,7 +474,7 @@ const STEP_FINAL_SQUARE: Step = {
     (svgPolygon as any).tooltipBg = tooltipBg;
 
     if (store) {
-      store.add(GEOM.SQUARE, svgPolygon, "polygon", []);
+      store.add(GEOM.SQUARE, svgPolygon, "polygon", [GEOM.C1, GEOM.C2, GEOM.PR, GEOM.PL]);
     }
   },
 };
