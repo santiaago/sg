@@ -218,8 +218,16 @@ describe("GeometryList - Single Selection Mode", () => {
   });
 
   it("maintains input highlighting compatibility", () => {
-    const item1 = createMockGeometryItem({ name: "item-1", selected: true, dependsOn: ["input-a"] });
-    const item2 = createMockGeometryItem({ name: "item-2", selected: false, dependsOn: ["input-b"] });
+    const item1 = createMockGeometryItem({
+      name: "item-1",
+      selected: true,
+      dependsOn: ["input-a"],
+    });
+    const item2 = createMockGeometryItem({
+      name: "item-2",
+      selected: false,
+      dependsOn: ["input-b"],
+    });
     const inputA = createMockGeometryItem({ name: "input-a", selected: false });
     const inputB = createMockGeometryItem({ name: "input-b", selected: false });
 

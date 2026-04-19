@@ -1,9 +1,9 @@
 /**
  * Regression tests for squareSteps dependency tracking.
- * 
+ *
  * These tests verify that each geometry correctly declares its dependencies
  * so that when a user selects a geometry, the correct inputs highlight.
- * 
+ *
  * Each test corresponds to one of the 12 user-reported issues.
  */
 
@@ -160,7 +160,9 @@ describe("Square Steps - Dependency Tracking", () => {
       for (const step of SQUARE_STEPS) {
         for (const output of step.outputs) {
           if (outputToStep.has(output)) {
-            throw new Error(`Geometry ${output} is produced by multiple steps: ${outputToStep.get(output)} and ${step.id}`);
+            throw new Error(
+              `Geometry ${output} is produced by multiple steps: ${outputToStep.get(output)} and ${step.id}`,
+            );
           }
           outputToStep.set(output, step.id);
         }
@@ -185,7 +187,9 @@ describe("Square Steps - Dependency Tracking", () => {
         GEOM.SQUARE,
       ];
       for (const geom of expectedOutputs) {
-        expect(outputToStep.has(geom), `Geometry ${geom} should be produced by some step`).toBe(true);
+        expect(outputToStep.has(geom), `Geometry ${geom} should be produced by some step`).toBe(
+          true,
+        );
       }
     });
 

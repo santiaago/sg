@@ -96,7 +96,8 @@ export function GeometryDetails({ store }: GeometryDetailsProps): JSX.Element {
       {/* Parameters Section */}
       <div className="mb-3">
         <h4 className="text-xs text-gray-400 uppercase tracking-wider mb-1">Parameters</h4>
-        {selectedGeometry.parameterValues && Object.keys(selectedGeometry.parameterValues).length > 0 ? (
+        {selectedGeometry.parameterValues &&
+        Object.keys(selectedGeometry.parameterValues).length > 0 ? (
           <ul className="text-xs space-y-0.5">
             {Object.entries(selectedGeometry.parameterValues).map(([name, value]) => {
               const paramType = getParameterType(name);

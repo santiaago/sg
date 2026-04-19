@@ -48,6 +48,8 @@ const createMockStoreItems = (): Record<string, GeometryItem> => {
       context: undefined,
       initialState: { stroke: "white", "stroke-width": "0.5" },
       dependsOn: [],
+      stepId: "",
+      parameterValues: {},
     },
     c1: {
       name: "c1",
@@ -57,6 +59,8 @@ const createMockStoreItems = (): Record<string, GeometryItem> => {
       context: undefined,
       initialState: { fill: "white", r: "2" },
       dependsOn: ["line_main"],
+      stepId: "",
+      parameterValues: {},
     },
     c1_c: {
       name: "c1_c",
@@ -66,6 +70,8 @@ const createMockStoreItems = (): Record<string, GeometryItem> => {
       context: undefined,
       initialState: { stroke: "white", "stroke-width": "0.5" },
       dependsOn: ["c1"],
+      stepId: "",
+      parameterValues: {},
     },
   };
 };
@@ -109,8 +115,8 @@ describe("GeometryList", () => {
     });
   });
 
-  describe("Selection Behavior (feature OFF)", () => {
-    it("toggles selected state on click", () => {
+  describe("Selection Behavior (single selection mode)", () => {
+    it("selects item on click", () => {
       render(<GeometryList store={store} showInputHighlight={false} />);
 
       fireEvent.click(screen.getByText("c1 | point"));
@@ -119,20 +125,18 @@ describe("GeometryList", () => {
       expect(store.items.c1.selected).toBe(true);
     });
 
-    it("toggles back to deselected on second click", () => {
+    it("only one item can be selected at a time", () => {
       render(<GeometryList store={store} showInputHighlight={false} />);
 
-      const c1Item = screen.getByText("c1 | point");
-
-      // First click - select
-      fireEvent.click(c1Item);
-      expect(store.update).toHaveBeenCalledWith("c1", { selected: true });
+      // Click on c1
+      fireEvent.click(screen.getByText("c1 | point"));
       expect(store.items.c1.selected).toBe(true);
+      expect(store.items.line_main.selected).toBe(false);
 
-      // Second click - deselect
-      fireEvent.click(c1Item);
-      expect(store.update).toHaveBeenCalledWith("c1", { selected: false });
+      // Click on line_main - should deselect c1 and select line_main
+      fireEvent.click(screen.getByText("line_main | line"));
       expect(store.items.c1.selected).toBe(false);
+      expect(store.items.line_main.selected).toBe(true);
     });
 
     it("applies red highlighting to selected point with context", () => {
@@ -193,19 +197,21 @@ describe("GeometryList", () => {
       expect(screen.getByText("c1 | point")).toHaveClass("text-orange-400");
     });
 
-    it("clears orange highlights when geometry is deselected", () => {
+    it("switches highlights when selecting different geometry", () => {
       render(<GeometryList store={store} showInputHighlight={true} />);
 
       const c1Item = screen.getByText("c1 | point");
+      const c1cItem = screen.getByText("c1_c | circle");
       const lineMainItem = screen.getByText("line_main | line");
 
-      // First select c1
+      // First select c1 - highlights line_main
       fireEvent.click(c1Item);
       expect(lineMainItem).toHaveClass("text-orange-400");
 
-      // Then deselect c1
-      fireEvent.click(c1Item);
+      // Then select c1_c - should switch to highlighting c1
+      fireEvent.click(c1cItem);
       expect(lineMainItem).not.toHaveClass("text-orange-400");
+      expect(c1Item).toHaveClass("text-orange-400");
     });
 
     it("clears highlights when switching to different geometry", () => {

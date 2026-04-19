@@ -216,9 +216,7 @@ describe("Square Component - Metadata Population", () => {
       expect(typeof call.data.parameterValues).toBe("object");
     }
 
-    const hasParams = updateCalls.some(
-      (c) => Object.keys(c.data.parameterValues).length > 0,
-    );
+    const hasParams = updateCalls.some((c) => Object.keys(c.data.parameterValues).length > 0);
     expect(hasParams).toBe(true);
   });
 

@@ -53,7 +53,12 @@ export function GeometryList({
       if (existingItem) {
         store.update(key, { selected: false });
         // Restore visual state for deselected items
-        applyVisualFeedback(existingItem.element, { ...existingItem, selected: false }, stroke, strokeBig);
+        applyVisualFeedback(
+          existingItem.element,
+          { ...existingItem, selected: false },
+          stroke,
+          strokeBig,
+        );
       }
     });
 
