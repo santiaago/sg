@@ -79,7 +79,7 @@ const STEP_MAIN_LINE: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store, []);
+    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store);
   },
 };
 
@@ -102,7 +102,7 @@ const STEP_C1: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.C1, 2.0, store, [GEOM.MAIN_LINE]);
+    drawPoint(svg, values, GEOM.C1, 2.0, store);
   },
 };
 
@@ -123,7 +123,7 @@ const STEP_C1_CIRCLE: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store, [GEOM.C1]);
+    drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store);
   },
 };
 
@@ -150,7 +150,7 @@ const STEP_C2: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.C2, 2.0, store, [GEOM.MAIN_LINE, GEOM.C1_CIRCLE]);
+    drawPoint(svg, values, GEOM.C2, 2.0, store);
   },
 };
 
@@ -171,7 +171,7 @@ const STEP_C2_CIRCLE: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawCircle(svg, values, GEOM.C2_CIRCLE, 0.5, store, [GEOM.C2]);
+    drawCircle(svg, values, GEOM.C2_CIRCLE, 0.5, store);
   },
 };
 
@@ -198,7 +198,7 @@ const STEP_INTERSECTION_POINT: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.INTERSECTION_POINT, 2.0, store, [GEOM.C1_CIRCLE, GEOM.C2_CIRCLE]);
+    drawPoint(svg, values, GEOM.INTERSECTION_POINT, 2.0, store);
   },
 };
 
@@ -219,7 +219,7 @@ const STEP_INTERSECTION_CIRCLE: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, 0.5, store, [GEOM.INTERSECTION_POINT]);
+    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, 0.5, store);
   },
 };
 
@@ -242,7 +242,7 @@ const STEP_LINE_C2_PI: Step = {
 
   draw: (svg, values, store) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store, [GEOM.C2, GEOM.INTERSECTION_POINT]);
+    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store);
   },
 };
 
@@ -272,10 +272,7 @@ const STEP_P3: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.P3, 2.0, store, [
-      GEOM.LINE_C2_PI,
-      GEOM.INTERSECTION_CIRCLE,
-    ]);
+    drawPoint(svg, values, GEOM.P3, 2.0, store);
   },
 };
 
@@ -298,7 +295,7 @@ const STEP_LINE_C1_PI: Step = {
 
   draw: (svg, values, store) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store, [GEOM.C1, GEOM.INTERSECTION_POINT]);
+    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store);
   },
 };
 
@@ -328,10 +325,7 @@ const STEP_P4: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.P4, 2.0, store, [
-      GEOM.LINE_C1_PI,
-      GEOM.INTERSECTION_CIRCLE,
-    ]);
+    drawPoint(svg, values, GEOM.P4, 2.0, store);
   },
 };
 
@@ -353,7 +347,7 @@ const STEP_LINE_C2_P4: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store, [GEOM.C2, GEOM.P4]);
+    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store);
   },
 };
 
@@ -379,7 +373,7 @@ const STEP_PL: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.PL, 2.0, store, [GEOM.C2_CIRCLE, GEOM.LINE_C2_P4]);
+    drawPoint(svg, values, GEOM.PL, 2.0, store);
   },
 };
 
@@ -401,7 +395,7 @@ const STEP_LINE_C1_P3: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store, [GEOM.C1, GEOM.P3]);
+    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store);
   },
 };
 
@@ -427,7 +421,7 @@ const STEP_PR: Step = {
   }),
 
   draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.PR, 2.0, store, [GEOM.C1_CIRCLE, GEOM.LINE_C1_P3]);
+    drawPoint(svg, values, GEOM.PR, 2.0, store);
   },
 };
 
@@ -474,7 +468,7 @@ const STEP_FINAL_SQUARE: Step = {
     (svgPolygon as any).tooltipBg = tooltipBg;
 
     if (store) {
-      store.add(GEOM.SQUARE, svgPolygon, "polygon", [GEOM.C1, GEOM.C2, GEOM.PR, GEOM.PL]);
+      store.add(GEOM.SQUARE, svgPolygon, "polygon", []);
     }
   },
 };
