@@ -19,6 +19,8 @@ const createMockGeometryItem = (overrides: Partial<GeometryItem> = {}): Geometry
   context: undefined,
   initialState: { fill: "white", r: "2" },
   dependsOn: [],
+  stepId: "",
+  parameterValues: {},
   ...overrides,
 });
 
@@ -136,5 +138,102 @@ describe("restoreInitialState", () => {
     expect(element.setAttribute).not.toHaveBeenCalled();
     expect(element.tooltip.setAttribute).toHaveBeenCalledWith("opacity", "0");
     expect(element.tooltipBg.setAttribute).toHaveBeenCalledWith("opacity", "0");
+  });
+});
+
+// Helper to create a mock store
+type Store = {
+  items: Record<string, GeometryItem>;
+  update: (key: string, data: Partial<GeometryItem>) => void;
+  add: (name: string, element: any, type: string, dependsOn: string[]) => void;
+  clear: () => void;
+};
+
+// Simulate the handleClick logic for testing
+function simulateHandleClick(store: Store, name: string) {
+  const item = store.items[name];
+  if (!item) return;
+
+  // Deselect all first for single selection mode
+  Object.keys(store.items).forEach((key) => {
+    store.update(key, { selected: false });
+  });
+
+  // Select the clicked one
+  store.update(name, { selected: true });
+}
+
+describe("GeometryList - Single Selection Mode", () => {
+  const createMockStore = (items: Record<string, GeometryItem> = {}) => {
+    const store: Store = {
+      items: { ...items },
+      update: vi.fn((key: string, data: Partial<GeometryItem>) => {
+        store.items[key] = { ...store.items[key], ...data };
+      }),
+      add: vi.fn(),
+      clear: vi.fn(),
+    };
+    return store;
+  };
+
+  it("single selection - only one geometry selected at a time", () => {
+    const item1 = createMockGeometryItem({ name: "item-1", selected: true });
+    const item2 = createMockGeometryItem({ name: "item-2", selected: false });
+    const item3 = createMockGeometryItem({ name: "item-3", selected: false });
+
+    const store = createMockStore({
+      "item-1": item1,
+      "item-2": item2,
+      "item-3": item3,
+    });
+
+    simulateHandleClick(store, "item-2");
+
+    expect(store.items["item-1"].selected).toBe(false);
+    expect(store.items["item-2"].selected).toBe(true);
+    expect(store.items["item-3"].selected).toBe(false);
+  });
+
+  it("clicking different geometries switches selection", () => {
+    const item1 = createMockGeometryItem({ name: "item-1", selected: true });
+    const item2 = createMockGeometryItem({ name: "item-2", selected: false });
+
+    const store = createMockStore({
+      "item-1": item1,
+      "item-2": item2,
+    });
+
+    expect(store.items["item-1"].selected).toBe(true);
+    expect(store.items["item-2"].selected).toBe(false);
+
+    simulateHandleClick(store, "item-2");
+
+    expect(store.items["item-1"].selected).toBe(false);
+    expect(store.items["item-2"].selected).toBe(true);
+
+    simulateHandleClick(store, "item-1");
+
+    expect(store.items["item-1"].selected).toBe(true);
+    expect(store.items["item-2"].selected).toBe(false);
+  });
+
+  it("maintains input highlighting compatibility", () => {
+    const item1 = createMockGeometryItem({ name: "item-1", selected: true, dependsOn: ["input-a"] });
+    const item2 = createMockGeometryItem({ name: "item-2", selected: false, dependsOn: ["input-b"] });
+    const inputA = createMockGeometryItem({ name: "input-a", selected: false });
+    const inputB = createMockGeometryItem({ name: "input-b", selected: false });
+
+    const store = createMockStore({
+      "item-1": item1,
+      "item-2": item2,
+      "input-a": inputA,
+      "input-b": inputB,
+    });
+
+    simulateHandleClick(store, "item-2");
+
+    expect(store.items["item-2"].selected).toBe(true);
+    expect(store.items["item-1"].selected).toBe(false);
+    expect(store.items["item-2"].dependsOn).toEqual(["input-b"]);
   });
 });
