@@ -47,23 +47,27 @@ export function GeometryList({
     const item = store.items[name] as GeometryItem | undefined;
     if (!item) return;
 
-    // Determine new selected state
-    const newSelected = !item.selected;
-    store.update(name, { selected: newSelected });
-
-    // Update highlighted inputs based on new selection
-    if (showInputHighlight) {
-      if (newSelected) {
-        // Selecting: highlight this item's dependencies
-        setHighlightedInputs(new Set(item.dependsOn || []));
-      } else {
-        // Deselecting: clear all highlights
-        setHighlightedInputs(new Set());
+    // Deselect all first for single selection mode
+    Object.keys(store.items).forEach((key) => {
+      const existingItem = store.items[key] as GeometryItem | undefined;
+      if (existingItem) {
+        store.update(key, { selected: false });
+        // Restore visual state for deselected items
+        applyVisualFeedback(existingItem.element, { ...existingItem, selected: false }, stroke, strokeBig);
       }
+    });
+
+    // Select the clicked one
+    store.update(name, { selected: true });
+
+    // Update highlighted inputs based on selection
+    if (showInputHighlight) {
+      // Highlight this item's dependencies
+      setHighlightedInputs(new Set(item.dependsOn || []));
     }
 
     // Apply visual feedback to the clicked SVG element
-    applyVisualFeedback(item.element, { ...item, selected: newSelected }, stroke, strokeBig);
+    applyVisualFeedback(item.element, { ...item, selected: true }, stroke, strokeBig);
   };
 
   const getItemColor = (name: string) => {
