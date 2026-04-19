@@ -463,7 +463,7 @@ const STEP_FINAL_SQUARE: Step = {
     (svgPolygon as any).tooltipBg = tooltipBg;
 
     if (store) {
-      store.add(GEOM.SQUARE, svgPolygon, "polygon");
+      store.add(GEOM.SQUARE, svgPolygon, "polygon", []);
     }
   },
 };

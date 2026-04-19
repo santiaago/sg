@@ -14,18 +14,20 @@ export interface GeometryItem {
   context?: any;
   // Store original attributes
   initialState?: Record<string, string>;
+  // IDs of geometries this item depends on
+  dependsOn: string[];
 }
 
 export interface GeometryStore {
   items: Record<string, GeometryItem>;
-  add: (name: string, element: any, type: string) => void;
+  add: (name: string, element: any, type: string, dependsOn: string[]) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
   clear: () => void;
 }
 
 interface GeometryStorev2v3v4 {
   items: Record<string, GeometryItem>;
-  add: (shape: { name: string; type: string; context?: any }, element: any) => void;
+  add: (name: string, element: any, type: string, dependsOn: string[], context?: any) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
   clear: () => void;
 }
@@ -211,7 +213,7 @@ function captureInitialState(element: any, type: string, name: string): Record<s
 export function useGeometryStore(): GeometryStore {
   const [items, setItems] = useState<Record<string, GeometryItem>>({});
 
-  const add = useCallback((name: string, element: any, type: string) => {
+  const add = useCallback((name: string, element: any, type: string, dependsOn: string[]) => {
     setItems((old) => {
       const newItems = { ...old };
       const initialState = captureInitialState(element, type, name);
@@ -225,6 +227,7 @@ export function useGeometryStore(): GeometryStore {
         type,
         initialState:
           Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
+        dependsOn: existingItem?.dependsOn ?? dependsOn,
       };
       return newItems;
     });
@@ -251,7 +254,7 @@ export function useGeometryStore(): GeometryStore {
 export function useGeometryStoreSquare(): GeometryStore {
   const [items, setItems] = useState<Record<string, GeometryItem>>({});
 
-  const add = useCallback((name: string, element: any, type: string) => {
+  const add = useCallback((name: string, element: any, type: string, dependsOn: string[]) => {
     setItems((old) => {
       const newItems = { ...old };
       const initialState = captureInitialState(element, type, name);
@@ -265,6 +268,7 @@ export function useGeometryStoreSquare(): GeometryStore {
         type,
         initialState:
           Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
+        dependsOn: existingItem?.dependsOn ?? dependsOn,
       };
       return newItems;
     });
@@ -291,25 +295,29 @@ export function useGeometryStoreSquare(): GeometryStore {
 export function useGeometryStorev2(): GeometryStorev2v3v4 {
   const [items, setItems] = useState<Record<string, GeometryItem>>({});
 
-  const add = useCallback((shape: { name: string; type: string; context?: any }, element: any) => {
-    setItems((old) => {
-      const newItems = { ...old };
-      const initialState = captureInitialState(element, shape.type, shape.name);
-      const existingItem = old[shape.name];
+  const add = useCallback(
+    (name: string, element: any, type: string, dependsOn: string[], context?: any) => {
+      setItems((old) => {
+        const newItems = { ...old };
+        const initialState = captureInitialState(element, type, name);
+        const existingItem = old[name];
 
-      newItems[shape.name] = {
-        name: shape.name,
-        element,
-        // Preserve existing selected state if this item already exists
-        selected: existingItem?.selected ?? false,
-        type: shape.type,
-        context: shape.context,
-        initialState:
-          Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
-      };
-      return newItems;
-    });
-  }, []);
+        newItems[name] = {
+          name,
+          element,
+          // Preserve existing selected state if this item already exists
+          selected: existingItem?.selected ?? false,
+          type,
+          context,
+          initialState:
+            Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
+          dependsOn: existingItem?.dependsOn ?? dependsOn,
+        };
+        return newItems;
+      });
+    },
+    [],
+  );
 
   const update = useCallback((k: string, o: Partial<GeometryItem>) => {
     setItems((old) => {

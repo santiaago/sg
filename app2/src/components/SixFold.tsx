@@ -102,7 +102,7 @@ export function SixFold({
 
     // Add store item if store is provided
     if (store) {
-      store.add(name, dotElement, "point");
+      store.add(name, dotElement, "point", []);
     }
 
     return dotElement;
@@ -191,7 +191,7 @@ export function SixFold({
 
     // Add to store if provided
     if (store) {
-      store.add(name, lineEl, "line");
+      store.add(name, lineEl, "line", []);
     }
 
     return lineEl;
@@ -258,7 +258,7 @@ export function SixFold({
 
     // Add to store if provided
     if (store) {
-      store.add(name, circleEl, "circle");
+      store.add(name, circleEl, "circle", []);
     }
 
     return circleEl;
