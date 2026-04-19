@@ -129,6 +129,21 @@ export function Square({
       stableConfig,
     );
 
+    // Build dependency map and update store items with dependsOn
+    if (store && currentStep > 0) {
+      const stepDependencies = new Map<string, string[]>();
+      for (const step of SQUARE_STEPS.slice(0, currentStep)) {
+        for (const outputId of step.outputs) {
+          stepDependencies.set(outputId, step.inputs);
+        }
+      }
+
+      for (const [id] of allValues) {
+        const deps = stepDependencies.get(id) ?? [];
+        store.update(id, { dependsOn: deps });
+      }
+    }
+
     // Track dependencies in the geometry value store
     if (geometryValueStore && allValues.size > 0) {
       // For each computed value, record it with its dependencies
