@@ -4,7 +4,21 @@ import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore, GeometryValueStore } from "../react-store";
 import { rect } from "../svgElements";
 import { SQUARE_STEPS, executeSteps, GEOM, computeSquareConfig } from "../geometry/squareSteps";
-import type { GeometryValue, Step } from "../types/geometry";
+import type { GeometryValue, Step, SquareParameters } from "../types/geometry";
+
+// Helper to pick subset of object by keys
+function pick<T extends object, K extends keyof T>(
+  obj: T,
+  keys: K[],
+): Partial<Pick<T, K>> {
+  const result: Partial<Pick<T, K>> = {};
+  for (const key of keys) {
+    if (key in obj) {
+      result[key] = obj[key];
+    }
+  }
+  return result;
+}
 
 // Props for the Square component.
 // Note: The steps and updateSteps props are deprecated but kept for backward compatibility.
@@ -129,18 +143,32 @@ export function Square({
       stableConfig,
     );
 
-    // Build dependency map and update store items with dependsOn
+    // Build dependency map and step maps for parameter values
     if (store && currentStep > 0) {
       const stepDependencies = new Map<string, string[]>();
+      const stepForOutput = new Map<string, Step>();
+
       for (const step of SQUARE_STEPS.slice(0, currentStep)) {
         for (const outputId of step.outputs) {
           stepDependencies.set(outputId, step.inputs);
+          stepForOutput.set(outputId, step);
         }
       }
 
+      // Convert stableConfig to SquareParameters for pick()
+      const params = stableConfig as unknown as SquareParameters;
+
       for (const [id] of allValues) {
         const deps = stepDependencies.get(id) ?? [];
-        store.update(id, { dependsOn: deps });
+        const step = stepForOutput.get(id);
+        const paramValues = step?.parameters ? pick(params, step.parameters) : {};
+        const stepId = step?.id ?? "";
+
+        store.update(id, {
+          dependsOn: deps,
+          stepId,
+          parameterValues: paramValues,
+        });
       }
     }
 
