@@ -1,0 +1,377 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { GeometryList } from "../src/components/GeometryList";
+import type { GeometryItem } from "../src/react-store";
+
+// Mock SVG elements
+const createMockElement = () => ({
+  setAttribute: vi.fn(),
+  getAttribute: vi.fn(),
+  tooltip: { setAttribute: vi.fn() },
+  tooltipBg: { setAttribute: vi.fn() },
+});
+
+// Create a proper mock store that actually updates its items
+const createMockStore = (initialItems: Record<string, GeometryItem> = {}) => {
+  let items: Record<string, GeometryItem> = { ...initialItems };
+  return {
+    get items() {
+      return items;
+    },
+    set items(newItems: Record<string, GeometryItem>) {
+      items = newItems;
+    },
+    update: vi.fn((key: string, partial: Partial<GeometryItem>) => {
+      items[key] = { ...items[key], ...partial };
+    }),
+    add: vi.fn((name: string, element: any, type: string, dependsOn: string[] = []) => {
+      items[name] = { name, element, selected: false, type, dependsOn, context: undefined };
+    }),
+    clear: vi.fn(() => {
+      items = {};
+    }),
+  };
+};
+
+// Mock GeometryItems for Square construction
+const createMockStoreItems = (): Record<string, GeometryItem> => {
+  const mockLineElement = createMockElement();
+  const mockPointElement = createMockElement();
+  const mockCircleElement = createMockElement();
+
+  return {
+    line_main: {
+      name: "line_main",
+      element: mockLineElement,
+      selected: false,
+      type: "line",
+      context: undefined,
+      initialState: { stroke: "white", "stroke-width": "0.5" },
+      dependsOn: [],
+    },
+    c1: {
+      name: "c1",
+      element: mockPointElement,
+      selected: false,
+      type: "point",
+      context: undefined,
+      initialState: { fill: "white", r: "2" },
+      dependsOn: ["line_main"],
+    },
+    c1_c: {
+      name: "c1_c",
+      element: mockCircleElement,
+      selected: false,
+      type: "circle",
+      context: undefined,
+      initialState: { stroke: "white", "stroke-width": "0.5" },
+      dependsOn: ["c1"],
+    },
+  };
+};
+
+describe("GeometryList", () => {
+  let store: any;
+  let mockItems: Record<string, GeometryItem>;
+
+  beforeEach(() => {
+    mockItems = createMockStoreItems();
+    store = createMockStore({ ...mockItems });
+    vi.clearAllMocks();
+  });
+
+  describe("Rendering", () => {
+    it("renders all geometry items", () => {
+      render(<GeometryList store={store} />);
+
+      expect(screen.getByText("line_main | line")).toBeInTheDocument();
+      expect(screen.getByText("c1 | point")).toBeInTheDocument();
+      expect(screen.getByText("c1_c | circle")).toBeInTheDocument();
+    });
+
+    it("displays the header", () => {
+      render(<GeometryList store={store} />);
+
+      expect(screen.getByText("Geometry Items")).toBeInTheDocument();
+    });
+
+    it("displays item count", () => {
+      render(<GeometryList store={store} />);
+
+      expect(screen.getByText("Store has 3 items")).toBeInTheDocument();
+    });
+
+    it("renders empty message when no items", () => {
+      const emptyStore = createMockStore({});
+      render(<GeometryList store={emptyStore} />);
+
+      expect(screen.getByText("Store has 0 items")).toBeInTheDocument();
+    });
+  });
+
+  describe("Selection Behavior (feature OFF)", () => {
+    it("toggles selected state on click", () => {
+      render(<GeometryList store={store} showInputHighlight={false} />);
+
+      fireEvent.click(screen.getByText("c1 | point"));
+
+      expect(store.update).toHaveBeenCalledWith("c1", { selected: true });
+      expect(store.items.c1.selected).toBe(true);
+    });
+
+    it("toggles back to deselected on second click", () => {
+      render(<GeometryList store={store} showInputHighlight={false} />);
+
+      const c1Item = screen.getByText("c1 | point");
+
+      // First click - select
+      fireEvent.click(c1Item);
+      expect(store.update).toHaveBeenCalledWith("c1", { selected: true });
+      expect(store.items.c1.selected).toBe(true);
+
+      // Second click - deselect
+      fireEvent.click(c1Item);
+      expect(store.update).toHaveBeenCalledWith("c1", { selected: false });
+      expect(store.items.c1.selected).toBe(false);
+    });
+
+    it("applies red highlighting to selected point with context", () => {
+      const storeWithContext = createMockStore({
+        c1: { ...mockItems.c1, context: {} },
+      });
+
+      render(<GeometryList store={storeWithContext} showInputHighlight={false} />);
+
+      const item = screen.getByText("c1 | point");
+      fireEvent.click(item);
+
+      // Verify store was updated correctly
+      expect(storeWithContext.update).toHaveBeenCalledWith("c1", { selected: true });
+      expect(storeWithContext.items.c1.selected).toBe(true);
+      expect(storeWithContext.items.c1.context).toBeDefined();
+    });
+
+    it("applies highlighting to selected point without context", () => {
+      render(<GeometryList store={store} showInputHighlight={false} />);
+
+      const item = screen.getByText("c1 | point");
+      fireEvent.click(item);
+
+      // Verify store was updated correctly
+      expect(store.update).toHaveBeenCalledWith("c1", { selected: true });
+      expect(store.items.c1.selected).toBe(true);
+    });
+
+    it("applies highlighting to selected line without context", () => {
+      render(<GeometryList store={store} showInputHighlight={false} />);
+
+      const item = screen.getByText("line_main | line");
+      fireEvent.click(item);
+
+      // Verify store was updated correctly
+      expect(store.update).toHaveBeenCalledWith("line_main", { selected: true });
+      expect(store.items.line_main.selected).toBe(true);
+    });
+  });
+
+  describe("Input Highlighting (feature ON)", () => {
+    it("highlights input dependencies when geometry is selected", () => {
+      render(<GeometryList store={store} showInputHighlight={true} />);
+
+      fireEvent.click(screen.getByText("c1 | point"));
+
+      // c1 depends on line_main, so line_main should be orange
+      expect(screen.getByText("line_main | line")).toHaveClass("text-orange-400");
+    });
+
+    it("highlights c1 when c1_c is selected", () => {
+      render(<GeometryList store={store} showInputHighlight={true} />);
+
+      fireEvent.click(screen.getByText("c1_c | circle"));
+
+      // c1_c depends on c1
+      expect(screen.getByText("c1 | point")).toHaveClass("text-orange-400");
+    });
+
+    it("clears orange highlights when geometry is deselected", () => {
+      render(<GeometryList store={store} showInputHighlight={true} />);
+
+      const c1Item = screen.getByText("c1 | point");
+      const lineMainItem = screen.getByText("line_main | line");
+
+      // First select c1
+      fireEvent.click(c1Item);
+      expect(lineMainItem).toHaveClass("text-orange-400");
+
+      // Then deselect c1
+      fireEvent.click(c1Item);
+      expect(lineMainItem).not.toHaveClass("text-orange-400");
+    });
+
+    it("clears highlights when switching to different geometry", () => {
+      render(<GeometryList store={store} showInputHighlight={true} />);
+
+      // Select c1_c - highlights c1
+      fireEvent.click(screen.getByText("c1_c | circle"));
+      expect(screen.getByText("c1 | point")).toHaveClass("text-orange-400");
+
+      // Switch to c1 - should highlight line_main instead
+      fireEvent.click(screen.getByText("c1 | point"));
+      expect(screen.getByText("c1 | point")).toHaveClass("text-yellow-400");
+      expect(screen.getByText("line_main | line")).toHaveClass("text-orange-400");
+      expect(screen.getByText("c1_c | circle")).not.toHaveClass("text-orange-400");
+    });
+
+    it("clears highlights when toggle is turned OFF", () => {
+      const { rerender } = render(<GeometryList store={store} showInputHighlight={true} />);
+
+      fireEvent.click(screen.getByText("c1 | point"));
+      expect(screen.getByText("line_main | line")).toHaveClass("text-orange-400");
+
+      rerender(<GeometryList store={store} showInputHighlight={false} />);
+      expect(screen.getByText("line_main | line")).not.toHaveClass("text-orange-400");
+    });
+
+    it("shows selected geometry in yellow and its input in orange", () => {
+      render(<GeometryList store={store} showInputHighlight={true} />);
+
+      fireEvent.click(screen.getByText("c1 | point"));
+
+      // Selected geometry (c1) should be yellow
+      expect(screen.getByText("c1 | point")).toHaveClass("text-yellow-400");
+      // Its input (line_main) should be orange
+      expect(screen.getByText("line_main | line")).toHaveClass("text-orange-400");
+    });
+
+    it("handles geometries with no dependencies", () => {
+      render(<GeometryList store={store} showInputHighlight={true} />);
+
+      fireEvent.click(screen.getByText("line_main | line"));
+
+      // line_main has no dependencies, so no orange highlights
+      expect(screen.getByText("line_main | line")).toHaveClass("text-yellow-400");
+      expect(screen.getByText("c1 | point")).not.toHaveClass("text-orange-400");
+      expect(screen.getByText("c1_c | circle")).not.toHaveClass("text-orange-400");
+    });
+
+    it("handles geometries with empty dependsOn array", () => {
+      const storeWithEmptyDeps = createMockStore({
+        isolated: {
+          name: "isolated",
+          element: createMockElement(),
+          selected: false,
+          type: "point",
+          context: undefined,
+          initialState: { fill: "white", r: "2" },
+          dependsOn: [],
+        },
+      });
+
+      render(<GeometryList store={storeWithEmptyDeps} showInputHighlight={true} />);
+
+      fireEvent.click(screen.getByText("isolated | point"));
+
+      // No orange highlights since dependsOn is empty
+      expect(screen.getByText("isolated | point")).toHaveClass("text-yellow-400");
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("has cursor-pointer on list items", () => {
+      render(<GeometryList store={store} />);
+
+      const items = screen.getAllByRole("listitem");
+      items.forEach((item) => {
+        expect(item).toHaveClass("cursor-pointer");
+      });
+    });
+
+    it("has hover:underline style on list items", () => {
+      render(<GeometryList store={store} />);
+
+      const items = screen.getAllByRole("listitem");
+      items.forEach((item) => {
+        expect(item).toHaveClass("hover:underline");
+      });
+    });
+  });
+
+  describe("Edge Cases", () => {
+    it("handles click on existing geometry name", () => {
+      render(<GeometryList store={store} />);
+
+      // Should not throw when clicking a name that exists in store
+      expect(() => {
+        fireEvent.click(screen.getByText("c1 | point"));
+      }).not.toThrow();
+    });
+
+    it("handles store with null items", () => {
+      const nullStore = createMockStore(null as any);
+      render(<GeometryList store={nullStore} />);
+
+      expect(screen.getByText("Store has 0 items")).toBeInTheDocument();
+    });
+
+    it("handles geometry item with missing element", () => {
+      const storeWithNullElement = createMockStore({
+        no_element: {
+          name: "no_element",
+          element: null,
+          selected: false,
+          type: "point",
+          context: undefined,
+          initialState: { fill: "white", r: "2" },
+          dependsOn: [],
+        },
+      });
+
+      render(<GeometryList store={storeWithNullElement} showInputHighlight={true} />);
+
+      // Should not throw
+      expect(() => {
+        fireEvent.click(screen.getByText("no_element | point"));
+      }).not.toThrow();
+    });
+
+    it("handles geometry item with missing dependsOn", () => {
+      const storeWithoutDependsOn = createMockStore({
+        no_deps: {
+          name: "no_deps",
+          element: createMockElement(),
+          selected: false,
+          type: "point",
+          context: undefined,
+          initialState: { fill: "white", r: "2" },
+          dependsOn: undefined as any,
+        },
+      });
+
+      render(<GeometryList store={storeWithoutDependsOn} showInputHighlight={true} />);
+
+      // Should not throw
+      expect(() => {
+        fireEvent.click(screen.getByText("no_deps | point"));
+      }).not.toThrow();
+    });
+  });
+
+  describe("Custom stroke props", () => {
+    it("uses custom stroke values", () => {
+      render(<GeometryList store={store} stroke={1} strokeBig={3} />);
+
+      fireEvent.click(screen.getByText("c1 | point"));
+
+      // The store update should have been called
+      expect(store.update).toHaveBeenCalled();
+    });
+
+    it("uses default stroke values when not provided", () => {
+      render(<GeometryList store={store} />);
+
+      fireEvent.click(screen.getByText("c1 | point"));
+
+      expect(store.update).toHaveBeenCalled();
+    });
+  });
+});

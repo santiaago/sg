@@ -11,8 +11,6 @@ interface GeometryListProps {
   showInputHighlight?: boolean;
 }
 
-const ORANGE_SCALE = 2.0;
-
 export function GeometryList({
   store,
   stroke = 0.5,
@@ -105,7 +103,7 @@ export function GeometryList({
 }
 
 // Apply orange visual feedback to SVG elements for highlighted input dependencies
-function applyInputVisualFeedback(element: any, shape: GeometryItem, scale: number = ORANGE_SCALE) {
+export function applyInputVisualFeedback(element: any, shape: GeometryItem, scale: number) {
   if (!element) return;
 
   try {
@@ -130,7 +128,7 @@ function applyInputVisualFeedback(element: any, shape: GeometryItem, scale: numb
 }
 
 // Restore an SVG element to its initial state
-function restoreInitialState(element: any, shape: GeometryItem) {
+export function restoreInitialState(element: any, shape: GeometryItem) {
   if (!element) return;
 
   try {
