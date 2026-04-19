@@ -477,7 +477,7 @@ export default function App(): JSX.Element {
           </a>
         </div>
         <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-9">
+          <div className="col-span-7">
             <Square
               store={storeSquare}
               strokeBig={strokeBig}
@@ -526,12 +526,14 @@ export default function App(): JSX.Element {
               </button>
             </div>
           </div>
-          <div className="col-span-3 pl-4">
+          <div className="col-span-2">
             <h2 className="text-lg font-medium mb-4">Right pane</h2>
             <p className="text-gray-300 mb-4">
               Current step {currentStepSquare}/{stepsSquare.length}
             </p>
             <GeometryDetails store={storeSquare} />
+          </div>
+          <div className="col-span-3">
             <div>
               <GeometryList
                 store={storeSquare}
