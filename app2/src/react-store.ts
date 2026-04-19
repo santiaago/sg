@@ -16,6 +16,10 @@ export interface GeometryItem {
   initialState?: Record<string, string>;
   // IDs of geometries this item depends on
   dependsOn: string[];
+  // Which step created this geometry
+  stepId: string;
+  // Parameter values used in creation
+  parameterValues: Record<string, unknown>;
 }
 
 export interface GeometryStore {
@@ -228,6 +232,8 @@ export function useGeometryStore(): GeometryStore {
         initialState:
           Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
         dependsOn: existingItem?.dependsOn ?? dependsOn,
+        stepId: "",
+        parameterValues: {},
       };
       return newItems;
     });
@@ -269,6 +275,8 @@ export function useGeometryStoreSquare(): GeometryStore {
         initialState:
           Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
         dependsOn: existingItem?.dependsOn ?? dependsOn,
+        stepId: "",
+        parameterValues: {},
       };
       return newItems;
     });
@@ -312,6 +320,8 @@ export function useGeometryStorev2(): GeometryStorev2v3v4 {
           initialState:
             Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
           dependsOn: existingItem?.dependsOn ?? dependsOn,
+          stepId: "",
+          parameterValues: {},
         };
         return newItems;
       });
