@@ -198,6 +198,7 @@ export default function App(): JSX.Element {
   const [stepsSquare, setStepsSquare] = useState<Step[]>([]);
   const [currentStepSquare, setCurrentStepSquare] = useState<number>(1);
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
+  const [showInputHighlight, setShowInputHighlight] = useState(false);
 
   const handleNextClickSquare = (): void => {
     console.log("next step", currentStepSquare, stepsSquare.length);
@@ -514,6 +515,14 @@ export default function App(): JSX.Element {
               >
                 restart
               </button>
+              <button
+                onClick={() => setShowInputHighlight(!showInputHighlight)}
+                className={`px-4 py-2 text-white rounded ${
+                  showInputHighlight ? "bg-blue-600" : "bg-gray-800 hover:bg-gray-700"
+                }`}
+              >
+                inputs
+              </button>
             </div>
           </div>
           <div className="col-span-3 pl-4">
@@ -528,6 +537,7 @@ export default function App(): JSX.Element {
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
+                showInputHighlight={showInputHighlight}
               />
             </div>
           </div>

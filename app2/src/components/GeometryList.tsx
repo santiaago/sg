@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import type { JSX } from "react";
+import type { GeometryItem } from "../react-store";
 
 interface GeometryListProps {
   store: any;
@@ -6,38 +8,79 @@ interface GeometryListProps {
   strokeMid?: number;
   strokeBig?: number;
   strokeLine?: number;
+  showInputHighlight?: boolean;
 }
 
-interface GeometryItem {
-  name: string;
-  element: any;
-  selected: boolean;
-  type: string;
-  context?: any;
-  initialState?: Record<string, string>;
-}
+const ORANGE_SCALE = 2.0;
 
 export function GeometryList({
   store,
   stroke = 0.5,
   strokeBig = 2,
+  showInputHighlight = false,
 }: GeometryListProps): JSX.Element {
+  const [highlightedInputs, setHighlightedInputs] = useState<Set<string>>(new Set());
+
+  // Clear highlighted inputs when toggle is turned OFF
+  useEffect(() => {
+    if (!showInputHighlight) {
+      setHighlightedInputs(new Set());
+    }
+  }, [showInputHighlight]);
+
+  // Apply orange styles to SVG elements for highlighted inputs
+  useEffect(() => {
+    if (!showInputHighlight) return;
+
+    const items = store.items || {};
+    Object.values(items).forEach((item: unknown) => {
+      const geometryItem = item as GeometryItem;
+      if (!geometryItem.element) return;
+
+      if (highlightedInputs.has(geometryItem.name)) {
+        applyInputVisualFeedback(geometryItem.element, geometryItem, strokeBig);
+      } else if (!geometryItem.selected) {
+        restoreInitialState(geometryItem.element, geometryItem);
+      }
+    });
+  }, [highlightedInputs, showInputHighlight, store.items, strokeBig]);
+
   const handleClick = (name: string) => {
     const item = store.items[name] as GeometryItem | undefined;
     if (!item) return;
 
-    // Toggle selection state
-    store.update(name, { selected: !item.selected });
+    // Determine new selected state
+    const newSelected = !item.selected;
+    store.update(name, { selected: newSelected });
 
-    // Apply visual feedback to the SVG element
-    applyVisualFeedback(item.element, { ...item, selected: !item.selected }, stroke, strokeBig);
+    // Update highlighted inputs based on new selection
+    if (showInputHighlight) {
+      if (newSelected) {
+        // Selecting: highlight this item's dependencies
+        setHighlightedInputs(new Set(item.dependsOn || []));
+      } else {
+        // Deselecting: clear all highlights
+        setHighlightedInputs(new Set());
+      }
+    }
+
+    // Apply visual feedback to the clicked SVG element
+    applyVisualFeedback(item.element, { ...item, selected: newSelected }, stroke, strokeBig);
   };
 
   const getItemColor = (name: string) => {
     const item = store.items[name] as GeometryItem | undefined;
-    if (item?.selected) {
+    if (!item) return "text-white";
+
+    if (item.selected) {
       return item.context ? "text-red-400" : "text-yellow-400";
     }
+
+    // Highlight inputs in orange when feature is enabled
+    if (showInputHighlight && highlightedInputs.has(name)) {
+      return "text-orange-400";
+    }
+
     return "text-white";
   };
 
@@ -59,6 +102,54 @@ export function GeometryList({
       </ul>
     </div>
   );
+}
+
+// Apply orange visual feedback to SVG elements for highlighted input dependencies
+function applyInputVisualFeedback(element: any, shape: GeometryItem, scale: number = ORANGE_SCALE) {
+  if (!element) return;
+
+  try {
+    if (shape.type === "point") {
+      element.setAttribute("fill", "orange");
+      element.setAttribute("r", scale.toString());
+    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
+      element.setAttribute("stroke", "orange");
+      element.setAttribute("stroke-width", scale.toString());
+    }
+
+    // Show tooltip and background for highlighted inputs
+    if (element.tooltip) {
+      element.tooltip.setAttribute("opacity", "1");
+    }
+    if (element.tooltipBg) {
+      element.tooltipBg.setAttribute("opacity", "1");
+    }
+  } catch (error) {
+    console.error("Error applying input visual feedback:", error);
+  }
+}
+
+// Restore an SVG element to its initial state
+function restoreInitialState(element: any, shape: GeometryItem) {
+  if (!element) return;
+
+  try {
+    if (shape.initialState) {
+      Object.entries(shape.initialState).forEach(([attr, value]) => {
+        element.setAttribute(attr, value);
+      });
+    }
+
+    // Hide tooltips
+    if (element.tooltip) {
+      element.tooltip.setAttribute("opacity", "0");
+    }
+    if (element.tooltipBg) {
+      element.tooltipBg.setAttribute("opacity", "0");
+    }
+  } catch (error) {
+    console.error("Error restoring initial state:", error);
+  }
 }
 
 // Apply visual feedback to SVG elements based on selection state
