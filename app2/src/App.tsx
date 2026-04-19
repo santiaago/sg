@@ -14,6 +14,7 @@ import { SixFoldv4 } from "./components/SixFoldv4";
 import { Square } from "./components/Square";
 import { standardSvgConfig, sixFoldSvgConfig } from "./config/svgConfig";
 import { GeometryList } from "./components/GeometryList";
+import { GeometryDetails } from "./components/GeometryDetails";
 import { Navigation } from "./components/Navigation";
 import { CopyUrlButton } from "./components/CopyUrlButton";
 
@@ -530,6 +531,7 @@ export default function App(): JSX.Element {
             <p className="text-gray-300 mb-4">
               Current step {currentStepSquare}/{stepsSquare.length}
             </p>
+            <GeometryDetails store={storeSquare} />
             <div>
               <GeometryList
                 store={storeSquare}
