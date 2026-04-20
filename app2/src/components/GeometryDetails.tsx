@@ -1,6 +1,7 @@
 import type { JSX } from "react";
 import type { GeometryStore } from "../react-store";
 import type { GeometryItem } from "../react-store";
+import { SQUARE_STEPS } from "../geometry/squareSteps";
 
 export interface GeometryDetailsProps {
   store: GeometryStore;
@@ -29,14 +30,22 @@ function getSelectedGeometry(store: GeometryStore): GeometryItem | null {
   return null;
 }
 
-// Get outputs - geometries that depend on the given geometry ID
-function getOutputs(store: GeometryStore, geometryId: string): GeometryItem[] {
+// Get outputs - geometries output by the same step that created the selected geometry
+function getOutputs(store: GeometryStore, stepId: string): GeometryItem[] {
   const outputs: GeometryItem[] = [];
-  for (const [, item] of Object.entries(store.items)) {
-    if (item.dependsOn?.includes(geometryId)) {
-      outputs.push(item as GeometryItem);
+
+  // Find the step that created this geometry
+  const step = SQUARE_STEPS.find((s) => s.id === stepId);
+  if (!step || !step.outputs) return outputs;
+
+  // For each output of that step, find the corresponding item in the store
+  for (const outputId of step.outputs) {
+    const outputItem = store.items[outputId] as GeometryItem | undefined;
+    if (outputItem) {
+      outputs.push(outputItem);
     }
   }
+
   return outputs;
 }
 
@@ -52,7 +61,7 @@ export function GeometryDetails({ store }: GeometryDetailsProps): JSX.Element {
     return <></>;
   }
 
-  const outputs = getOutputs(store, selectedGeometry.name);
+  const outputs = getOutputs(store, selectedGeometry.stepId);
 
   return (
     <div className="mb-4 p-3 bg-slate-800 rounded border border-slate-700">

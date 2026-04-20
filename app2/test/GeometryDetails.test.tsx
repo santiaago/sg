@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { GeometryDetails } from "../src/components/GeometryDetails";
+import { SQUARE_STEPS } from "../src/geometry/squareSteps";
 import type { GeometryStore, GeometryItem } from "../src/react-store";
 
 // Helper to create a mock SVG element
@@ -168,31 +169,74 @@ describe("GeometryDetails", () => {
     expect(screen.getByText("No parameters")).toBeInTheDocument();
   });
 
-  it("displays outputs from reverse dependencies", () => {
+  it("displays outputs from the same step", () => {
+    // step_main_line outputs ["line_main"]
     const store = createMockStore({
-      "main-line": createMockGeometryItem({ name: "main-line", selected: true, type: "line" }),
-      "point-1": createMockGeometryItem({
-        name: "point-1",
-        dependsOn: ["main-line"],
-        type: "point",
-      }),
-      "point-2": createMockGeometryItem({
-        name: "point-2",
-        dependsOn: ["main-line"],
-        type: "point",
+      line_main: createMockGeometryItem({
+        name: "line_main",
+        selected: true,
+        type: "line",
+        stepId: "step_main_line",
       }),
     });
 
     render(<GeometryDetails store={store} />);
 
     expect(screen.getByText("Outputs")).toBeInTheDocument();
-    expect(screen.getByText("point-1")).toBeInTheDocument();
-    expect(screen.getByText("point-2")).toBeInTheDocument();
+    // Check in the Outputs section specifically
+    const outputsSection = screen.getByText("Outputs").parentElement;
+    expect(outputsSection).toContainHTML("line_main");
   });
 
-  it("displays no outputs message when no reverse dependencies", () => {
+  it("displays multiple outputs from same step", () => {
+    // Find a step with multiple outputs to test
+    const stepWithMultiple = SQUARE_STEPS.find((s) => s.outputs && s.outputs.length > 1);
+
+    if (stepWithMultiple) {
+      const outputs = stepWithMultiple.outputs.map((name) =>
+        createMockGeometryItem({
+          name,
+          selected: name === stepWithMultiple.outputs[0],
+          type: "point",
+          stepId: stepWithMultiple.id,
+        }),
+      );
+      const items: Record<string, GeometryItem> = {};
+      outputs.forEach((o) => {
+        items[o.name] = o;
+      });
+
+      const store = createMockStore({
+        ...items,
+        [stepWithMultiple.outputs[0]]: { ...items[stepWithMultiple.outputs[0]], selected: true },
+      });
+
+      render(<GeometryDetails store={store} />);
+
+      expect(screen.getByText("Outputs")).toBeInTheDocument();
+      for (const outputName of stepWithMultiple.outputs) {
+        expect(screen.getByText(outputName)).toBeInTheDocument();
+      }
+    }
+  });
+
+  it("displays no outputs when step has no outputs", () => {
     const store = createMockStore({
-      "point-1": createMockGeometryItem({ name: "point-1", selected: true }),
+      "point-1": createMockGeometryItem({ name: "point-1", selected: true, stepId: "" }),
+    });
+
+    render(<GeometryDetails store={store} />);
+
+    expect(screen.getByText("No outputs")).toBeInTheDocument();
+  });
+
+  it("displays no outputs when step not found", () => {
+    const store = createMockStore({
+      "point-1": createMockGeometryItem({
+        name: "point-1",
+        selected: true,
+        stepId: "non-existent-step",
+      }),
     });
 
     render(<GeometryDetails store={store} />);
