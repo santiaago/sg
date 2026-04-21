@@ -4,7 +4,7 @@ import type {
   GeometryNode,
   DependencyEdge,
   DependencyGraph,
-} from "../types/geometry.js";
+} from "../types/geometry";
 
 export interface GeometryItem {
   name: string;

@@ -17,12 +17,24 @@ import { GeometryList } from "./components/GeometryList";
 import { GeometryDetails } from "./components/GeometryDetails";
 import { Navigation } from "./components/Navigation";
 import { CopyUrlButton } from "./components/CopyUrlButton";
+import { lightTheme, darkTheme } from "./geometry/squareSteps";
+import type { Theme } from "./geometry/squareSteps";
 
 export default function App(): JSX.Element {
   const stroke = 0.5;
   const strokeMid = 0.5;
   const strokeBig = 2;
   const strokeLine = 1.4;
+
+  // Theme state
+  const [svgTheme, setSvgTheme] = useState<Theme>(darkTheme);
+
+  const toggleTheme = useCallback(() => {
+    const newTheme = svgTheme === darkTheme ? lightTheme : darkTheme;
+    setSvgTheme(newTheme);
+    // Also update the document background for consistency
+    document.documentElement.classList.toggle("dark", newTheme === darkTheme);
+  }, [svgTheme]);
 
   // Navigation menu state
   const [activeSection, setActiveSection] = useState<
@@ -253,7 +265,12 @@ export default function App(): JSX.Element {
     <main className="p-8 bg-gray-900 text-white">
       <h1 className="text-5xl font-bold mb-8 text-left text-blue-400">sg</h1>
 
-      <Navigation onNavigate={scrollToSection} activeSection={activeSection} />
+      <Navigation
+        onNavigate={scrollToSection}
+        activeSection={activeSection}
+        onToggleTheme={toggleTheme}
+        svgTheme={svgTheme}
+      />
 
       {/* v4 Section */}
       <div
@@ -486,6 +503,7 @@ export default function App(): JSX.Element {
               updateSteps={updateStepsSquare}
               restartKey={restartKeySquare}
               currentStep={currentStepSquare}
+              theme={svgTheme}
             />
             <div className="mt-1 flex gap-2">
               <button

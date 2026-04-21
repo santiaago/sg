@@ -46,9 +46,14 @@ import {
   pointFromCircleAndLine,
   square as makeSquare,
   lineTowards,
-  circleWithRadiusFrom,
 } from "./constructors";
-import { createTooltip, drawPoint, drawLine, drawCircle, COLOR_PRIMARY } from "../svgElements";
+import { createTooltip, drawPoint, drawLine, drawCircle } from "../svgElements";
+import { darkTheme, lightTheme } from "../themes";
+import type { Theme } from "../themes";
+
+export { lightTheme, darkTheme };
+export type { Theme };
+
 import type { GeometryStore } from "../react-store";
 
 export {
@@ -78,8 +83,8 @@ const STEP_MAIN_LINE: Step = {
     return line(params.lx1, params.ly1, params.lx2, params.ly2);
   }),
 
-  draw: (svg, values, store) => {
-    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store);
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store, theme);
   },
 };
 
@@ -101,8 +106,8 @@ const STEP_C1: Step = {
     return point(c1x, mainLine.y1);
   }),
 
-  draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.C1, 2.0, store);
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.C1, 2.0, store, theme);
   },
 };
 
@@ -122,8 +127,8 @@ const STEP_C1_CIRCLE: Step = {
     return circleFromPoint(c1, params.circleRadius);
   }),
 
-  draw: (svg, values, store) => {
-    drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store);
+  draw: (svg, values, store, theme) => {
+    drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store, theme);
   },
 };
 
@@ -149,8 +154,8 @@ const STEP_C2: Step = {
     return c2;
   }),
 
-  draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.C2, 2.0, store);
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.C2, 2.0, store, theme);
   },
 };
 
@@ -170,8 +175,8 @@ const STEP_C2_CIRCLE: Step = {
     return circleFromPoint(c2, params.circleRadius);
   }),
 
-  draw: (svg, values, store) => {
-    drawCircle(svg, values, GEOM.C2_CIRCLE, 0.5, store);
+  draw: (svg, values, store, theme) => {
+    drawCircle(svg, values, GEOM.C2_CIRCLE, 0.5, store, theme);
   },
 };
 
@@ -197,8 +202,8 @@ const STEP_INTERSECTION_POINT: Step = {
     return pi;
   }),
 
-  draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.INTERSECTION_POINT, 2.0, store);
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.INTERSECTION_POINT, 2.0, store, theme);
   },
 };
 
@@ -218,8 +223,8 @@ const STEP_INTERSECTION_CIRCLE: Step = {
     return circleFromPoint(pi, params.circleRadius);
   }),
 
-  draw: (svg, values, store) => {
-    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, 0.5, store);
+  draw: (svg, values, store, theme) => {
+    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, 0.5, store, theme);
   },
 };
 
@@ -240,9 +245,9 @@ const STEP_LINE_C2_PI: Step = {
     return lineTowards(c2, pi, LINE_EXTENSION_MULTIPLIER * params.circleRadius);
   }),
 
-  draw: (svg, values, store) => {
+  draw: (svg, values, store, theme) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store);
+    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store, theme);
   },
 };
 
@@ -271,8 +276,8 @@ const STEP_P3: Step = {
     return p3;
   }),
 
-  draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.P3, 2.0, store);
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.P3, 2.0, store, theme);
   },
 };
 
@@ -293,9 +298,9 @@ const STEP_LINE_C1_PI: Step = {
     return lineTowards(c1, pi, LINE_EXTENSION_MULTIPLIER * params.circleRadius);
   }),
 
-  draw: (svg, values, store) => {
+  draw: (svg, values, store, theme) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store);
+    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store, theme);
   },
 };
 
@@ -324,8 +329,8 @@ const STEP_P4: Step = {
     return p4;
   }),
 
-  draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.P4, 2.0, store);
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.P4, 2.0, store, theme);
   },
 };
 
@@ -346,8 +351,8 @@ const STEP_LINE_C2_P4: Step = {
     return line(c2.x, c2.y, p4.x, p4.y);
   }),
 
-  draw: (svg, values, store) => {
-    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store);
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store, theme);
   },
 };
 
@@ -372,8 +377,8 @@ const STEP_PL: Step = {
     return pl;
   }),
 
-  draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.PL, 2.0, store);
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.PL, 2.0, store, theme);
   },
 };
 
@@ -394,8 +399,8 @@ const STEP_LINE_C1_P3: Step = {
     return line(c1.x, c1.y, p3.x, p3.y);
   }),
 
-  draw: (svg, values, store) => {
-    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store);
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store, theme);
   },
 };
 
@@ -420,8 +425,8 @@ const STEP_PR: Step = {
     return pr;
   }),
 
-  draw: (svg, values, store) => {
-    drawPoint(svg, values, GEOM.PR, 2.0, store);
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.PR, 2.0, store, theme);
   },
 };
 
@@ -444,7 +449,7 @@ const STEP_FINAL_SQUARE: Step = {
     return makeSquare(pl, pr, c1, c2);
   }),
 
-  draw: (svg, values, store) => {
+  draw: (svg, values, store, theme) => {
     const square = values.get(GEOM.SQUARE);
 
     if (!square || !isPolygon(square)) return;
@@ -452,9 +457,11 @@ const STEP_FINAL_SQUARE: Step = {
     const svgPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
     const points = square.points.map((p) => `${p.x},${p.y}`).join(" ");
     svgPolygon.setAttribute("points", points);
-    svgPolygon.setAttribute("stroke", COLOR_PRIMARY);
+    // Stroke uses theme.COLOR_PRIMARY with GOLDEN_RATIO width
+    svgPolygon.setAttribute("stroke", theme.COLOR_PRIMARY);
     svgPolygon.setAttribute("stroke-width", GOLDEN_RATIO.toString());
     svgPolygon.setAttribute("fill", "none");
+    svgPolygon.setAttribute("pointer-events", "none");
     svgPolygon.setAttribute("data-tooltip", GEOM.SQUARE);
     svgPolygon.style.cursor = "pointer";
     svg.appendChild(svgPolygon);
@@ -462,7 +469,7 @@ const STEP_FINAL_SQUARE: Step = {
     // Create tooltip element for the polygon
     const tooltipX = square.points[0].x + 15;
     const tooltipY = square.points[0].y;
-    const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, GEOM.SQUARE, 15);
+    const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, GEOM.SQUARE, 15, theme);
     // Store tooltip references on the element
     (svgPolygon as any).tooltip = tooltip;
     (svgPolygon as any).tooltipBg = tooltipBg;
@@ -499,6 +506,7 @@ export interface StepExecutionContext {
   svg: SVGSVGElement;
   config: { width: number; height: number; stroke: number; strokeBig: number };
   store?: GeometryStore;
+  theme: Theme;
 }
 
 // Executes a single step: computes outputs and draws them.
@@ -545,7 +553,7 @@ export function executeStep(
   }
 
   // Draw the step
-  step.draw(ctx.svg, newAllValues, ctx.store);
+  step.draw(ctx.svg, newAllValues, ctx.store, ctx.theme);
 
   return newAllValues;
 }

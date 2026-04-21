@@ -1,5 +1,6 @@
 // Type definitions for geometry operations and dependency tracking.
 import type { GeometryStore } from "../react-store";
+import type { Theme } from "../themes";
 // These types enable:
 // - Explicit declaration of geometry inputs and outputs
 // - Lazy step-by-step calculation
@@ -105,8 +106,14 @@ export interface Step {
   // Called after compute() to render the step's output.
   // svg - The SVG element to draw into
   // values - Map of ALL geometry values (including those from previous steps)
-  // store - Optional store for managing SVG elements and tooltips
-  draw: (svg: SVGSVGElement, values: Map<string, GeometryValue>, store?: GeometryStore) => void;
+  // store - Store for managing SVG elements and tooltips
+  // theme - Theme to use for colors
+  draw: (
+    svg: SVGSVGElement,
+    values: Map<string, GeometryValue>,
+    store: GeometryStore,
+    theme: Theme,
+  ) => void;
 }
 
 // Dependency Graph Types

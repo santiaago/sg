@@ -3,8 +3,15 @@ import type { JSX } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore, GeometryValueStore } from "../react-store";
 import { rect } from "../svgElements";
-import { SQUARE_STEPS, executeSteps, GEOM, computeSquareConfig } from "../geometry/squareSteps";
+import {
+  SQUARE_STEPS,
+  executeSteps,
+  GEOM,
+  computeSquareConfig,
+  darkTheme,
+} from "../geometry/squareSteps";
 import type { GeometryValue, Step, SquareParameters } from "../types/geometry";
+import type { Theme } from "../geometry/squareSteps";
 
 // Helper to pick subset of object by keys
 function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Partial<Pick<T, K>> {
@@ -42,6 +49,9 @@ export interface SquareProps {
   // Optional store for geometry values (for dependency tracking)
   geometryValueStore?: GeometryValueStore;
 
+  // Theme for SVG rendering (light or dark)
+  theme?: Theme;
+
   // Deprecated: steps are now defined statically. Kept for backward compatibility.
   steps?: any[];
 
@@ -76,6 +86,7 @@ export function Square({
   currentStep = 0,
   onDependencyGraphChange,
   geometryValueStore,
+  theme = darkTheme,
   // Deprecated props (kept for backward compatibility)
   steps: _steps,
   updateSteps,
@@ -113,8 +124,8 @@ export function Square({
     // Clear the SVG
     setupSvg(svg, svgConfig);
 
-    // Draw the background rectangle
-    rect(svg, svgConfig.width, svgConfig.height);
+    // Draw the background rectangle using the theme color
+    rect(svg, svgConfig.width, svgConfig.height, theme);
 
     // Clear both stores to ensure right pane updates correctly when going to previous steps
     geometryValueStore?.clear?.();
@@ -136,6 +147,7 @@ export function Square({
           strokeBig,
         },
         store,
+        theme,
       },
       stableConfig,
     );
