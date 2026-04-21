@@ -26,15 +26,13 @@
  * - Separation of math (compute) and rendering (draw)
  */
 
-import type { Step, GeometryValue, SquareParameters } from "../types/geometry";
+import type { Step, GeometryValue } from "../types/geometry";
 import { point, line, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
 import {
   computeSquareConfig,
   GEOM,
   GOLDEN_RATIO,
-  C1_POSITION_RATIO,
   LINE_EXTENSION_MULTIPLIER,
-  DEFAULT_TOLERANCE,
   getGeometry,
   computeSingle,
   computeMultiple,
@@ -56,16 +54,7 @@ export type { Theme };
 
 import type { GeometryStore } from "../react-store";
 
-export {
-  computeSquareConfig,
-  GEOM,
-  GOLDEN_RATIO,
-  LINE_EXTENSION_MULTIPLIER,
-  DEFAULT_TOLERANCE,
-  getGeometry,
-  computeSingle,
-  computeMultiple,
-};
+export { computeSquareConfig, GEOM, getGeometry, computeSingle, computeMultiple };
 export type { SquareConfig };
 
 /**
@@ -505,7 +494,7 @@ export const SQUARE_STEPS: readonly Step[] = [
 export interface StepExecutionContext {
   svg: SVGSVGElement;
   config: { width: number; height: number; stroke: number; strokeBig: number };
-  store?: GeometryStore;
+  store: GeometryStore;
   theme: Theme;
 }
 
@@ -531,20 +520,8 @@ export function executeStep(
     inputValues.set(inputId, value);
   }
 
-  // Build SquareParameters object from config and constants
-  const params: SquareParameters = {
-    lx1: squareConfig.lx1,
-    ly1: squareConfig.ly1,
-    lx2: squareConfig.lx2,
-    ly2: squareConfig.ly2,
-    circleRadius: squareConfig.circleRadius,
-    C1_POSITION_RATIO,
-    tolerance: DEFAULT_TOLERANCE,
-    selectMinY: true,
-  };
-
-  // Compute outputs
-  const outputValues = step.compute(inputValues, params);
+  // Use squareConfig directly (it now contains all required parameters)
+  const outputValues = step.compute(inputValues, squareConfig);
 
   // Add outputs to allValues
   const newAllValues = new Map(allValues);

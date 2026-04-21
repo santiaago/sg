@@ -12,7 +12,7 @@ import {
   bisect,
   inteceptCircleLineSeg as interceptCircleLineSeg,
 } from "@sg/geometry";
-import type { Point, Circle, GeometryValue, SquareParameters } from "../types/geometry";
+import type { Point, Circle, GeometryValue } from "../types/geometry";
 import { point, line, circle } from "../types/geometry";
 
 // Constants
@@ -45,6 +45,10 @@ export interface SquareConfig {
   ly2: number;
   lx1: number;
   lx2: number;
+  // Parameters used by step compute functions
+  C1_POSITION_RATIO: number;
+  tolerance: number;
+  selectMinY: boolean;
 }
 
 // Computes the square geometry configuration from SVG dimensions.
@@ -73,6 +77,9 @@ export function computeSquareConfig(width: number, height: number): SquareConfig
     ly2,
     lx1: BORDER,
     lx2: width - BORDER,
+    C1_POSITION_RATIO,
+    tolerance: DEFAULT_TOLERANCE,
+    selectMinY: true,
   };
 }
 
@@ -114,28 +121,28 @@ export function getGeometry<T extends GeometryValue>(
 /**
  * Create a compute function that produces a single geometry output.
  * @param geomId - The geometry ID to produce
- * @param fn - Function that takes inputs and params, returns the geometry value
+ * @param fn - Function that takes inputs and config, returns the geometry value
  * @returns A compute function for use in a Step definition
  */
 export function computeSingle<T extends GeometryValue>(
   geomId: string,
-  fn: (inputs: Map<string, GeometryValue>, params: SquareParameters) => T,
-): (inputs: Map<string, GeometryValue>, params: SquareParameters) => Map<string, GeometryValue> {
-  return (inputs, params) => {
-    const value = fn(inputs, params);
+  fn: (inputs: Map<string, GeometryValue>, config: SquareConfig) => T,
+): (inputs: Map<string, GeometryValue>, config: SquareConfig) => Map<string, GeometryValue> {
+  return (inputs, config) => {
+    const value = fn(inputs, config);
     return new Map([[geomId, value]]);
   };
 }
 
 /**
  * Create a compute function that produces multiple geometry outputs.
- * @param fn - Function that takes inputs and params, returns a Map of geometry outputs
+ * @param fn - Function that takes inputs and config, returns a Map of geometry outputs
  * @returns A compute function for use in a Step definition
  */
 export function computeMultiple(
-  fn: (inputs: Map<string, GeometryValue>, params: SquareParameters) => Map<string, GeometryValue>,
-): (inputs: Map<string, GeometryValue>, params: SquareParameters) => Map<string, GeometryValue> {
-  return (inputs, params) => fn(inputs, params);
+  fn: (inputs: Map<string, GeometryValue>, config: SquareConfig) => Map<string, GeometryValue>,
+): (inputs: Map<string, GeometryValue>, config: SquareConfig) => Map<string, GeometryValue> {
+  return (inputs, config) => fn(inputs, config);
 }
 
 // Geometry ID Constants

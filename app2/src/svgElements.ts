@@ -327,4 +327,3 @@ export function circleWithTooltip(
 
   return circleEl;
 }
-

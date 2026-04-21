@@ -1,22 +1,14 @@
 // Type definitions for geometry operations and dependency tracking.
 import type { GeometryStore } from "../react-store";
 import type { Theme } from "../themes";
+import type { SquareConfig } from "../geometry/operations";
 // These types enable:
 // - Explicit declaration of geometry inputs and outputs
 // - Lazy step-by-step calculation
 // - Dependency graph tracking for visualization
 
-// Parameters for square construction steps
-export interface SquareParameters {
-  lx1: number;
-  ly1: number;
-  lx2: number;
-  ly2: number;
-  circleRadius: number;
-  C1_POSITION_RATIO: number;
-  tolerance: number;
-  selectMinY: boolean;
-}
+// Re-export SquareConfig for convenience
+export type { SquareConfig };
 
 // Geometry Value Types
 
@@ -88,19 +80,16 @@ export interface Step {
   // IDs of geometries this step produces as output
   outputs: string[];
 
-  // Names of parameters (non-geometry values) this step requires.
-  // Declared for documentation; actual params passed as SquareParameters object.
-  parameters?: (keyof SquareParameters)[];
+  // Names of configuration properties (non-geometry values) this step requires.
+  // Declared for documentation; actual config passed as SquareConfig object.
+  parameters?: (keyof SquareConfig)[];
 
-  // Computes output geometries from input geometries and parameters.
+  // Computes output geometries from input geometries and configuration.
   // Called only when this step becomes current.
   // inputs - Map of input geometry IDs to their values
-  // params - SquareParameters object with all parameter values
+  // config - SquareConfig object with all configuration values
   // returns Map of output geometry IDs to their computed values
-  compute: (
-    inputs: Map<string, GeometryValue>,
-    params: SquareParameters,
-  ) => Map<string, GeometryValue>;
+  compute: (inputs: Map<string, GeometryValue>, config: SquareConfig) => Map<string, GeometryValue>;
 
   // Draws the geometries for this step.
   // Called after compute() to render the step's output.

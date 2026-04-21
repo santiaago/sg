@@ -10,7 +10,7 @@ import {
   computeSquareConfig,
   darkTheme,
 } from "../geometry/squareSteps";
-import type { GeometryValue, Step, SquareParameters } from "../types/geometry";
+import type { GeometryValue, Step } from "../types/geometry";
 import type { Theme } from "../geometry/squareSteps";
 
 // Helper to pick subset of object by keys
@@ -28,8 +28,8 @@ function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Partial<P
 // Note: The steps and updateSteps props are deprecated but kept for backward compatibility.
 // They are no longer used since steps are now defined statically in squareSteps.ts.
 export interface SquareProps {
-  // Optional store for managing SVG elements and tooltips
-  store?: GeometryStore;
+  // Store for managing SVG elements and tooltips
+  store: GeometryStore;
 
   // Stroke width for large elements (dots) - kept for backward compatibility
   strokeBig?: number;
@@ -129,7 +129,7 @@ export function Square({
 
     // Clear both stores to ensure right pane updates correctly when going to previous steps
     geometryValueStore?.clear?.();
-    store?.clear?.();
+    store.clear();
 
     // If no steps to draw, exit
     if (currentStep <= 0) return;
@@ -153,7 +153,7 @@ export function Square({
     );
 
     // Build dependency map and step maps for parameter values
-    if (store && currentStep > 0) {
+    if (currentStep > 0) {
       const stepDependencies = new Map<string, string[]>();
       const stepForOutput = new Map<string, Step>();
 
@@ -164,13 +164,10 @@ export function Square({
         }
       }
 
-      // Convert stableConfig to SquareParameters for pick()
-      const params = stableConfig as unknown as SquareParameters;
-
       for (const [id] of allValues) {
         const deps = stepDependencies.get(id) ?? [];
         const step = stepForOutput.get(id);
-        const paramValues = step?.parameters ? pick(params, step.parameters) : {};
+        const paramValues = step?.parameters ? pick(stableConfig, step.parameters) : {};
         const stepId = step?.id ?? "";
 
         store.update(id, {
