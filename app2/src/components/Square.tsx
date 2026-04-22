@@ -10,7 +10,7 @@ import {
   computeSquareConfig,
   darkTheme,
 } from "../geometry/squareSteps";
-import type { GeometryValue, Step } from "../types/geometry";
+import type { GeometryValue, Step, DependencyGraph } from "../types/geometry";
 import type { Theme } from "../geometry/squareSteps";
 
 // Helper to pick subset of object by keys
@@ -25,13 +25,11 @@ function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Partial<P
 }
 
 // Props for the Square component.
-// Note: The steps and updateSteps props are deprecated but kept for backward compatibility.
-// They are no longer used since steps are now defined statically in squareSteps.ts.
 export interface SquareProps {
   // Store for managing SVG elements and tooltips
   store: GeometryStore;
 
-  // Stroke width for large elements (dots) - kept for backward compatibility
+  // Stroke width for large elements (dots)
   strokeBig?: number;
 
   // SVG configuration (dimensions, classes)
@@ -44,20 +42,13 @@ export interface SquareProps {
   currentStep?: number;
 
   // Optional callback to receive the dependency graph
-  onDependencyGraphChange?: (graph: { nodes: any[]; edges: any[] }) => void;
+  onDependencyGraphChange?: (graph: DependencyGraph) => void;
 
   // Optional store for geometry values (for dependency tracking)
   geometryValueStore?: GeometryValueStore;
 
   // Theme for SVG rendering (light or dark)
   theme?: Theme;
-
-  // Deprecated: steps are now defined statically. Kept for backward compatibility.
-  steps?: any[];
-
-  // Called with the static steps array for backward compatibility.
-  // Allows parent to determine total number of steps.
-  updateSteps?: (steps: any[]) => void;
 }
 
 // Default stroke width for regular lines
@@ -87,9 +78,6 @@ export function Square({
   onDependencyGraphChange,
   geometryValueStore,
   theme = darkTheme,
-  // Deprecated props (kept for backward compatibility)
-  steps: _steps,
-  updateSteps,
 }: SquareProps): JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -100,20 +88,6 @@ export function Square({
 
   // Ensure config is stable across renders
   const stableConfig = config;
-
-  // Initialize steps for backward compatibility
-  useEffect(() => {
-    // If parent provided updateSteps callback, call it with our static steps
-    // This allows the parent to know the total number of steps
-    if (updateSteps) {
-      // Create step objects that match the old format
-      const stepsForParent = SQUARE_STEPS.map(() => ({
-        draw: true,
-        drawShapes: () => {}, // Placeholder - not used by parent
-      }));
-      updateSteps(stepsForParent);
-    }
-  }, []);
 
   // Execute steps when currentStep or restartKey changes
   useEffect(() => {

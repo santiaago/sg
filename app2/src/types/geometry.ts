@@ -7,8 +7,8 @@ import type { SquareConfig } from "../geometry/operations";
 // - Lazy step-by-step calculation
 // - Dependency graph tracking for visualization
 
-// Re-export SquareConfig for convenience
-export type { SquareConfig };
+// Re-export types for convenience
+export type { SquareConfig, Theme };
 
 // Geometry Value Types
 

@@ -17,8 +17,8 @@ import { GeometryList } from "./components/GeometryList";
 import { GeometryDetails } from "./components/GeometryDetails";
 import { Navigation } from "./components/Navigation";
 import { CopyUrlButton } from "./components/CopyUrlButton";
-import { lightTheme, darkTheme } from "./geometry/squareSteps";
-import type { Theme } from "./geometry/squareSteps";
+import { lightTheme, darkTheme, SQUARE_STEPS } from "./geometry/squareSteps";
+import type { Theme } from "./types/geometry";
 
 export default function App(): JSX.Element {
   const stroke = 0.5;
@@ -103,12 +103,12 @@ export default function App(): JSX.Element {
   const storev3 = useGeometryStorev3();
   const storev4 = useGeometryStorev4();
 
-  interface Step {
+  interface LegacyStep {
     draw: boolean;
     drawShapes: () => void;
   }
 
-  const [stepsv3, setStepsv3] = useState<Step[]>([]);
+  const [stepsv3, setStepsv3] = useState<readonly LegacyStep[]>([]);
   const [currentStepv3, setCurrentStepv3] = useState<number>(0);
   const [restartKeyv3, setRestartKeyv3] = useState<number>(0);
 
@@ -153,12 +153,12 @@ export default function App(): JSX.Element {
     setRestartKeyv3(restartKeyv3 + 1);
   };
 
-  const updateStepsv3 = useCallback((newSteps: Step[]): void => {
-    console.log("newSteps", newSteps, "stepsv3", stepsv3);
-    setStepsv3(newSteps);
+  const updateStepsv3 = useCallback((steps: readonly LegacyStep[]): void => {
+    console.log("steps", steps, "stepsv3", stepsv3);
+    setStepsv3(steps);
   }, []);
 
-  const [stepsv4, setStepsv4] = useState<Step[]>([]);
+  const [stepsv4, setStepsv4] = useState<readonly LegacyStep[]>([]);
   const [currentStepv4, setCurrentStepv4] = useState<number>(0);
   const [restartKeyv4, setRestartKeyv4] = useState<number>(0);
 
@@ -203,19 +203,18 @@ export default function App(): JSX.Element {
     setRestartKeyv4(restartKeyv4 + 1);
   };
 
-  const updateStepsv4 = useCallback((newSteps: Step[]): void => {
-    console.log("newSteps", newSteps, "stepsv4", stepsv4);
-    setStepsv4(newSteps);
+  const updateStepsv4 = useCallback((steps: readonly LegacyStep[]): void => {
+    console.log("steps", steps, "stepsv4", stepsv4);
+    setStepsv4(steps);
   }, []);
 
-  const [stepsSquare, setStepsSquare] = useState<Step[]>([]);
   const [currentStepSquare, setCurrentStepSquare] = useState<number>(1);
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
   const [showInputHighlight, setShowInputHighlight] = useState(true);
 
   const handleNextClickSquare = (): void => {
-    console.log("next step", currentStepSquare, stepsSquare.length);
-    if (currentStepSquare < stepsSquare.length) {
+    console.log("next step", currentStepSquare, SQUARE_STEPS.length);
+    if (currentStepSquare < SQUARE_STEPS.length) {
       console.log("inside");
       setCurrentStepSquare(currentStepSquare + 1);
     }
@@ -229,10 +228,6 @@ export default function App(): JSX.Element {
   };
 
   const handleRestartSquare = (): void => {
-    // Reset all steps
-    const resetSteps = stepsSquare.map((step) => ({ ...step, draw: false }));
-    setStepsSquare(resetSteps);
-
     // Clear the store using the proper clear method
     if (storeSquare && storeSquare.clear) {
       // Remove elements from SVG if they exist
@@ -255,11 +250,6 @@ export default function App(): JSX.Element {
     setCurrentStepSquare(1);
     setRestartKeySquare(restartKeySquare + 1);
   };
-
-  const updateStepsSquare = useCallback((newSteps: Step[]): void => {
-    console.log("newSteps", newSteps, "stepsSquare", stepsSquare);
-    setStepsSquare(newSteps);
-  }, []);
 
   return (
     <main className="p-8 bg-gray-900 text-white">
@@ -499,8 +489,6 @@ export default function App(): JSX.Element {
               store={storeSquare}
               strokeBig={strokeBig}
               svgConfig={standardSvgConfig}
-              steps={stepsSquare}
-              updateSteps={updateStepsSquare}
               restartKey={restartKeySquare}
               currentStep={currentStepSquare}
               theme={svgTheme}
@@ -520,11 +508,11 @@ export default function App(): JSX.Element {
               <button
                 onClick={handleNextClickSquare}
                 className={`px-4 py-2 text-white rounded ${
-                  currentStepSquare >= stepsSquare.length
+                  currentStepSquare >= SQUARE_STEPS.length
                     ? "bg-gray-600 cursor-not-allowed"
                     : "bg-gray-800 hover:bg-gray-700"
                 }`}
-                disabled={currentStepSquare >= stepsSquare.length}
+                disabled={currentStepSquare >= SQUARE_STEPS.length}
               >
                 next
               </button>
@@ -547,7 +535,7 @@ export default function App(): JSX.Element {
           <div className="col-span-2">
             <h2 className="text-lg font-medium mb-4">Right pane</h2>
             <p className="text-gray-300 mb-4">
-              Current step {currentStepSquare}/{stepsSquare.length}
+              Current step {currentStepSquare}/{SQUARE_STEPS.length}
             </p>
             <GeometryDetails store={storeSquare} />
           </div>
