@@ -1,9 +1,9 @@
 import { useEffect, useRef, useMemo } from "react";
 import type { SvgConfig } from "../config/svgConfig";
-import type { GeometryStore, GeometryValueStore } from "../react-store";
+import type { GeometryStore } from "../react-store";
 import { rect } from "../svgElements";
 import { SQUARE_STEPS, executeSteps, GEOM, computeSquareConfig } from "../geometry/squareSteps";
-import type { GeometryValue, Step, DependencyGraph } from "../types/geometry";
+import type { GeometryValue, Step } from "../types/geometry";
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
 
@@ -50,12 +50,6 @@ export interface SquareProps {
   // Current step index (1-based) to execute up to
   currentStep?: number;
 
-  // Optional callback to receive the dependency graph
-  onDependencyGraphChange?: (graph: DependencyGraph) => void;
-
-  // Optional store for geometry values (for dependency tracking)
-  geometryValueStore?: GeometryValueStore;
-
   // Theme for SVG rendering (light or dark)
   theme?: Theme;
 }
@@ -84,8 +78,6 @@ export function Square({
   svgConfig,
   restartKey = 0,
   currentStep = 0,
-  onDependencyGraphChange,
-  geometryValueStore,
   theme = darkTheme,
 }: SquareProps): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -107,10 +99,7 @@ export function Square({
     // Draw the background rectangle using the theme color
     rect(svg, svgConfig.width, svgConfig.height, theme);
 
-    // Clear both stores to ensure right pane updates correctly when going to previous steps
-    if (geometryValueStore) {
-      geometryValueStore.clear();
-    }
+    // Clear the store to ensure right pane updates correctly when going to previous steps
     store.clear();
 
     // If no steps to draw, exit
@@ -152,21 +141,7 @@ export function Square({
         });
       }
     }
-
-    // Track dependencies in the geometry value store
-    if (geometryValueStore && allValues.size > 0) {
-      // For each computed value, record it with its dependencies
-      for (const [id, value] of allValues) {
-        const deps = stepDependencies.get(id) ?? [];
-        geometryValueStore.addGeometry(id, value, value.type, deps);
-      }
-
-      // Notify parent about dependency graph changes
-      if (onDependencyGraphChange) {
-        onDependencyGraphChange(geometryValueStore.getDependencyGraph());
-      }
-    }
-  }, [currentStep, restartKey, svgConfig, strokeBig, onDependencyGraphChange, geometryValueStore]);
+  }, [currentStep, restartKey, svgConfig, strokeBig]);
 
   return (
     <div className={svgConfig.containerClass} style={{ display: "flex", justifyContent: "center" }}>
