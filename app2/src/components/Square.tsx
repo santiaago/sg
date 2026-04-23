@@ -86,9 +86,6 @@ export function Square({
     return computeSquareConfig(svgConfig.width, svgConfig.height);
   }, [svgConfig.width, svgConfig.height]);
 
-  // Ensure config is stable across renders
-  const stableConfig = config;
-
   // Execute steps when currentStep or restartKey changes
   useEffect(() => {
     if (!svgRef.current) return;
@@ -125,7 +122,7 @@ export function Square({
         store,
         theme,
       },
-      stableConfig,
+      config,
     );
 
     // Build dependency map and step maps for parameter values
@@ -143,7 +140,7 @@ export function Square({
       for (const [id] of allValues) {
         const deps = stepDependencies.get(id) ?? [];
         const step = stepForOutput.get(id);
-        const paramValues = step?.parameters ? pick(stableConfig, step.parameters) : {};
+        const paramValues = step?.parameters ? pick(config, step.parameters) : {};
         const stepId = step?.id ?? "";
 
         store.update(id, {
