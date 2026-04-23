@@ -489,7 +489,6 @@ export const SQUARE_STEPS: readonly Step[] = [
 
 export interface StepExecutionContext {
   svg: SVGSVGElement;
-  config: { width: number; height: number; stroke: number; strokeBig: number };
   store: GeometryStore;
   theme: Theme;
 }

@@ -54,9 +54,6 @@ export interface SquareProps {
   theme?: Theme;
 }
 
-// Default stroke width for regular lines
-const DEFAULT_STROKE = 0.5;
-
 // Helper to set up SVG element with dimensions from config
 function setupSvg(svg: SVGSVGElement, config: SvgConfig): void {
   while (svg.firstChild) {
@@ -114,12 +111,6 @@ export function Square({
       currentStep,
       {
         svg,
-        config: {
-          width: svgConfig.width,
-          height: svgConfig.height,
-          stroke: DEFAULT_STROKE,
-          strokeBig,
-        },
         store,
         theme,
       },
