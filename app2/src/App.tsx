@@ -18,7 +18,7 @@ import { GeometryDetails } from "./components/GeometryDetails";
 import { Navigation } from "./components/Navigation";
 import { CopyUrlButton } from "./components/CopyUrlButton";
 import { lightTheme, darkTheme, SQUARE_STEPS } from "./geometry/squareSteps";
-import type { Theme } from "./types/geometry";
+import type { Theme, LegacyStep } from "./types/geometry";
 
 export default function App(): JSX.Element {
   const stroke = 0.5;
@@ -74,14 +74,19 @@ export default function App(): JSX.Element {
         | "sixfold-v1"
         | "square"
         | "";
-      const validSections: readonly [
+      const validSections = [
         "sixfold-v4",
         "sixfold-v3",
         "sixfold-v2",
         "sixfold-v1",
         "square",
-      ] = ["sixfold-v4", "sixfold-v3", "sixfold-v2", "sixfold-v1", "square"];
-      if (hash && validSections.includes(hash as any)) {
+      ] as const;
+      if (
+        hash &&
+        validSections.includes(
+          hash as "sixfold-v4" | "sixfold-v3" | "sixfold-v2" | "sixfold-v1" | "square",
+        )
+      ) {
         scrollToSection(hash);
       }
     };
@@ -102,11 +107,6 @@ export default function App(): JSX.Element {
   const storev2 = useGeometryStorev2();
   const storev3 = useGeometryStorev3();
   const storev4 = useGeometryStorev4();
-
-  interface LegacyStep {
-    draw: boolean;
-    drawShapes: () => void;
-  }
 
   const [stepsv3, setStepsv3] = useState<readonly LegacyStep[]>([]);
   const [currentStepv3, setCurrentStepv3] = useState<number>(0);

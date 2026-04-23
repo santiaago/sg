@@ -1,13 +1,14 @@
 import type { JSX } from "react";
+import type { LegacyStep } from "../types/geometry";
 
 interface SixFoldv4Props {
-  store: any;
+  store: unknown;
   stroke?: number;
   strokeMid?: number;
   strokeBig?: number;
   strokeLine?: number;
-  steps?: any[];
-  updateSteps?: (steps: any[]) => void;
+  steps?: readonly LegacyStep[];
+  updateSteps?: (steps: readonly LegacyStep[]) => void;
 }
 
 export function SixFoldv4({

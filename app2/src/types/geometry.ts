@@ -10,6 +10,12 @@ import type { SquareConfig } from "../geometry/operations";
 // Re-export types for convenience
 export type { SquareConfig, Theme };
 
+// Legacy step type for SixFold components (backward compatibility)
+export interface LegacyStep {
+  draw: boolean;
+  drawShapes: () => void;
+}
+
 // Geometry Value Types
 
 export interface Point {
