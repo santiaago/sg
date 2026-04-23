@@ -1,5 +1,4 @@
 import { useEffect, useRef, useMemo } from "react";
-import type { JSX } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore, GeometryValueStore } from "../react-store";
 import { rect } from "../svgElements";
@@ -93,7 +92,7 @@ export function Square({
   onDependencyGraphChange,
   geometryValueStore,
   theme = darkTheme,
-}: SquareProps): JSX.Element {
+}: SquareProps): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Memoize the square configuration (derived from SVG dimensions)
