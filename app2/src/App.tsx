@@ -488,9 +488,9 @@ export default function App(): JSX.Element {
           <div className="col-span-7">
             <Square
               store={storeSquare}
-              strokeBig={strokeBig}
+              dotStrokeWidth={strokeBig}
               svgConfig={standardSvgConfig}
-              restartKey={restartKeySquare}
+              restartTrigger={restartKeySquare}
               currentStep={currentStepSquare}
               theme={svgTheme}
             />

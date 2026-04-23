@@ -87,8 +87,22 @@ export function rect(
   rectEl.setAttribute("width", width.toString());
   rectEl.setAttribute("height", height.toString());
   rectEl.setAttribute("fill", theme.COLOR_CANVAS);
+  rectEl.setAttribute("data-background", "true");
   svg.appendChild(rectEl);
   return rectEl;
+}
+
+/**
+ * Clears all geometry elements from SVG while preserving the background rectangle.
+ * Used to avoid recreating the background on every step change.
+ */
+export function clearGeometryFromSvg(svg: SVGSVGElement): void {
+  const children = Array.from(svg.children);
+  for (const child of children) {
+    if (child.getAttribute("data-background") !== "true") {
+      svg.removeChild(child);
+    }
+  }
 }
 
 /**

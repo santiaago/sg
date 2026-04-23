@@ -1,7 +1,7 @@
 import { useEffect, useRef, useMemo } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
-import { rect } from "../svgElements";
+import { rect, clearGeometryFromSvg } from "../svgElements";
 import { SQUARE_STEPS, executeSteps, GEOM, computeSquareConfig } from "../geometry/squareSteps";
 import type { GeometryValue, Step } from "../types/geometry";
 import { darkTheme } from "../themes";
@@ -97,26 +97,39 @@ export function Square({
   theme = darkTheme,
 }: SquareProps): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
+  const prevStepRef = useRef<number>(0);
 
   // Memoize the square configuration (derived from SVG dimensions)
   const squareConfig = useMemo(() => {
     return computeSquareConfig(svgConfig.width, svgConfig.height);
   }, [svgConfig.width, svgConfig.height]);
 
-  // Execute steps when currentStep or restartTrigger changes
+  // Effect 1: SVG container setup - ONLY when dimensions or theme change
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = svgRef.current;
+
+    // Clear everything and setup SVG container
+    setupSvg(svg, svgConfig);
+
+    // Draw the background rectangle using the theme color
+    rect(svg, svgConfig.width, svgConfig.height, theme);
+  }, [svgConfig.width, svgConfig.height, svgConfig.viewBox, theme]);
+
+  // Effect 2: Step execution - ONLY when step, restart, or config changes
   useEffect(() => {
     if (!svgRef.current) return;
 
     const svg = svgRef.current;
 
-    // Clear the SVG
-    setupSvg(svg, svgConfig);
+    // Clear ONLY geometry elements, preserve background
+    clearGeometryFromSvg(svg);
 
-    // Draw the background rectangle using the theme color
-    rect(svg, svgConfig.width, svgConfig.height, theme);
-
-    // Clear the store to ensure right pane updates correctly when re-executing steps
-    store.clear();
+    // Clear store when going backwards, restarting, or on first step execution
+    if (currentStep < prevStepRef.current || restartTrigger !== 0 || currentStep > 0) {
+      store.clear();
+    }
+    prevStepRef.current = currentStep;
 
     // If no steps to draw, exit
     if (currentStep <= 0) return;
