@@ -53,13 +53,13 @@ export interface SquareProps {
   store: GeometryStore;
 
   // Stroke width for large elements (dots)
-  strokeBig?: number;
+  dotStrokeWidth?: number;
 
   // SVG configuration (dimensions, classes)
   svgConfig: SvgConfig;
 
   // Key to trigger restart (e.g., when resetting the construction)
-  restartKey?: number;
+  restartTrigger?: number;
 
   // Current step index (1-based) to execute up to
   currentStep?: number;
@@ -90,20 +90,20 @@ function setupSvg(svg: SVGSVGElement, config: SvgConfig): void {
 // - Separation of concerns: math (compute) vs rendering (draw)
 export function Square({
   store,
-  strokeBig = 2.0,
+  dotStrokeWidth = 2.0,
   svgConfig,
-  restartKey = 0,
+  restartTrigger = 0,
   currentStep = 0,
   theme = darkTheme,
 }: SquareProps): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Memoize the square configuration (derived from SVG dimensions)
-  const config = useMemo(() => {
+  const squareConfig = useMemo(() => {
     return computeSquareConfig(svgConfig.width, svgConfig.height);
   }, [svgConfig.width, svgConfig.height]);
 
-  // Execute steps when currentStep or restartKey changes
+  // Execute steps when currentStep or restartTrigger changes
   useEffect(() => {
     if (!svgRef.current) return;
 
@@ -133,7 +133,7 @@ export function Square({
         store,
         theme,
       },
-      config,
+      squareConfig,
     );
 
     // Build dependency map and step maps for parameter values
@@ -141,7 +141,7 @@ export function Square({
       for (const [id] of allValues) {
         const deps = stepDependencies.get(id) ?? [];
         const step = stepForOutput.get(id);
-        const paramValues = step?.parameters ? pick(config, step.parameters) : {};
+        const paramValues = step?.parameters ? pick(squareConfig, step.parameters) : {};
         const stepId = step?.id ?? "";
 
         store.update(id, {
@@ -151,7 +151,7 @@ export function Square({
         });
       }
     }
-  }, [currentStep, restartKey, svgConfig, strokeBig, theme]);
+  }, [currentStep, restartTrigger, svgConfig, dotStrokeWidth, theme]);
 
   return (
     <div className={svgConfig.containerClass} style={{ display: "flex", justifyContent: "center" }}>
