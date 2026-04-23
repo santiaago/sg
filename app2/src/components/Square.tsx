@@ -175,7 +175,7 @@ export function Square({
         onDependencyGraphChange(geometryValueStore.getDependencyGraph());
       }
     }
-  }, [currentStep, restartKey, svgConfig, strokeBig]);
+  }, [currentStep, restartKey, svgConfig, strokeBig, onDependencyGraphChange, geometryValueStore]);
 
   return (
     <div className={svgConfig.containerClass} style={{ display: "flex", justifyContent: "center" }}>
