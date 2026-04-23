@@ -7,7 +7,13 @@ import type { GeometryValue, Step } from "../types/geometry";
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
 
-// Helper to pick subset of object by keys
+/**
+ * Picks a subset of properties from an object by specified keys.
+ * Creates a new object containing only the selected properties.
+ * @param obj - The source object
+ * @param keys - Array of keys to pick from the object
+ * @returns New object with only the specified keys
+ */
 function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
   const result: Partial<Pick<T, K>> = {};
   for (const key of keys) {
@@ -18,7 +24,15 @@ function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K
   return result as Pick<T, K>;
 }
 
-// Helper to build step dependency maps
+/**
+ * Builds dependency maps for geometry steps.
+ * Creates maps tracking which geometries depend on which inputs,
+ * and which step produces each output geometry.
+ * @param steps - Array of all geometry steps
+ * @param currentStep - The current step index (exclusive) to build maps up to
+ * @returns Object containing stepDependencies map (output ID -> input IDs)
+ *          and stepForOutput map (output ID -> step)
+ */
 function buildStepMaps(steps: readonly Step[], currentStep: number) {
   const stepDependencies = new Map<string, string[]>();
   const stepForOutput = new Map<string, Step>();
@@ -54,7 +68,12 @@ export interface SquareProps {
   theme?: Theme;
 }
 
-// Helper to set up SVG element with dimensions from config
+/**
+ * Clears and configures an SVG element with dimensions from config.
+ * Removes all existing children and sets viewBox, width, and height attributes.
+ * @param svg - The SVG element to configure
+ * @param config - SVG configuration containing dimensions and viewBox
+ */
 function setupSvg(svg: SVGSVGElement, config: SvgConfig): void {
   while (svg.firstChild) {
     svg.removeChild(svg.firstChild);
