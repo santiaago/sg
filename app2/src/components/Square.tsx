@@ -2,15 +2,10 @@ import { useEffect, useRef, useMemo } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore, GeometryValueStore } from "../react-store";
 import { rect } from "../svgElements";
-import {
-  SQUARE_STEPS,
-  executeSteps,
-  GEOM,
-  computeSquareConfig,
-  darkTheme,
-} from "../geometry/squareSteps";
+import { SQUARE_STEPS, executeSteps, GEOM, computeSquareConfig } from "../geometry/squareSteps";
 import type { GeometryValue, Step, DependencyGraph } from "../types/geometry";
-import type { Theme } from "../geometry/squareSteps";
+import { darkTheme } from "../themes";
+import type { Theme } from "../themes";
 
 // Helper to pick subset of object by keys
 function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {

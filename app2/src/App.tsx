@@ -17,7 +17,8 @@ import { GeometryList } from "./components/GeometryList";
 import { GeometryDetails } from "./components/GeometryDetails";
 import { Navigation } from "./components/Navigation";
 import { CopyUrlButton } from "./components/CopyUrlButton";
-import { lightTheme, darkTheme, SQUARE_STEPS } from "./geometry/squareSteps";
+import { SQUARE_STEPS } from "./geometry/squareSteps";
+import { lightTheme, darkTheme } from "./themes";
 import type { Theme, LegacyStep } from "./types/geometry";
 
 export default function App(): JSX.Element {

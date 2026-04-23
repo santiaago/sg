@@ -28,6 +28,7 @@
 
 import type { Step, GeometryValue } from "../types/geometry";
 import { point, line, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
+import type { Theme } from "../themes";
 import {
   computeSquareConfig,
   GEOM,
@@ -46,11 +47,6 @@ import {
   lineTowards,
 } from "./constructors";
 import { createTooltip, drawPoint, drawLine, drawCircle } from "../svgElements";
-import { darkTheme, lightTheme } from "../themes";
-import type { Theme } from "../themes";
-
-export { lightTheme, darkTheme };
-export type { Theme };
 
 import type { GeometryStore } from "../react-store";
 

@@ -1,6 +1,6 @@
 import type { JSX } from "react";
-import type { Theme } from "../geometry/squareSteps";
-import { darkTheme } from "../geometry/squareSteps";
+import type { Theme } from "../themes";
+import { darkTheme } from "../themes";
 
 interface NavigationProps {
   onNavigate: (
