@@ -102,7 +102,9 @@ export function Square({
     rect(svg, svgConfig.width, svgConfig.height, theme);
 
     // Clear both stores to ensure right pane updates correctly when going to previous steps
-    geometryValueStore?.clear?.();
+    if (geometryValueStore) {
+      geometryValueStore.clear();
+    }
     store.clear();
 
     // If no steps to draw, exit
