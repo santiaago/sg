@@ -71,8 +71,8 @@ export function Square({
     // Clear ONLY geometry elements, preserve background
     clearGeometryFromSvg(svg);
 
-    // Clear store when going backwards, restarting, or on first step execution
-    if (currentStep < prevStepRef.current || restartTrigger !== 0 || currentStep > 0) {
+    // Clear store ONLY when going backwards or restarting
+    if (currentStep < prevStepRef.current || restartTrigger !== 0) {
       store.clear();
     }
     prevStepRef.current = currentStep;

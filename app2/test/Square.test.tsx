@@ -64,9 +64,10 @@ describe("Square Component - Infinite Render Prevention", () => {
     // First render with currentStep=1
     render(<Square {...defaultProps} store={mockStore} />);
 
-    // Store's clear method should be called because steps ARE executed on first render
-    // with currentStep=1 (default in defaultProps)
-    expect(mockStore.clear).toHaveBeenCalled();
+    // Store's clear method should NOT be called on first render with forward step
+    // because prevStepRef.current=0 and currentStep=1, so we're moving forward
+    // The store is freshly created and already empty
+    expect(mockStore.clear).not.toHaveBeenCalled();
   });
 });
 
