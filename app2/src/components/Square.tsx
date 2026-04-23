@@ -115,7 +115,7 @@ export function Square({
     // Draw the background rectangle using the theme color
     rect(svg, svgConfig.width, svgConfig.height, theme);
 
-    // Clear the store to ensure right pane updates correctly when going to previous steps
+    // Clear the store to ensure right pane updates correctly when re-executing steps
     store.clear();
 
     // If no steps to draw, exit
