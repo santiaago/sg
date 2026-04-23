@@ -94,6 +94,118 @@ describe("Square Component - Integration Tests", () => {
 });
 
 /**
+ * Regression tests for store clear behavior on step navigation
+ */
+describe("Square Component - Store Clear Regression Tests", () => {
+  const defaultProps = {
+    svgConfig: standardSvgConfig,
+    currentStep: 0,
+    restartTrigger: 0,
+    store: createMockStore(),
+  };
+
+  it("should NOT clear store on forward step navigation (1->2)", () => {
+    const mockStore = createMockStore();
+
+    // Render with step 1
+    const { rerender } = render(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+
+    // Clear mock for forward navigation test
+    mockStore.clear.mockClear();
+
+    // Navigate forward to step 2
+    rerender(<Square {...defaultProps} store={mockStore} currentStep={2} />);
+
+    // Store should NOT be cleared on forward navigation
+    expect(mockStore.clear).not.toHaveBeenCalled();
+  });
+
+  it("should NOT clear store on forward step navigation (2->3)", () => {
+    const mockStore = createMockStore();
+
+    // Render with step 2
+    const { rerender } = render(<Square {...defaultProps} store={mockStore} currentStep={2} />);
+
+    // Clear mock for forward navigation test
+    mockStore.clear.mockClear();
+
+    // Navigate forward to step 3
+    rerender(<Square {...defaultProps} store={mockStore} currentStep={3} />);
+
+    // Store should NOT be cleared on forward navigation
+    expect(mockStore.clear).not.toHaveBeenCalled();
+  });
+
+  it("should clear store on backward step navigation (2->1)", () => {
+    const mockStore = createMockStore();
+
+    // Render with step 2
+    const { rerender } = render(<Square {...defaultProps} store={mockStore} currentStep={2} />);
+
+    // Clear mock for backward navigation test
+    mockStore.clear.mockClear();
+
+    // Navigate backward to step 1
+    rerender(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+
+    // Store SHOULD be cleared on backward navigation
+    expect(mockStore.clear).toHaveBeenCalledTimes(1);
+  });
+
+  it("should clear store on backward step navigation (3->1)", () => {
+    const mockStore = createMockStore();
+
+    // Render with step 3
+    const { rerender } = render(<Square {...defaultProps} store={mockStore} currentStep={3} />);
+
+    // Clear mock for backward navigation test
+    mockStore.clear.mockClear();
+
+    // Navigate backward to step 1
+    rerender(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+
+    // Store SHOULD be cleared on backward navigation (jump back)
+    expect(mockStore.clear).toHaveBeenCalledTimes(1);
+  });
+
+  it("should clear store on restart (restartTrigger changes)", () => {
+    const mockStore = createMockStore();
+
+    // Render with step 3
+    const { rerender } = render(
+      <Square {...defaultProps} store={mockStore} currentStep={3} restartTrigger={0} />,
+    );
+
+    // Clear mock for restart test
+    mockStore.clear.mockClear();
+
+    // Trigger restart
+    rerender(<Square {...defaultProps} store={mockStore} currentStep={3} restartTrigger={1} />);
+
+    // Store SHOULD be cleared on restart
+    expect(mockStore.clear).toHaveBeenCalledTimes(1);
+  });
+
+  it("should clear store on restart from step 1", () => {
+    const mockStore = createMockStore();
+
+    // Render with step 1
+    const { rerender } = render(
+      <Square {...defaultProps} store={mockStore} currentStep={1} restartTrigger={0} />,
+    );
+
+    // Clear mock for restart test
+    mockStore.clear.mockClear();
+
+    // Trigger restart
+    rerender(<Square {...defaultProps} store={mockStore} currentStep={1} restartTrigger={1} />);
+
+    // Store SHOULD be cleared on restart
+    expect(mockStore.clear).toHaveBeenCalledTimes(1);
+  });
+});
+
+/**
  * Tests for GeometryItem metadata population (stepId and parameterValues)
  */
 describe("Square Component - Metadata Population", () => {

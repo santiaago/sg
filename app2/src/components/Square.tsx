@@ -67,12 +67,15 @@ export function Square({
     if (!svgRef.current) return;
 
     const svg = svgRef.current;
+    const prevStep = prevStepRef.current;
 
-    // Clear ONLY geometry elements, preserve background
-    clearGeometryFromSvg(svg);
+    // Clear geometry ONLY when going backwards or restarting
+    if (currentStep < prevStep || restartTrigger !== 0) {
+      clearGeometryFromSvg(svg);
+    }
 
-    // Clear store ONLY when going backwards or restarting
-    if (currentStep < prevStepRef.current || restartTrigger !== 0) {
+    // Clear store only when going backwards or restarting
+    if (currentStep < prevStep || restartTrigger !== 0) {
       store.clear();
     }
     prevStepRef.current = currentStep;
