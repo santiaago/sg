@@ -24,6 +24,21 @@ function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K
   return result as Pick<T, K>;
 }
 
+// Helper to build step dependency maps
+function buildStepMaps(steps: readonly Step[], currentStep: number) {
+  const stepDependencies = new Map<string, string[]>();
+  const stepForOutput = new Map<string, Step>();
+
+  for (const step of steps.slice(0, currentStep)) {
+    for (const outputId of step.outputs) {
+      stepDependencies.set(outputId, step.inputs);
+      stepForOutput.set(outputId, step);
+    }
+  }
+
+  return { stepDependencies, stepForOutput };
+}
+
 // Props for the Square component.
 export interface SquareProps {
   // Store for managing SVG elements and tooltips
@@ -107,6 +122,9 @@ export function Square({
     // If no steps to draw, exit
     if (currentStep <= 0) return;
 
+    // Call once at the beginning of the effect:
+    const { stepDependencies, stepForOutput } = buildStepMaps(SQUARE_STEPS, currentStep);
+
     // Execute steps up to currentStep
     const allValues = executeSteps(
       SQUARE_STEPS,
@@ -127,16 +145,6 @@ export function Square({
 
     // Build dependency map and step maps for parameter values
     if (currentStep > 0) {
-      const stepDependencies = new Map<string, string[]>();
-      const stepForOutput = new Map<string, Step>();
-
-      for (const step of SQUARE_STEPS.slice(0, currentStep)) {
-        for (const outputId of step.outputs) {
-          stepDependencies.set(outputId, step.inputs);
-          stepForOutput.set(outputId, step);
-        }
-      }
-
       for (const [id] of allValues) {
         const deps = stepDependencies.get(id) ?? [];
         const step = stepForOutput.get(id);
@@ -154,16 +162,6 @@ export function Square({
     // Track dependencies in the geometry value store
     if (geometryValueStore && allValues.size > 0) {
       // For each computed value, record it with its dependencies
-      // We need to track which step produced which outputs
-      // and what the step's inputs were
-      const stepDependencies = new Map<string, string[]>();
-
-      for (const step of SQUARE_STEPS.slice(0, currentStep)) {
-        for (const outputId of step.outputs) {
-          stepDependencies.set(outputId, step.inputs);
-        }
-      }
-
       for (const [id, value] of allValues) {
         const deps = stepDependencies.get(id) ?? [];
         geometryValueStore.addGeometry(id, value, value.type, deps);
