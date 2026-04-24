@@ -135,11 +135,3 @@ export function lineTowards(from: Point, towards: Point, length: number): Line {
   const end = pointOnLineAtDistance(from, towards, length);
   return line(from.x, from.y, end.x, end.y);
 }
-
-/**
- * Creates circle at center with same radius as sourceCircle.
- * Equivalent to: circleFromPoint(center, sourceCircle.r)
- */
-export function circleWithRadiusFrom(center: Point, sourceCircle: Circle): Circle {
-  return circleFromPoint(center, sourceCircle.r);
-}
