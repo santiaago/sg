@@ -1,5 +1,9 @@
 import { useState, useCallback, useMemo } from "react";
 
+/**
+ * Represents a geometry item stored in the React store.
+ * Contains the SVG element, its metadata, and dependency tracking information.
+ */
 export interface GeometryItem {
   name: string;
   element: any;
@@ -16,6 +20,10 @@ export interface GeometryItem {
   parameterValues: Record<string, unknown>;
 }
 
+/**
+ * Interface for the geometry store that manages SVG geometry elements.
+ * Provides methods for adding, updating, and clearing geometry items.
+ */
 export interface GeometryStore {
   items: Record<string, GeometryItem>;
   add: (name: string, element: any, type: string, dependsOn: string[]) => void;
@@ -23,6 +31,10 @@ export interface GeometryStore {
   clear: () => void;
 }
 
+/**
+ * Extended geometry store interface for v2, v3, and v4 implementations.
+ * Adds context support for geometry items.
+ */
 interface GeometryStorev2v3v4 {
   items: Record<string, GeometryItem>;
   add: (name: string, element: any, type: string, dependsOn: string[], context?: any) => void;
@@ -61,6 +73,10 @@ function captureInitialState(element: any, type: string, name: string): Record<s
   return initialState;
 }
 
+/**
+ * React hook that creates and manages a geometry store.
+ * Returns a GeometryStore instance with items, add, update, and clear methods.
+ */
 export function useGeometryStore(): GeometryStore {
   const [items, setItems] = useState<Record<string, GeometryItem>>({});
 
@@ -104,6 +120,10 @@ export function useGeometryStore(): GeometryStore {
   return useMemo(() => ({ items, add, update, clear }), [items, add, update, clear]);
 }
 
+/**
+ * React hook for Square component geometry store.
+ * Similar to useGeometryStore but tailored for Square component usage.
+ */
 export function useGeometryStoreSquare(): GeometryStore {
   const [items, setItems] = useState<Record<string, GeometryItem>>({});
 
@@ -147,6 +167,10 @@ export function useGeometryStoreSquare(): GeometryStore {
   return useMemo(() => ({ items, add, update, clear }), [items, add, update, clear]);
 }
 
+/**
+ * React hook for v2 geometry store with extended features.
+ * Returns a GeometryStorev2v3v4 instance with additional context support.
+ */
 export function useGeometryStorev2(): GeometryStorev2v3v4 {
   const [items, setItems] = useState<Record<string, GeometryItem>>({});
 
@@ -205,10 +229,18 @@ export function useGeometryStorev2(): GeometryStorev2v3v4 {
   );
 }
 
+/**
+ * React hook for v3 geometry store.
+ * Alias for useGeometryStorev2 for backward compatibility.
+ */
 export function useGeometryStorev3(): GeometryStorev2v3v4 {
   return useGeometryStorev2();
 }
 
+/**
+ * React hook for v4 geometry store.
+ * Alias for useGeometryStorev2 for backward compatibility.
+ */
 export function useGeometryStorev4(): GeometryStorev2v3v4 {
   return useGeometryStorev2();
 }

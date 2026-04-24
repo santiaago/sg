@@ -17,20 +17,23 @@ import { point, line, circle } from "../types/geometry";
 
 // Constants
 
+/** Golden ratio constant (1 + sqrt(5)) / 2 */
 export const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2;
 
-// Position ratios along the main line (from x1)
+/** Position ratio for first circle center along the main line */
 export const C1_POSITION_RATIO = 5 / 8;
+/** Position ratio for second circle center along the main line */
 export const C2_POSITION_RATIO = 3 / 8;
 
-// Line extension multiplier (1.1 * diameter = 2.2 * radius)
+/** Line extension multiplier (1.1 * diameter = 2.2 * radius) */
 export const LINE_EXTENSION_MULTIPLIER = 2.2;
 
-// Default tolerance for geometry calculations
+/** Default tolerance for geometry calculations */
 export const DEFAULT_TOLERANCE = 0.001;
 
 // Geometry Configuration
 
+/** Configuration for square geometry construction */
 export interface SquareConfig {
   width: number;
   height: number;
@@ -51,8 +54,10 @@ export interface SquareConfig {
   selectMinY: boolean;
 }
 
-// Computes the square geometry configuration from SVG dimensions.
-// All values are derived from width and height.
+/**
+ * Computes the square geometry configuration from SVG dimensions.
+ * All values are derived from width and height.
+ */
 export function computeSquareConfig(width: number, height: number): SquareConfig {
   const STROKE = 0.5;
   const STROKE_BIG = 2.0; // Default for dots
@@ -145,8 +150,7 @@ export function computeMultiple(
   return (inputs, config) => fn(inputs, config);
 }
 
-// Geometry ID Constants
-
+/** Geometry ID constants for referencing geometry elements in steps */
 export const GEOM = {
   // Base elements
   MAIN_LINE: "line_main",
@@ -183,7 +187,7 @@ export const GEOM = {
   SQUARE: "square",
 } as const;
 
-// Type for geometry ID
+/** Type representing any valid geometry ID from the GEOM constants */
 export type GeometryId = (typeof GEOM)[keyof typeof GEOM];
 
 // Core Geometry Operations

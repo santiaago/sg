@@ -464,7 +464,7 @@ const STEP_FINAL_SQUARE: Step = {
   },
 };
 
-// All steps in the square construction, in order
+/** All steps in the square construction, in order */
 export const SQUARE_STEPS: readonly Step[] = [
   STEP_MAIN_LINE,
   STEP_C1,
@@ -486,18 +486,21 @@ export const SQUARE_STEPS: readonly Step[] = [
 
 // Step Execution Utility
 
+/** Context passed to step execution functions */
 export interface StepExecutionContext {
   svg: SVGSVGElement;
   store: GeometryStore;
   theme: Theme;
 }
 
-// Executes a single step: computes outputs and draws them.
-// Step - The step to execute
-// allValues - Map of ALL geometry values computed so far (including previous steps)
-// ctx - Execution context (SVG, config, store)
-// squareConfig - Square geometry configuration
-// returns Updated map of geometry values (with new outputs added)
+/**
+ * Executes a single step: computes outputs and draws them.
+ * @param step - The step to execute
+ * @param allValues - Map of ALL geometry values computed so far (including previous steps)
+ * @param ctx - Execution context (SVG, config, store)
+ * @param squareConfig - Square geometry configuration
+ * @returns Updated map of geometry values (with new outputs added)
+ */
 export function executeStep(
   step: Step,
   allValues: Map<string, GeometryValue>,
@@ -529,12 +532,14 @@ export function executeStep(
   return newAllValues;
 }
 
-// Executes all steps up to a given index.
-// Steps - Array of steps to execute
-// upToIndex - Execute steps[0] through steps[upToIndex-1]
-// ctx - Execution context
-// squareConfig - Square geometry configuration
-// returns Map of all computed geometry values
+/**
+ * Executes all steps up to a given index.
+ * @param steps - Array of steps to execute
+ * @param upToIndex - Execute steps[0] through steps[upToIndex-1]
+ * @param ctx - Execution context containing svg, store, and theme
+ * @param squareConfig - Square geometry configuration
+ * @returns Map of all computed geometry values
+ */
 export function executeSteps(
   steps: readonly Step[],
   upToIndex: number,

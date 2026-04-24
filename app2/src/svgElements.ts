@@ -10,13 +10,19 @@ import type { Theme } from "./themes";
 // - Polygons: Tooltip positioned near first vertex at (points[0].x + 15, points[0].y)
 // All tooltips have their background positioned above the text (y - 15) for visibility.
 
-// Magic number constants for tooltip styling
+/** Tooltip X offset from geometry position */
 export const TOOLTIP_OFFSET_X = 10;
+/** Tooltip Y offset from geometry position */
 export const TOOLTIP_OFFSET_Y = -5;
+/** Tooltip background height */
 export const TOOLTIP_BG_HEIGHT = 16;
+/** Tooltip font size */
 export const TOOLTIP_FONT_SIZE = 10;
+/** Estimated width per character for tooltip text sizing */
 export const TOOLTIP_TEXT_WIDTH_PER_CHAR = 8;
+/** Tooltip background corner rounding radius */
 export const TOOLTIP_BG_ROUNDING = 2;
+/** Default stroke width for geometry elements */
 export const DEFAULT_STROKE_WIDTH = 5;
 
 // Extend SVG element types to include custom tooltip properties
