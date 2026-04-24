@@ -51,12 +51,3 @@ export const darkTheme: Theme = {
   COLOR_TOOLTIP_TEXT: "black",
   COLOR_TOOLTIP_BACKGROUND: "white",
 };
-
-// Theme context type for React (if we want to use context later)
-export type ThemeContextType = {
-  theme: Theme;
-  toggleTheme: () => void;
-};
-
-// Default to dark theme
-export const defaultTheme = darkTheme;
