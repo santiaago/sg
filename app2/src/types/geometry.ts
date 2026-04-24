@@ -39,21 +39,13 @@ export interface Circle {
   r: number;
 }
 
-export interface Rectangle {
-  type: "rectangle";
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 export interface Polygon {
   type: "polygon";
   points: { x: number; y: number }[];
 }
 
 // Union type for all geometry values
-export type GeometryValue = Point | Line | Circle | Rectangle | Polygon;
+export type GeometryValue = Point | Line | Circle | Polygon;
 
 // Geometry Node (for dependency tracking)
 
@@ -139,10 +131,6 @@ export function isCircle(value: GeometryValue): value is Circle {
   return value.type === "circle";
 }
 
-export function isRectangle(value: GeometryValue): value is Rectangle {
-  return value.type === "rectangle";
-}
-
 export function point(x: number, y: number): Point {
   return { type: "point", x, y };
 }
@@ -153,10 +141,6 @@ export function line(x1: number, y1: number, x2: number, y2: number): Line {
 
 export function circle(cx: number, cy: number, r: number): Circle {
   return { type: "circle", cx, cy, r };
-}
-
-export function rectangle(x: number, y: number, width: number, height: number): Rectangle {
-  return { type: "rectangle", x, y, width, height };
 }
 
 export function polygon(points: { x: number; y: number }[]): Polygon {
