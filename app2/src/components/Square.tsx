@@ -83,35 +83,39 @@ export function Square({
     // If no steps to draw, exit
     if (currentStep <= 0) return;
 
-    // Call once at the beginning of the effect:
-    const { stepDependencies, stepForOutput } = buildStepMaps(SQUARE_STEPS, currentStep);
+    try {
+      // Call once at the beginning of the effect:
+      const { stepDependencies, stepForOutput } = buildStepMaps(SQUARE_STEPS, currentStep);
 
-    // Execute steps up to currentStep
-    const allValues = executeSteps(
-      SQUARE_STEPS,
-      currentStep,
-      {
-        svg,
-        store,
-        theme,
-      },
-      squareConfig,
-    );
+      // Execute steps up to currentStep
+      const allValues = executeSteps(
+        SQUARE_STEPS,
+        currentStep,
+        {
+          svg,
+          store,
+          theme,
+        },
+        squareConfig,
+      );
 
-    // Build dependency map and step maps for parameter values
-    if (currentStep > 0) {
-      for (const [id] of allValues) {
-        const deps = stepDependencies.get(id) ?? [];
-        const step = stepForOutput.get(id);
-        const paramValues = step?.parameters ? pick(squareConfig, step.parameters) : {};
-        const stepId = step?.id ?? "";
+      // Build dependency map and step maps for parameter values
+      if (currentStep > 0) {
+        for (const [id] of allValues) {
+          const deps = stepDependencies.get(id) ?? [];
+          const step = stepForOutput.get(id);
+          const paramValues = step?.parameters ? pick(squareConfig, step.parameters) : {};
+          const stepId = step?.id ?? "";
 
-        store.update(id, {
-          dependsOn: deps,
-          stepId,
-          parameterValues: paramValues,
-        });
+          store.update(id, {
+            dependsOn: deps,
+            stepId,
+            parameterValues: paramValues,
+          });
+        }
       }
+    } catch (error) {
+      console.error("Square construction failed at step", currentStep, ":", error);
     }
   }, [currentStep, restartTrigger, svgConfig, dotStrokeWidth, theme]);
 
