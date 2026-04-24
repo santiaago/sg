@@ -45,6 +45,22 @@ export function Square({
   const svgRef = useRef<SVGSVGElement>(null);
   const prevStepRef = useRef<number>(0);
 
+  // Input validation
+  useEffect(() => {
+    if (currentStep < 0) {
+      console.warn("Square: currentStep should not be negative, received:", currentStep);
+    }
+    if (svgConfig.width <= 0) {
+      console.warn("Square: svgConfig.width should be positive, received:", svgConfig.width);
+    }
+    if (svgConfig.height <= 0) {
+      console.warn("Square: svgConfig.height should be positive, received:", svgConfig.height);
+    }
+    if (!theme || typeof theme !== "object") {
+      console.warn("Square: theme should be a valid Theme object, received:", theme);
+    }
+  }, [currentStep, svgConfig.width, svgConfig.height, theme]);
+
   // Memoize the square configuration (derived from SVG dimensions)
   const squareConfig = useMemo(() => {
     return computeSquareConfig(svgConfig.width, svgConfig.height);
