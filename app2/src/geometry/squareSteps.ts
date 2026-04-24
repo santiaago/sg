@@ -36,7 +36,6 @@ import {
   LINE_EXTENSION_MULTIPLIER,
   getGeometry,
   computeSingle,
-  computeMultiple,
   type SquareConfig,
 } from "./operations";
 import {
@@ -50,7 +49,7 @@ import { createTooltip, drawPoint, drawLine, drawCircle } from "../svgElements";
 
 import type { GeometryStore } from "../react-store";
 
-export { computeSquareConfig, GEOM, getGeometry, computeSingle, computeMultiple };
+export { computeSquareConfig, GEOM, getGeometry, computeSingle };
 export type { SquareConfig };
 
 /**
