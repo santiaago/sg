@@ -3,8 +3,7 @@ import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
 import { pick, buildStepMaps, setupSvg } from "../svg";
-import { SQUARE_STEPS, executeSteps, GEOM, computeSquareConfig } from "../geometry/squareSteps";
-import type { GeometryValue, Step } from "../types/geometry";
+import { SQUARE_STEPS, executeSteps, computeSquareConfig } from "../geometry/squareSteps";
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
 
@@ -141,8 +140,3 @@ export function Square({
     </div>
   );
 }
-
-// Exports for testing and external use
-
-export { SQUARE_STEPS, GEOM };
-export type { Step, GeometryValue };
