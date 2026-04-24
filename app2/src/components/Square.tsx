@@ -120,13 +120,8 @@ export function Square({
   }, [currentStep, restartTrigger, svgConfig, dotStrokeWidth, theme]);
 
   return (
-    <div className={svgConfig.containerClass} style={{ display: "flex", justifyContent: "center" }}>
-      <svg
-        ref={svgRef}
-        className={svgConfig.svgClass}
-        style={{ display: "block" }}
-        data-testid="square-svg"
-      />
+    <div className={`${svgConfig.containerClass} flex justify-center`}>
+      <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="square-svg" />
     </div>
   );
 }
