@@ -63,9 +63,15 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixF
     const svg = svgRef.current;
     const prevStep = prevStepRef.current;
 
-    // Always clear geometry and store before executing steps to avoid duplicates
-    clearGeometryFromSvg(svg);
-    store.clear();
+    // Clear geometry ONLY when going backwards or restarting
+    if (currentStep < prevStep || restartTrigger !== 0) {
+      clearGeometryFromSvg(svg);
+    }
+
+    // Clear store only when going backwards or restarting
+    if (currentStep < prevStep || restartTrigger !== 0) {
+      store.clear();
+    }
     
     prevStepRef.current = currentStep;
 
