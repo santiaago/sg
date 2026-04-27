@@ -1,0 +1,114 @@
+import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle } from "react";
+import type { SvgConfig } from "../config/svgConfig";
+import type { GeometryStore } from "../react-store";
+import { rect, clearGeometryFromSvg } from "../svgElements";
+import { setupSvg, buildStepMaps } from "../svg";
+import { darkTheme } from "../themes";
+import type { Theme } from "../themes";
+import {
+  SIX_FOLD_V0_STEPS,
+  computeSixFoldV0Config,
+  executeSteps,
+} from "../geometry/sixFoldV0Steps";
+
+// Props for the SixFoldV0 component.
+export interface SixFoldV0Props {
+  store: GeometryStore;
+  svgConfig: SvgConfig;
+  restartTrigger?: number;
+  currentStep: number;
+  theme?: Theme;
+}
+
+/**
+ * SixFoldV0 component - Replicates "1/4 Six fold pattern v3" from Svelte app.
+ * Follows the exact same pattern as Square.tsx:
+ * - Separate steps file with compute/draw functions
+ * - useMemo for config
+ * - useEffect for SVG setup
+ * - useEffect for step execution with store integration
+ */
+export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixFoldV0(
+  { store, svgConfig, restartTrigger = 0, currentStep = 0, theme = darkTheme },
+  ref,
+): React.JSX.Element {
+  const svgRef = useRef<SVGSVGElement>(null);
+  
+  // Expose the SVG ref to parent via forwardRef
+  useImperativeHandle(ref, () => svgRef.current as SVGSVGElement, []);
+
+  const prevStepRef = useRef<number>(0);
+
+  // Memoize the configuration (derived from SVG dimensions)
+  const config = useMemo(() => {
+    return computeSixFoldV0Config(svgConfig.width, svgConfig.height);
+  }, [svgConfig.width, svgConfig.height]);
+
+  // Effect 1: SVG container setup - ONLY when dimensions or theme change
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = svgRef.current;
+
+    // Clear everything and setup SVG container
+    setupSvg(svg, svgConfig);
+
+    // Draw the background rectangle using the theme color
+    rect(svg, svgConfig.width, svgConfig.height, theme);
+  }, [svgConfig.width, svgConfig.height, svgConfig.viewBox, theme]);
+
+  // Effect 2: Step execution - ONLY when step, restart, or config changes
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    const svg = svgRef.current;
+    const prevStep = prevStepRef.current;
+
+    // Always clear geometry and store before executing steps to avoid duplicates
+    clearGeometryFromSvg(svg);
+    store.clear();
+    
+    prevStepRef.current = currentStep;
+
+    // If no steps to draw, exit
+    if (currentStep <= 0) return;
+
+    try {
+      // Execute steps up to currentStep
+      const allValues = executeSteps(
+        SIX_FOLD_V0_STEPS,
+        currentStep,
+        { svg, store, theme },
+        config
+      );
+
+      // Build dependency map and step maps for GeometryList display
+      if (currentStep > 0) {
+        const { stepDependencies, stepForOutput } = buildStepMaps(
+          SIX_FOLD_V0_STEPS as unknown as readonly import("../types/geometry").Step[],
+          currentStep
+        );
+
+        for (const id of allValues.keys()) {
+          const deps = stepDependencies.get(id) ?? [];
+          const step = stepForOutput.get(id);
+          const paramValues = {};
+          const stepId = step?.id ?? "";
+
+          store.update(id, {
+            dependsOn: deps,
+            stepId,
+            parameterValues: paramValues,
+          });
+        }
+      }
+    } catch (error) {
+      console.error("SixFoldV0 construction failed at step", currentStep, ":", error);
+    }
+  }, [currentStep, restartTrigger, svgConfig, theme]);
+
+  return (
+    <div className={`${svgConfig.containerClass} flex justify-center`}>
+      <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="sixfoldv0-svg" />
+    </div>
+  );
+});
