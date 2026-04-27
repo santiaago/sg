@@ -1329,16 +1329,15 @@ const STEP_28: SixFoldV0Step = {
     // lc34cp1 = line from c34 center to cp1
     const lc34cp1 = line(c34.cx, c34.cy, cp1.x, cp1.y);
     
-    // pc34s = interceptCircleLine(c34, lc34cp1, 0)
+    // pc34s = interceptCircleLineSeg(c34, lc34cp1, 0)
     const pc34s = interceptCircleLineSegHelper(c34, lc34cp1, 0);
-    
-    // outline10 = line from pc34s to pc3sw
-    const pc3sw = inputs.get(GEOM.PC3SW) as Point | undefined;
-    const outline10 = pc34s && pc3sw ? line(pc34s.x, pc34s.y, pc3sw.x, pc3sw.y) : null;
+    const pc3sw = getGeom(inputs, GEOM.PC3SW, isPoint);
+    if(!pc34s) throw new Error("STEP_28: pc34s is null");
+    const outline10 = line(pc34s.x, pc34s.y, pc3sw.x, pc3sw.y);
     
     const m = new Map<string, GeometryValue>();
-    if (pc34s) m.set(GEOM.PC34S, pc34s);
-    if (outline10) m.set(GEOM.OUTLINE10, outline10);
+    m.set(GEOM.PC34S, pc34s);
+    m.set(GEOM.OUTLINE10, outline10);
     return m;
   },
   draw: (svg, values, store, theme) => {
