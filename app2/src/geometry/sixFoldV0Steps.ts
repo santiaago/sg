@@ -1106,18 +1106,10 @@ const STEP_21: SixFoldV0Step = {
     const l34 = getGeom(inputs, GEOM.L34, isLine);
     
     // pic1w = interceptCircleLineSeg(c1_d3, lcp1pi3, 0)
-    let pic1w = interceptCircleLineSegHelper(c1_d3, lcp1pi3, 0);
-    if (!pic1w) {
-      const tryIndex1 = interceptCircleLineSegHelper(c1_d3, lcp1pi3, 1);
-      pic1w = tryIndex1 ?? point(c1_d3.cx, c1_d3.cy - c1_d3.r);
-    }
+    const pic1w = interceptCircleLineSegHelper(c1_d3, lcp1pi3, 0);
     
     // pic34 = interceptCircleLineSeg(c34, l34, 0)
-    let pic34 = interceptCircleLineSegHelper(c34, l34, 0);
-    if (!pic34) {
-      const tryIndex1 = interceptCircleLineSegHelper(c34, l34, 1);
-      pic34 = tryIndex1 ?? point(c34.cx, c34.cy - c34.r);
-    }
+    const pic34 = interceptCircleLineSegHelper(c34, l34, 0);
     
     // outline3 = line from pic1w to pic34
     const outline3 = line(pic1w.x, pic1w.y, pic34.x, pic34.y);
