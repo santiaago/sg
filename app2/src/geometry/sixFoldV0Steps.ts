@@ -1185,17 +1185,10 @@ const STEP_23: SixFoldV0Step = {
     const l23 = getGeom(inputs, GEOM.L23, isLine);
     
     // pc1w = interceptCircleLineSeg(c1_d1, l12, 0)
-    let pc1w = interceptCircleLineSegHelper(c1_d1, l12, 0);
-    // Fallback to index 1 or default if null
-    if (!pc1w) {
-      pc1w = interceptCircleLineSegHelper(c1_d1, l12, 1) ?? point(c1_d1.cx + c1_d1.r, c1_d1.cy);
-    }
+    const pc1w = interceptCircleLineSegHelper(c1_d1, l12, 0);
     
     // pc23s = interceptCircleLineSeg(c23, l23, 0)
-    let pc23s = interceptCircleLineSegHelper(c23, l23, 0);
-    if (!pc23s) {
-      pc23s = interceptCircleLineSegHelper(c23, l23, 1) ?? point(c23.cx + c23.r, c23.cy);
-    }
+    const pc23s = interceptCircleLineSegHelper(c23, l23, 0);
     
     // outline5 = line from pc1w to pc23s
     const outline5 = line(pc1w.x, pc1w.y, pc23s.x, pc23s.y);
@@ -1225,15 +1218,11 @@ const STEP_24: SixFoldV0Step = {
     const c34 = getGeom(inputs, GEOM.C34, isCircle);
     const l34Line = getGeom(inputs, GEOM.L34, isLine);
     
-    // pc1n = interceptCircleLine(c1_d1, l41, 0)
-    let pc1n = interceptCircleLineHelper(c1_d1, l41, 0);
-    if (!pc1n) {
-      // Fallback: intersection with index 1 or use cp1
-      pc1n = interceptCircleLineHelper(c1_d1, l41, 1) ?? point(c1_d1.cx + c1_d1.r, c1_d1.cy);
-    }
+    // pc1n = interceptCircleLineSeg(c1_d1, l41, 0)
+    const pc1n = interceptCircleLineSegHelper(c1_d1, l41, 0);
     
-    // pc34e = interceptCircleLine(c34, l34, 1)
-    const pc34e = l34Line ? interceptCircleLineSegHelper(c34, l34Line, 1) : null;
+    // pc34e = interceptCircleLineSeg(c34, l34, 1)
+    const pc34e = interceptCircleLineSegHelper(c34, l34Line, 1);
 
     if (!pc1n) throw new Error("STEP_24: pc1n is null");
     if (!pc34e) throw new Error("STEP_24: pc34e is null");
