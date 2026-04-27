@@ -45,7 +45,23 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixF
     return computeSixFoldV0Config(svgConfig.width, svgConfig.height);
   }, [svgConfig.width, svgConfig.height]);
 
-  // Effect 1: SVG container setup - ONLY when dimensions or theme change
+  // Effect 1: Input validation
+  useEffect(() => {
+    if (currentStep < 0) {
+      console.warn("SixFoldV0: currentStep should not be negative, received:", currentStep);
+    }
+    if (svgConfig.width <= 0) {
+      console.warn("SixFoldV0: svgConfig.width should be positive, received:", svgConfig.width);
+    }
+    if (svgConfig.height <= 0) {
+      console.warn("SixFoldV0: svgConfig.height should be positive, received:", svgConfig.height);
+    }
+    if (!theme || typeof theme !== "object") {
+      console.warn("SixFoldV0: theme should be a valid Theme object, received:", theme);
+    }
+  }, [currentStep, svgConfig.width, svgConfig.height, theme]);
+
+  // Effect 2: SVG container setup - ONLY when dimensions or theme change
   useEffect(() => {
     if (!svgRef.current) return;
     const svg = svgRef.current;
@@ -57,7 +73,7 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixF
     rect(svg, svgConfig.width, svgConfig.height, theme);
   }, [svgConfig.width, svgConfig.height, svgConfig.viewBox, theme]);
 
-  // Effect 2: Step execution - ONLY when step, restart, or config changes
+  // Effect 3: Step execution - ONLY when step, restart, or config changes
   useEffect(() => {
     if (!svgRef.current) return;
 
