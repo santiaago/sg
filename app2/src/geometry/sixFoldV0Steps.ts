@@ -778,7 +778,7 @@ const STEP_13: SixFoldV0Step = {
     const lineToCp2 = line(pc23Pt.x, pc23Pt.y, cp2.x, cp2.y);
     
     // c23s = interceptCircleLine(c2_d1, line, 0) - first intersection point
-    const c23s = interceptCircleLineHelper(c2_d1, lineToCp2, 0);
+    const c23s = interceptCircleLineSegHelper(c2_d1, lineToCp2, 0);
     if (!c23s) throw new Error("STEP_13: c23s is null");
     
     // d2 = distance from pc23 to c23s
