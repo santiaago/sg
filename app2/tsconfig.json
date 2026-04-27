@@ -24,7 +24,7 @@
 
     /* Output */
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "composite": true,
 
     /* Source Map */
@@ -37,6 +37,6 @@
       "@sg/geometry": ["../packages/geometry/src/index.ts"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "test"],
   "exclude": ["node_modules"]
 }
