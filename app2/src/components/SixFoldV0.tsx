@@ -122,7 +122,7 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixF
     } catch (error) {
       console.error("SixFoldV0 construction failed at step", currentStep, ":", error);
     }
-  }, [currentStep, restartTrigger, svgConfig, theme]);
+  }, [currentStep, restartTrigger, svgConfig, theme, config]);
 
   return (
     <div className={`${svgConfig.containerClass} flex justify-center`}>
