@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
@@ -17,7 +17,7 @@ export interface SixFoldV0Props {
   store: GeometryStore;
   svgConfig: SvgConfig;
   restartTrigger?: number;
-  currentStep: number;
+  currentStep?: number;
   theme?: Theme;
 }
 
@@ -29,14 +29,14 @@ export interface SixFoldV0Props {
  * - useEffect for SVG setup
  * - useEffect for step execution with store integration
  */
-export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixFoldV0(
-  { store, svgConfig, restartTrigger = 0, currentStep = 0, theme = darkTheme },
-  ref,
-): React.JSX.Element {
+export function SixFoldV0({
+  store,
+  svgConfig,
+  restartTrigger = 0,
+  currentStep = 0,
+  theme = darkTheme,
+}: SixFoldV0Props): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
-
-  // Expose the SVG ref to parent via forwardRef
-  useImperativeHandle(ref, () => svgRef.current as SVGSVGElement, []);
 
   const prevStepRef = useRef<number>(0);
 
@@ -129,4 +129,4 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixF
       <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="sixfoldv0-svg" />
     </div>
   );
-});
+}
