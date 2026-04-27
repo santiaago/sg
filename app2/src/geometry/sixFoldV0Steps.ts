@@ -1184,17 +1184,17 @@ const STEP_23: SixFoldV0Step = {
     const c23 = getGeom(inputs, GEOM.C23, isCircle);
     const l23 = getGeom(inputs, GEOM.L23, isLine);
     
-    // pc1w = interceptCircleLine(c1_d1, l12, 0)
-    let pc1w = interceptCircleLineHelper(c1_d1, l12, 0);
+    // pc1w = interceptCircleLineSeg(c1_d1, l12, 0)
+    let pc1w = interceptCircleLineSegHelper(c1_d1, l12, 0);
     // Fallback to index 1 or default if null
     if (!pc1w) {
-      pc1w = interceptCircleLineHelper(c1_d1, l12, 1) ?? point(c1_d1.cx + c1_d1.r, c1_d1.cy);
+      pc1w = interceptCircleLineSegHelper(c1_d1, l12, 1) ?? point(c1_d1.cx + c1_d1.r, c1_d1.cy);
     }
     
-    // pc23s = interceptCircleLine(c23, l23, 0)
-    let pc23s = interceptCircleLineHelper(c23, l23, 0);
+    // pc23s = interceptCircleLineSeg(c23, l23, 0)
+    let pc23s = interceptCircleLineSegHelper(c23, l23, 0);
     if (!pc23s) {
-      pc23s = interceptCircleLineHelper(c23, l23, 1) ?? point(c23.cx + c23.r, c23.cy);
+      pc23s = interceptCircleLineSegHelper(c23, l23, 1) ?? point(c23.cx + c23.r, c23.cy);
     }
     
     // outline5 = line from pc1w to pc23s
