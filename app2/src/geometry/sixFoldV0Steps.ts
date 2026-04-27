@@ -1298,11 +1298,7 @@ const STEP_27: SixFoldV0Step = {
     const lc23cp1 = line(c23.cx, c23.cy, cp1.x, cp1.y);
     
     // pc23e = interceptCircleLineSeg(c23, lc23cp1, 0)
-    let pc23e = interceptCircleLineSegHelper(c23, lc23cp1, 0);
-    if (!pc23e) {
-      const tryIndex1 = interceptCircleLineSegHelper(c23, lc23cp1, 1);
-      pc23e = tryIndex1 ?? point(c23.cx + c23.r, c23.cy);
-    }
+    const pc23e = interceptCircleLineSegHelper(c23, lc23cp1, 0);
     
     // outline9 = line from pc3sw to pc23e
     const outline9 = pc3sw && pc23e ? line(pc3sw.x, pc3sw.y, pc23e.x, pc23e.y) : null;
