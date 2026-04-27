@@ -108,6 +108,10 @@ export const GEOM = {
   OUTLINE12: "outline12",
   OUTLINE13: "outline13",
   OUTLINE14: "outline14",
+  OUTLINE15: "outline15",
+  OUTLINE16: "outline16",
+  OUTLINE17: "outline17",
+  OUTLINE18: "outline18",
 } as const;
 
 export type GeometryId = (typeof GEOM)[keyof typeof GEOM];
@@ -1430,6 +1434,78 @@ const STEP_29: SixFoldV0Step = {
   },
 };
 
+// Step 33: Outline15 - line from cp2 to cp1
+const STEP_33: SixFoldV0Step = {
+  id: "step33",
+  inputs: [GEOM.CP1, GEOM.CP2],
+  outputs: [GEOM.OUTLINE15],
+  parameters: [],
+  compute: (inputs) => {
+    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
+    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
+    const m = new Map<string, GeometryValue>();
+    m.set(GEOM.OUTLINE15, line(cp2.x, cp2.y, cp1.x, cp1.y));
+    return m;
+  },
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.OUTLINE15, 2.0, store, theme);
+  },
+};
+
+// Step 34: Outline16 - line from cp2 to cp3
+const STEP_34: SixFoldV0Step = {
+  id: "step34",
+  inputs: [GEOM.CP2, GEOM.CP3],
+  outputs: [GEOM.OUTLINE16],
+  parameters: [],
+  compute: (inputs) => {
+    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
+    const cp3 = getGeom(inputs, GEOM.CP3, isPoint);
+    const m = new Map<string, GeometryValue>();
+    m.set(GEOM.OUTLINE16, line(cp2.x, cp2.y, cp3.x, cp3.y));
+    return m;
+  },
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.OUTLINE16, 2.0, store, theme);
+  },
+};
+
+// Step 35: Outline17 - line from cp3 to cp4
+const STEP_35: SixFoldV0Step = {
+  id: "step35",
+  inputs: [GEOM.CP3, GEOM.CP4],
+  outputs: [GEOM.OUTLINE17],
+  parameters: [],
+  compute: (inputs) => {
+    const cp3 = getGeom(inputs, GEOM.CP3, isPoint);
+    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
+    const m = new Map<string, GeometryValue>();
+    m.set(GEOM.OUTLINE17, line(cp3.x, cp3.y, cp4.x, cp4.y));
+    return m;
+  },
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.OUTLINE17, 2.0, store, theme);
+  },
+};
+
+// Step 36: Outline18 - line from cp4 to cp1
+const STEP_36: SixFoldV0Step = {
+  id: "step36",
+  inputs: [GEOM.CP4, GEOM.CP1],
+  outputs: [GEOM.OUTLINE18],
+  parameters: [],
+  compute: (inputs) => {
+    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
+    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
+    const m = new Map<string, GeometryValue>();
+    m.set(GEOM.OUTLINE18, line(cp4.x, cp4.y, cp1.x, cp1.y));
+    return m;
+  },
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.OUTLINE18, 2.0, store, theme);
+  },
+};
+
 /** All steps in order */
 export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_1,
@@ -1464,6 +1540,10 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_30,
   STEP_31,
   STEP_32,
+  STEP_33,
+  STEP_34,
+  STEP_35,
+  STEP_36,
 ];
 
 /** Execute a single step */
