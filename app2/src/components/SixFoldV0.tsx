@@ -2,9 +2,10 @@ import { useEffect, useRef, useMemo, forwardRef, useImperativeHandle } from "rea
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
-import { setupSvg, buildStepMaps } from "../svg";
+import { pick, setupSvg, buildStepMaps } from "../svg";
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
+import type { SixFoldV0Step } from "../geometry/sixFoldV0Steps";
 import {
   SIX_FOLD_V0_STEPS,
   computeSixFoldV0Config,
@@ -33,7 +34,7 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixF
   ref,
 ): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
-  
+
   // Expose the SVG ref to parent via forwardRef
   useImperativeHandle(ref, () => svgRef.current as SVGSVGElement, []);
 
@@ -72,7 +73,7 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixF
     if (currentStep < prevStep || restartTrigger !== 0) {
       store.clear();
     }
-    
+
     prevStepRef.current = currentStep;
 
     // If no steps to draw, exit
@@ -80,24 +81,19 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(function SixF
 
     try {
       // Execute steps up to currentStep
-      const allValues = executeSteps(
-        SIX_FOLD_V0_STEPS,
-        currentStep,
-        { svg, store, theme },
-        config
-      );
+      const allValues = executeSteps(SIX_FOLD_V0_STEPS, currentStep, { svg, store, theme }, config);
 
       // Build dependency map and step maps for GeometryList display
       if (currentStep > 0) {
         const { stepDependencies, stepForOutput } = buildStepMaps(
           SIX_FOLD_V0_STEPS as unknown as readonly import("../types/geometry").Step[],
-          currentStep
+          currentStep,
         );
 
         for (const id of allValues.keys()) {
           const deps = stepDependencies.get(id) ?? [];
-          const step = stepForOutput.get(id);
-          const paramValues = {};
+          const step = stepForOutput.get(id) as SixFoldV0Step | undefined;
+          const paramValues = step?.parameters ? pick(config, step.parameters) : {};
           const stepId = step?.id ?? "";
 
           store.update(id, {
