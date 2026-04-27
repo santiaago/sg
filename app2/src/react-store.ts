@@ -244,3 +244,49 @@ export function useGeometryStorev3(): GeometryStorev2v3v4 {
 export function useGeometryStorev4(): GeometryStorev2v3v4 {
   return useGeometryStorev2();
 }
+
+/**
+ * React hook for SixFoldV0 geometry store.
+ * Uses the same implementation as Square for consistency.
+ */
+export function useGeometryStoreSixFoldV0(): GeometryStore {
+  const [items, setItems] = useState<Record<string, GeometryItem>>({});
+
+  const add = useCallback((name: string, element: any, type: string, dependsOn: string[]) => {
+    setItems((old) => {
+      const newItems = { ...old };
+      const initialState = captureInitialState(element, type, name);
+      const existingItem = old[name];
+
+      newItems[name] = {
+        name,
+        element,
+        selected: existingItem?.selected ?? false,
+        type,
+        initialState:
+          Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
+        dependsOn: existingItem?.dependsOn ?? dependsOn,
+        stepId: "",
+        parameterValues: {},
+      };
+      return newItems;
+    });
+  }, []);
+
+  const update = useCallback((k: string, o: Partial<GeometryItem>) => {
+    setItems((old) => {
+      const newItems = { ...old };
+      newItems[k] = {
+        ...old[k],
+        ...o,
+      };
+      return newItems;
+    });
+  }, []);
+
+  const clear = useCallback(() => {
+    setItems({});
+  }, []);
+
+  return useMemo(() => ({ items, add, update, clear }), [items, add, update, clear]);
+}

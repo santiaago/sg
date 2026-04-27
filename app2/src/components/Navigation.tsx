@@ -4,9 +4,15 @@ import { darkTheme } from "../themes";
 
 interface NavigationProps {
   onNavigate: (
-    sectionId: "sixfold-v4" | "sixfold-v3" | "sixfold-v2" | "sixfold-v1" | "square",
+    sectionId: "sixfold-v4" | "sixfold-v3" | "sixfold-v2" | "sixfold-v1" | "sixfold-v0" | "square",
   ) => void;
-  activeSection: "sixfold-v4" | "sixfold-v3" | "sixfold-v2" | "sixfold-v1" | "square";
+  activeSection:
+    | "sixfold-v4"
+    | "sixfold-v3"
+    | "sixfold-v2"
+    | "sixfold-v1"
+    | "sixfold-v0"
+    | "square";
   onToggleTheme?: () => void;
   svgTheme?: Theme;
 }
@@ -18,7 +24,7 @@ export function Navigation({
   svgTheme = darkTheme,
 }: NavigationProps): JSX.Element {
   const handleNavigate = (
-    sectionId: "sixfold-v4" | "sixfold-v3" | "sixfold-v2" | "sixfold-v1" | "square",
+    sectionId: "sixfold-v4" | "sixfold-v3" | "sixfold-v2" | "sixfold-v1" | "sixfold-v0" | "square",
   ): void => {
     // Update URL hash
     window.location.hash = sectionId;
@@ -76,6 +82,18 @@ export function Navigation({
               }`}
             >
               SixFold v1
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleNavigate("sixfold-v0")}
+              className={`px-4 py-2 rounded transition-colors ${
+                activeSection === "sixfold-v0"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+            >
+              SixFold v0
             </button>
           </li>
           <li>
