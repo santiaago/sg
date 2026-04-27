@@ -1107,9 +1107,11 @@ const STEP_21: SixFoldV0Step = {
     
     // pic1w = interceptCircleLineSeg(c1_d3, lcp1pi3, 0)
     const pic1w = interceptCircleLineSegHelper(c1_d3, lcp1pi3, 0);
+    if(!pic1w) throw new Error("STEP_21: pic1w is null");
     
     // pic34 = interceptCircleLineSeg(c34, l34, 0)
     const pic34 = interceptCircleLineSegHelper(c34, l34, 0);
+    if(!pic34) throw new Error("STEP_21: pic34 is null");
     
     // outline3 = line from pic1w to pic34
     const outline3 = line(pic1w.x, pic1w.y, pic34.x, pic34.y);
@@ -1178,9 +1180,11 @@ const STEP_23: SixFoldV0Step = {
     
     // pc1w = interceptCircleLineSeg(c1_d1, l12, 0)
     const pc1w = interceptCircleLineSegHelper(c1_d1, l12, 0);
+    if(!pc1w) throw new Error("STEP_23: pc1w is null");
     
     // pc23s = interceptCircleLineSeg(c23, l23, 0)
     const pc23s = interceptCircleLineSegHelper(c23, l23, 0);
+    if(!pc23s) throw new Error("STEP_23: pc23s is null");
     
     // outline5 = line from pc1w to pc23s
     const outline5 = line(pc1w.x, pc1w.y, pc23s.x, pc23s.y);
