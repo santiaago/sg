@@ -6,12 +6,10 @@
 import type { GeometryValue, Point, Circle } from "../types/geometry";
 import { point, line, circle, isPoint, isLine, isCircle } from "../types/geometry";
 import { directions, lineIntersect } from "@sg/geometry";
-import type { GeometryStore } from "../react-store";
-import type { Theme, StepExecutionContext } from "../types/geometry";
+import type { StepExecutionContext } from "../types/geometry";
 import { drawPoint, drawLine, drawCircle } from "../svgElements";
-import { getGeometry } from "./operations";
-import { GEOM } from "./sixFold/operations";
-import type { SixFoldV0Config } from "./sixFold/operations";
+import { getGeometry, GEOM } from "./sixFold/operations";
+import type { SixFoldV0Config, SixFoldV0Step } from "./sixFold/operations";
 import {
   distance,
   isValidNumber,
@@ -21,23 +19,6 @@ import {
   interceptCircleLineSegHelper,
 } from "../geometry/constructors";
 
-// Local Step type for SixFoldV0 that uses SixFoldV0Config instead of SquareConfig
-export interface SixFoldV0Step {
-  id: string;
-  inputs: string[];
-  outputs: string[];
-  parameters?: (keyof SixFoldV0Config)[];
-  compute: (
-    inputs: Map<string, GeometryValue>,
-    config: SixFoldV0Config,
-  ) => Map<string, GeometryValue>;
-  draw: (
-    svg: SVGSVGElement,
-    values: Map<string, GeometryValue>,
-    store: GeometryStore,
-    theme: Theme,
-  ) => void;
-}
 // Step 1: Main line and points
 const STEP_1: SixFoldV0Step = {
   id: "step1",

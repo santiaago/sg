@@ -3,6 +3,16 @@
  * Follows the pattern of Square's operations.ts
  */
 
+import type { GeometryValue } from "../../types/geometry";
+import type { GeometryStore } from "../../react-store";
+import type { Theme } from "../../themes";
+import { getGeometry } from "../../geometry/operations";
+
+export { getGeometry };
+
+// Re-export types for convenience
+export type { GeometryStore, Theme };
+
 // Constants
 export const CUT_LINE_BY = 8;
 
@@ -37,9 +47,9 @@ export const GEOM = {
   C2_D1: "c2_d1",
   C3_D1: "c3_d1",
   C4_D1: "c4_d1",
-  D1: "d1",
   C14_D1: "c14_d1",
   C12_D1: "c12_d1",
+  // D1: "d1",  // REMOVED - scalar values don't belong in GeometryValue Map
   PI3: "pi3",
   PI4: "pi4",
   LCP1PI3: "lcp1pi3",
@@ -102,6 +112,24 @@ export const GEOM = {
 } as const;
 
 export type GeometryId = (typeof GEOM)[keyof typeof GEOM];
+
+// Local Step type for SixFoldV0 that uses SixFoldV0Config instead of SquareConfig
+export interface SixFoldV0Step {
+  id: string;
+  inputs: string[];
+  outputs: string[];
+  parameters?: (keyof SixFoldV0Config)[];
+  compute: (
+    inputs: Map<string, GeometryValue>,
+    config: SixFoldV0Config,
+  ) => Map<string, GeometryValue>;
+  draw: (
+    svg: SVGSVGElement,
+    values: Map<string, GeometryValue>,
+    store: GeometryStore,
+    theme: Theme,
+  ) => void;
+}
 
 /** Configuration for SixFoldV0 geometry construction */
 export interface SixFoldV0Config {

@@ -5,7 +5,7 @@ import { rect, clearGeometryFromSvg } from "../svgElements";
 import { pick, setupSvg, buildStepMaps } from "../svg";
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
-import type { SixFoldV0Step } from "../geometry/sixFoldV0Steps";
+import type { SixFoldV0Step } from "../geometry/sixFold/operations";
 import {
   SIX_FOLD_V0_STEPS,
   executeSteps,
