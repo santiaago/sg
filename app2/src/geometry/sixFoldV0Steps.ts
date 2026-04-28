@@ -608,12 +608,10 @@ const STEP_16: SixFoldV0Step = {
   inputs: [GEOM.PII1, GEOM.PII2],
   outputs: [GEOM.LPII1PII2],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.LPII1PII2, (inputs) => {
     const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
     const pii2 = getGeometry(inputs, GEOM.PII2, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.LPII1PII2, line(pii1.x, pii1.y, pii2.x, pii2.y));
-    return m;
+    return line(pii1.x, pii1.y, pii2.x, pii2.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.LPII1PII2, 0.5, store, theme);
@@ -908,12 +906,10 @@ const STEP_25: SixFoldV0Step = {
   inputs: [GEOM.PC1N, GEOM.PIC1N],
   outputs: [GEOM.OUTLINE7],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE7, (inputs) => {
     const pc1n = getGeometry(inputs, GEOM.PC1N, isPoint, "Point");
     const pic1n = getGeometry(inputs, GEOM.PIC1N, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.OUTLINE7, line(pc1n.x, pc1n.y, pic1n.x, pic1n.y));
-    return m;
+    return line(pc1n.x, pc1n.y, pic1n.x, pic1n.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE7, 2.0, store, theme);
@@ -926,12 +922,10 @@ const STEP_26: SixFoldV0Step = {
   inputs: [GEOM.PC1W, GEOM.PIC1W],
   outputs: [GEOM.OUTLINE8],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE8, (inputs) => {
     const pc1w = getGeometry(inputs, GEOM.PC1W, isPoint, "Point");
     const pic1w = getGeometry(inputs, GEOM.PIC1W, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.OUTLINE8, line(pc1w.x, pc1w.y, pic1w.x, pic1w.y));
-    return m;
+    return line(pc1w.x, pc1w.y, pic1w.x, pic1w.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE8, 2.0, store, theme);
@@ -1011,12 +1005,10 @@ const STEP_29: SixFoldV0Step = {
   inputs: [GEOM.PC34E, GEOM.PC34S],
   outputs: [GEOM.OUTLINE11],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE11, (inputs) => {
     const pc34e = getGeometry(inputs, GEOM.PC34E, isPoint, "Point");
     const pc34s = getGeometry(inputs, GEOM.PC34S, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.OUTLINE11, line(pc34e.x, pc34e.y, pc34s.x, pc34s.y));
-    return m;
+    return line(pc34e.x, pc34e.y, pc34s.x, pc34s.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE11, 2.0, store, theme);
@@ -1029,12 +1021,10 @@ const STEP_30: SixFoldV0Step = {
   inputs: [GEOM.PC23S, GEOM.PC23E],
   outputs: [GEOM.OUTLINE12],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE12, (inputs) => {
     const pc23s = getGeometry(inputs, GEOM.PC23S, isPoint, "Point");
     const pc23e = getGeometry(inputs, GEOM.PC23E, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.OUTLINE12, line(pc23s.x, pc23s.y, pc23e.x, pc23e.y));
-    return m;
+    return line(pc23s.x, pc23s.y, pc23e.x, pc23e.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE12, 2.0, store, theme);
@@ -1047,12 +1037,11 @@ const STEP_31: SixFoldV0Step = {
   inputs: [GEOM.CP4, GEOM.PIC4],
   outputs: [GEOM.OUTLINE13],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE13, (inputs) => {
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const pic4 = getGeometry(inputs, GEOM.PIC4, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    if (pic4) m.set(GEOM.OUTLINE13, line(cp4.x, cp4.y, pic4.x, pic4.y));
-    return m;
+    if (!pic4) throw new Error("STEP_31: pic4 is null");
+    return line(cp4.x, cp4.y, pic4.x, pic4.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE13, 2.0, store, theme);
@@ -1065,12 +1054,11 @@ const STEP_32: SixFoldV0Step = {
   inputs: [GEOM.CP2, GEOM.PIC2],
   outputs: [GEOM.OUTLINE14],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE14, (inputs) => {
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const pic2 = getGeometry(inputs, GEOM.PIC2, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    if (pic2) m.set(GEOM.OUTLINE14, line(cp2.x, cp2.y, pic2.x, pic2.y));
-    return m;
+    if (!pic2) throw new Error("STEP_32: pic2 is null");
+    return line(cp2.x, cp2.y, pic2.x, pic2.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE14, 2.0, store, theme);
@@ -1083,12 +1071,10 @@ const STEP_33: SixFoldV0Step = {
   inputs: [GEOM.CP1, GEOM.CP2],
   outputs: [GEOM.OUTLINE15],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE15, (inputs) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.OUTLINE15, line(cp2.x, cp2.y, cp1.x, cp1.y));
-    return m;
+    return line(cp2.x, cp2.y, cp1.x, cp1.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE15, 2.0, store, theme);
@@ -1101,12 +1087,10 @@ const STEP_34: SixFoldV0Step = {
   inputs: [GEOM.CP2, GEOM.CP3],
   outputs: [GEOM.OUTLINE16],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE16, (inputs) => {
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.OUTLINE16, line(cp2.x, cp2.y, cp3.x, cp3.y));
-    return m;
+    return line(cp2.x, cp2.y, cp3.x, cp3.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE16, 2.0, store, theme);
@@ -1119,12 +1103,10 @@ const STEP_35: SixFoldV0Step = {
   inputs: [GEOM.CP3, GEOM.CP4],
   outputs: [GEOM.OUTLINE17],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE17, (inputs) => {
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.OUTLINE17, line(cp3.x, cp3.y, cp4.x, cp4.y));
-    return m;
+    return line(cp3.x, cp3.y, cp4.x, cp4.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE17, 2.0, store, theme);
@@ -1137,12 +1119,10 @@ const STEP_36: SixFoldV0Step = {
   inputs: [GEOM.CP4, GEOM.CP1],
   outputs: [GEOM.OUTLINE18],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeSingle(GEOM.OUTLINE18, (inputs) => {
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.OUTLINE18, line(cp4.x, cp4.y, cp1.x, cp1.y));
-    return m;
+    return line(cp4.x, cp4.y, cp1.x, cp1.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE18, 2.0, store, theme);
