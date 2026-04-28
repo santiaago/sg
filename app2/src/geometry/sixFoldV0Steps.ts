@@ -401,10 +401,6 @@ const STEP_2: SixFoldV0Step = {
     const circle2 = circle(c.cx2, c.cy2, c.radius);
     m.set(GEOM.C1, circle1);
     m.set(GEOM.C2, circle2);
-    console.log(
-      "STEP_2: c1 = (" + circle1.cx + ", " + circle1.cy + ")",
-      " c2 = (" + circle2.cx + ", " + circle2.cy + ")",
-    );
 
     // Find px, py = intersection point of c1 and c2 circles (top point)
     const c1 = m.get(GEOM.C1) as Circle;
@@ -451,8 +447,6 @@ const STEP_2: SixFoldV0Step = {
     m.set(GEOM.C4, c4);
 
     // Debug: print coordinates
-    console.log("STEP_2: c3 = ", c3, "x:", c3.cx, "y:", c3.cy);
-    console.log("STEP_2: c4 = ", c4, "x:", c4.cx, "y:", c4.cy);
 
     // Debug: store intermediate geometries
     m.set(GEOM.CIRCLE_AT_INTERSECTION, circleAtIntersection);
@@ -647,7 +641,6 @@ const STEP_9: SixFoldV0Step = {
     const d1 = distance(pic14, pi2);
     const c14_d1 = circle(pic14.x, pic14.y, d1);
     const c12_d1 = circle(pic12.x, pic12.y, d1);
-    console.log("STEP_9: c1_d1 radius =", d1);
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.C14_D1, c14_d1);
     m.set(GEOM.C12_D1, c12_d1);
@@ -855,17 +848,7 @@ const STEP_14: SixFoldV0Step = {
     const lineToCp4 = line(pc34Pt.x, pc34Pt.y, cp4.x, cp4.y);
 
     // Debug: print all geometries before c34e computation
-    console.log("STEP_14 DEBUG:");
-    console.log("  c4_d1:", c4_d1);
-    console.log("  pc34Pt:", pc34Pt);
-    console.log("  cp4:", cp4);
-    console.log("  lineToCp4:", lineToCp4);
-    console.log("  cpic12:", cpic12);
-    console.log("  c34nPt:", c34nPt);
-    console.log("  lpic12c34n:", lpic12c34n);
-    console.log("  l34:", l34);
     const dist_pc34_cp4 = distance(pc34Pt, cp4);
-    console.log("  distance(pc34, cp4):", dist_pc34_cp4, "c4_d1 radius:", c4_d1.r);
 
     // c34e = interceptCircleLine(c4_d1, line, 0) - first intersection point
     const c34e = interceptCircleLineSegHelper(c4_d1, lineToCp4, 0);
@@ -987,7 +970,6 @@ const STEP_17: SixFoldV0Step = {
     if (!isValidNumber(d3) || d3 <= 0) {
       d3 = cp1.x !== cp2.x ? distance(cp1, cp2) / 2 : 1;
     }
-    console.log("STEP_17: c1_d3 radius =", d3);
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.C1_D3, circle(cp1.x, cp1.y, d3));
     m.set(GEOM.C2_D3, circle(cp2.x, cp2.y, d3));
