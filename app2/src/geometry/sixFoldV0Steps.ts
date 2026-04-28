@@ -13,7 +13,7 @@ import {
   lineIntersect,
 } from "@sg/geometry";
 import type { GeometryStore } from "../react-store";
-import type { Theme } from "../themes";
+import type { Theme, StepExecutionContext } from "../types/geometry";
 import { drawPoint, drawLine, drawCircle } from "../svgElements";
 import { getGeometry } from "./operations";
 
@@ -170,13 +170,6 @@ export function computeSixFoldV0Config(width: number, height: number): SixFoldV0
     cx2: safe(cx2),
     cy2: safe(cy2),
   };
-}
-
-/** Context for step execution */
-export interface StepExecutionContext {
-  svg: SVGSVGElement;
-  store: GeometryStore;
-  theme: Theme;
 }
 
 // Local Step type for SixFoldV0 that uses SixFoldV0Config instead of SquareConfig

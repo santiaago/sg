@@ -2,6 +2,14 @@
 import type { GeometryStore } from "../react-store";
 import type { Theme } from "../themes";
 import type { SquareConfig } from "../geometry/operations";
+
+// Context for step execution
+export interface StepExecutionContext {
+  svg: SVGSVGElement;
+  store: GeometryStore;
+  theme: Theme;
+}
+
 // These types enable:
 // - Explicit declaration of geometry inputs and outputs
 // - Lazy step-by-step calculation

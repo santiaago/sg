@@ -26,9 +26,8 @@
  * - Separation of math (compute) and rendering (draw)
  */
 
-import type { Step, GeometryValue } from "../types/geometry";
+import type { Step, GeometryValue, StepExecutionContext } from "../types/geometry";
 import { point, line, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
-import type { Theme } from "../themes";
 import {
   computeSquareConfig,
   GEOM,
@@ -46,8 +45,6 @@ import {
   lineTowards,
 } from "./constructors";
 import { createTooltip, drawPoint, drawLine, drawCircle } from "../svgElements";
-
-import type { GeometryStore } from "../react-store";
 
 export { computeSquareConfig, GEOM, getGeometry, computeSingle };
 export type { SquareConfig };
@@ -485,13 +482,6 @@ export const SQUARE_STEPS: readonly Step[] = [
 ];
 
 // Step Execution Utility
-
-/** Context passed to step execution functions */
-export interface StepExecutionContext {
-  svg: SVGSVGElement;
-  store: GeometryStore;
-  theme: Theme;
-}
 
 /**
  * Executes a single step: computes outputs and draws them.
