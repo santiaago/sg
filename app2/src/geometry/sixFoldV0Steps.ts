@@ -15,6 +15,7 @@ import {
 import type { GeometryStore } from "../react-store";
 import type { Theme } from "../themes";
 import { drawPoint, drawLine, drawCircle } from "../svgElements";
+import { getGeometry } from "./operations";
 
 // Constants
 const CUT_LINE_BY = 8;
@@ -169,17 +170,6 @@ export function computeSixFoldV0Config(width: number, height: number): SixFoldV0
     cx2: safe(cx2),
     cy2: safe(cy2),
   };
-}
-
-function getGeom<T extends GeometryValue>(
-  values: Map<string, GeometryValue>,
-  id: string,
-  guard: (v: GeometryValue) => v is T,
-): T {
-  const v = values.get(id);
-  if (!v) throw new Error(`Missing: ${id}`);
-  if (!guard(v)) throw new Error(`Wrong type for ${id}`);
-  return v;
 }
 
 /** Context for step execution */
@@ -497,10 +487,10 @@ const STEP_3: SixFoldV0Step = {
   outputs: [GEOM.L12, GEOM.L23, GEOM.L34, GEOM.L41],
   parameters: [],
   compute: (inputs) => {
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
-    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
-    const cp3 = getGeom(inputs, GEOM.CP3, isPoint);
-    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.L12, line(cp2.x, cp2.y, cp1.x, cp1.y));
     m.set(GEOM.L23, line(cp2.x, cp2.y, cp3.x, cp3.y));
@@ -523,9 +513,9 @@ const STEP_4: SixFoldV0Step = {
   outputs: [GEOM.PIC12, GEOM.PIC14],
   parameters: [],
   compute: (inputs) => {
-    const c1 = getGeom(inputs, GEOM.C1, isCircle);
-    const c2 = getGeom(inputs, GEOM.C2, isCircle);
-    const c4 = getGeom(inputs, GEOM.C4, isCircle);
+    const c1 = getGeometry(inputs, GEOM.C1, isCircle, "Circle");
+    const c2 = getGeometry(inputs, GEOM.C2, isCircle, "Circle");
+    const c4 = getGeometry(inputs, GEOM.C4, isCircle, "Circle");
     const pic12 = circlesIntersectionPointHelper(c1, c2, directions.up);
     const pic14 = circlesIntersectionPointHelper(c4, c1, directions.left);
     const m = new Map<string, GeometryValue>();
@@ -546,7 +536,7 @@ const STEP_5: SixFoldV0Step = {
   outputs: [GEOM.LPIC12, GEOM.LPIC14],
   parameters: [],
   compute: (inputs) => {
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const pic12 = inputs.get(GEOM.PIC12);
     const pic14 = inputs.get(GEOM.PIC14);
     const m = new Map<string, GeometryValue>();
@@ -567,10 +557,10 @@ const STEP_6: SixFoldV0Step = {
   outputs: [GEOM.L13, GEOM.L24, GEOM.PI2],
   parameters: [],
   compute: (inputs) => {
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
-    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
-    const cp3 = getGeom(inputs, GEOM.CP3, isPoint);
-    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const l13 = line(cp1.x, cp1.y, cp3.x, cp3.y);
     const l24 = line(cp2.x, cp2.y, cp4.x, cp4.y);
     const pi2Result = lineIntersect(cp1.x, cp1.y, cp3.x, cp3.y, cp2.x, cp2.y, cp4.x, cp4.y);
@@ -619,12 +609,12 @@ const STEP_8: SixFoldV0Step = {
   outputs: [GEOM.C1_D1, GEOM.C2_D1, GEOM.C3_D1, GEOM.C4_D1, GEOM.D1],
   parameters: [],
   compute: (inputs) => {
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
-    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
-    const cp3 = getGeom(inputs, GEOM.CP3, isPoint);
-    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
-    const pic14 = getGeom(inputs, GEOM.PIC14, isPoint);
-    const pi2 = getGeom(inputs, GEOM.PI2, isPoint);
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
+    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
+    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
     const d1 = distance(pic14, pi2);
     // TODO: Refactor to separate scalar parameters from geometry Map (match Square.tsx pattern).
     // Move D1 to SixFoldV0Config, remove GEOM.D1 from Map. Steps needing d1 should get it from config.
@@ -651,9 +641,9 @@ const STEP_9: SixFoldV0Step = {
   outputs: [GEOM.C14_D1, GEOM.C12_D1],
   parameters: [],
   compute: (inputs) => {
-    const pic12 = getGeom(inputs, GEOM.PIC12, isPoint);
-    const pic14 = getGeom(inputs, GEOM.PIC14, isPoint);
-    const pi2 = getGeom(inputs, GEOM.PI2, isPoint);
+    const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
+    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
+    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
     const d1 = distance(pic14, pi2);
     const c14_d1 = circle(pic14.x, pic14.y, d1);
     const c12_d1 = circle(pic12.x, pic12.y, d1);
@@ -678,10 +668,10 @@ const STEP_10: SixFoldV0Step = {
   outputs: [GEOM.PI3, GEOM.PI4],
   parameters: [],
   compute: (inputs) => {
-    const c14_d1 = getGeom(inputs, GEOM.C14_D1, isCircle);
-    const c2_d1 = getGeom(inputs, GEOM.C2_D1, isCircle);
-    const c12_d1 = getGeom(inputs, GEOM.C12_D1, isCircle);
-    const c4_d1 = getGeom(inputs, GEOM.C4_D1, isCircle);
+    const c14_d1 = getGeometry(inputs, GEOM.C14_D1, isCircle, "Circle");
+    const c2_d1 = getGeometry(inputs, GEOM.C2_D1, isCircle, "Circle");
+    const c12_d1 = getGeometry(inputs, GEOM.C12_D1, isCircle, "Circle");
+    const c4_d1 = getGeometry(inputs, GEOM.C4_D1, isCircle, "Circle");
     const pi3 = circlesIntersectionPointHelper(c14_d1, c2_d1, directions.right);
     const pi4 = circlesIntersectionPointHelper(c12_d1, c4_d1, directions.right);
     const m = new Map<string, GeometryValue>();
@@ -702,9 +692,9 @@ const STEP_11: SixFoldV0Step = {
   outputs: [GEOM.LCP1PI3, GEOM.LCP1PI4],
   parameters: [],
   compute: (inputs) => {
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
-    const pi3 = getGeom(inputs, GEOM.PI3, isPoint);
-    const pi4 = getGeom(inputs, GEOM.PI4, isPoint);
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
+    const pi3 = getGeometry(inputs, GEOM.PI3, isPoint, "Point");
+    const pi4 = getGeometry(inputs, GEOM.PI4, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.LCP1PI3, line(cp1.x, cp1.y, pi3.x, pi3.y));
     m.set(GEOM.LCP1PI4, line(cp1.x, cp1.y, pi4.x, pi4.y));
@@ -725,10 +715,10 @@ const STEP_12: SixFoldV0Step = {
   outputs: [GEOM.PRX5, GEOM.PRX6],
   parameters: [],
   compute: (inputs) => {
-    const c14_d1 = getGeom(inputs, GEOM.C14_D1, isCircle);
-    const lpic14 = getGeom(inputs, GEOM.LPIC14, isLine);
-    const c12_d1 = getGeom(inputs, GEOM.C12_D1, isCircle);
-    const lpic12 = getGeom(inputs, GEOM.LPIC12, isLine);
+    const c14_d1 = getGeometry(inputs, GEOM.C14_D1, isCircle, "Circle");
+    const lpic14 = getGeometry(inputs, GEOM.LPIC14, isLine, "Line");
+    const c12_d1 = getGeometry(inputs, GEOM.C12_D1, isCircle, "Circle");
+    const lpic12 = getGeometry(inputs, GEOM.LPIC12, isLine, "Line");
     const prx5 = interceptCircleLineSegHelper(c14_d1, lpic14, 0);
     const prx6 = interceptCircleLineSegHelper(c12_d1, lpic12, 0);
     const m = new Map<string, GeometryValue>();
@@ -757,12 +747,12 @@ const STEP_13: SixFoldV0Step = {
   outputs: [GEOM.C23W, GEOM.L14P, GEOM.PC23, GEOM.C23S, GEOM.C23],
   parameters: [],
   compute: (inputs) => {
-    const c14_d1 = getGeom(inputs, GEOM.C14_D1, isCircle);
-    const prx5 = getGeom(inputs, GEOM.PRX5, isPoint);
-    const pic14 = getGeom(inputs, GEOM.PIC14, isPoint);
-    const l23 = getGeom(inputs, GEOM.L23, isLine);
-    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
-    const c2_d1 = getGeom(inputs, GEOM.C2_D1, isCircle);
+    const c14_d1 = getGeometry(inputs, GEOM.C14_D1, isCircle, "Circle");
+    const prx5 = getGeometry(inputs, GEOM.PRX5, isPoint, "Point");
+    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
+    const l23 = getGeometry(inputs, GEOM.L23, isLine, "Line");
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const c2_d1 = getGeometry(inputs, GEOM.C2_D1, isCircle, "Circle");
 
     // c23w = bisect from c14_d1 center through prx5 (matching v3 bisectCircleAndPoint)
     const c23wPt = bisectCircleAndPoint(c14_d1, prx5);
@@ -828,12 +818,12 @@ const STEP_14: SixFoldV0Step = {
   outputs: [GEOM.CPI12, GEOM.C34N, GEOM.LPIC12C34N, GEOM.PC34, GEOM.C34E, GEOM.C34],
   parameters: [],
   compute: (inputs) => {
-    const pic12 = getGeom(inputs, GEOM.PIC12, isPoint);
+    const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
     const d1Val = inputs.get(GEOM.D1) as number | undefined;
-    const pi6 = getGeom(inputs, GEOM.PRX6, isPoint);
-    const l34 = getGeom(inputs, GEOM.L34, isLine);
-    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
-    const c4_d1 = getGeom(inputs, GEOM.C4_D1, isCircle);
+    const pi6 = getGeometry(inputs, GEOM.PRX6, isPoint, "Point");
+    const l34 = getGeometry(inputs, GEOM.L34, isLine, "Line");
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
+    const c4_d1 = getGeometry(inputs, GEOM.C4_D1, isCircle, "Circle");
 
     if (typeof d1Val !== "number") throw new Error("STEP_14: d1 is missing or not a number");
 
@@ -917,11 +907,11 @@ const STEP_15: SixFoldV0Step = {
   outputs: [GEOM.PP, GEOM.L1, GEOM.PII1, GEOM.PII2],
   parameters: [],
   compute: (inputs) => {
-    const c1_d1 = getGeom(inputs, GEOM.C1_D1, isCircle);
-    const lpic14 = getGeom(inputs, GEOM.LPIC14, isLine);
-    const pi3 = getGeom(inputs, GEOM.PI3, isPoint);
-    const l13 = getGeom(inputs, GEOM.L13, isLine);
-    const l24 = getGeom(inputs, GEOM.L24, isLine);
+    const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
+    const lpic14 = getGeometry(inputs, GEOM.LPIC14, isLine, "Line");
+    const pi3 = getGeometry(inputs, GEOM.PI3, isPoint, "Point");
+    const l13 = getGeometry(inputs, GEOM.L13, isLine, "Line");
+    const l24 = getGeometry(inputs, GEOM.L24, isLine, "Line");
 
     // pp = interceptCircleLine(c1_d1, lpic14, 0)
     // Using line segment to match Svelte
@@ -969,8 +959,8 @@ const STEP_16: SixFoldV0Step = {
   outputs: [GEOM.LPII1PII2],
   parameters: [],
   compute: (inputs) => {
-    const pii1 = getGeom(inputs, GEOM.PII1, isPoint);
-    const pii2 = getGeom(inputs, GEOM.PII2, isPoint);
+    const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
+    const pii2 = getGeometry(inputs, GEOM.PII2, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.LPII1PII2, line(pii1.x, pii1.y, pii2.x, pii2.y));
     return m;
@@ -987,11 +977,11 @@ const STEP_17: SixFoldV0Step = {
   outputs: [GEOM.C1_D3, GEOM.C2_D3, GEOM.C3_D3, GEOM.C4_D3],
   parameters: [],
   compute: (inputs) => {
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
-    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
-    const cp3 = getGeom(inputs, GEOM.CP3, isPoint);
-    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
-    const pii1 = getGeom(inputs, GEOM.PII1, isPoint);
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
+    const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
     let d3 = distance(pii1, cp1);
     // Ensure minimum radius to avoid degenerate circles
     if (!isValidNumber(d3) || d3 <= 0) {
@@ -1020,10 +1010,10 @@ const STEP_18: SixFoldV0Step = {
   outputs: [GEOM.LCP2PIC14, GEOM.LCP4PIC12],
   parameters: [],
   compute: (inputs) => {
-    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
-    const pic14 = getGeom(inputs, GEOM.PIC14, isPoint);
-    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
-    const pic12 = getGeom(inputs, GEOM.PIC12, isPoint);
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
+    const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.LCP2PIC14, line(cp2.x, cp2.y, pic14.x, pic14.y));
     m.set(GEOM.LCP4PIC12, line(cp4.x, cp4.y, pic12.x, pic12.y));
@@ -1042,9 +1032,9 @@ const STEP_19: SixFoldV0Step = {
   outputs: [GEOM.PIC4, GEOM.OUTLINE1],
   parameters: [],
   compute: (inputs) => {
-    const pii1 = getGeom(inputs, GEOM.PII1, isPoint);
-    const pi4 = getGeom(inputs, GEOM.PI4, isPoint);
-    const lcp4pic12 = getGeom(inputs, GEOM.LCP4PIC12, isLine);
+    const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
+    const pi4 = getGeometry(inputs, GEOM.PI4, isPoint, "Point");
+    const lcp4pic12 = getGeometry(inputs, GEOM.LCP4PIC12, isLine, "Line");
 
     // lpii1pi4 = line from pii1 to pi4
     const lpii1pi4 = line(pii1.x, pii1.y, pi4.x, pi4.y);
@@ -1084,9 +1074,9 @@ const STEP_20: SixFoldV0Step = {
   outputs: [GEOM.PIC2, GEOM.OUTLINE2],
   parameters: [],
   compute: (inputs) => {
-    const pii1 = getGeom(inputs, GEOM.PII1, isPoint);
-    const pii2 = getGeom(inputs, GEOM.PII2, isPoint);
-    const lcp2pic14 = getGeom(inputs, GEOM.LCP2PIC14, isLine);
+    const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
+    const pii2 = getGeometry(inputs, GEOM.PII2, isPoint, "Point");
+    const lcp2pic14 = getGeometry(inputs, GEOM.LCP2PIC14, isLine, "Line");
 
     // lpii1pii2 already exists from step 16
     // pic2 = intersection of lpii1pii2 and lcp2pic14
@@ -1125,10 +1115,10 @@ const STEP_21: SixFoldV0Step = {
   outputs: [GEOM.PIC1W, GEOM.PIC34, GEOM.OUTLINE3],
   parameters: [],
   compute: (inputs) => {
-    const c1_d3 = getGeom(inputs, GEOM.C1_D3, isCircle);
-    const lcp1pi3 = getGeom(inputs, GEOM.LCP1PI3, isLine);
-    const c34 = getGeom(inputs, GEOM.C34, isCircle);
-    const l34 = getGeom(inputs, GEOM.L34, isLine);
+    const c1_d3 = getGeometry(inputs, GEOM.C1_D3, isCircle, "Circle");
+    const lcp1pi3 = getGeometry(inputs, GEOM.LCP1PI3, isLine, "Line");
+    const c34 = getGeometry(inputs, GEOM.C34, isCircle, "Circle");
+    const l34 = getGeometry(inputs, GEOM.L34, isLine, "Line");
 
     // pic1w = interceptCircleLineSeg(c1_d3, lcp1pi3, 0)
     const pic1w = interceptCircleLineSegHelper(c1_d3, lcp1pi3, 0);
@@ -1161,10 +1151,10 @@ const STEP_22: SixFoldV0Step = {
   outputs: [GEOM.PIC1N, GEOM.PIC23, GEOM.OUTLINE4],
   parameters: [],
   compute: (inputs) => {
-    const c1_d3 = getGeom(inputs, GEOM.C1_D3, isCircle);
-    const lcp1pi4 = getGeom(inputs, GEOM.LCP1PI4, isLine);
-    const c23 = getGeom(inputs, GEOM.C23, isCircle);
-    const l23 = getGeom(inputs, GEOM.L23, isLine);
+    const c1_d3 = getGeometry(inputs, GEOM.C1_D3, isCircle, "Circle");
+    const lcp1pi4 = getGeometry(inputs, GEOM.LCP1PI4, isLine, "Line");
+    const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
+    const l23 = getGeometry(inputs, GEOM.L23, isLine, "Line");
 
     // pic1n = interceptCircleLine(c1_d3, lcp1pi4, 0)
     const pic1n = interceptCircleLineSegHelper(c1_d3, lcp1pi4, 0);
@@ -1198,10 +1188,10 @@ const STEP_23: SixFoldV0Step = {
   outputs: [GEOM.PC1W, GEOM.PC23S, GEOM.OUTLINE5],
   parameters: [],
   compute: (inputs) => {
-    const c1_d1 = getGeom(inputs, GEOM.C1_D1, isCircle);
-    const l12 = getGeom(inputs, GEOM.L12, isLine);
-    const c23 = getGeom(inputs, GEOM.C23, isCircle);
-    const l23 = getGeom(inputs, GEOM.L23, isLine);
+    const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
+    const l12 = getGeometry(inputs, GEOM.L12, isLine, "Line");
+    const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
+    const l23 = getGeometry(inputs, GEOM.L23, isLine, "Line");
 
     // pc1w = interceptCircleLineSeg(c1_d1, l12, 0)
     const pc1w = interceptCircleLineSegHelper(c1_d1, l12, 0);
@@ -1234,10 +1224,10 @@ const STEP_24: SixFoldV0Step = {
   outputs: [GEOM.PC1N, GEOM.PC34E, GEOM.OUTLINE6],
   parameters: [],
   compute: (inputs) => {
-    const c1_d1 = getGeom(inputs, GEOM.C1_D1, isCircle);
-    const l41 = getGeom(inputs, GEOM.L41, isLine);
-    const c34 = getGeom(inputs, GEOM.C34, isCircle);
-    const l34Line = getGeom(inputs, GEOM.L34, isLine);
+    const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
+    const l41 = getGeometry(inputs, GEOM.L41, isLine, "Line");
+    const c34 = getGeometry(inputs, GEOM.C34, isCircle, "Circle");
+    const l34Line = getGeometry(inputs, GEOM.L34, isLine, "Line");
 
     // pc1n = interceptCircleLineSeg(c1_d1, l41, 0)
     const pc1n = interceptCircleLineSegHelper(c1_d1, l41, 0);
@@ -1271,8 +1261,8 @@ const STEP_25: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE7],
   parameters: [],
   compute: (inputs) => {
-    const pc1n = getGeom(inputs, GEOM.PC1N, isPoint);
-    const pic1n = getGeom(inputs, GEOM.PIC1N, isPoint);
+    const pc1n = getGeometry(inputs, GEOM.PC1N, isPoint, "Point");
+    const pic1n = getGeometry(inputs, GEOM.PIC1N, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.OUTLINE7, line(pc1n.x, pc1n.y, pic1n.x, pic1n.y));
     return m;
@@ -1289,8 +1279,8 @@ const STEP_26: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE8],
   parameters: [],
   compute: (inputs) => {
-    const pc1w = getGeom(inputs, GEOM.PC1W, isPoint);
-    const pic1w = getGeom(inputs, GEOM.PIC1W, isPoint);
+    const pc1w = getGeometry(inputs, GEOM.PC1W, isPoint, "Point");
+    const pic1w = getGeometry(inputs, GEOM.PIC1W, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.OUTLINE8, line(pc1w.x, pc1w.y, pic1w.x, pic1w.y));
     return m;
@@ -1307,10 +1297,10 @@ const STEP_27: SixFoldV0Step = {
   outputs: [GEOM.PC3SW, GEOM.PC23E, GEOM.OUTLINE9],
   parameters: [],
   compute: (inputs) => {
-    const c3_d3 = getGeom(inputs, GEOM.C3_D3, isCircle);
-    const l13 = getGeom(inputs, GEOM.L13, isLine);
-    const c23 = getGeom(inputs, GEOM.C23, isCircle);
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
+    const c3_d3 = getGeometry(inputs, GEOM.C3_D3, isCircle, "Circle");
+    const l13 = getGeometry(inputs, GEOM.L13, isLine, "Line");
+    const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
 
     // pc3sw = interceptCircleLineSeg(c3_d3, l13, 0)
     const pc3sw = interceptCircleLineSegHelper(c3_d3, l13, 0);
@@ -1344,15 +1334,15 @@ const STEP_28: SixFoldV0Step = {
   outputs: [GEOM.PC34S, GEOM.OUTLINE10],
   parameters: [],
   compute: (inputs) => {
-    const c34 = getGeom(inputs, GEOM.C34, isCircle);
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
+    const c34 = getGeometry(inputs, GEOM.C34, isCircle, "Circle");
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
 
     // lc34cp1 = line from c34 center to cp1
     const lc34cp1 = line(c34.cx, c34.cy, cp1.x, cp1.y);
 
     // pc34s = interceptCircleLineSeg(c34, lc34cp1, 0)
     const pc34s = interceptCircleLineSegHelper(c34, lc34cp1, 0);
-    const pc3sw = getGeom(inputs, GEOM.PC3SW, isPoint);
+    const pc3sw = getGeometry(inputs, GEOM.PC3SW, isPoint, "Point");
     if (!pc34s) throw new Error("STEP_28: pc34s is null");
     const outline10 = line(pc34s.x, pc34s.y, pc3sw.x, pc3sw.y);
 
@@ -1374,8 +1364,8 @@ const STEP_30: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE12],
   parameters: [],
   compute: (inputs) => {
-    const pc23s = getGeom(inputs, GEOM.PC23S, isPoint);
-    const pc23e = getGeom(inputs, GEOM.PC23E, isPoint);
+    const pc23s = getGeometry(inputs, GEOM.PC23S, isPoint, "Point");
+    const pc23e = getGeometry(inputs, GEOM.PC23E, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.OUTLINE12, line(pc23s.x, pc23s.y, pc23e.x, pc23e.y));
     return m;
@@ -1392,8 +1382,8 @@ const STEP_31: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE13],
   parameters: [],
   compute: (inputs) => {
-    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
-    const pic4 = getGeom(inputs, GEOM.PIC4, isPoint);
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
+    const pic4 = getGeometry(inputs, GEOM.PIC4, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     if (pic4) m.set(GEOM.OUTLINE13, line(cp4.x, cp4.y, pic4.x, pic4.y));
     return m;
@@ -1410,8 +1400,8 @@ const STEP_32: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE14],
   parameters: [],
   compute: (inputs) => {
-    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
-    const pic2 = getGeom(inputs, GEOM.PIC2, isPoint);
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const pic2 = getGeometry(inputs, GEOM.PIC2, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     if (pic2) m.set(GEOM.OUTLINE14, line(cp2.x, cp2.y, pic2.x, pic2.y));
     return m;
@@ -1428,8 +1418,8 @@ const STEP_29: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE11],
   parameters: [],
   compute: (inputs) => {
-    const pc34e = getGeom(inputs, GEOM.PC34E, isPoint);
-    const pc34s = getGeom(inputs, GEOM.PC34S, isPoint);
+    const pc34e = getGeometry(inputs, GEOM.PC34E, isPoint, "Point");
+    const pc34s = getGeometry(inputs, GEOM.PC34S, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.OUTLINE11, line(pc34e.x, pc34e.y, pc34s.x, pc34s.y));
     return m;
@@ -1446,8 +1436,8 @@ const STEP_33: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE15],
   parameters: [],
   compute: (inputs) => {
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
-    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.OUTLINE15, line(cp2.x, cp2.y, cp1.x, cp1.y));
     return m;
@@ -1464,8 +1454,8 @@ const STEP_34: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE16],
   parameters: [],
   compute: (inputs) => {
-    const cp2 = getGeom(inputs, GEOM.CP2, isPoint);
-    const cp3 = getGeom(inputs, GEOM.CP3, isPoint);
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.OUTLINE16, line(cp2.x, cp2.y, cp3.x, cp3.y));
     return m;
@@ -1482,8 +1472,8 @@ const STEP_35: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE17],
   parameters: [],
   compute: (inputs) => {
-    const cp3 = getGeom(inputs, GEOM.CP3, isPoint);
-    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
+    const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.OUTLINE17, line(cp3.x, cp3.y, cp4.x, cp4.y));
     return m;
@@ -1500,8 +1490,8 @@ const STEP_36: SixFoldV0Step = {
   outputs: [GEOM.OUTLINE18],
   parameters: [],
   compute: (inputs) => {
-    const cp4 = getGeom(inputs, GEOM.CP4, isPoint);
-    const cp1 = getGeom(inputs, GEOM.CP1, isPoint);
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.OUTLINE18, line(cp4.x, cp4.y, cp1.x, cp1.y));
     return m;
