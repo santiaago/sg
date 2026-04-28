@@ -1339,6 +1339,24 @@ const STEP_28: SixFoldV0Step = {
   },
 };
 
+// Step 29: outline11
+const STEP_29: SixFoldV0Step = {
+  id: "step29",
+  inputs: [GEOM.PC34E, GEOM.PC34S],
+  outputs: [GEOM.OUTLINE11],
+  parameters: [],
+  compute: (inputs) => {
+    const pc34e = getGeometry(inputs, GEOM.PC34E, isPoint, "Point");
+    const pc34s = getGeometry(inputs, GEOM.PC34S, isPoint, "Point");
+    const m = new Map<string, GeometryValue>();
+    m.set(GEOM.OUTLINE11, line(pc34e.x, pc34e.y, pc34s.x, pc34s.y));
+    return m;
+  },
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.OUTLINE11, 2.0, store, theme);
+  },
+};
+
 // Step 30: outline12 (symmetric to outline11, closer to cp2)
 const STEP_30: SixFoldV0Step = {
   id: "step30",
@@ -1390,24 +1408,6 @@ const STEP_32: SixFoldV0Step = {
   },
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.OUTLINE14, 2.0, store, theme);
-  },
-};
-
-// Step 29: outline11
-const STEP_29: SixFoldV0Step = {
-  id: "step29",
-  inputs: [GEOM.PC34E, GEOM.PC34S],
-  outputs: [GEOM.OUTLINE11],
-  parameters: [],
-  compute: (inputs) => {
-    const pc34e = getGeometry(inputs, GEOM.PC34E, isPoint, "Point");
-    const pc34s = getGeometry(inputs, GEOM.PC34S, isPoint, "Point");
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.OUTLINE11, line(pc34e.x, pc34e.y, pc34s.x, pc34s.y));
-    return m;
-  },
-  draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE11, 2.0, store, theme);
   },
 };
 
