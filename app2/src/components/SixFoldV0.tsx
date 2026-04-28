@@ -8,9 +8,9 @@ import type { Theme } from "../themes";
 import type { SixFoldV0Step } from "../geometry/sixFoldV0Steps";
 import {
   SIX_FOLD_V0_STEPS,
-  computeSixFoldV0Config,
   executeSteps,
 } from "../geometry/sixFoldV0Steps";
+import { computeSixFoldV0Config } from "../geometry/sixFold/operations";
 
 // Props for the SixFoldV0 component.
 export interface SixFoldV0Props {
