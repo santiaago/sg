@@ -87,12 +87,7 @@ const STEP_2: SixFoldV0Step = {
     const c2 = circle2;
     const pxPy = circlesIntersectionPointHelper(c1, c2, directions.up);
     if (!pxPy) {
-      // Fallback: use cp1 if no intersection found
-      m.set(GEOM.CP3, cp1);
-      m.set(GEOM.CP4, cp2);
-      m.set(GEOM.C3, circle(config.cx1, config.cy1, config.radius));
-      m.set(GEOM.C4, circle(config.cx2, config.cy2, config.radius));
-      return m;
+      throw new Error("STEP_2: circlesIntersectionPointHelper(c1, c2, up) returned null - circles do not intersect");
     }
 
     // p3 = bisect from circleAtIntersection through cp2
@@ -637,10 +632,9 @@ const STEP_17: SixFoldV0Step = {
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
-    let d3 = distance(pii1, cp1);
-    // Ensure minimum radius to avoid degenerate circles
+    const d3 = distance(pii1, cp1);
     if (!isValidNumber(d3) || d3 <= 0) {
-      d3 = cp1.x !== cp2.x ? distance(cp1, cp2) / 2 : 1;
+      throw new Error("STEP_17: Invalid d3 value - points pii1 and cp1 are coincident or invalid");
     }
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.C1_D3, circle(cp1.x, cp1.y, d3));
