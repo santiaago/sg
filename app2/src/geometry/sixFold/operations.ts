@@ -6,9 +6,9 @@
 import type { GeometryValue } from "../../types/geometry";
 import type { GeometryStore } from "../../react-store";
 import type { Theme } from "../../themes";
-import { getGeometry } from "../../geometry/operations";
+import { getGeometry, computeSingle, computeMultiple } from "../../geometry/operations";
 
-export { getGeometry };
+export { getGeometry, computeSingle, computeMultiple };
 
 // Re-export types for convenience
 export type { GeometryStore, Theme };
@@ -47,9 +47,9 @@ export const GEOM = {
   C2_D1: "c2_d1",
   C3_D1: "c3_d1",
   C4_D1: "c4_d1",
+  D1: "d1",
   C14_D1: "c14_d1",
   C12_D1: "c12_d1",
-  // D1: "d1",  // REMOVED - scalar values don't belong in GeometryValue Map
   PI3: "pi3",
   PI4: "pi4",
   LCP1PI3: "lcp1pi3",

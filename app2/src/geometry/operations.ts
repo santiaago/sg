@@ -129,10 +129,10 @@ export function getGeometry<T extends GeometryValue>(
  * @param fn - Function that takes inputs and config, returns the geometry value
  * @returns A compute function for use in a Step definition
  */
-export function computeSingle<T extends GeometryValue>(
+export function computeSingle<TConfig, T extends GeometryValue>(
   geomId: string,
-  fn: (inputs: Map<string, GeometryValue>, config: SquareConfig) => T,
-): (inputs: Map<string, GeometryValue>, config: SquareConfig) => Map<string, GeometryValue> {
+  fn: (inputs: Map<string, GeometryValue>, config: TConfig) => T,
+): (inputs: Map<string, GeometryValue>, config: TConfig) => Map<string, GeometryValue> {
   return (inputs, config) => {
     const value = fn(inputs, config);
     return new Map([[geomId, value]]);
@@ -144,9 +144,9 @@ export function computeSingle<T extends GeometryValue>(
  * @param fn - Function that takes inputs and config, returns a Map of geometry outputs
  * @returns A compute function for use in a Step definition
  */
-export function computeMultiple(
-  fn: (inputs: Map<string, GeometryValue>, config: SquareConfig) => Map<string, GeometryValue>,
-): (inputs: Map<string, GeometryValue>, config: SquareConfig) => Map<string, GeometryValue> {
+export function computeMultiple<TConfig>(
+  fn: (inputs: Map<string, GeometryValue>, config: TConfig) => Map<string, GeometryValue>,
+): (inputs: Map<string, GeometryValue>, config: TConfig) => Map<string, GeometryValue> {
   return (inputs, config) => fn(inputs, config);
 }
 
