@@ -104,7 +104,7 @@ export function SixFoldV0({
       // Build dependency map and step maps for GeometryList display
       if (currentStep > 0) {
         const { stepDependencies, stepForOutput } = buildStepMaps(
-          SIX_FOLD_V0_STEPS as unknown as readonly import("../types/geometry").Step[],
+          SIX_FOLD_V0_STEPS,
           currentStep,
         );
 

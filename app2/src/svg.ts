@@ -4,7 +4,6 @@
  */
 
 import type { SvgConfig } from "./config/svgConfig";
-import type { Step } from "./types/geometry";
 
 /**
  * Picks a subset of properties from an object by specified keys.
@@ -50,12 +49,12 @@ export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pi
  * // stepForOutput.get('c1') => STEP_C1
  * ```
  */
-export function buildStepMaps(
-  steps: readonly Step[],
+export function buildStepMaps<T extends { inputs: string[]; outputs: string[]; id: string }>(
+  steps: readonly T[],
   currentStep: number,
-): { stepDependencies: Map<string, string[]>; stepForOutput: Map<string, Step> } {
+): { stepDependencies: Map<string, string[]>; stepForOutput: Map<string, T> } {
   const stepDependencies = new Map<string, string[]>();
-  const stepForOutput = new Map<string, Step>();
+  const stepForOutput = new Map<string, T>();
 
   for (const step of steps.slice(0, currentStep)) {
     for (const outputId of step.outputs) {
