@@ -3,19 +3,21 @@
  * Replicates "1/4 Six fold pattern v3" from Svelte app.
  */
 
-import type { GeometryValue, Point, Line, Circle } from "../types/geometry";
+import type { GeometryValue, Point, Circle } from "../types/geometry";
 import { point, line, circle, isPoint, isLine, isCircle } from "../types/geometry";
-import {
-  bisect as bisectFn,
-  circlesIntersectionPoint,
-  directions,
-  inteceptCircleLineSeg,
-  lineIntersect,
-} from "@sg/geometry";
+import { directions, lineIntersect } from "@sg/geometry";
 import type { GeometryStore } from "../react-store";
 import type { Theme, StepExecutionContext } from "../types/geometry";
 import { drawPoint, drawLine, drawCircle } from "../svgElements";
 import { getGeometry } from "./operations";
+import {
+  distance,
+  isValidNumber,
+  validPoint,
+  bisectCircleAndPoint,
+  circlesIntersectionPointHelper,
+  interceptCircleLineSegHelper,
+} from "../geometry/constructors";
 
 // Constants
 const CUT_LINE_BY = 8;
@@ -189,146 +191,6 @@ export interface SixFoldV0Step {
     theme: Theme,
   ) => void;
 }
-
-// Helper to get distance between two points
-function distance(p1: Point, p2: Point): number {
-  const dx = p2.x - p1.x;
-  const dy = p2.y - p1.y;
-  if (!isValidNumber(dx) || !isValidNumber(dy)) return 0;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  return isValidNumber(dist) ? dist : 0;
-}
-
-// Helper to check if a value is a valid number (not NaN or Infinity)
-function isValidNumber(n: number): boolean {
-  return typeof n === "number" && !Number.isNaN(n) && Number.isFinite(n);
-}
-
-// Helper to create a valid point or return null
-function validPoint(x: number, y: number): Point | null {
-  if (!isValidNumber(x) || !isValidNumber(y)) return null;
-  // Also check for unreasonably large coordinates (likely calculation errors)
-  // Canvas dimensions are 840x519, so values beyond 10000 are suspicious
-  if (Math.abs(x) > 10000 || Math.abs(y) > 10000) return null;
-  return point(x, y);
-}
-
-// Helper matching v3's bisectCircleAndPoint logic
-function bisectCircleAndPoint(c: Circle, p: Point): Point {
-  const cx0 = c.cx - c.r;
-  const cy0 = c.cy;
-  const angle = Math.atan2(cy0 - p.y, cx0 - p.x);
-  const [x, y] = bisectFn(angle * 2, c.r, c.cx, c.cy);
-  return point(x, y);
-}
-
-// Helper to compute circlesIntersectionPoint with our Circle types
-function circlesIntersectionPointHelper(
-  c1: Circle,
-  c2: Circle,
-  dir:
-    | typeof directions.up
-    | typeof directions.down
-    | typeof directions.left
-    | typeof directions.right,
-): Point | null {
-  // circlesIntersectionPoint expects Circle objects from @sg/geometry
-  // We create compatible objects using type assertions
-  const sgC1 = { p: { x: c1.cx, y: c1.cy }, r: c1.r } as any;
-  const sgC2 = { p: { x: c2.cx, y: c2.cy }, r: c2.r } as any;
-  const result = circlesIntersectionPoint(sgC1, sgC2, dir);
-  if (!result) return null;
-  // result is a Point from @sg/geometry which has x and y properties
-  const x = (result as any).x;
-  const y = (result as any).y;
-  return validPoint(x, y);
-}
-
-// Helper to find intersection of circle with line segment
-function interceptCircleLineSegHelper(circle: Circle, line: Line, index: number = 0): Point | null {
-  const result = inteceptCircleLineSeg(
-    circle.cx,
-    circle.cy,
-    line.x1,
-    line.y1,
-    line.x2,
-    line.y2,
-    circle.r,
-  );
-  if (!result || !result[index]) return null;
-  const x = result[index][0];
-  const y = result[index][1];
-  return validPoint(x, y);
-}
-
-// Helper to find intersection of circle with INFINITE line (matching Svelte semantics)
-// Uses direct mathematical computation for infinite line, not segment-based
-// Returns intersection points ordered by parameter t along line from (x1,y1) to (x2,y2)
-function interceptCircleLineHelper(circle: Circle, line: Line, index: number): Point | null {
-  const cx = circle.cx;
-  const cy = circle.cy;
-  const r = circle.r;
-  const x1 = line.x1,
-    y1 = line.y1;
-  const x2 = line.x2,
-    y2 = line.y2;
-
-  // Line coefficients: ax + by + c = 0
-  // a = y2 - y1, b = x1 - x2, c = x2*y1 - x1*y2
-  const a = y2 - y1;
-  const b = x1 - x2;
-  const c = x2 * y1 - x1 * y2;
-
-  // Denominator for distance calculation
-  const denom = a * a + b * b;
-  if (denom === 0) return null; // line is degenerate (a point)
-
-  // Distance from circle center to line
-  const dist = Math.abs(a * cx + b * cy + c) / Math.sqrt(denom);
-
-  if (dist > r) return null; // no intersection
-  if (dist === r) {
-    // tangent - one intersection point
-    const sign = a * cx + b * cy + c < 0 ? 1 : -1;
-    const dx = b * sign * (r / Math.sqrt(denom));
-    const dy = -a * sign * (r / Math.sqrt(denom));
-    const px = cx + dx;
-    const py = cy + dy;
-    return index === 0 ? point(px, py) : null;
-  }
-
-  // Two intersection points
-  // Find point on line closest to circle center
-  const h = Math.sqrt(r * r - dist * dist);
-  const px0 = cx - (a * (a * cx + b * cy + c)) / denom;
-  const py0 = cy - (b * (a * cx + b * cy + c)) / denom;
-
-  // Unit direction vector of the line from (x1,y1) to (x2,y2)
-  const lineLenSq = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
-  if (lineLenSq === 0) return null;
-  const lineLen = Math.sqrt(lineLenSq);
-  const ux = (x2 - x1) / lineLen;
-  const uy = (y2 - y1) / lineLen;
-
-  // Two intersection points on infinite line
-  const rawPts = [point(px0 + ux * h, py0 + uy * h), point(px0 - ux * h, py0 - uy * h)];
-
-  // Sort by parameter t along the line direction (x1,y1) -> (x2,y2)
-  // t = dot product of (pt - p1) with direction vector
-  rawPts.sort((ptA, ptB) => {
-    const ta = (ptA.x - x1) * (x2 - x1) + (ptA.y - y1) * (y2 - y1);
-    const tb = (ptB.x - x1) * (x2 - x1) + (ptB.y - y1) * (y2 - y1);
-    return ta - tb;
-  });
-
-  if (index === 0) {
-    return rawPts[0];
-  } else if (index === 1) {
-    return rawPts[1];
-  }
-  return null;
-}
-
 // Step 1: Main line and points
 const STEP_1: SixFoldV0Step = {
   id: "step1",
