@@ -283,7 +283,7 @@ const STEP_7: SixFoldV0Step = {
 const STEP_8: SixFoldV0Step = {
   id: "step8",
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4, GEOM.PIC14, GEOM.PI2],
-  outputs: [GEOM.C1_D1, GEOM.C2_D1, GEOM.C3_D1, GEOM.C4_D1, GEOM.D1],
+  outputs: [GEOM.C1_D1, GEOM.C2_D1, GEOM.C3_D1, GEOM.C4_D1],
   parameters: [],
   compute: (inputs) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
@@ -293,10 +293,7 @@ const STEP_8: SixFoldV0Step = {
     const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
     const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
     const d1 = distance(pic14, pi2);
-    // TODO: Refactor to separate scalar parameters from geometry Map (match Square.tsx pattern).
-    // Move D1 to SixFoldV0Config, remove GEOM.D1 from Map. Steps needing d1 should get it from config.
     const m = new Map<string, GeometryValue>();
-    m.set(GEOM.D1, d1);
     m.set(GEOM.C1_D1, circle(cp1.x, cp1.y, d1));
     m.set(GEOM.C2_D1, circle(cp2.x, cp2.y, d1));
     m.set(GEOM.C3_D1, circle(cp3.x, cp3.y, d1));
@@ -482,7 +479,7 @@ const STEP_13: SixFoldV0Step = {
 };
 
 // Step 14: cpic12, c34n, lpic12c34n, pc34, c34e, c34 circle
-// cpic12 = circle at pic12 with radius d1
+// cpic12 = circle at pic12 with radius d1 (distance from pic14 to pi2)
 // c34n = bisectCircleAndPoint(cpic12, pi6)
 // lpic12c34n = line from pic12 to c34n
 // pc34 = linesIntersection(l34, lpic12c34n)
@@ -490,21 +487,23 @@ const STEP_13: SixFoldV0Step = {
 // c34 = circle at pc34 with radius = distance(pc34, c34e)
 const STEP_14: SixFoldV0Step = {
   id: "step14",
-  inputs: [GEOM.PIC12, GEOM.D1, GEOM.PRX6, GEOM.L34, GEOM.CP4, GEOM.C4_D1],
+  inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2, GEOM.PRX6, GEOM.L34, GEOM.CP4, GEOM.C4_D1],
   outputs: [GEOM.CPI12, GEOM.C34N, GEOM.LPIC12C34N, GEOM.PC34, GEOM.C34E, GEOM.C34],
   parameters: [],
   compute: (inputs) => {
     const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
-    const d1Val = inputs.get(GEOM.D1) as number | undefined;
+    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
+    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
     const pi6 = getGeometry(inputs, GEOM.PRX6, isPoint, "Point");
     const l34 = getGeometry(inputs, GEOM.L34, isLine, "Line");
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const c4_d1 = getGeometry(inputs, GEOM.C4_D1, isCircle, "Circle");
 
-    if (typeof d1Val !== "number") throw new Error("STEP_14: d1 is missing or not a number");
+    // d1 = distance from pic14 to pi2
+    const d1 = distance(pic14, pi2);
 
     // cpic12 = circle at pic12 with radius d1
-    const cpic12 = circle(pic12.x, pic12.y, d1Val);
+    const cpic12 = circle(pic12.x, pic12.y, d1);
 
     // c34n = bisectCircleAndPoint(cpic12, pi6)
     const c34nPt = bisectCircleAndPoint(cpic12, pi6);

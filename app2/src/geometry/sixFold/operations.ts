@@ -47,7 +47,6 @@ export const GEOM = {
   C2_D1: "c2_d1",
   C3_D1: "c3_d1",
   C4_D1: "c4_d1",
-  D1: "d1",
   C14_D1: "c14_d1",
   C12_D1: "c12_d1",
   PI3: "pi3",
