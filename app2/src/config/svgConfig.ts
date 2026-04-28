@@ -15,9 +15,9 @@ export const standardSvgConfig: SvgConfig = {
 };
 
 export const sixFoldSvgConfig: SvgConfig = {
-  viewBox: "0 0 800 1000",
+  viewBox: "0 0 647 400",
   width: 647,
   height: 400,
-  containerClass: "square-container",
-  svgClass: "square-svg w-full h-auto",
+  containerClass: "sixfold-container",
+  svgClass: "sixfold-svg w-full h-auto",
 };

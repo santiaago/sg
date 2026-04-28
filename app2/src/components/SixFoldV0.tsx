@@ -15,6 +15,7 @@ import {
 // Props for the SixFoldV0 component.
 export interface SixFoldV0Props {
   store: GeometryStore;
+  dotStrokeWidth?: number;
   svgConfig: SvgConfig;
   restartTrigger?: number;
   currentStep?: number;
@@ -31,6 +32,7 @@ export interface SixFoldV0Props {
  */
 export function SixFoldV0({
   store,
+  dotStrokeWidth = 2.0,
   svgConfig,
   restartTrigger = 0,
   currentStep = 0,
@@ -122,7 +124,7 @@ export function SixFoldV0({
     } catch (error) {
       console.error("SixFoldV0 construction failed at step", currentStep, ":", error);
     }
-  }, [currentStep, restartTrigger, svgConfig, theme, config]);
+  }, [currentStep, restartTrigger, svgConfig, theme, config, dotStrokeWidth]);
 
   return (
     <div className={`${svgConfig.containerClass} flex justify-center`}>
