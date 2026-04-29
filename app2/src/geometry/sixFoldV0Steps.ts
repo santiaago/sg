@@ -184,9 +184,11 @@ const STEP_4: SixFoldV0Step = {
     const c4 = getGeometry(inputs, GEOM.C4, isCircle, "Circle");
     const pic12 = circlesIntersectionPointHelper(c1, c2, directions.up);
     const pic14 = circlesIntersectionPointHelper(c4, c1, directions.left);
+    if (!pic12) throw new Error("STEP_4: pic12 is null - circles do not intersect");
+    if (!pic14) throw new Error("STEP_4: pic14 is null - circles do not intersect");
     const m = new Map<string, GeometryValue>();
-    if (pic12) m.set(GEOM.PIC12, pic12);
-    if (pic14) m.set(GEOM.PIC14, pic14);
+    m.set(GEOM.PIC12, pic12);
+    m.set(GEOM.PIC14, pic14);
     return m;
   }),
   draw: (svg, values, store, theme) => {
@@ -203,11 +205,11 @@ const STEP_5: SixFoldV0Step = {
   parameters: [],
   compute: computeMultiple((inputs) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
-    const pic12 = inputs.get(GEOM.PIC12);
-    const pic14 = inputs.get(GEOM.PIC14);
+    const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
+    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
     const m = new Map<string, GeometryValue>();
-    if (pic12 && isPoint(pic12)) m.set(GEOM.LPIC12, line(cp1.x, cp1.y, pic12.x, pic12.y));
-    if (pic14 && isPoint(pic14)) m.set(GEOM.LPIC14, line(cp1.x, cp1.y, pic14.x, pic14.y));
+    m.set(GEOM.LPIC12, line(cp1.x, cp1.y, pic12.x, pic12.y));
+    m.set(GEOM.LPIC14, line(cp1.x, cp1.y, pic14.x, pic14.y));
     return m;
   }),
   draw: (svg, values, store, theme) => {
@@ -231,10 +233,13 @@ const STEP_6: SixFoldV0Step = {
     const l24 = line(cp2.x, cp2.y, cp4.x, cp4.y);
     const pi2Result = lineIntersect(cp1.x, cp1.y, cp3.x, cp3.y, cp2.x, cp2.y, cp4.x, cp4.y);
     const pi2 = pi2Result && pi2Result.length >= 2 ? validPoint(pi2Result[0], pi2Result[1]) : null;
+    if (!pi2) {
+      throw new Error("STEP_6: pi2 is null - lines l13 and l24 do not intersect");
+    }
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.L13, l13);
     m.set(GEOM.L24, l24);
-    if (pi2) m.set(GEOM.PI2, pi2);
+    m.set(GEOM.PI2, pi2);
     return m;
   }),
   draw: (svg, values, store, theme) => {
@@ -258,8 +263,7 @@ const STEP_7: SixFoldV0Step = {
   outputs: [GEOM.PI2],
   parameters: [],
   compute: computeSingle(GEOM.PI2, (inputs) => {
-    const pi2 = inputs.get(GEOM.PI2);
-    if (!pi2) throw new Error("STEP_7: pi2 is missing");
+    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
     return pi2;
   }),
   draw: () => {
@@ -335,9 +339,11 @@ const STEP_10: SixFoldV0Step = {
     const c4_d1 = getGeometry(inputs, GEOM.C4_D1, isCircle, "Circle");
     const pi3 = circlesIntersectionPointHelper(c14_d1, c2_d1, directions.right);
     const pi4 = circlesIntersectionPointHelper(c12_d1, c4_d1, directions.right);
+    if (!pi3) throw new Error("STEP_10: pi3 is null - circles do not intersect");
+    if (!pi4) throw new Error("STEP_10: pi4 is null - circles do not intersect");
     const m = new Map<string, GeometryValue>();
-    if (pi3) m.set(GEOM.PI3, pi3);
-    if (pi4) m.set(GEOM.PI4, pi4);
+    m.set(GEOM.PI3, pi3);
+    m.set(GEOM.PI4, pi4);
     return m;
   }),
   draw: (svg, values, store, theme) => {
@@ -382,9 +388,11 @@ const STEP_12: SixFoldV0Step = {
     const lpic12 = getGeometry(inputs, GEOM.LPIC12, isLine, "Line");
     const prx5 = interceptCircleLineSegHelper(c14_d1, lpic14, 0);
     const prx6 = interceptCircleLineSegHelper(c12_d1, lpic12, 0);
+    if (!prx5) throw new Error("STEP_12: prx5 is null - circle-line intersection not found");
+    if (!prx6) throw new Error("STEP_12: prx6 is null - circle-line intersection not found");
     const m = new Map<string, GeometryValue>();
-    if (prx5) m.set(GEOM.PRX5, prx5);
-    if (prx6) m.set(GEOM.PRX6, prx6);
+    m.set(GEOM.PRX5, prx5);
+    m.set(GEOM.PRX6, prx6);
     return m;
   }),
   draw: (svg, values, store, theme) => {
@@ -452,8 +460,8 @@ const STEP_13: SixFoldV0Step = {
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.C23W, c23wPt);
     m.set(GEOM.L14P, l14p);
-    if (pc23Pt) m.set(GEOM.PC23, pc23Pt);
-    if (c23s) m.set(GEOM.C23S, c23s);
+    m.set(GEOM.PC23, pc23Pt);
+    m.set(GEOM.C23S, c23s);
     m.set(GEOM.C23, c23);
     return m;
   }),
@@ -531,7 +539,7 @@ const STEP_14: SixFoldV0Step = {
     m.set(GEOM.CPI12, cpic12);
     m.set(GEOM.C34N, c34nPt);
     m.set(GEOM.LPIC12C34N, lpic12c34n);
-    if (pc34Pt) m.set(GEOM.PC34, pc34Pt);
+    m.set(GEOM.PC34, pc34Pt);
     m.set(GEOM.C34E, c34e);
     m.set(GEOM.C34, c34);
     return m;
@@ -698,13 +706,16 @@ const STEP_19: SixFoldV0Step = {
     );
     const pic4 =
       pic4Result && pic4Result.length >= 2 ? validPoint(pic4Result[0], pic4Result[1]) : null;
+    if (!pic4) {
+      throw new Error("STEP_19: pic4 is null - lines do not intersect");
+    }
 
     // outline1 = line from pii1 to pic4
-    const outline1 = pic4 ? line(pii1.x, pii1.y, pic4.x, pic4.y) : null;
+    const outline1 = line(pii1.x, pii1.y, pic4.x, pic4.y);
 
     const m = new Map<string, GeometryValue>();
-    if (pic4) m.set(GEOM.PIC4, pic4);
-    if (outline1) m.set(GEOM.OUTLINE1, outline1);
+    m.set(GEOM.PIC4, pic4);
+    m.set(GEOM.OUTLINE1, outline1);
     return m;
   }),
   draw: (svg, values, store, theme) => {
@@ -739,13 +750,16 @@ const STEP_20: SixFoldV0Step = {
     );
     const pic2 =
       pic2Result && pic2Result.length >= 2 ? validPoint(pic2Result[0], pic2Result[1]) : null;
+    if (!pic2) {
+      throw new Error("STEP_20: pic2 is null - lines do not intersect");
+    }
 
     // outline2 = line from pii1 to pic2
-    const outline2 = pic2 ? line(pii1.x, pii1.y, pic2.x, pic2.y) : null;
+    const outline2 = line(pii1.x, pii1.y, pic2.x, pic2.y);
 
     const m = new Map<string, GeometryValue>();
-    if (pic2) m.set(GEOM.PIC2, pic2);
-    if (outline2) m.set(GEOM.OUTLINE2, outline2);
+    m.set(GEOM.PIC2, pic2);
+    m.set(GEOM.OUTLINE2, outline2);
     return m;
   }),
   draw: (svg, values, store, theme) => {
@@ -952,14 +966,16 @@ const STEP_27: SixFoldV0Step = {
 
     // pc23e = interceptCircleLineSeg(c23, lc23cp1, 0)
     const pc23e = interceptCircleLineSegHelper(c23, lc23cp1, 0);
+    if (!pc3sw) throw new Error("STEP_27: pc3sw is null - circle-line intersection not found");
+    if (!pc23e) throw new Error("STEP_27: pc23e is null - circle-line intersection not found");
 
     // outline9 = line from pc3sw to pc23e
-    const outline9 = pc3sw && pc23e ? line(pc3sw.x, pc3sw.y, pc23e.x, pc23e.y) : null;
+    const outline9 = line(pc3sw.x, pc3sw.y, pc23e.x, pc23e.y);
 
     const m = new Map<string, GeometryValue>();
-    if (pc3sw) m.set(GEOM.PC3SW, pc3sw);
-    if (pc23e) m.set(GEOM.PC23E, pc23e);
-    if (outline9) m.set(GEOM.OUTLINE9, outline9);
+    m.set(GEOM.PC3SW, pc3sw);
+    m.set(GEOM.PC23E, pc23e);
+    m.set(GEOM.OUTLINE9, outline9);
     return m;
   }),
   draw: (svg, values, store, theme) => {
@@ -1040,7 +1056,6 @@ const STEP_31: SixFoldV0Step = {
   compute: computeSingle(GEOM.OUTLINE13, (inputs) => {
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const pic4 = getGeometry(inputs, GEOM.PIC4, isPoint, "Point");
-    if (!pic4) throw new Error("STEP_31: pic4 is null");
     return line(cp4.x, cp4.y, pic4.x, pic4.y);
   }),
   draw: (svg, values, store, theme) => {
@@ -1057,7 +1072,6 @@ const STEP_32: SixFoldV0Step = {
   compute: computeSingle(GEOM.OUTLINE14, (inputs) => {
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const pic2 = getGeometry(inputs, GEOM.PIC2, isPoint, "Point");
-    if (!pic2) throw new Error("STEP_32: pic2 is null");
     return line(cp2.x, cp2.y, pic2.x, pic2.y);
   }),
   draw: (svg, values, store, theme) => {
