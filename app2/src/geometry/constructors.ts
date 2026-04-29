@@ -217,6 +217,20 @@ export function interceptCircleLineSegHelper(circle: Circle, line: Line, index: 
   return validPoint(x, y);
 }
 
+// Circle-Line Intersection with Direction
+/** Helper to find intersection of circle with infinite line using direction */
+export function interceptCircleLineDirHelper(
+  circle: Circle,
+  line: Line,
+  dir: typeof directions.left | typeof directions.right,
+): Point | null {
+  // For horizontal line, left = 0, right = 1
+  // For non-horizontal lines, need more sophisticated logic
+  // For now, assume horizontal line (LINE1 in SixFoldV0 is horizontal)
+  const index = dir === directions.left ? 0 : 1;
+  return interceptCircleLineSegHelper(circle, line, index);
+}
+
 // Circle-Infinite Line Intersection (SixFoldV0-specific)
 /** Helper to find intersection of circle with INFINITE line (matching Svelte semantics) */
 export function interceptCircleLineHelper(circle: Circle, line: Line, index: number): Point | null {

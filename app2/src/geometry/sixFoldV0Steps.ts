@@ -17,6 +17,7 @@ import {
   bisectCircleAndPoint,
   circlesIntersectionPointHelper,
   interceptCircleLineSegHelper,
+  interceptCircleLineDirHelper,
 } from "../geometry/constructors";
 
 /**
@@ -44,15 +45,14 @@ const STEP_1: SixFoldV0Step = {
 };
 
 /**
- * Step 2a: Primary circle centers and circles
- * Creates the first two circle centers (cp1, cp2) and circles (c1, c2).
- * Uses LINE1 from step1 to get the line coordinates.
+ * Step 2a1: Create CP1 and C1
+ * Creates the first circle center (cp1) and circle (c1) on LINE1.
  */
-const STEP_2A: SixFoldV0Step = {
-  id: "step2a",
+const STEP_2A1: SixFoldV0Step = {
+  id: "step2a1",
   inputs: [GEOM.LINE1],
-  outputs: [GEOM.CP1, GEOM.CP2, GEOM.C1, GEOM.C2],
-  parameters: ["radius"],
+  outputs: [GEOM.CP1, GEOM.C1],
+  parameters: ["radius", "cp1OffsetRatio"],
   compute: computeMultiple((inputs, config) => {
     const m = new Map<string, GeometryValue>();
 
@@ -64,32 +64,64 @@ const STEP_2A: SixFoldV0Step = {
     const ly1 = line1.y1;
     const lx2 = line1.x2;
 
-    // Calculate derived values
+    // Calculate cp1 position using ratio
     const lineLength = lx2 - lx1;
-    const radius = config.radius;
     const cx1 = lx1 + lineLength * config.cp1OffsetRatio;
     const cy1 = ly1;
-    const cx2 = cx1 - radius;
-    const cy2 = cy1;
 
-    // Create circle centers cp1 and cp2
+    // Create circle center cp1 and circle c1
     const cp1 = point(cx1, cy1);
-    const cp2 = point(cx2, cy2);
+    const circle1 = circle(cx1, cy1, config.radius);
     m.set(GEOM.CP1, cp1);
-    m.set(GEOM.CP2, cp2);
-
-    // Create circles c1 and c2
-    const circle1 = circle(cx1, cy1, radius);
-    const circle2 = circle(cx2, cy2, radius);
     m.set(GEOM.C1, circle1);
-    m.set(GEOM.C2, circle2);
 
     return m;
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.CP1, 2.0, store, theme);
-    drawPoint(svg, values, GEOM.CP2, 2.0, store, theme);
     drawCircle(svg, values, GEOM.C1, 0.5, store, theme);
+  },
+};
+
+/**
+ * Step 2a2: Create CP2 as intersection of C1 and LINE1
+ * Finds CP2 where C1 intersects LINE1 (leftmost point).
+ */
+const STEP_2A2: SixFoldV0Step = {
+  id: "step2a2",
+  inputs: [GEOM.C1, GEOM.LINE1],
+  outputs: [GEOM.CP2],
+  parameters: [],
+  compute: computeSingle(GEOM.CP2, (inputs, _config) => {
+    const c1 = getGeometry(inputs, GEOM.C1, isCircle, "Circle");
+    const line1 = getGeometry(inputs, GEOM.LINE1, isLine, "Line");
+
+    // Find leftmost intersection of C1 with LINE1
+    const cp2 = interceptCircleLineDirHelper(c1, line1, directions.left);
+    if (!cp2) {
+      throw new Error("STEP_2A2: C1 and LINE1 do not intersect");
+    }
+    return cp2;
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.CP2, 2.0, store, theme);
+  },
+};
+
+/**
+ * Step 2a3: Create C2 at CP2
+ * Creates the second circle (c2) centered at CP2 with same radius.
+ */
+const STEP_2A3: SixFoldV0Step = {
+  id: "step2a3",
+  inputs: [GEOM.CP2],
+  outputs: [GEOM.C2],
+  parameters: ["radius"],
+  compute: computeSingle(GEOM.C2, (inputs, config) => {
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    return circle(cp2.x, cp2.y, config.radius);
+  }),
+  draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C2, 0.5, store, theme);
   },
 };
@@ -1325,7 +1357,9 @@ const STEP_35: SixFoldV0Step = {
 /** All steps in order */
 export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_1,
-  STEP_2A,
+  STEP_2A1,
+  STEP_2A2,
+  STEP_2A3,
   STEP_2B,
   STEP_2C,
   STEP_2D,
