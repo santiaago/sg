@@ -19,7 +19,11 @@ import {
   interceptCircleLineSegHelper,
 } from "../geometry/constructors";
 
-// Step 1: Main line and points
+/**
+ * Step 1: Main line and points
+ * Creates the base horizontal line and its endpoint points.
+ * Uses SVG config coordinates (lx1, ly1, lx2, ly2) as parameters.
+ */
 const STEP_1: SixFoldV0Step = {
   id: "step1",
   inputs: [],
@@ -39,16 +43,18 @@ const STEP_1: SixFoldV0Step = {
   },
 };
 
-// Step 2: Circle centers and initial circles
-// Following SixFoldv3.svelte circlesFromLine logic:
-// Uses LINE1 from step1 to get the line coordinates
-// 1. Create c1 at (cx1, cy1) and c2 at (cx2, cy2) with radius
-// 2. Find px, py = intersection of c1 and c2 (top point)
-// 3. Create circle at (px,py) with same radius
-// 4. p3 = bisect from circleAtIntersection through c2 center
-// 5. p4 = bisect from circleAtIntersection through c1 center
-// 6. l13 = line from c1 to p3, find intersection with c1 circle -> cp13, create c4
-// 7. l24 = line from c2 to p4, find intersection with c2 circle -> cp24, create c3
+/**
+ * Step 2: Circle centers and initial circles
+ * Following SixFoldv3.svelte circlesFromLine logic.
+ * Uses LINE1 from step1 to get the line coordinates.
+ * 1. Create c1 at (cx1, cy1) and c2 at (cx2, cy2) with radius
+ * 2. Find px, py = intersection of c1 and c2 (top point)
+ * 3. Create circle at (px,py) with same radius
+ * 4. p3 = bisect from circleAtIntersection through c2 center
+ * 5. p4 = bisect from circleAtIntersection through c1 center
+ * 6. l13 = line from c1 to p3, find intersection with c1 circle -> cp13, create c4
+ * 7. l24 = line from c2 to p4, find intersection with c2 circle -> cp24, create c3
+ */
 const STEP_2: SixFoldV0Step = {
   id: "step2",
   inputs: [GEOM.LINE1, GEOM.P1, GEOM.P2],
@@ -147,7 +153,11 @@ const STEP_2: SixFoldV0Step = {
   },
 };
 
-// Step 3: Lines between circle centers
+/**
+ * Step 3: Lines between circle centers
+ * Draws connecting lines between all four circle center points (cp1, cp2, cp3, cp4).
+ * Forms the quadrilateral connecting the centers.
+ */
 const STEP_3: SixFoldV0Step = {
   id: "step3",
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4],
@@ -173,7 +183,12 @@ const STEP_3: SixFoldV0Step = {
   },
 };
 
-// Step 4: Intersection points pic12 and pic14
+/**
+ * Step 4: Intersection points pic12 and pic14
+ * Finds intersection points between circle pairs.
+ * pic12 = intersection of circles c1 and c2 (direction: up)
+ * pic14 = intersection of circles c4 and c1 (direction: left)
+ */
 const STEP_4: SixFoldV0Step = {
   id: "step4",
   inputs: [GEOM.C1, GEOM.C2, GEOM.C3, GEOM.C4],
@@ -198,7 +213,10 @@ const STEP_4: SixFoldV0Step = {
   },
 };
 
-// Step 5: Lines from cp1 to pic points
+/**
+ * Step 5: Lines from cp1 to pic points
+ * Draws lines from circle center cp1 to intersection points pic12 and pic14.
+ */
 const STEP_5: SixFoldV0Step = {
   id: "step5",
   inputs: [GEOM.CP1, GEOM.PIC12, GEOM.PIC14],
@@ -219,7 +237,11 @@ const STEP_5: SixFoldV0Step = {
   },
 };
 
-// Step 6: Crossing lines l13, l24 and intersection pi2
+/**
+ * Step 6: Crossing lines l13, l24 and intersection pi2
+ * Draws diagonal lines connecting opposite circle centers (cp1-cp3 and cp2-cp4).
+ * Computes pi2 as the intersection point of lines l13 and l24.
+ */
 const STEP_6: SixFoldV0Step = {
   id: "step6",
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4],
@@ -253,14 +275,12 @@ const STEP_6: SixFoldV0Step = {
   },
 };
 
-// Step 7: pi2 point (from step 6 l13 and l24 intersection)
-// In Svelte this is step 7, but in our config pi2 is already computed in step 6.
-// Looking at Svelte: step 7 is just pi2 as a separate step.
-// But we already have pi2 in step 6 outputs. Let me check...
-// In Svelte: steps 1-6, then step 7 is pi2 = linesIntersection(l13, l24)
-// Our step 6 already computes pi2, so step 7 in Svelte is redundant for us.
-// Actually looking more carefully, in Svelte step 6 is [l13, l24], then step 7 is [pi2]
-// So we need step 7 to be just pi2 as output
+/**
+ * Step 7: pi2 point (from step 6 l13 and l24 intersection)
+ * Pass-through step that outputs the pi2 point already computed in step 6.
+ * In Svelte: step 6 is [l13, l24], then step 7 is [pi2] as a separate step.
+ * Our step 6 already computes pi2, so this step just passes it through.
+ */
 const STEP_7: SixFoldV0Step = {
   id: "step7",
   inputs: [GEOM.PI2],
@@ -275,7 +295,10 @@ const STEP_7: SixFoldV0Step = {
   },
 };
 
-// Step 8: D1 circles (c1_d1, c2_d1, c3_d1, c4_d1) at cp1, cp2, cp3, cp4 with radius = d1 (distance pic14 to pi2)
+/**
+ * Step 8: D1 circles (c1_d1, c2_d1, c3_d1, c4_d1)
+ * Creates circles centered at cp1, cp2, cp3, cp4 with radius d1 (distance from pic14 to pi2).
+ */
 const STEP_8: SixFoldV0Step = {
   id: "step8",
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4, GEOM.PIC14, GEOM.PI2],
@@ -304,7 +327,10 @@ const STEP_8: SixFoldV0Step = {
   },
 };
 
-// Step 9: Circles at pic14 and pic12 with radius d1
+/**
+ * Step 9: Circles at pic14 and pic12 with radius d1
+ * Creates circles centered at pic12 and pic14 with radius d1 (distance from pic14 to pi2).
+ */
 const STEP_9: SixFoldV0Step = {
   id: "step9",
   inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
@@ -328,9 +354,11 @@ const STEP_9: SixFoldV0Step = {
   },
 };
 
-// Step 10: pi3 and pi4 intersection points
-// pi3 = circlesIntersectionPoint(c14_d1, c2, directions.right)
-// pi4 = circlesIntersectionPoint(c12_d1, c4, directions.right)
+/**
+ * Step 10: pi3 and pi4 intersection points
+ * pi3 = circlesIntersectionPoint(c14_d1, c2_d1, directions.right)
+ * pi4 = circlesIntersectionPoint(c12_d1, c4_d1, directions.right)
+ */
 const STEP_10: SixFoldV0Step = {
   id: "step10",
   inputs: [GEOM.C14_D1, GEOM.C2_D1, GEOM.C12_D1, GEOM.C4_D1],
@@ -356,7 +384,10 @@ const STEP_10: SixFoldV0Step = {
   },
 };
 
-// Step 11: Lines from cp1 to pi3 and pi4
+/**
+ * Step 11: Lines from cp1 to pi3 and pi4
+ * Draws lines from circle center cp1 to intersection points pi3 and pi4.
+ */
 const STEP_11: SixFoldV0Step = {
   id: "step11",
   inputs: [GEOM.CP1, GEOM.PI3, GEOM.PI4],
@@ -377,9 +408,11 @@ const STEP_11: SixFoldV0Step = {
   },
 };
 
-// Step 12: prx5 and prx6 points
-// prx5 = interceptCircleLineSeg(c14_d1 center, lpic14 line)
-// prx6 = interceptCircleLineSeg(c12_d1 center, lpic12 line)
+/**
+ * Step 12: prx5 and prx6 points
+ * prx5 = interceptCircleLineSeg(c14_d1 center, lpic14 line)
+ * prx6 = interceptCircleLineSeg(c12_d1 center, lpic12 line)
+ */
 const STEP_12: SixFoldV0Step = {
   id: "step12",
   inputs: [GEOM.C14_D1, GEOM.LPIC14, GEOM.C12_D1, GEOM.LPIC12],
@@ -405,15 +438,17 @@ const STEP_12: SixFoldV0Step = {
   },
 };
 
-// Step 13: c23w, l14p, pc23, c23s, c23 circle
-// From Svelte:
-//   c23w = bisectCircleAndPoint(c14, pi5)  -> bisectFn on circle c14_d1 from point pi5
-//   l14p = new Line(pic14, c23w)
-//   pc23 = linesIntersection(l23, l14p)
-//   line = new Line(pc23, cp2)
-//   c23s = interceptCircleLine(c2, line, "c23s", 0)
-//   d2 = pc23.distanceToPoint(c23s)
-//   c23 = new Circle(pc23, d2)
+/**
+ * Step 13: c23w, l14p, pc23, c23s, c23 circle
+ * From Svelte:
+ *   c23w = bisectCircleAndPoint(c14_d1, prx5)
+ *   l14p = line from pic14 to c23w
+ *   pc23 = linesIntersection(l23, l14p)
+ *   line = line from pc23 to cp2
+ *   c23s = interceptCircleLine(c2_d1, line, 0)
+ *   d2 = distance from pc23 to c23s
+ *   c23 = new Circle(pc23, d2)
+ */
 const STEP_13: SixFoldV0Step = {
   id: "step13",
   inputs: [GEOM.C14_D1, GEOM.PRX5, GEOM.PIC14, GEOM.L23, GEOM.CP2, GEOM.C2_D1],
@@ -482,13 +517,15 @@ const STEP_13: SixFoldV0Step = {
   },
 };
 
-// Step 14: cpic12, c34n, lpic12c34n, pc34, c34e, c34 circle
-// cpic12 = circle at pic12 with radius d1 (distance from pic14 to pi2)
-// c34n = bisectCircleAndPoint(cpic12, pi6)
-// lpic12c34n = line from pic12 to c34n
-// pc34 = linesIntersection(l34, lpic12c34n)
-// c34e = interceptCircleLine(c4, line(pc34, cp4), 0)
-// c34 = circle at pc34 with radius = distance(pc34, c34e)
+/**
+ * Step 14: cpic12, c34n, lpic12c34n, pc34, c34e, c34 circle
+ * cpic12 = circle at pic12 with radius d1 (distance from pic14 to pi2)
+ * c34n = bisectCircleAndPoint(cpic12, prx6)
+ * lpic12c34n = line from pic12 to c34n
+ * pc34 = linesIntersection(l34, lpic12c34n)
+ * c34e = interceptCircleLine(c4_d1, line(pc34, cp4), 0)
+ * c34 = circle at pc34 with radius = distance(pc34, c34e)
+ */
 const STEP_14: SixFoldV0Step = {
   id: "step14",
   inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2, GEOM.PRX6, GEOM.L34, GEOM.CP4, GEOM.C4_D1],
@@ -566,11 +603,13 @@ const STEP_14: SixFoldV0Step = {
   },
 };
 
-// Step 15: pp, l1, pii1, pii2
-// pp = interceptCircleLineSeg(c1, lpic14)
-// l1 = line from pi3 to pp
-// pii1 = intersection of line(pi3,pp) with l13
-// pii2 = intersection of line(pi3,pp) with l24
+/**
+ * Step 15: pp, l1, pii1, pii2
+ * pp = interceptCircleLineSeg(c1_d1, lpic14)
+ * l1 = line from pi3 to pp
+ * pii1 = intersection of line(pi3,pp) with l13
+ * pii2 = intersection of line(pi3,pp) with l24
+ */
 const STEP_15: SixFoldV0Step = {
   id: "step15",
   inputs: [GEOM.C1_D1, GEOM.LPIC14, GEOM.PI3, GEOM.L13, GEOM.L24],
@@ -626,7 +665,10 @@ const STEP_15: SixFoldV0Step = {
   },
 };
 
-// Step 16: Line between pii1 and pii2
+/**
+ * Step 16: Line between pii1 and pii2
+ * Draws a connecting line between the two intersection points pii1 and pii2.
+ */
 const STEP_16: SixFoldV0Step = {
   id: "step16",
   inputs: [GEOM.PII1, GEOM.PII2],
@@ -642,7 +684,10 @@ const STEP_16: SixFoldV0Step = {
   },
 };
 
-// Step 17: D3 circles at all 4 centers with radius = distance from pii1 to cp1
+/**
+ * Step 17: D3 circles at all 4 centers with radius = distance from pii1 to cp1
+ * Creates circles at cp1, cp2, cp3, cp4 with radius d3 (distance from pii1 to cp1).
+ */
 const STEP_17: SixFoldV0Step = {
   id: "step17",
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4, GEOM.PII1],
@@ -673,7 +718,10 @@ const STEP_17: SixFoldV0Step = {
   },
 };
 
-// Step 18: Lines from cp2 to pic14 and cp4 to pic12
+/**
+ * Step 18: Lines from cp2 to pic14 and cp4 to pic12
+ * Draws lines connecting circle centers to intersection points.
+ */
 const STEP_18: SixFoldV0Step = {
   id: "step18",
   inputs: [GEOM.CP2, GEOM.PIC14, GEOM.CP4, GEOM.PIC12],
@@ -695,7 +743,12 @@ const STEP_18: SixFoldV0Step = {
   },
 };
 
-// Step 19: lpii1pi4, pic4, outline1
+/**
+ * Step 19: lpii1pi4, pic4, outline1
+ * lpii1pi4 = line from pii1 to pi4
+ * pic4 = intersection of lpii1pi4 and lcp4pic12
+ * outline1 = line from pii1 to pic4
+ */
 const STEP_19: SixFoldV0Step = {
   id: "step19",
   inputs: [GEOM.PII1, GEOM.PI4, GEOM.LCP4PIC12],
@@ -742,7 +795,12 @@ const STEP_19: SixFoldV0Step = {
   },
 };
 
-// Step 20: pii1, pic2, outline2
+/**
+ * Step 20: pii1, pic2, outline2
+ * lpii1pii2 = line from pii1 to pii2
+ * pic2 = intersection of lpii1pii2 and lcp2pic14
+ * outline2 = line from pii1 to pic2
+ */
 const STEP_20: SixFoldV0Step = {
   id: "step20",
   inputs: [GEOM.PII1, GEOM.PII2, GEOM.LCP2PIC14],
@@ -788,7 +846,13 @@ const STEP_20: SixFoldV0Step = {
   },
 };
 
-// Step 21: pic1w, pic34, outline3
+/**
+ * Step 21: pic1w, pic34, outline3
+ * lpii2pic4 = line from pii2 to pic4
+ * pic1w = intersection of lpii2pic4 and l14p
+ * pic34 = intersection of lpii2pic4 and lpic12c34n
+ * outline3 = line from pic1w to pic34
+ */
 const STEP_21: SixFoldV0Step = {
   id: "step21",
   inputs: [GEOM.C1_D3, GEOM.LCP1PI3, GEOM.C34, GEOM.L34],
@@ -824,7 +888,12 @@ const STEP_21: SixFoldV0Step = {
   },
 };
 
-// Step 22: pic1n, pic23, outline4
+/**
+ * Step 22: pic1n, pic23, outline4
+ * pic1n = interceptCircleLine(c1_d3, lcp1pi4, 0)
+ * pic23 = interceptCircleLine(c23, l23, 0)
+ * outline4 = line from pic1n to pic23
+ */
 const STEP_22: SixFoldV0Step = {
   id: "step22",
   inputs: [GEOM.C1_D3, GEOM.LCP1PI4, GEOM.C23, GEOM.L23],
@@ -861,7 +930,12 @@ const STEP_22: SixFoldV0Step = {
   },
 };
 
-// Step 23: pc1w, pc23s, outline5
+/**
+ * Step 23: pc1w, pc23s, outline5
+ * pc1w = interceptCircleLineSeg(c1_d1, l12, 0)
+ * pc23s = interceptCircleLineSeg(c23, l23, 0)
+ * outline5 = line from pc1w to pc23s
+ */
 const STEP_23: SixFoldV0Step = {
   id: "step23",
   inputs: [GEOM.C1_D1, GEOM.L12, GEOM.C23, GEOM.L23],
@@ -897,7 +971,12 @@ const STEP_23: SixFoldV0Step = {
   },
 };
 
-// Step 24: pc1n, pc34e, outline6
+/**
+ * Step 24: pc1n, pc34e, outline6
+ * pc1n = interceptCircleLineSeg(c1_d1, l41, 0)
+ * pc34e = interceptCircleLineSeg(c34, l34, 1)
+ * outline6 = line from pc1n to pc34e
+ */
 const STEP_24: SixFoldV0Step = {
   id: "step24",
   inputs: [GEOM.C1_D1, GEOM.L41, GEOM.C34, GEOM.L34],
@@ -934,7 +1013,10 @@ const STEP_24: SixFoldV0Step = {
   },
 };
 
-// Step 25: outline7
+/**
+ * Step 25: outline7
+ * Draws outline line from pc1n to pic1n.
+ */
 const STEP_25: SixFoldV0Step = {
   id: "step25",
   inputs: [GEOM.PC1N, GEOM.PIC1N],
@@ -950,7 +1032,10 @@ const STEP_25: SixFoldV0Step = {
   },
 };
 
-// Step 26: outline8
+/**
+ * Step 26: outline8
+ * Draws outline line from pc1w to pic1w.
+ */
 const STEP_26: SixFoldV0Step = {
   id: "step26",
   inputs: [GEOM.PC1W, GEOM.PIC1W],
@@ -966,7 +1051,13 @@ const STEP_26: SixFoldV0Step = {
   },
 };
 
-// Step 27: pc3sw, pc23e, outline9
+/**
+ * Step 27: pc3sw, pc23e, outline9
+ * pc3sw = interceptCircleLineSeg(c3_d3, l13, 0)
+ * lc23cp1 = line from c23 center to cp1
+ * pc23e = interceptCircleLineSeg(c23, lc23cp1, 0)
+ * outline9 = line from pc3sw to pc23e
+ */
 const STEP_27: SixFoldV0Step = {
   id: "step27",
   inputs: [GEOM.C3_D3, GEOM.L13, GEOM.C23, GEOM.CP1],
@@ -1005,7 +1096,12 @@ const STEP_27: SixFoldV0Step = {
   },
 };
 
-// Step 28: pc34s, outline10
+/**
+ * Step 28: pc34s, outline10
+ * lc34cp1 = line from c34 center to cp1
+ * pc34s = interceptCircleLineSeg(c34, lc34cp1, 0)
+ * outline10 = line from pc34s to pc3sw
+ */
 const STEP_28: SixFoldV0Step = {
   id: "step28",
   inputs: [GEOM.C34, GEOM.CP1, GEOM.PC3SW],
@@ -1035,7 +1131,10 @@ const STEP_28: SixFoldV0Step = {
   },
 };
 
-// Step 29: outline11
+/**
+ * Step 29: outline11
+ * Draws outline line from pc34e to pc34s.
+ */
 const STEP_29: SixFoldV0Step = {
   id: "step29",
   inputs: [GEOM.PC34E, GEOM.PC34S],
@@ -1051,7 +1150,10 @@ const STEP_29: SixFoldV0Step = {
   },
 };
 
-// Step 30: outline12 (symmetric to outline11, closer to cp2)
+/**
+ * Step 30: outline12 (symmetric to outline11, closer to cp2)
+ * Draws outline line from pc23s to pc23e.
+ */
 const STEP_30: SixFoldV0Step = {
   id: "step30",
   inputs: [GEOM.PC23S, GEOM.PC23E],
@@ -1067,7 +1169,10 @@ const STEP_30: SixFoldV0Step = {
   },
 };
 
-// Step 31: outline13 (cp4 to pic4)
+/**
+ * Step 31: outline13 (cp4 to pic4)
+ * Draws outline line from circle center cp4 to point pic4.
+ */
 const STEP_31: SixFoldV0Step = {
   id: "step31",
   inputs: [GEOM.CP4, GEOM.PIC4],
@@ -1083,7 +1188,10 @@ const STEP_31: SixFoldV0Step = {
   },
 };
 
-// Step 32: outline14 (cp2 to pic2)
+/**
+ * Step 32: outline14 (cp2 to pic2)
+ * Draws outline line from circle center cp2 to point pic2.
+ */
 const STEP_32: SixFoldV0Step = {
   id: "step32",
   inputs: [GEOM.CP2, GEOM.PIC2],
@@ -1099,7 +1207,10 @@ const STEP_32: SixFoldV0Step = {
   },
 };
 
-// Step 33: Outline15 - line from cp2 to cp1
+/**
+ * Step 33: Outline15 - line from cp2 to cp1
+ * Draws outline line connecting circle centers cp2 to cp1.
+ */
 const STEP_33: SixFoldV0Step = {
   id: "step33",
   inputs: [GEOM.CP1, GEOM.CP2],
@@ -1115,7 +1226,10 @@ const STEP_33: SixFoldV0Step = {
   },
 };
 
-// Step 34: Outline16 - line from cp2 to cp3
+/**
+ * Step 34: Outline16 - line from cp2 to cp3
+ * Draws outline line connecting circle centers cp2 to cp3.
+ */
 const STEP_34: SixFoldV0Step = {
   id: "step34",
   inputs: [GEOM.CP2, GEOM.CP3],
@@ -1131,7 +1245,10 @@ const STEP_34: SixFoldV0Step = {
   },
 };
 
-// Step 35: Outline17 - line from cp3 to cp4
+/**
+ * Step 35: Outline17 - line from cp3 to cp4
+ * Draws outline line connecting circle centers cp3 to cp4.
+ */
 const STEP_35: SixFoldV0Step = {
   id: "step35",
   inputs: [GEOM.CP3, GEOM.CP4],
@@ -1147,7 +1264,10 @@ const STEP_35: SixFoldV0Step = {
   },
 };
 
-// Step 36: Outline18 - line from cp4 to cp1
+/**
+ * Step 36: Outline18 - line from cp4 to cp1
+ * Draws outline line connecting circle centers cp4 to cp1, completing the quadrilateral.
+ */
 const STEP_36: SixFoldV0Step = {
   id: "step36",
   inputs: [GEOM.CP4, GEOM.CP1],
