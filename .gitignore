@@ -2,6 +2,13 @@
 node_modules/
 **/node_modules/
 
+# Ignore pnpm lock files
+pnpm-lock.yaml
+**/pnpm-lock.yaml
+
+# Ignore node_modules bin directories
+**/node_modules/.bin/
+
 # Ignore test coverage files
 app/.nyc_output/
 app/coverage/

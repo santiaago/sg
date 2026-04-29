@@ -65,7 +65,7 @@ const STEP_MAIN_LINE: Step = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store, theme);
+    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -228,7 +228,7 @@ const STEP_LINE_C2_PI: Step = {
 
   draw: (svg, values, store, theme) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -281,7 +281,7 @@ const STEP_LINE_C1_PI: Step = {
 
   draw: (svg, values, store, theme) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -333,7 +333,7 @@ const STEP_LINE_C2_P4: Step = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -381,7 +381,7 @@ const STEP_LINE_C1_P3: Step = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
