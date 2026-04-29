@@ -270,7 +270,7 @@ const STEP_7: SixFoldV0Step = {
     const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
     return pi2;
   }),
-  draw: () => {
+  draw: (_svg, _values, _store, _theme) => {
     // pi2 was already drawn in step 6, no need to draw again
   },
 };
