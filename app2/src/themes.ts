@@ -17,6 +17,7 @@ export interface Theme {
   // Original color constant names preserved
   COLOR_PRIMARY: string;
   COLOR_SECONDARY: string;
+  COLOR_OUTLINE: string;
   COLOR_TEXT: string;
   COLOR_BACKGROUND: string;
   COLOR_CANVAS: string;
@@ -30,6 +31,7 @@ export interface Theme {
 export const lightTheme: Theme = {
   COLOR_PRIMARY: "#506",
   COLOR_SECONDARY: "#f06",
+  COLOR_OUTLINE: "#506",
   COLOR_TEXT: "black",
   COLOR_BACKGROUND: "white",
   COLOR_CANVAS: "#fff",
@@ -43,6 +45,7 @@ export const lightTheme: Theme = {
 export const darkTheme: Theme = {
   COLOR_PRIMARY: "#94a3b8", // slate-400 - light slate for lines
   COLOR_SECONDARY: "#64748b", // slate-500 - medium slate for circles
+  COLOR_OUTLINE: "#fa520f", // darker orange for outlines
   COLOR_TEXT: "#334155", // slate-700
   COLOR_BACKGROUND: "#f1f5f9", // slate-100
   COLOR_CANVAS: "#1d293d",

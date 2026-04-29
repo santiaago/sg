@@ -142,10 +142,10 @@ export function line(
   x2: number,
   y2: number,
   strokeWidth: number = DEFAULT_STROKE_WIDTH,
-  theme: Theme,
+  strokeColor: string,
 ): SVGLineElement {
   const lineEl = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  lineEl.setAttribute("stroke", theme.COLOR_PRIMARY);
+  lineEl.setAttribute("stroke", strokeColor);
   lineEl.setAttribute("stroke-width", strokeWidth.toString());
   lineEl.setAttribute("x1", x1.toString());
   lineEl.setAttribute("y1", y1.toString());
@@ -215,6 +215,7 @@ export function drawPoint(
  * @param strokeWidth - The width of the line stroke
  * @param store - Optional store for managing SVG elements
  * @param theme - Theme to use for colors
+ * @param strokeColor - Stroke color to use for the line
  */
 export function drawLine(
   svg: SVGSVGElement,
@@ -223,10 +224,11 @@ export function drawLine(
   strokeWidth: number,
   store: GeometryStore,
   theme: Theme,
+  strokeColor: string,
 ): void {
   const l = values.get(geomId);
   if (!l || !isLine(l)) return;
-  lineWithTooltip(svg, l.x1, l.y1, l.x2, l.y2, geomId, strokeWidth, store, theme);
+  lineWithTooltip(svg, l.x1, l.y1, l.x2, l.y2, geomId, strokeWidth, store, theme, strokeColor);
 }
 
 /**
@@ -296,8 +298,9 @@ export function lineWithTooltip(
   strokeWidth: number,
   store: GeometryStore,
   theme: Theme,
+  strokeColor: string,
 ): SVGLineElement {
-  const lineEl = line(svg, x1, y1, x2, y2, strokeWidth, theme);
+  const lineEl = line(svg, x1, y1, x2, y2, strokeWidth, strokeColor);
   lineEl.style.cursor = "pointer";
 
   // Create tooltip element (positioned at midpoint)

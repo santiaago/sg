@@ -38,7 +38,7 @@ const STEP_1: SixFoldV0Step = {
     return m;
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LINE1, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LINE1, 0.5, store, theme, theme.COLOR_PRIMARY);
     drawPoint(svg, values, GEOM.P1, 2.0, store, theme);
     drawPoint(svg, values, GEOM.P2, 2.0, store, theme);
   },
@@ -144,7 +144,9 @@ const STEP_2B: SixFoldV0Step = {
     // Find px, py = intersection point of c1 and c2 circles (top point)
     const pxPy = circlesIntersectionPointHelper(c1, c2, directions.up);
     if (!pxPy) {
-      throw new Error("STEP_2B: circlesIntersectionPointHelper(c1, c2, up) returned null - circles do not intersect");
+      throw new Error(
+        "STEP_2B: circlesIntersectionPointHelper(c1, c2, up) returned null - circles do not intersect",
+      );
     }
     m.set(GEOM.PIC12_INTERNAL, pxPy);
 
@@ -172,7 +174,12 @@ const STEP_2C: SixFoldV0Step = {
   compute: computeMultiple((inputs, _config) => {
     const m = new Map<string, GeometryValue>();
 
-    const circleAtIntersection = getGeometry(inputs, GEOM.CIRCLE_AT_INTERSECTION, isCircle, "Circle");
+    const circleAtIntersection = getGeometry(
+      inputs,
+      GEOM.CIRCLE_AT_INTERSECTION,
+      isCircle,
+      "Circle",
+    );
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
 
@@ -266,10 +273,10 @@ const STEP_3: SixFoldV0Step = {
     return m;
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.L12, 0.5, store, theme);
-    drawLine(svg, values, GEOM.L23, 0.5, store, theme);
-    drawLine(svg, values, GEOM.L34, 0.5, store, theme);
-    drawLine(svg, values, GEOM.L41, 0.5, store, theme);
+    drawLine(svg, values, GEOM.L12, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.L23, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.L34, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.L41, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -322,8 +329,8 @@ const STEP_5: SixFoldV0Step = {
     return m;
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LPIC12, 0.5, store, theme);
-    drawLine(svg, values, GEOM.LPIC14, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LPIC12, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LPIC14, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -359,13 +366,11 @@ const STEP_6: SixFoldV0Step = {
     return m;
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.L13, 0.5, store, theme);
-    drawLine(svg, values, GEOM.L24, 0.5, store, theme);
+    drawLine(svg, values, GEOM.L13, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.L24, 0.5, store, theme, theme.COLOR_PRIMARY);
     drawPoint(svg, values, GEOM.PI2, 2.0, store, theme);
   },
 };
-
-
 
 /**
  * Step 7: D1 circles (c1_d1, c2_d1, c3_d1, c4_d1)
@@ -475,8 +480,8 @@ const STEP_10: SixFoldV0Step = {
     return m;
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LCP1PI3, 0.5, store, theme);
-    drawLine(svg, values, GEOM.LCP1PI4, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LCP1PI3, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LCP1PI4, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -582,7 +587,7 @@ const STEP_12: SixFoldV0Step = {
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.C23W, 2.0, store, theme);
-    drawLine(svg, values, GEOM.L14P, 0.5, store, theme);
+    drawLine(svg, values, GEOM.L14P, 0.5, store, theme, theme.COLOR_PRIMARY);
     drawPoint(svg, values, GEOM.PC23, 2.0, store, theme);
     drawPoint(svg, values, GEOM.C23S, 2.0, store, theme);
     drawCircle(svg, values, GEOM.C23, 0.5, store, theme);
@@ -636,7 +641,9 @@ const STEP_13: SixFoldV0Step = {
       lpic12c34n.y2,
     );
     if (!pc34Result) {
-      throw new Error("STEP_13: lineIntersect returned null - lines l34 and lpic12c34n do not intersect");
+      throw new Error(
+        "STEP_13: lineIntersect returned null - lines l34 and lpic12c34n do not intersect",
+      );
     }
     const pc34Pt = validPoint(pc34Result[0], pc34Result[1]);
     if (!pc34Pt) {
@@ -668,7 +675,7 @@ const STEP_13: SixFoldV0Step = {
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.CPI12, 0.5, store, theme);
     drawPoint(svg, values, GEOM.C34N, 2.0, store, theme);
-    drawLine(svg, values, GEOM.LPIC12C34N, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LPIC12C34N, 0.5, store, theme, theme.COLOR_PRIMARY);
     drawPoint(svg, values, GEOM.PC34, 2.0, store, theme);
     drawPoint(svg, values, GEOM.C34E, 2.0, store, theme);
     drawCircle(svg, values, GEOM.C34, 0.5, store, theme);
@@ -704,7 +711,9 @@ const STEP_14: SixFoldV0Step = {
     // pii1 = intersection of line(pi3,pp) with l13
     const result1 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, l13.x1, l13.y1, l13.x2, l13.y2);
     if (!result1) {
-      throw new Error("STEP_14: lineIntersect returned null - line(pi3,pp) and l13 do not intersect");
+      throw new Error(
+        "STEP_14: lineIntersect returned null - line(pi3,pp) and l13 do not intersect",
+      );
     }
     const pii1 = validPoint(result1[0], result1[1]);
     if (!pii1) {
@@ -714,7 +723,9 @@ const STEP_14: SixFoldV0Step = {
     // pii2 = intersection of line(pi3,pp) with l24
     const result2 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, l24.x1, l24.y1, l24.x2, l24.y2);
     if (!result2) {
-      throw new Error("STEP_14: lineIntersect returned null - line(pi3,pp) and l24 do not intersect");
+      throw new Error(
+        "STEP_14: lineIntersect returned null - line(pi3,pp) and l24 do not intersect",
+      );
     }
     const pii2 = validPoint(result2[0], result2[1]);
     if (!pii2) {
@@ -730,7 +741,7 @@ const STEP_14: SixFoldV0Step = {
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.PP, 2.0, store, theme);
-    drawLine(svg, values, GEOM.L1, 0.5, store, theme);
+    drawLine(svg, values, GEOM.L1, 0.5, store, theme, theme.COLOR_PRIMARY);
     drawPoint(svg, values, GEOM.PII1, 2.0, store, theme);
     drawPoint(svg, values, GEOM.PII2, 2.0, store, theme);
   },
@@ -751,7 +762,7 @@ const STEP_15: SixFoldV0Step = {
     return line(pii1.x, pii1.y, pii2.x, pii2.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LPII1PII2, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LPII1PII2, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -809,8 +820,8 @@ const STEP_17: SixFoldV0Step = {
     return m;
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LCP2PIC14, 0.5, store, theme);
-    drawLine(svg, values, GEOM.LCP4PIC12, 0.5, store, theme);
+    drawLine(svg, values, GEOM.LCP2PIC14, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LCP4PIC12, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -845,7 +856,9 @@ const STEP_18: SixFoldV0Step = {
       lcp4pic12.y2,
     );
     if (!pic4Result) {
-      throw new Error("STEP_18: lineIntersect returned null - lines lpii1pi4 and lcp4pic12 do not intersect");
+      throw new Error(
+        "STEP_18: lineIntersect returned null - lines lpii1pi4 and lcp4pic12 do not intersect",
+      );
     }
     const pic4 = validPoint(pic4Result[0], pic4Result[1]);
     if (!pic4) {
@@ -862,7 +875,7 @@ const STEP_18: SixFoldV0Step = {
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.PIC4, 2.0, store, theme);
-    drawLine(svg, values, GEOM.OUTLINE1, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE1, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -896,7 +909,9 @@ const STEP_19: SixFoldV0Step = {
       lcp2pic14.y2,
     );
     if (!pic2Result) {
-      throw new Error("STEP_19: lineIntersect returned null - lines lpii1pii2 and lcp2pic14 do not intersect");
+      throw new Error(
+        "STEP_19: lineIntersect returned null - lines lpii1pii2 and lcp2pic14 do not intersect",
+      );
     }
     const pic2 = validPoint(pic2Result[0], pic2Result[1]);
     if (!pic2) {
@@ -913,7 +928,7 @@ const STEP_19: SixFoldV0Step = {
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.PIC2, 2.0, store, theme);
-    drawLine(svg, values, GEOM.OUTLINE2, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE2, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -955,7 +970,7 @@ const STEP_20: SixFoldV0Step = {
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.PIC1W, 2.0, store, theme);
     drawPoint(svg, values, GEOM.PIC34, 2.0, store, theme);
-    drawLine(svg, values, GEOM.OUTLINE3, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE3, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -997,7 +1012,7 @@ const STEP_21: SixFoldV0Step = {
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.PIC1N, 2.0, store, theme);
     drawPoint(svg, values, GEOM.PIC23, 2.0, store, theme);
-    drawLine(svg, values, GEOM.OUTLINE4, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE4, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1038,7 +1053,7 @@ const STEP_22: SixFoldV0Step = {
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.PC1W, 2.0, store, theme);
     drawPoint(svg, values, GEOM.PC23S, 2.0, store, theme);
-    drawLine(svg, values, GEOM.OUTLINE5, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE5, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1080,7 +1095,7 @@ const STEP_23: SixFoldV0Step = {
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.PC1N, 2.0, store, theme);
     drawPoint(svg, values, GEOM.PC34E, 2.0, store, theme);
-    drawLine(svg, values, GEOM.OUTLINE6, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE6, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1099,7 +1114,7 @@ const STEP_24: SixFoldV0Step = {
     return line(pc1n.x, pc1n.y, pic1n.x, pic1n.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE7, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE7, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1118,7 +1133,7 @@ const STEP_25: SixFoldV0Step = {
     return line(pc1w.x, pc1w.y, pic1w.x, pic1w.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE8, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE8, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1163,7 +1178,7 @@ const STEP_26: SixFoldV0Step = {
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.PC3SW, 2.0, store, theme);
     drawPoint(svg, values, GEOM.PC23E, 2.0, store, theme);
-    drawLine(svg, values, GEOM.OUTLINE9, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE9, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1198,7 +1213,7 @@ const STEP_27: SixFoldV0Step = {
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.PC34S, 2.0, store, theme);
-    drawLine(svg, values, GEOM.OUTLINE10, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE10, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1217,7 +1232,7 @@ const STEP_28: SixFoldV0Step = {
     return line(pc34e.x, pc34e.y, pc34s.x, pc34s.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE11, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE11, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1236,7 +1251,7 @@ const STEP_29: SixFoldV0Step = {
     return line(pc23s.x, pc23s.y, pc23e.x, pc23e.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE12, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE12, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1255,7 +1270,7 @@ const STEP_30: SixFoldV0Step = {
     return line(cp4.x, cp4.y, pic4.x, pic4.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE13, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE13, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1274,7 +1289,7 @@ const STEP_31: SixFoldV0Step = {
     return line(cp2.x, cp2.y, pic2.x, pic2.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE14, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE14, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1293,7 +1308,7 @@ const STEP_32: SixFoldV0Step = {
     return line(cp2.x, cp2.y, cp1.x, cp1.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE15, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE15, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1312,7 +1327,7 @@ const STEP_33: SixFoldV0Step = {
     return line(cp2.x, cp2.y, cp3.x, cp3.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE16, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE16, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1331,7 +1346,7 @@ const STEP_34: SixFoldV0Step = {
     return line(cp3.x, cp3.y, cp4.x, cp4.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE17, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE17, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
@@ -1350,7 +1365,7 @@ const STEP_35: SixFoldV0Step = {
     return line(cp4.x, cp4.y, cp1.x, cp1.y);
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.OUTLINE18, 2.0, store, theme);
+    drawLine(svg, values, GEOM.OUTLINE18, 2.0, store, theme, theme.COLOR_OUTLINE);
   },
 };
 
