@@ -163,7 +163,7 @@ const STEP_3: SixFoldV0Step = {
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4],
   outputs: [GEOM.L12, GEOM.L23, GEOM.L34, GEOM.L41],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
@@ -194,7 +194,7 @@ const STEP_4: SixFoldV0Step = {
   inputs: [GEOM.C1, GEOM.C2, GEOM.C3, GEOM.C4],
   outputs: [GEOM.PIC12, GEOM.PIC14],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c1 = getGeometry(inputs, GEOM.C1, isCircle, "Circle");
     const c2 = getGeometry(inputs, GEOM.C2, isCircle, "Circle");
     const c4 = getGeometry(inputs, GEOM.C4, isCircle, "Circle");
@@ -222,7 +222,7 @@ const STEP_5: SixFoldV0Step = {
   inputs: [GEOM.CP1, GEOM.PIC12, GEOM.PIC14],
   outputs: [GEOM.LPIC12, GEOM.LPIC14],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
     const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
@@ -247,7 +247,7 @@ const STEP_6: SixFoldV0Step = {
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4],
   outputs: [GEOM.L13, GEOM.L24, GEOM.PI2],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
@@ -286,7 +286,7 @@ const STEP_7: SixFoldV0Step = {
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C1_D1, GEOM.C2_D1, GEOM.C3_D1, GEOM.C4_D1],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
@@ -318,7 +318,7 @@ const STEP_8: SixFoldV0Step = {
   inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C14_D1, GEOM.C12_D1],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
     const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
     const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
@@ -346,7 +346,7 @@ const STEP_9: SixFoldV0Step = {
   inputs: [GEOM.C14_D1, GEOM.C2_D1, GEOM.C12_D1, GEOM.C4_D1],
   outputs: [GEOM.PI3, GEOM.PI4],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c14_d1 = getGeometry(inputs, GEOM.C14_D1, isCircle, "Circle");
     const c2_d1 = getGeometry(inputs, GEOM.C2_D1, isCircle, "Circle");
     const c12_d1 = getGeometry(inputs, GEOM.C12_D1, isCircle, "Circle");
@@ -375,7 +375,7 @@ const STEP_10: SixFoldV0Step = {
   inputs: [GEOM.CP1, GEOM.PI3, GEOM.PI4],
   outputs: [GEOM.LCP1PI3, GEOM.LCP1PI4],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const pi3 = getGeometry(inputs, GEOM.PI3, isPoint, "Point");
     const pi4 = getGeometry(inputs, GEOM.PI4, isPoint, "Point");
@@ -400,7 +400,7 @@ const STEP_11: SixFoldV0Step = {
   inputs: [GEOM.C14_D1, GEOM.LPIC14, GEOM.C12_D1, GEOM.LPIC12],
   outputs: [GEOM.PRX5, GEOM.PRX6],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c14_d1 = getGeometry(inputs, GEOM.C14_D1, isCircle, "Circle");
     const lpic14 = getGeometry(inputs, GEOM.LPIC14, isLine, "Line");
     const c12_d1 = getGeometry(inputs, GEOM.C12_D1, isCircle, "Circle");
@@ -436,7 +436,7 @@ const STEP_12: SixFoldV0Step = {
   inputs: [GEOM.C14_D1, GEOM.PRX5, GEOM.PIC14, GEOM.L23, GEOM.CP2, GEOM.C2_D1],
   outputs: [GEOM.C23W, GEOM.L14P, GEOM.PC23, GEOM.C23S, GEOM.C23],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c14_d1 = getGeometry(inputs, GEOM.C14_D1, isCircle, "Circle");
     const prx5 = getGeometry(inputs, GEOM.PRX5, isPoint, "Point");
     const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
@@ -513,7 +513,7 @@ const STEP_13: SixFoldV0Step = {
   inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2, GEOM.PRX6, GEOM.L34, GEOM.CP4, GEOM.C4_D1],
   outputs: [GEOM.CPI12, GEOM.C34N, GEOM.LPIC12C34N, GEOM.PC34, GEOM.C34E, GEOM.C34],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
     const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
     const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
@@ -597,7 +597,7 @@ const STEP_14: SixFoldV0Step = {
   inputs: [GEOM.C1_D1, GEOM.LPIC14, GEOM.PI3, GEOM.L13, GEOM.L24],
   outputs: [GEOM.PP, GEOM.L1, GEOM.PII1, GEOM.PII2],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
     const lpic14 = getGeometry(inputs, GEOM.LPIC14, isLine, "Line");
     const pi3 = getGeometry(inputs, GEOM.PI3, isPoint, "Point");
@@ -655,7 +655,7 @@ const STEP_15: SixFoldV0Step = {
   inputs: [GEOM.PII1, GEOM.PII2],
   outputs: [GEOM.LPII1PII2],
   parameters: [],
-  compute: computeSingle(GEOM.LPII1PII2, (inputs) => {
+  compute: computeSingle(GEOM.LPII1PII2, (inputs, _config) => {
     const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
     const pii2 = getGeometry(inputs, GEOM.PII2, isPoint, "Point");
     return line(pii1.x, pii1.y, pii2.x, pii2.y);
@@ -674,7 +674,7 @@ const STEP_16: SixFoldV0Step = {
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4, GEOM.PII1],
   outputs: [GEOM.C1_D3, GEOM.C2_D3, GEOM.C3_D3, GEOM.C4_D3],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
@@ -708,7 +708,7 @@ const STEP_17: SixFoldV0Step = {
   inputs: [GEOM.CP2, GEOM.PIC14, GEOM.CP4, GEOM.PIC12],
   outputs: [GEOM.LCP2PIC14, GEOM.LCP4PIC12],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
@@ -735,7 +735,7 @@ const STEP_18: SixFoldV0Step = {
   inputs: [GEOM.PII1, GEOM.PI4, GEOM.LCP4PIC12],
   outputs: [GEOM.PIC4, GEOM.OUTLINE1],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
     const pi4 = getGeometry(inputs, GEOM.PI4, isPoint, "Point");
     const lcp4pic12 = getGeometry(inputs, GEOM.LCP4PIC12, isLine, "Line");
@@ -787,7 +787,7 @@ const STEP_19: SixFoldV0Step = {
   inputs: [GEOM.PII1, GEOM.PII2, GEOM.LCP2PIC14],
   outputs: [GEOM.PIC2, GEOM.OUTLINE2],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
     const pii2 = getGeometry(inputs, GEOM.PII2, isPoint, "Point");
     const lcp2pic14 = getGeometry(inputs, GEOM.LCP2PIC14, isLine, "Line");
@@ -839,7 +839,7 @@ const STEP_20: SixFoldV0Step = {
   inputs: [GEOM.C1_D3, GEOM.LCP1PI3, GEOM.C34, GEOM.L34],
   outputs: [GEOM.PIC1W, GEOM.PIC34, GEOM.OUTLINE3],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c1_d3 = getGeometry(inputs, GEOM.C1_D3, isCircle, "Circle");
     const lcp1pi3 = getGeometry(inputs, GEOM.LCP1PI3, isLine, "Line");
     const c34 = getGeometry(inputs, GEOM.C34, isCircle, "Circle");
@@ -880,7 +880,7 @@ const STEP_21: SixFoldV0Step = {
   inputs: [GEOM.C1_D3, GEOM.LCP1PI4, GEOM.C23, GEOM.L23],
   outputs: [GEOM.PIC1N, GEOM.PIC23, GEOM.OUTLINE4],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c1_d3 = getGeometry(inputs, GEOM.C1_D3, isCircle, "Circle");
     const lcp1pi4 = getGeometry(inputs, GEOM.LCP1PI4, isLine, "Line");
     const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
@@ -922,7 +922,7 @@ const STEP_22: SixFoldV0Step = {
   inputs: [GEOM.C1_D1, GEOM.L12, GEOM.C23, GEOM.L23],
   outputs: [GEOM.PC1W, GEOM.PC23S, GEOM.OUTLINE5],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
     const l12 = getGeometry(inputs, GEOM.L12, isLine, "Line");
     const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
@@ -963,7 +963,7 @@ const STEP_23: SixFoldV0Step = {
   inputs: [GEOM.C1_D1, GEOM.L41, GEOM.C34, GEOM.L34],
   outputs: [GEOM.PC1N, GEOM.PC34E, GEOM.OUTLINE6],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
     const l41 = getGeometry(inputs, GEOM.L41, isLine, "Line");
     const c34 = getGeometry(inputs, GEOM.C34, isCircle, "Circle");
@@ -1003,7 +1003,7 @@ const STEP_24: SixFoldV0Step = {
   inputs: [GEOM.PC1N, GEOM.PIC1N],
   outputs: [GEOM.OUTLINE7],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE7, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE7, (inputs, _config) => {
     const pc1n = getGeometry(inputs, GEOM.PC1N, isPoint, "Point");
     const pic1n = getGeometry(inputs, GEOM.PIC1N, isPoint, "Point");
     return line(pc1n.x, pc1n.y, pic1n.x, pic1n.y);
@@ -1022,7 +1022,7 @@ const STEP_25: SixFoldV0Step = {
   inputs: [GEOM.PC1W, GEOM.PIC1W],
   outputs: [GEOM.OUTLINE8],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE8, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE8, (inputs, _config) => {
     const pc1w = getGeometry(inputs, GEOM.PC1W, isPoint, "Point");
     const pic1w = getGeometry(inputs, GEOM.PIC1W, isPoint, "Point");
     return line(pc1w.x, pc1w.y, pic1w.x, pic1w.y);
@@ -1044,7 +1044,7 @@ const STEP_26: SixFoldV0Step = {
   inputs: [GEOM.C3_D3, GEOM.L13, GEOM.C23, GEOM.CP1],
   outputs: [GEOM.PC3SW, GEOM.PC23E, GEOM.OUTLINE9],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c3_d3 = getGeometry(inputs, GEOM.C3_D3, isCircle, "Circle");
     const l13 = getGeometry(inputs, GEOM.L13, isLine, "Line");
     const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
@@ -1088,7 +1088,7 @@ const STEP_27: SixFoldV0Step = {
   inputs: [GEOM.C34, GEOM.CP1, GEOM.PC3SW],
   outputs: [GEOM.PC34S, GEOM.OUTLINE10],
   parameters: [],
-  compute: computeMultiple((inputs) => {
+  compute: computeMultiple((inputs, _config) => {
     const c34 = getGeometry(inputs, GEOM.C34, isCircle, "Circle");
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
 
@@ -1121,7 +1121,7 @@ const STEP_28: SixFoldV0Step = {
   inputs: [GEOM.PC34E, GEOM.PC34S],
   outputs: [GEOM.OUTLINE11],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE11, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE11, (inputs, _config) => {
     const pc34e = getGeometry(inputs, GEOM.PC34E, isPoint, "Point");
     const pc34s = getGeometry(inputs, GEOM.PC34S, isPoint, "Point");
     return line(pc34e.x, pc34e.y, pc34s.x, pc34s.y);
@@ -1140,7 +1140,7 @@ const STEP_29: SixFoldV0Step = {
   inputs: [GEOM.PC23S, GEOM.PC23E],
   outputs: [GEOM.OUTLINE12],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE12, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE12, (inputs, _config) => {
     const pc23s = getGeometry(inputs, GEOM.PC23S, isPoint, "Point");
     const pc23e = getGeometry(inputs, GEOM.PC23E, isPoint, "Point");
     return line(pc23s.x, pc23s.y, pc23e.x, pc23e.y);
@@ -1159,7 +1159,7 @@ const STEP_30: SixFoldV0Step = {
   inputs: [GEOM.CP4, GEOM.PIC4],
   outputs: [GEOM.OUTLINE13],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE13, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE13, (inputs, _config) => {
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const pic4 = getGeometry(inputs, GEOM.PIC4, isPoint, "Point");
     return line(cp4.x, cp4.y, pic4.x, pic4.y);
@@ -1178,7 +1178,7 @@ const STEP_31: SixFoldV0Step = {
   inputs: [GEOM.CP2, GEOM.PIC2],
   outputs: [GEOM.OUTLINE14],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE14, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE14, (inputs, _config) => {
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const pic2 = getGeometry(inputs, GEOM.PIC2, isPoint, "Point");
     return line(cp2.x, cp2.y, pic2.x, pic2.y);
@@ -1197,7 +1197,7 @@ const STEP_32: SixFoldV0Step = {
   inputs: [GEOM.CP1, GEOM.CP2],
   outputs: [GEOM.OUTLINE15],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE15, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE15, (inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     return line(cp2.x, cp2.y, cp1.x, cp1.y);
@@ -1216,7 +1216,7 @@ const STEP_33: SixFoldV0Step = {
   inputs: [GEOM.CP2, GEOM.CP3],
   outputs: [GEOM.OUTLINE16],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE16, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE16, (inputs, _config) => {
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
     return line(cp2.x, cp2.y, cp3.x, cp3.y);
@@ -1235,7 +1235,7 @@ const STEP_34: SixFoldV0Step = {
   inputs: [GEOM.CP3, GEOM.CP4],
   outputs: [GEOM.OUTLINE17],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE17, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE17, (inputs, _config) => {
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     return line(cp3.x, cp3.y, cp4.x, cp4.y);
@@ -1254,7 +1254,7 @@ const STEP_35: SixFoldV0Step = {
   inputs: [GEOM.CP4, GEOM.CP1],
   outputs: [GEOM.OUTLINE18],
   parameters: [],
-  compute: computeSingle(GEOM.OUTLINE18, (inputs) => {
+  compute: computeSingle(GEOM.OUTLINE18, (inputs, _config) => {
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     return line(cp4.x, cp4.y, cp1.x, cp1.y);
