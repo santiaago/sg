@@ -3,7 +3,7 @@
  * Replicates "1/4 Six fold pattern v3" from Svelte app.
  */
 
-import type { GeometryValue, Point } from "../types/geometry";
+import type { GeometryValue } from "../types/geometry";
 import { point, line, circle, isPoint, isLine, isCircle } from "../types/geometry";
 import { directions, lineIntersect } from "@sg/geometry";
 import type { StepExecutionContext } from "../types/geometry";
@@ -57,7 +57,7 @@ const STEP_1: SixFoldV0Step = {
  */
 const STEP_2: SixFoldV0Step = {
   id: "step2",
-  inputs: [GEOM.LINE1, GEOM.P1, GEOM.P2],
+  inputs: [GEOM.LINE1],
   outputs: [
     GEOM.CP1,
     GEOM.CP2,
@@ -72,16 +72,13 @@ const STEP_2: SixFoldV0Step = {
   compute: computeMultiple((inputs, config) => {
     const m = new Map<string, GeometryValue>();
 
-    // Get line and points from step 1
+    // Get line from step 1
     const line1 = getGeometry(inputs, GEOM.LINE1, isLine, "Line");
-    const p1 = getGeometry(inputs, GEOM.P1, isPoint, "Point");
-    const p2 = getGeometry(inputs, GEOM.P2, isPoint, "Point");
 
     // Use line coordinates
     const lx1 = line1.x1;
     const ly1 = line1.y1;
     const lx2 = line1.x2;
-    const ly2 = line1.y2;
 
     // Calculate derived values
     const lineLength = lx2 - lx1;
