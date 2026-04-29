@@ -8,7 +8,7 @@ import { point, line, circle, isPoint, isLine, isCircle } from "../types/geometr
 import { directions, lineIntersect } from "@sg/geometry";
 import type { StepExecutionContext } from "../types/geometry";
 import { drawPoint, drawLine, drawCircle } from "../svgElements";
-import { getGeometry, GEOM, computeSingle, computeMultiple, CUT_LINE_BY } from "./sixFold/operations";
+import { getGeometry, GEOM, computeSingle, computeMultiple } from "./sixFold/operations";
 import type { SixFoldV0Config, SixFoldV0Step } from "./sixFold/operations";
 import {
   distance,
@@ -67,7 +67,7 @@ const STEP_2A: SixFoldV0Step = {
     // Calculate derived values
     const lineLength = lx2 - lx1;
     const radius = config.radius;
-    const cx1 = lx1 + (lineLength * 5) / CUT_LINE_BY;
+    const cx1 = lx1 + lineLength * config.cp1OffsetRatio;
     const cy1 = ly1;
     const cx2 = cx1 - radius;
     const cy2 = cy1;

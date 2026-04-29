@@ -147,6 +147,7 @@ export interface SixFoldV0Config {
   cy1: number;
   cx2: number;
   cy2: number;
+  cp1OffsetRatio: number;
 }
 
 /**
@@ -187,5 +188,6 @@ export function computeSixFoldV0Config(width: number, height: number): SixFoldV0
     cy1: safe(cy1),
     cx2: safe(cx2),
     cy2: safe(cy2),
+    cp1OffsetRatio: 5 / 8,
   };
 }
