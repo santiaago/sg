@@ -232,9 +232,12 @@ const STEP_6: SixFoldV0Step = {
     const l13 = line(cp1.x, cp1.y, cp3.x, cp3.y);
     const l24 = line(cp2.x, cp2.y, cp4.x, cp4.y);
     const pi2Result = lineIntersect(cp1.x, cp1.y, cp3.x, cp3.y, cp2.x, cp2.y, cp4.x, cp4.y);
-    const pi2 = pi2Result && pi2Result.length >= 2 ? validPoint(pi2Result[0], pi2Result[1]) : null;
+    if (!pi2Result) {
+      throw new Error("STEP_6: lineIntersect returned null - lines l13 and l24 do not intersect");
+    }
+    const pi2 = validPoint(pi2Result[0], pi2Result[1]);
     if (!pi2) {
-      throw new Error("STEP_6: pi2 is null - lines l13 and l24 do not intersect");
+      throw new Error("STEP_6: validPoint returned null - intersection coordinates are invalid");
     }
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.L13, l13);
@@ -440,9 +443,13 @@ const STEP_13: SixFoldV0Step = {
       l14p.x2,
       l14p.y2,
     );
-    const pc23Pt =
-      pc23Result && pc23Result.length >= 2 ? validPoint(pc23Result[0], pc23Result[1]) : null;
-    if (!pc23Pt) throw new Error("STEP_13: pc23Pt is null");
+    if (!pc23Result) {
+      throw new Error("STEP_13: lineIntersect returned null - lines l23 and l14p do not intersect");
+    }
+    const pc23Pt = validPoint(pc23Result[0], pc23Result[1]);
+    if (!pc23Pt) {
+      throw new Error("STEP_13: validPoint returned null - pc23Pt coordinates are invalid");
+    }
 
     // line from pc23 to cp2
     const lineToCp2 = line(pc23Pt.x, pc23Pt.y, cp2.x, cp2.y);
@@ -518,9 +525,13 @@ const STEP_14: SixFoldV0Step = {
       lpic12c34n.x2,
       lpic12c34n.y2,
     );
-    const pc34Pt =
-      pc34Result && pc34Result.length >= 2 ? validPoint(pc34Result[0], pc34Result[1]) : null;
-    if (!pc34Pt) throw new Error("STEP_14: pc34Pt is null");
+    if (!pc34Result) {
+      throw new Error("STEP_14: lineIntersect returned null - lines l34 and lpic12c34n do not intersect");
+    }
+    const pc34Pt = validPoint(pc34Result[0], pc34Result[1]);
+    if (!pc34Pt) {
+      throw new Error("STEP_14: validPoint returned null - pc34Pt coordinates are invalid");
+    }
 
     // line from pc34 to cp4
     const lineToCp4 = line(pc34Pt.x, pc34Pt.y, cp4.x, cp4.y);
@@ -580,20 +591,24 @@ const STEP_15: SixFoldV0Step = {
     const l1 = line(pi3.x, pi3.y, pp.x, pp.y);
 
     // pii1 = intersection of line(pi3,pp) with l13
-    let pii1: Point | null = null;
     const result1 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, l13.x1, l13.y1, l13.x2, l13.y2);
-    if (result1 && result1.length >= 2) {
-      pii1 = validPoint(result1[0], result1[1]);
+    if (!result1) {
+      throw new Error("STEP_15: lineIntersect returned null - line(pi3,pp) and l13 do not intersect");
+    }
+    const pii1 = validPoint(result1[0], result1[1]);
+    if (!pii1) {
+      throw new Error("STEP_15: validPoint returned null - pii1 coordinates are invalid");
     }
 
     // pii2 = intersection of line(pi3,pp) with l24
-    let pii2: Point | null = null;
     const result2 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, l24.x1, l24.y1, l24.x2, l24.y2);
-    if (result2 && result2.length >= 2) {
-      pii2 = validPoint(result2[0], result2[1]);
+    if (!result2) {
+      throw new Error("STEP_15: lineIntersect returned null - line(pi3,pp) and l24 do not intersect");
     }
-    if (!pii1) throw new Error("STEP_15: pii1 is null");
-    if (!pii2) throw new Error("STEP_15: pii2 is null");
+    const pii2 = validPoint(result2[0], result2[1]);
+    if (!pii2) {
+      throw new Error("STEP_15: validPoint returned null - pii2 coordinates are invalid");
+    }
 
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.PP, pp);
@@ -704,10 +719,12 @@ const STEP_19: SixFoldV0Step = {
       lcp4pic12.x2,
       lcp4pic12.y2,
     );
-    const pic4 =
-      pic4Result && pic4Result.length >= 2 ? validPoint(pic4Result[0], pic4Result[1]) : null;
+    if (!pic4Result) {
+      throw new Error("STEP_19: lineIntersect returned null - lines lpii1pi4 and lcp4pic12 do not intersect");
+    }
+    const pic4 = validPoint(pic4Result[0], pic4Result[1]);
     if (!pic4) {
-      throw new Error("STEP_19: pic4 is null - lines do not intersect");
+      throw new Error("STEP_19: validPoint returned null - pic4 coordinates are invalid");
     }
 
     // outline1 = line from pii1 to pic4
@@ -748,10 +765,12 @@ const STEP_20: SixFoldV0Step = {
       lcp2pic14.x2,
       lcp2pic14.y2,
     );
-    const pic2 =
-      pic2Result && pic2Result.length >= 2 ? validPoint(pic2Result[0], pic2Result[1]) : null;
+    if (!pic2Result) {
+      throw new Error("STEP_20: lineIntersect returned null - lines lpii1pii2 and lcp2pic14 do not intersect");
+    }
+    const pic2 = validPoint(pic2Result[0], pic2Result[1]);
     if (!pic2) {
-      throw new Error("STEP_20: pic2 is null - lines do not intersect");
+      throw new Error("STEP_20: validPoint returned null - pic2 coordinates are invalid");
     }
 
     // outline2 = line from pii1 to pic2
