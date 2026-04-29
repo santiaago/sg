@@ -116,23 +116,21 @@ const STEP_2: SixFoldV0Step = {
     // l13 = line from cp1 to p3
     const l13Line = line(cp1.x, cp1.y, p3.x, p3.y);
     // c4 center = intersection of circle1 with l13 line
-    const c4IntersectionRaw = interceptCircleLineSegHelper(circle1, l13Line, 0);
-    const c4Intersection = c4IntersectionRaw;
+    const cp4Pt = interceptCircleLineSegHelper(circle1, l13Line, 0);
 
     // l24 = line from cp2 to p4
     const l24Line = line(cp2.x, cp2.y, p4.x, p4.y);
     // c3 center = intersection of circle2 with l24 line
-    const c3IntersectionRaw = interceptCircleLineSegHelper(circle2, l24Line, 0);
-    const c3Intersection = c3IntersectionRaw;
-    if (!c3Intersection || !c4Intersection) {
+    const cp3Pt = interceptCircleLineSegHelper(circle2, l24Line, 0);
+    if (!cp3Pt || !cp4Pt) {
       throw new Error("STEP_2: Failed to find circle intersections for c3 or c4 centers");
     }
 
     // Create cp3, cp4, c3, c4
-    m.set(GEOM.CP3, c3Intersection);
-    m.set(GEOM.CP4, c4Intersection);
-    const c3 = circle(c3Intersection.x, c3Intersection.y, radius);
-    const c4 = circle(c4Intersection.x, c4Intersection.y, radius);
+    m.set(GEOM.CP3, cp3Pt);
+    m.set(GEOM.CP4, cp4Pt);
+    const c3 = circle(cp3Pt.x, cp3Pt.y, radius);
+    const c4 = circle(cp4Pt.x, cp4Pt.y, radius);
     m.set(GEOM.C3, c3);
     m.set(GEOM.C4, c4);
 
