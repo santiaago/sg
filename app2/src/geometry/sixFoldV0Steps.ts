@@ -50,7 +50,7 @@ const STEP_1: SixFoldV0Step = {
  */
 const STEP_2A: SixFoldV0Step = {
   id: "step2a",
-  inputs: [GEOM.LINE1, GEOM.P1, GEOM.P2],
+  inputs: [GEOM.LINE1],
   outputs: [GEOM.CP1, GEOM.CP2, GEOM.C1, GEOM.C2],
   parameters: ["radius"],
   compute: computeMultiple((inputs, config) => {
