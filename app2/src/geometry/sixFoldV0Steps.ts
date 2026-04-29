@@ -44,30 +44,14 @@ const STEP_1: SixFoldV0Step = {
 };
 
 /**
- * Step 2: Circle centers and initial circles
- * Following SixFoldv3.svelte circlesFromLine logic.
+ * Step 2a: Primary circle centers and circles
+ * Creates the first two circle centers (cp1, cp2) and circles (c1, c2).
  * Uses LINE1 from step1 to get the line coordinates.
- * 1. Create c1 at (cx1, cy1) and c2 at (cx2, cy2) with radius
- * 2. Find px, py = intersection of c1 and c2 (top point)
- * 3. Create circle at (px,py) with same radius
- * 4. p3 = bisect from circleAtIntersection through c2 center
- * 5. p4 = bisect from circleAtIntersection through c1 center
- * 6. l13 = line from c1 to p3, find intersection with c1 circle -> cp13, create c4
- * 7. l24 = line from c2 to p4, find intersection with c2 circle -> cp24, create c3
  */
-const STEP_2: SixFoldV0Step = {
-  id: "step2",
-  inputs: [GEOM.LINE1],
-  outputs: [
-    GEOM.CP1,
-    GEOM.CP2,
-    GEOM.C1,
-    GEOM.C2,
-    GEOM.CP3,
-    GEOM.CP4,
-    GEOM.C3,
-    GEOM.C4,
-  ],
+const STEP_2A: SixFoldV0Step = {
+  id: "step2a",
+  inputs: [GEOM.LINE1, GEOM.P1, GEOM.P2],
+  outputs: [GEOM.CP1, GEOM.CP2, GEOM.C1, GEOM.C2],
   parameters: ["radius"],
   compute: computeMultiple((inputs, config) => {
     const m = new Map<string, GeometryValue>();
@@ -100,18 +84,101 @@ const STEP_2: SixFoldV0Step = {
     m.set(GEOM.C1, circle1);
     m.set(GEOM.C2, circle2);
 
+    return m;
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.CP1, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.CP2, 2.0, store, theme);
+    drawCircle(svg, values, GEOM.C1, 0.5, store, theme);
+    drawCircle(svg, values, GEOM.C2, 0.5, store, theme);
+  },
+};
+
+/**
+ * Step 2b: Intersection point and circle at intersection
+ * Finds the intersection point of c1 and c2 (top point) and creates a circle there.
+ */
+const STEP_2B: SixFoldV0Step = {
+  id: "step2b",
+  inputs: [GEOM.C1, GEOM.C2],
+  outputs: [GEOM.PIC12_INTERNAL, GEOM.CIRCLE_AT_INTERSECTION],
+  parameters: ["radius"],
+  compute: computeMultiple((inputs, config) => {
+    const m = new Map<string, GeometryValue>();
+
+    const c1 = getGeometry(inputs, GEOM.C1, isCircle, "Circle");
+    const c2 = getGeometry(inputs, GEOM.C2, isCircle, "Circle");
+
     // Find px, py = intersection point of c1 and c2 circles (top point)
-    const c1 = circle1;
-    const c2 = circle2;
     const pxPy = circlesIntersectionPointHelper(c1, c2, directions.up);
     if (!pxPy) {
-      throw new Error("STEP_2: circlesIntersectionPointHelper(c1, c2, up) returned null - circles do not intersect");
+      throw new Error("STEP_2B: circlesIntersectionPointHelper(c1, c2, up) returned null - circles do not intersect");
     }
+    m.set(GEOM.PIC12_INTERNAL, pxPy);
+
+    // Create circle at intersection with same radius
+    const circleAtIntersection = circle(pxPy.x, pxPy.y, config.radius);
+    m.set(GEOM.CIRCLE_AT_INTERSECTION, circleAtIntersection);
+
+    return m;
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.PIC12_INTERNAL, 2.0, store, theme);
+    drawCircle(svg, values, GEOM.CIRCLE_AT_INTERSECTION, 0.5, store, theme);
+  },
+};
+
+/**
+ * Step 2c: Bisected points
+ * Computes p3 and p4 by bisecting from circleAtIntersection through cp2 and cp1.
+ */
+const STEP_2C: SixFoldV0Step = {
+  id: "step2c",
+  inputs: [GEOM.PIC12_INTERNAL, GEOM.CIRCLE_AT_INTERSECTION, GEOM.CP1, GEOM.CP2],
+  outputs: [GEOM.P3_INTERNAL, GEOM.P4_INTERNAL],
+  parameters: [],
+  compute: computeMultiple((inputs, _config) => {
+    const m = new Map<string, GeometryValue>();
+
+    const circleAtIntersection = getGeometry(inputs, GEOM.CIRCLE_AT_INTERSECTION, isCircle, "Circle");
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
 
     // p3 = bisect from circleAtIntersection through cp2
-    const circleAtIntersection = circle(pxPy.x, pxPy.y, radius);
     const p3 = bisectCircleAndPoint(circleAtIntersection, cp2);
     const p4 = bisectCircleAndPoint(circleAtIntersection, cp1);
+
+    m.set(GEOM.P3_INTERNAL, p3);
+    m.set(GEOM.P4_INTERNAL, p4);
+
+    return m;
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.P3_INTERNAL, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.P4_INTERNAL, 2.0, store, theme);
+  },
+};
+
+/**
+ * Step 2d: Secondary circles
+ * Creates cp3, cp4, c3, c4 from the bisected points.
+ * l13 = line from cp1 to p3, find intersection with c1 circle -> cp4, create c4
+ * l24 = line from cp2 to p4, find intersection with c2 circle -> cp3, create c3
+ */
+const STEP_2D: SixFoldV0Step = {
+  id: "step2d",
+  inputs: [GEOM.C1, GEOM.C2, GEOM.P3_INTERNAL, GEOM.P4_INTERNAL, GEOM.CP1, GEOM.CP2],
+  outputs: [GEOM.CP3, GEOM.CP4, GEOM.C3, GEOM.C4],
+  parameters: ["radius"],
+  compute: computeMultiple((inputs, config) => {
+    const m = new Map<string, GeometryValue>();
+
+    const circle1 = getGeometry(inputs, GEOM.C1, isCircle, "Circle");
+    const circle2 = getGeometry(inputs, GEOM.C2, isCircle, "Circle");
+    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const p3 = getGeometry(inputs, GEOM.P3_INTERNAL, isPoint, "Point");
+    const p4 = getGeometry(inputs, GEOM.P4_INTERNAL, isPoint, "Point");
 
     // l13 = line from cp1 to p3
     const l13Line = line(cp1.x, cp1.y, p3.x, p3.y);
@@ -123,26 +190,22 @@ const STEP_2: SixFoldV0Step = {
     // c3 center = intersection of circle2 with l24 line
     const cp3Pt = interceptCircleLineSegHelper(circle2, l24Line, 0);
     if (!cp3Pt || !cp4Pt) {
-      throw new Error("STEP_2: Failed to find circle intersections for c3 or c4 centers");
+      throw new Error("STEP_2D: Failed to find circle intersections for c3 or c4 centers");
     }
 
     // Create cp3, cp4, c3, c4
     m.set(GEOM.CP3, cp3Pt);
     m.set(GEOM.CP4, cp4Pt);
-    const c3 = circle(cp3Pt.x, cp3Pt.y, radius);
-    const c4 = circle(cp4Pt.x, cp4Pt.y, radius);
+    const c3 = circle(cp3Pt.x, cp3Pt.y, config.radius);
+    const c4 = circle(cp4Pt.x, cp4Pt.y, config.radius);
     m.set(GEOM.C3, c3);
     m.set(GEOM.C4, c4);
 
     return m;
   }),
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.CP1, 2.0, store, theme);
-    drawPoint(svg, values, GEOM.CP2, 2.0, store, theme);
     drawPoint(svg, values, GEOM.CP3, 2.0, store, theme);
     drawPoint(svg, values, GEOM.CP4, 2.0, store, theme);
-    drawCircle(svg, values, GEOM.C1, 0.5, store, theme);
-    drawCircle(svg, values, GEOM.C2, 0.5, store, theme);
     drawCircle(svg, values, GEOM.C3, 0.5, store, theme);
     drawCircle(svg, values, GEOM.C4, 0.5, store, theme);
   },
@@ -1262,7 +1325,10 @@ const STEP_35: SixFoldV0Step = {
 /** All steps in order */
 export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_1,
-  STEP_2,
+  STEP_2A,
+  STEP_2B,
+  STEP_2C,
+  STEP_2D,
   STEP_3,
   STEP_4,
   STEP_5,
