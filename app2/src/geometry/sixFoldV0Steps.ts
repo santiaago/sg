@@ -77,13 +77,13 @@ const STEP_2: SixFoldV0Step = {
     const p1 = getGeometry(inputs, GEOM.P1, isPoint, "Point");
     const p2 = getGeometry(inputs, GEOM.P2, isPoint, "Point");
 
-    // Use line coordinates (which match p1 and p2)
+    // Use line coordinates
     const lx1 = line1.x1;
     const ly1 = line1.y1;
     const lx2 = line1.x2;
     const ly2 = line1.y2;
 
-    // Calculate derived values matching computeSixFoldV0Config
+    // Calculate derived values
     const lineLength = lx2 - lx1;
     const radius = config.radius;
     const cx1 = lx1 + (lineLength * 5) / CUT_LINE_BY;
@@ -462,7 +462,7 @@ const STEP_13: SixFoldV0Step = {
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const c2_d1 = getGeometry(inputs, GEOM.C2_D1, isCircle, "Circle");
 
-    // c23w = bisect from c14_d1 center through prx5 (matching v3 bisectCircleAndPoint)
+    // c23w = bisect from c14_d1 center through prx5
     const c23wPt = bisectCircleAndPoint(c14_d1, prx5);
 
     // l14p = line from pic14 to c23w
@@ -623,7 +623,6 @@ const STEP_15: SixFoldV0Step = {
     const l24 = getGeometry(inputs, GEOM.L24, isLine, "Line");
 
     // pp = interceptCircleLine(c1_d1, lpic14, 0)
-    // Using line segment to match Svelte
     const pp = interceptCircleLineSegHelper(c1_d1, lpic14, 0);
     if (!pp) throw new Error("STEP_15: pp is null");
 
