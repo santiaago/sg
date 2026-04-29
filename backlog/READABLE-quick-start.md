@@ -16,6 +16,7 @@ The Square component uses a **step-based architecture** that has been **validate
 4. **Rendering** - Drawing to SVG with tooltips
 
 Each step declares:
+
 - `id` - Unique identifier
 - `inputs` - What geometries it needs (dependencies)
 - `outputs` - What geometries it produces
@@ -50,19 +51,19 @@ import { darkTheme } from "../../themes";
 export interface [Shape]Props {
   // Store for managing SVG elements and tooltips
   store: GeometryStore;
-  
+
   // Stroke width for large elements (dots)
   dotStrokeWidth?: number;
-  
+
   // SVG configuration (dimensions, classes)
   svgConfig: SvgConfig;
-  
+
   // Key to trigger restart (e.g., when resetting the construction)
   restartTrigger?: number;
-  
+
   // Current step index (1-based) to execute up to
   currentStep?: number;
-  
+
   // Theme for SVG rendering (light or dark)
   theme?: Theme;
 }
@@ -107,10 +108,10 @@ export function [Shape]({
   useEffect(() => {
     if (!svgRef.current) return;
     const svg = svgRef.current;
-    
+
     // Clear everything and setup SVG container
     setupSvg(svg, svgConfig);
-    
+
     // Draw the background rectangle using the theme color
     rect(svg, svgConfig.width, svgConfig.height, theme);
   }, [svgConfig.width, svgConfig.height, svgConfig.viewBox, theme]);
@@ -119,27 +120,27 @@ export function [Shape]({
   // ONLY when step, restart, or config changes
   useEffect(() => {
     if (!svgRef.current) return;
-    
+
     const svg = svgRef.current;
     const prevStep = prevStepRef.current;
-    
+
     // Clear geometry ONLY when going backwards or restarting
     const shouldClear = currentStep < prevStep || restartTrigger !== 0;
-    
+
     if (shouldClear) {
       clearGeometryFromSvg(svg);
       store.clear();
     }
-    
+
     prevStepRef.current = currentStep;
-    
+
     // If no steps to draw, exit
     if (currentStep <= 0) return;
 
     try {
       // Build dependency maps for GeometryList display
       const { stepDependencies, stepForOutput } = buildStepMaps([SHAPE]_STEPS, currentStep);
-      
+
       // Execute steps up to currentStep
       const allValues = executeSteps(
         [SHAPE]_STEPS,
@@ -155,7 +156,7 @@ export function [Shape]({
         const step = stepForOutput.get(id);
         const paramValues = step?.parameters ? pick(config, step.parameters) : {};
         const stepId = step?.id ?? "";
-        
+
         store.update(id, {
           dependsOn: deps,
           stepId,
@@ -189,11 +190,11 @@ import type { Step, GeometryValue, Point, Line, Circle, Polygon } from "../../ty
 import { point, line, circle, polygon, isPoint, isLine, isCircle, isPolygon } from "../../types/geometry";
 import type { Theme } from "../../themes";
 import { getGeometry, computeSingle, computeMultiple } from "../operations";
-import { 
-  circleFromPoint, 
-  pointFromCircles, 
+import {
+  circleFromPoint,
+  pointFromCircles,
   pointFromCircleAndLine,
-  lineTowards 
+  lineTowards
 } from "../constructors";
 import { drawPoint, drawLine, drawCircle, createTooltip } from "../../utils/svgElements";
 import type { GeometryStore } from "../../react-store";
@@ -207,26 +208,26 @@ import type { GeometryStore } from "../../react-store";
 export const GEOM = {
   // Base elements
   BASE_LINE: "base_line",
-  
+
   // Circle centers
   CIRCLE_CENTER_LEFT: "circle_center_left",
   CIRCLE_CENTER_RIGHT: "circle_center_right",
-  
+
   // Circle outlines
   CIRCLE_LEFT: "circle_left",
   CIRCLE_RIGHT: "circle_right",
-  
+
   // Computed points
   INTERSECTION_POINT: "intersection_point",
   TOP_LEFT_POINT: "top_left_point",
   TOP_RIGHT_POINT: "top_right_point",
   TANGENT_LEFT: "tangent_left",
   TANGENT_RIGHT: "tangent_right",
-  
+
   // Lines
   LINE_LEFT_TO_INTERSECTION: "line_left_to_intersection",
   LINE_RIGHT_TO_INTERSECTION: "line_right_to_intersection",
-  
+
   // Final result
   [SHAPE]: "[shape]",
 } as const;
@@ -256,7 +257,7 @@ export function compute[Shape]Config(width: number, height: number): [Shape]Conf
   const BORDER = height / 3;  // Example: 1/3 of height as border
   const LINE_LENGTH = width - 2 * BORDER;
   const CIRCLE_RADIUS = LINE_LENGTH / 4;
-  
+
   return {
     width,
     height,
@@ -288,7 +289,7 @@ const STEP_BASE_LINE: Step = {
   inputs: [],  // No dependencies - this is a starting point
   outputs: [GEOM.BASE_LINE],
   parameters: ["width", "height", "border"],  // Uses config values
-  
+
   compute: computeSingle(GEOM.BASE_LINE, (_inputs, params) => {
     // Calculate line coordinates from config
     const x1 = params.border;
@@ -297,7 +298,7 @@ const STEP_BASE_LINE: Step = {
     const y2 = params.height - params.border;
     return line(x1, y1, x2, y2);
   }),
-  
+
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.BASE_LINE, 0.5, store, theme);
   },
@@ -312,7 +313,7 @@ const STEP_CIRCLE_CENTER_LEFT: Step = {
   inputs: [GEOM.BASE_LINE],  // Depends on base line
   outputs: [GEOM.CIRCLE_CENTER_LEFT],
   parameters: ["circleRadius"],
-  
+
   compute: computeSingle(GEOM.CIRCLE_CENTER_LEFT, (inputs, params) => {
     const baseLine = getGeometry(inputs, GEOM.BASE_LINE, isLine, "Line");
     const lineLength = baseLine.x2 - baseLine.x1;
@@ -320,7 +321,7 @@ const STEP_CIRCLE_CENTER_LEFT: Step = {
     const x = baseLine.x1 + lineLength * 0.25;
     return point(x, baseLine.y1);
   }),
-  
+
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.CIRCLE_CENTER_LEFT, 2.0, store, theme);
   },
@@ -335,12 +336,12 @@ const STEP_CIRCLE_LEFT: Step = {
   inputs: [GEOM.CIRCLE_CENTER_LEFT],
   outputs: [GEOM.CIRCLE_LEFT],
   parameters: ["circleRadius"],
-  
+
   compute: computeSingle(GEOM.CIRCLE_LEFT, (inputs, params) => {
     const center = getGeometry(inputs, GEOM.CIRCLE_CENTER_LEFT, isPoint, "Point");
     return circle(center.x, center.y, params.circleRadius);
   }),
-  
+
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.CIRCLE_LEFT, 0.5, store, theme);
   },
@@ -355,21 +356,21 @@ const STEP_FINAL_[SHAPE]: Step = {
   inputs: [GEOM.TOP_LEFT_POINT, GEOM.TOP_RIGHT_POINT, GEOM.CIRCLE_CENTER_LEFT, GEOM.CIRCLE_CENTER_RIGHT],
   outputs: [GEOM.[SHAPE]],
   parameters: [],
-  
+
   compute: computeSingle(GEOM.[SHAPE], (inputs) => {
     const p1 = getGeometry(inputs, GEOM.TOP_LEFT_POINT, isPoint, "Point");
     const p2 = getGeometry(inputs, GEOM.TOP_RIGHT_POINT, isPoint, "Point");
     const p3 = getGeometry(inputs, GEOM.CIRCLE_CENTER_LEFT, isPoint, "Point");
     const p4 = getGeometry(inputs, GEOM.CIRCLE_CENTER_RIGHT, isPoint, "Point");
-    
+
     // Create polygon from points (order matters for shape)
     return polygon([p1, p2, p4, p3]);
   }),
-  
+
   draw: (svg, values, store, theme) => {
     const shape = values.get(GEOM.[SHAPE]);
     if (!shape || !isPolygon(shape)) return;
-    
+
     // Create SVG polygon element
     const svgPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
     const points = shape.points.map((p) => `${p.x},${p.y}`).join(" ");
@@ -381,7 +382,7 @@ const STEP_FINAL_[SHAPE]: Step = {
     svgPolygon.setAttribute("data-tooltip", GEOM.[SHAPE]);
     svgPolygon.style.cursor = "pointer";
     svg.appendChild(svgPolygon);
-    
+
     // Add to store for GeometryList
     if (store) {
       store.add(GEOM.[SHAPE], svgPolygon, "polygon", []);
@@ -419,6 +420,7 @@ The `graph.md` file analyzed sixFoldV0Steps (36 steps) vs squareSteps (16 steps)
 **Rule**: Every output (except terminal outputs) should be consumed as input to a later step.
 
 **BAD**:
+
 ```typescript
 const STEP_1: Step = {
   id: "step1",
@@ -430,6 +432,7 @@ const STEP_1: Step = {
 ```
 
 **GOOD**:
+
 ```typescript
 const STEP_1: Step = {
   id: "step1",
@@ -447,6 +450,7 @@ const STEP_1: Step = {
 **Rule**: Each geometry should be computed exactly once.
 
 **BAD**:
+
 ```typescript
 // Step 2
 const STEP_2: Step = {
@@ -464,6 +468,7 @@ const STEP_6: Step = {
 ```
 
 **GOOD**:
+
 ```typescript
 // Step 2: Use as intermediate values only (not outputs)
 const STEP_2: Step = {
@@ -493,6 +498,7 @@ const STEP_6: Step = {
 **Rule**: Every step should add computational value.
 
 **BAD**:
+
 ```typescript
 const STEP_7: Step = {
   id: "step7",
@@ -513,6 +519,7 @@ const STEP_7: Step = {
 **Rule**: Only expose what's needed by later steps.
 
 **GOOD**:
+
 ```typescript
 const STEP_X: Step = {
   id: "step_x",
@@ -691,7 +698,7 @@ const STEP_CUSTOM_DRAW: Step = {
     const a = values.get(GEOM.A);
     const b = values.get(GEOM.B);
     if (!a || !b) return;
-    
+
     // Create SVG element
     const element = document.createElementNS("http://www.w3.org/2000/svg", "line");
     element.setAttribute("x1", a.x.toString());
@@ -700,22 +707,15 @@ const STEP_CUSTOM_DRAW: Step = {
     element.setAttribute("y2", b.y.toString());
     element.setAttribute("stroke", theme.COLOR_PRIMARY);
     element.setAttribute("stroke-width", "0.5");
-    
+
     // Add tooltip
     const tooltipX = (a.x + b.x) / 2;
     const tooltipY = (a.y + b.y) / 2;
-    const { tooltip, tooltipBg } = createTooltip(
-      svg,
-      tooltipX,
-      tooltipY,
-      GEOM.CUSTOM,
-      15,
-      theme
-    );
+    const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, GEOM.CUSTOM, 15, theme);
     setTooltip(element, tooltip, tooltipBg); // Using WeakMap approach
-    
+
     svg.appendChild(element);
-    
+
     // Add to store
     if (store) {
       store.add(GEOM.CUSTOM, element, "line", [GEOM.A, GEOM.B]);
@@ -754,10 +754,11 @@ Let's walk through creating a simple Triangle component step-by-step.
 ### Step 1: Plan the Construction
 
 On paper, sketch:
+
 ```
 1. Draw base line
 2. Place vertex A at left end
-3. Place vertex B at right end  
+3. Place vertex B at right end
 4. Find midpoint of AB
 5. Draw perpendicular line at midpoint
 6. Place vertex C on perpendicular line at height h
@@ -767,6 +768,7 @@ On paper, sketch:
 ### Step 2: Create Configuration
 
 `geometry/triangle/operations.ts`:
+
 ```typescript
 import type { GeometryValue } from "../../types/geometry";
 
@@ -784,7 +786,7 @@ export function computeTriangleConfig(width: number, height: number): TriangleCo
   const border = height / 4;
   const baseLength = width - 2 * border;
   const triangleHeight = baseLength * (Math.sqrt(3) / 2); // Equilateral triangle
-  
+
   return {
     width,
     height,
@@ -812,6 +814,7 @@ export type { GeometryStore, Theme };
 ### Step 3: Create Steps
 
 `geometry/triangle/triangleSteps.ts`:
+
 ```typescript
 import type { Step, GeometryValue } from "../../types/geometry";
 import { point, line, polygon, isPoint, isLine } from "../../types/geometry";
@@ -976,14 +979,14 @@ export function executeStep(
   }
 
   const outputValues = step.compute(inputValues, config);
-  
+
   const newAllValues = new Map(allValues);
   for (const [id, value] of outputValues) {
     newAllValues.set(id, value);
   }
 
   step.draw(ctx.svg, newAllValues, ctx.store, ctx.theme);
-  
+
   return newAllValues;
 }
 
@@ -994,11 +997,11 @@ export function executeSteps(
   config: TriangleConfig,
 ): Map<string, GeometryValue> {
   let allValues = new Map<string, GeometryValue>();
-  
+
   for (let i = 0; i < Math.min(upToIndex, steps.length); i++) {
     allValues = executeStep(steps[i], allValues, ctx, config);
   }
-  
+
   return allValues;
 }
 ```
@@ -1006,17 +1009,18 @@ export function executeSteps(
 ### Step 4: Create Component
 
 `components/Triangle/Triangle.tsx`:
+
 ```typescript
 import { useEffect, useRef, useMemo } from "react";
 import type { SvgConfig } from "../../config/svgConfig";
 import { useGeometryStore } from "../../react-store";
 import { rect, clearGeometryFromSvg } from "../../utils/svgElements";
 import { buildStepMaps, setupSvg, pick } from "../../utils/svg";
-import { 
-  TRIANGLE_STEPS, 
-  executeSteps, 
+import {
+  TRIANGLE_STEPS,
+  executeSteps,
   computeTriangleConfig,
-  GEOM 
+  GEOM
 } from "../../geometry/triangle/triangleSteps";
 import type { GeometryValue, Step, Theme } from "../../types/geometry";
 import { darkTheme } from "../../themes";
@@ -1118,6 +1122,7 @@ export type { Step, GeometryValue };
 ### Step 5: Create Index (Optional)
 
 `components/Triangle/index.ts`:
+
 ```typescript
 export { Triangle, TRIANGLE_STEPS, GEOM } from "./Triangle";
 export type { TriangleProps, Step, GeometryValue } from "./Triangle";
@@ -1135,7 +1140,7 @@ import { standardSvgConfig } from "./config/svgConfig";
 function App() {
   const store = useGeometryStore();
   const [currentStep, setCurrentStep] = useState(0);
-  
+
   return (
     <div>
       <Triangle
@@ -1208,16 +1213,16 @@ function App() {
 
 Use **descriptive names** that reveal what the geometry represents:
 
-| ❌ Bad | ✅ Good | Why |
-|-------|--------|-----|
-| `c1` | `CIRCLE_CENTER_LEFT` | Describes what it is and its position |
-| `p1` | `VERTEX_BOTTOM_LEFT` | Describes position in the shape |
-| `l1` | `BASE_LINE` | Describes purpose |
-| `pi` | `INTERSECTION_POINT` | Self-documenting |
-| `ci` | `INTERSECTION_CIRCLE` | Self-documenting |
-| `p3` | `TOP_LEFT_POINT` | Clear purpose |
-| `pl` | `TANGENT_LEFT` | Clear purpose |
-| `step1` | `draw_base_line` | Describes action |
+| ❌ Bad  | ✅ Good               | Why                                   |
+| ------- | --------------------- | ------------------------------------- |
+| `c1`    | `CIRCLE_CENTER_LEFT`  | Describes what it is and its position |
+| `p1`    | `VERTEX_BOTTOM_LEFT`  | Describes position in the shape       |
+| `l1`    | `BASE_LINE`           | Describes purpose                     |
+| `pi`    | `INTERSECTION_POINT`  | Self-documenting                      |
+| `ci`    | `INTERSECTION_CIRCLE` | Self-documenting                      |
+| `p3`    | `TOP_LEFT_POINT`      | Clear purpose                         |
+| `pl`    | `TANGENT_LEFT`        | Clear purpose                         |
+| `step1` | `draw_base_line`      | Describes action                      |
 
 **Rule of thumb**: If you can't tell what a geometry is from its name alone, the name isn't descriptive enough.
 
@@ -1227,14 +1232,14 @@ Use **descriptive names** that reveal what the geometry represents:
 
 Use **verb-noun** format:
 
-| ❌ Bad | ✅ Good |
-|-------|--------|
-| `step1` | `draw_base_line` |
-| `c1` | `place_circle_center_1` |
-| `p3` | `compute_top_left_vertex` |
+| ❌ Bad         | ✅ Good                    |
+| -------------- | -------------------------- |
+| `step1`        | `draw_base_line`           |
+| `c1`           | `place_circle_center_1`    |
+| `p3`           | `compute_top_left_vertex`  |
 | `intersection` | `find_circle_intersection` |
 
-**Prefix with verb**: draw*, place*, compute*, find*, create*, etc.
+**Prefix with verb**: draw*, place*, compute*, find*, create\*, etc.
 
 ### Variable Names in Compute Functions
 
@@ -1365,17 +1370,17 @@ useEffect(() => {
 
 ### Benefits of Step Pattern
 
-| Aspect | Traditional | Step Pattern |
-|--------|-------------|--------------|
-| **Lines of code** | 800+ | 140 |
-| **Reusability** | Low | High |
-| **Testability** | Hard | Easy |
-| **Maintainability** | Hard | Easy |
-| **Debugging** | Hard | Easy |
-| **Collaboration** | Hard | Easy |
-| **Error isolation** | Hard | Easy |
-| **Performance** | OK | Better (lazy) |
-| **Proven at scale** | ❌ No | ✅ Yes (36 steps) |
+| Aspect              | Traditional | Step Pattern      |
+| ------------------- | ----------- | ----------------- |
+| **Lines of code**   | 800+        | 140               |
+| **Reusability**     | Low         | High              |
+| **Testability**     | Hard        | Easy              |
+| **Maintainability** | Hard        | Easy              |
+| **Debugging**       | Hard        | Easy              |
+| **Collaboration**   | Hard        | Easy              |
+| **Error isolation** | Hard        | Easy              |
+| **Performance**     | OK          | Better (lazy)     |
+| **Proven at scale** | ❌ No       | ✅ Yes (36 steps) |
 
 **Conclusion**: The step pattern is **the correct approach** for all geometric construction components.
 
