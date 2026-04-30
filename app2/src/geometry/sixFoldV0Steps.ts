@@ -195,7 +195,8 @@ const STEP_2E: SixFoldV0Step = {
 
 /**
  * Step 2F: Create lines L13 and L24
- * Creates connecting lines from circle centers to bisected points.
+ * Creates temporary connecting lines from circle centers to bisected points (CP1→P3, CP2→P4).
+ * Note: These are different from the crossing lines in STEP_6 (CP1→CP3, CP2→CP4).
  */
 const STEP_2F: SixFoldV0Step = {
   id: "step2f",
@@ -222,8 +223,8 @@ const STEP_2F: SixFoldV0Step = {
     return m;
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.L13, 0.5, store, theme);
-    drawLine(svg, values, GEOM.L24, 0.5, store, theme);
+    drawLine(svg, values, GEOM.L13, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.L24, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -358,39 +359,39 @@ const STEP_5: SixFoldV0Step = {
 };
 
 /**
- * Step 6: Crossing lines l13, l24 and intersection pi2
+ * Step 6: Crossing lines lcp1cp3, lcp2cp4 and intersection pi2
  * Draws diagonal lines connecting opposite circle centers (cp1-cp3 and cp2-cp4).
- * Computes pi2 as the intersection point of lines l13 and l24.
+ * Computes pi2 as the intersection point of lines lcp1cp3 and lcp2cp4.
  */
 const STEP_6: SixFoldV0Step = {
   id: "step6",
   inputs: [GEOM.CP1, GEOM.CP2, GEOM.CP3, GEOM.CP4],
-  outputs: [GEOM.L13, GEOM.L24, GEOM.PI2],
+  outputs: [GEOM.LCP1CP3, GEOM.LCP2CP4, GEOM.PI2],
   parameters: [],
   compute: computeMultiple((inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
-    const l13 = line(cp1.x, cp1.y, cp3.x, cp3.y);
-    const l24 = line(cp2.x, cp2.y, cp4.x, cp4.y);
+    const lcp1cp3 = line(cp1.x, cp1.y, cp3.x, cp3.y);
+    const lcp2cp4 = line(cp2.x, cp2.y, cp4.x, cp4.y);
     const pi2Result = lineIntersect(cp1.x, cp1.y, cp3.x, cp3.y, cp2.x, cp2.y, cp4.x, cp4.y);
     if (!pi2Result) {
-      throw new Error("STEP_6: lineIntersect returned null - lines l13 and l24 do not intersect");
+      throw new Error("STEP_6: lineIntersect returned null - lines lcp1cp3 and lcp2cp4 do not intersect");
     }
     const pi2 = validPoint(pi2Result[0], pi2Result[1]);
     if (!pi2) {
       throw new Error("STEP_6: validPoint returned null - intersection coordinates are invalid");
     }
     const m = new Map<string, GeometryValue>();
-    m.set(GEOM.L13, l13);
-    m.set(GEOM.L24, l24);
+    m.set(GEOM.LCP1CP3, lcp1cp3);
+    m.set(GEOM.LCP2CP4, lcp2cp4);
     m.set(GEOM.PI2, pi2);
     return m;
   }),
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.L13, 0.5, store, theme, theme.COLOR_PRIMARY);
-    drawLine(svg, values, GEOM.L24, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LCP1CP3, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LCP2CP4, 0.5, store, theme, theme.COLOR_PRIMARY);
     drawPoint(svg, values, GEOM.PI2, 2.0, store, theme);
   },
 };
@@ -709,20 +710,20 @@ const STEP_13: SixFoldV0Step = {
  * Step 14: pp, l1, pii1, pii2
  * pp = interceptCircleLineSeg(c1_d1, lpic14)
  * l1 = line from pi3 to pp
- * pii1 = intersection of line(pi3,pp) with l13
- * pii2 = intersection of line(pi3,pp) with l24
+ * pii1 = intersection of line(pi3,pp) with lcp1cp3
+ * pii2 = intersection of line(pi3,pp) with lcp2cp4
  */
 const STEP_14: SixFoldV0Step = {
   id: "step14",
-  inputs: [GEOM.C1_D1, GEOM.LPIC14, GEOM.PI3, GEOM.L13, GEOM.L24],
+  inputs: [GEOM.C1_D1, GEOM.LPIC14, GEOM.PI3, GEOM.LCP1CP3, GEOM.LCP2CP4],
   outputs: [GEOM.PP, GEOM.L1, GEOM.PII1, GEOM.PII2],
   parameters: [],
   compute: computeMultiple((inputs, _config) => {
     const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
     const lpic14 = getGeometry(inputs, GEOM.LPIC14, isLine, "Line");
     const pi3 = getGeometry(inputs, GEOM.PI3, isPoint, "Point");
-    const l13 = getGeometry(inputs, GEOM.L13, isLine, "Line");
-    const l24 = getGeometry(inputs, GEOM.L24, isLine, "Line");
+    const lcp1cp3 = getGeometry(inputs, GEOM.LCP1CP3, isLine, "Line");
+    const lcp2cp4 = getGeometry(inputs, GEOM.LCP2CP4, isLine, "Line");
 
     // pp = interceptCircleLine(c1_d1, lpic14, 0)
     const pp = interceptCircleLineSegHelper(c1_d1, lpic14, 0);
@@ -731,11 +732,11 @@ const STEP_14: SixFoldV0Step = {
     // l1 = line from pi3 to pp
     const l1 = line(pi3.x, pi3.y, pp.x, pp.y);
 
-    // pii1 = intersection of line(pi3,pp) with l13
-    const result1 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, l13.x1, l13.y1, l13.x2, l13.y2);
+    // pii1 = intersection of line(pi3,pp) with lcp1cp3
+    const result1 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, lcp1cp3.x1, lcp1cp3.y1, lcp1cp3.x2, lcp1cp3.y2);
     if (!result1) {
       throw new Error(
-        "STEP_14: lineIntersect returned null - line(pi3,pp) and l13 do not intersect",
+        "STEP_14: lineIntersect returned null - line(pi3,pp) and lcp1cp3 do not intersect",
       );
     }
     const pii1 = validPoint(result1[0], result1[1]);
@@ -743,11 +744,11 @@ const STEP_14: SixFoldV0Step = {
       throw new Error("STEP_14: validPoint returned null - pii1 coordinates are invalid");
     }
 
-    // pii2 = intersection of line(pi3,pp) with l24
-    const result2 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, l24.x1, l24.y1, l24.x2, l24.y2);
+    // pii2 = intersection of line(pi3,pp) with lcp2cp4
+    const result2 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, lcp2cp4.x1, lcp2cp4.y1, lcp2cp4.x2, lcp2cp4.y2);
     if (!result2) {
       throw new Error(
-        "STEP_14: lineIntersect returned null - line(pi3,pp) and l24 do not intersect",
+        "STEP_14: lineIntersect returned null - line(pi3,pp) and lcp2cp4 do not intersect",
       );
     }
     const pii2 = validPoint(result2[0], result2[1]);
@@ -1169,17 +1170,17 @@ const STEP_25: SixFoldV0Step = {
  */
 const STEP_26: SixFoldV0Step = {
   id: "step26",
-  inputs: [GEOM.C3_D3, GEOM.L13, GEOM.C23, GEOM.CP1],
+  inputs: [GEOM.C3_D3, GEOM.LCP1CP3, GEOM.C23, GEOM.CP1],
   outputs: [GEOM.PC3SW, GEOM.PC23E, GEOM.OUTLINE9],
   parameters: [],
   compute: computeMultiple((inputs, _config) => {
     const c3_d3 = getGeometry(inputs, GEOM.C3_D3, isCircle, "Circle");
-    const l13 = getGeometry(inputs, GEOM.L13, isLine, "Line");
+    const lcp1cp3 = getGeometry(inputs, GEOM.LCP1CP3, isLine, "Line");
     const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
 
-    // pc3sw = interceptCircleLineSeg(c3_d3, l13, 0)
-    const pc3sw = interceptCircleLineSegHelper(c3_d3, l13, 0);
+    // pc3sw = interceptCircleLineSeg(c3_d3, lcp1cp3, 0)
+    const pc3sw = interceptCircleLineSegHelper(c3_d3, lcp1cp3, 0);
 
     // lc23cp1 = line from c23 center to cp1
     const lc23cp1 = line(c23.cx, c23.cy, cp1.x, cp1.y);
