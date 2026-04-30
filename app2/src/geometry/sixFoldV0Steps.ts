@@ -453,27 +453,6 @@ const STEP_3D: SixFoldV0Step = {
 };
 
 /**
- * Step 4A: Intersection point PIC12
- * Finds intersection point of circles c1 and c2 (direction: up).
- */
-const STEP_4A: SixFoldV0Step = {
-  id: "step4a",
-  inputs: [GEOM.C1, GEOM.C2],
-  outputs: [GEOM.PIC12],
-  parameters: [],
-  compute: computeSingle(GEOM.PIC12, (inputs, _config) => {
-    const c1 = getGeometry(inputs, GEOM.C1, isCircle, "Circle");
-    const c2 = getGeometry(inputs, GEOM.C2, isCircle, "Circle");
-    const pic12 = circlesIntersectionPointHelper(c1, c2, directions.up);
-    if (!pic12) throw new Error("STEP_4A: pic12 is null - circles do not intersect");
-    return pic12;
-  }),
-  draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.PIC12, 2.0, store, theme);
-  },
-};
-
-/**
  * Step 4B: Intersection point PIC14
  * Finds intersection point of circles c4 and c1 (direction: left).
  */
@@ -2155,7 +2134,6 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_3B,
   STEP_3C,
   STEP_3D,
-  STEP_4A,
   STEP_4B,
   STEP_5A,
   STEP_5B,
