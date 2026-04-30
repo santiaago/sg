@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import type { JSX } from "react";
 import type { GeometryItem } from "../react-store";
+import type { GeometryType } from "../types/geometry";
 
 interface GeometryListProps {
   store: any;
@@ -8,13 +9,18 @@ interface GeometryListProps {
   strokeMid?: number;
   strokeBig?: number;
   strokeLine?: number;
-  showInputHighlight?: boolean;
-  showNameFilter?: boolean;
-  showTypeFilters?: boolean;
-  availableTypes?: string[];
+  showInputHighlight: boolean;
+  showNameFilter: boolean;
+  showTypeFilters: boolean;
+  availableTypes: ReadonlyArray<GeometryType>;
 }
 
-const DEFAULT_TYPES = ["point", "line", "circle", "polygon"] as const;
+const DEFAULT_TYPES: ReadonlyArray<GeometryType> = [
+  "point",
+  "line",
+  "circle",
+  "polygon",
+] as const;
 
 export function GeometryList({
   store,
