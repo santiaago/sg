@@ -1305,35 +1305,11 @@ const STEP_16A: SixFoldV0Step = {
 };
 
 /**
- * Step 16B: Circle C2_D3
- * Creates circle centered at cp2 with radius d3 (distance from pii1 to cp1).
+ * Step 16B: Circle C3_D3
+ * Creates circle centered at cp3 with radius d3 (distance from pii1 to cp1).
  */
 const STEP_16B: SixFoldV0Step = {
   id: "step16b",
-  inputs: [GEOM.CP2, GEOM.PII1, GEOM.CP1],
-  outputs: [GEOM.C2_D3],
-  parameters: [],
-  compute: computeSingle(GEOM.C2_D3, (inputs, _config) => {
-    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
-    const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
-    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
-    const d3 = distance(pii1, cp1);
-    if (!isValidNumber(d3) || d3 <= 0) {
-      throw new Error("STEP_16B: Invalid d3 value - points pii1 and cp1 are coincident or invalid");
-    }
-    return circle(cp2.x, cp2.y, d3);
-  }),
-  draw: (svg, values, store, theme) => {
-    drawCircle(svg, values, GEOM.C2_D3, 0.5, store, theme);
-  },
-};
-
-/**
- * Step 16C: Circle C3_D3
- * Creates circle centered at cp3 with radius d3 (distance from pii1 to cp1).
- */
-const STEP_16C: SixFoldV0Step = {
-  id: "step16c",
   inputs: [GEOM.CP3, GEOM.PII1, GEOM.CP1],
   outputs: [GEOM.C3_D3],
   parameters: [],
@@ -1343,7 +1319,7 @@ const STEP_16C: SixFoldV0Step = {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const d3 = distance(pii1, cp1);
     if (!isValidNumber(d3) || d3 <= 0) {
-      throw new Error("STEP_16C: Invalid d3 value - points pii1 and cp1 are coincident or invalid");
+      throw new Error("STEP_16B: Invalid d3 value - points pii1 and cp1 are coincident or invalid");
     }
     return circle(cp3.x, cp3.y, d3);
   }),
@@ -2216,7 +2192,6 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_15,
   STEP_16A,
   STEP_16B,
-  STEP_16C,
   STEP_17A,
   STEP_17B,
   STEP_18A,
