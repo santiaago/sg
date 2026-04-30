@@ -194,83 +194,128 @@ const STEP_2E: SixFoldV0Step = {
 };
 
 /**
- * Step 2F: Create lines L13 and L24
- * Creates temporary connecting lines from circle centers to bisected points (CP1→P3, CP2→P4).
- * Note: These are different from the crossing lines in STEP_6 (CP1→CP3, CP2→CP4).
+ * Step 2F: Create line L13
+ * Creates temporary connecting line from CP1 to P3.
+ * Note: This is different from the crossing line LCP1CP3 in STEP_6 (CP1→CP3).
  */
 const STEP_2F: SixFoldV0Step = {
   id: "step2f",
-  inputs: [GEOM.CP1, GEOM.CP2, GEOM.P3, GEOM.P4],
-  outputs: [GEOM.L13, GEOM.L24],
+  inputs: [GEOM.CP1, GEOM.P3],
+  outputs: [GEOM.L13],
   parameters: [],
-  compute: computeMultiple((inputs, _config) => {
-    const m = new Map<string, GeometryValue>();
-
+  compute: computeSingle(GEOM.L13, (inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
-    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
     const p3 = getGeometry(inputs, GEOM.P3, isPoint, "Point");
-    const p4 = getGeometry(inputs, GEOM.P4, isPoint, "Point");
-
     // L13 = line from CP1 to P3
-    const l13 = line(cp1.x, cp1.y, p3.x, p3.y);
-
-    // L24 = line from CP2 to P4
-    const l24 = line(cp2.x, cp2.y, p4.x, p4.y);
-
-    m.set(GEOM.L13, l13);
-    m.set(GEOM.L24, l24);
-
-    return m;
+    return line(cp1.x, cp1.y, p3.x, p3.y);
   }),
   draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.L13, 0.5, store, theme, theme.COLOR_PRIMARY);
+  },
+};
+
+/**
+ * Step 2G: Create line L24
+ * Creates temporary connecting line from CP2 to P4.
+ * Note: This is different from the crossing line LCP2CP4 in STEP_6 (CP2→CP4).
+ */
+const STEP_2G: SixFoldV0Step = {
+  id: "step2g",
+  inputs: [GEOM.CP2, GEOM.P4],
+  outputs: [GEOM.L24],
+  parameters: [],
+  compute: computeSingle(GEOM.L24, (inputs, _config) => {
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
+    const p4 = getGeometry(inputs, GEOM.P4, isPoint, "Point");
+    // L24 = line from CP2 to P4
+    return line(cp2.x, cp2.y, p4.x, p4.y);
+  }),
+  draw: (svg, values, store, theme) => {
     drawLine(svg, values, GEOM.L24, 0.5, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
 /**
- * Step 2G: Secondary circles
- * Creates cp3, cp4, c3, c4 from the bisected points.
- * l13 = line from cp1 to p3, find intersection with c1 circle -> cp4, create c4
- * l24 = line from cp2 to p4, find intersection with c2 circle -> cp3, create c3
+ * Step 2H: Find CP4
+ * Finds CP4 as intersection of C1 with L13.
  */
-const STEP_2G: SixFoldV0Step = {
-  id: "step2g",
-  inputs: [GEOM.C1, GEOM.C2, GEOM.L13, GEOM.L24],
-  outputs: [GEOM.CP3, GEOM.CP4, GEOM.C3, GEOM.C4],
-  parameters: ["radius"],
-  compute: computeMultiple((inputs, config) => {
-    const m = new Map<string, GeometryValue>();
-
+const STEP_2H: SixFoldV0Step = {
+  id: "step2h",
+  inputs: [GEOM.C1, GEOM.L13],
+  outputs: [GEOM.CP4],
+  parameters: [],
+  compute: computeSingle(GEOM.CP4, (inputs, _config) => {
     const circle1 = getGeometry(inputs, GEOM.C1, isCircle, "Circle");
-    const circle2 = getGeometry(inputs, GEOM.C2, isCircle, "Circle");
     const l13 = getGeometry(inputs, GEOM.L13, isLine, "Line");
-    const l24 = getGeometry(inputs, GEOM.L24, isLine, "Line");
-
-    // c4 center = intersection of circle1 with l13 line
+    // cp4 = intersection of circle1 with l13 line
     const cp4Pt = interceptCircleLineSegHelper(circle1, l13, 0);
-
-    // c3 center = intersection of circle2 with l24 line
-    const cp3Pt = interceptCircleLineSegHelper(circle2, l24, 0);
-    if (!cp3Pt || !cp4Pt) {
-      throw new Error("STEP_2G: Failed to find circle intersections for c3 or c4 centers");
+    if (!cp4Pt) {
+      throw new Error("STEP_2H: Failed to find circle intersection for cp4 center");
     }
+    return cp4Pt;
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.CP4, 2.0, store, theme);
+  },
+};
 
-    // Create cp3, cp4, c3, c4
-    m.set(GEOM.CP3, cp3Pt);
-    m.set(GEOM.CP4, cp4Pt);
-    const c3 = circle(cp3Pt.x, cp3Pt.y, config.radius);
-    const c4 = circle(cp4Pt.x, cp4Pt.y, config.radius);
-    m.set(GEOM.C3, c3);
-    m.set(GEOM.C4, c4);
-
-    return m;
+/**
+ * Step 2I: Find CP3
+ * Finds CP3 as intersection of C2 with L24.
+ */
+const STEP_2I: SixFoldV0Step = {
+  id: "step2i",
+  inputs: [GEOM.C2, GEOM.L24],
+  outputs: [GEOM.CP3],
+  parameters: [],
+  compute: computeSingle(GEOM.CP3, (inputs, _config) => {
+    const circle2 = getGeometry(inputs, GEOM.C2, isCircle, "Circle");
+    const l24 = getGeometry(inputs, GEOM.L24, isLine, "Line");
+    // cp3 = intersection of circle2 with l24 line
+    const cp3Pt = interceptCircleLineSegHelper(circle2, l24, 0);
+    if (!cp3Pt) {
+      throw new Error("STEP_2I: Failed to find circle intersection for cp3 center");
+    }
+    return cp3Pt;
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.CP3, 2.0, store, theme);
-    drawPoint(svg, values, GEOM.CP4, 2.0, store, theme);
-    drawCircle(svg, values, GEOM.C3, 0.5, store, theme);
+  },
+};
+
+/**
+ * Step 2J: Create circle C4
+ * Creates circle at CP4 with the configured radius.
+ */
+const STEP_2J: SixFoldV0Step = {
+  id: "step2j",
+  inputs: [GEOM.CP4],
+  outputs: [GEOM.C4],
+  parameters: ["radius"],
+  compute: computeSingle(GEOM.C4, (inputs, config) => {
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
+    return circle(cp4.x, cp4.y, config.radius);
+  }),
+  draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C4, 0.5, store, theme);
+  },
+};
+
+/**
+ * Step 2K: Create circle C3
+ * Creates circle at CP3 with the configured radius.
+ */
+const STEP_2K: SixFoldV0Step = {
+  id: "step2k",
+  inputs: [GEOM.CP3],
+  outputs: [GEOM.C3],
+  parameters: ["radius"],
+  compute: computeSingle(GEOM.C3, (inputs, config) => {
+    const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
+    return circle(cp3.x, cp3.y, config.radius);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawCircle(svg, values, GEOM.C3, 0.5, store, theme);
   },
 };
 
@@ -1403,6 +1448,10 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_2E,
   STEP_2F,
   STEP_2G,
+  STEP_2H,
+  STEP_2I,
+  STEP_2J,
+  STEP_2K,
   STEP_3,
   STEP_4,
   STEP_5,
