@@ -79,7 +79,6 @@ export const GEOM = {
   C1_D3: "c1_d3",
   C2_D3: "c2_d3",
   C3_D3: "c3_d3",
-  C4_D3: "c4_d3",
   LCP2PIC14: "lcp2pic14",
   LCP4PIC12: "lcp4pic12",
   PIC4: "pic4",

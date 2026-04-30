@@ -1353,30 +1353,6 @@ const STEP_16C: SixFoldV0Step = {
 };
 
 /**
- * Step 16D: Circle C4_D3
- * Creates circle centered at cp4 with radius d3 (distance from pii1 to cp1).
- */
-const STEP_16D: SixFoldV0Step = {
-  id: "step16d",
-  inputs: [GEOM.CP4, GEOM.PII1, GEOM.CP1],
-  outputs: [GEOM.C4_D3],
-  parameters: [],
-  compute: computeSingle(GEOM.C4_D3, (inputs, _config) => {
-    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
-    const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
-    const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
-    const d3 = distance(pii1, cp1);
-    if (!isValidNumber(d3) || d3 <= 0) {
-      throw new Error("STEP_16D: Invalid d3 value - points pii1 and cp1 are coincident or invalid");
-    }
-    return circle(cp4.x, cp4.y, d3);
-  }),
-  draw: (svg, values, store, theme) => {
-    drawCircle(svg, values, GEOM.C4_D3, 0.5, store, theme);
-  },
-};
-
-/**
  * Step 17: Lines from cp2 to pic14 and cp4 to pic12
  * Draws lines connecting circle centers to intersection points.
  */
@@ -2241,7 +2217,6 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_16A,
   STEP_16B,
   STEP_16C,
-  STEP_16D,
   STEP_17A,
   STEP_17B,
   STEP_18A,
