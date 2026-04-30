@@ -2,18 +2,13 @@
 
 # worktree-manager.sh - Git worktree management for SG monorepo
 # 
-# Creates, manages, and sets up git worktrees for development
+# Creates and removes git worktrees for development
 # Usage:
 #   ./worktree-manager.sh [command] [options]
 #
 # Commands:
 #   create [name] [branch]    - Create a new worktree
-#   remove [name]            - Remove a worktree
-#   list                     - List all worktrees
-#   dev [name]               - Start dev server in worktree
-#   build [name]             - Build in worktree
-#   install [name]           - Install deps only
-#   check [name]             - Run full check (lint, type-check, test)
+#   remove [name]            - Remove a worktree (alias: rm, delete)
 #
 # Options:
 #   --no-install            - Skip dependency installation
@@ -22,9 +17,9 @@
 #
 # Examples:
 #   ./worktree-manager.sh create feature-x main
-#   ./worktree-manager.sh create expbranch --no-install
-#   ./worktree-manager.sh dev feature-x
+#   ./worktree-manager.sh create expbranch --auto --no-install
 #   ./worktree-manager.sh remove feature-x
+#   ./worktree-manager.sh delete feature-x --auto
 
 set -euo pipefail
 
@@ -32,7 +27,8 @@ set -euo pipefail
 # Configuration
 # ============================================================================
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")"
+REPO_ROOT="$(echo "$REPO_ROOT" | tr -d '\n')"
 WORKTREE_DIR="${REPO_ROOT}/.worktrees"
 LOG_FILE="${REPO_ROOT}/.worktrees.log"
 
@@ -69,10 +65,6 @@ log_error() {
     echo "[ERROR] $1" >> "$LOG_FILE"
 }
 
-log_header() {
-    echo -e "\n${BLUE}=== $1 ===${NC}"
-}
-
 # ============================================================================
 # Validation
 # ============================================================================
@@ -83,10 +75,8 @@ validate_worktree_name() {
         log_error "Worktree name cannot be empty"
         exit 1
     fi
-    if [[ "$name" =~ [^/\\]* ]]; then
-        return 0
-    else
-        log_error "Invalid worktree name: $name (must not contain / or \\)"
+    if [[ "$name" =~ (\.\.|//|^\/|\\|/$) ]]; then
+        log_error "Invalid worktree name: $name (must not contain \ or .. or //, or start/end with /)"
         exit 1
     fi
 }
@@ -157,7 +147,9 @@ remove_worktree() {
     log_info "Removing worktree '$name' at $path"
     
     # Remove worktree
-    git worktree remove "$path" 2>/dev/null || true
+    if ! git worktree remove "$path" 2>/dev/null; then
+        log_warn "git worktree remove failed, force-removing directory"
+    fi
     
     # Remove directory (git worktree remove might not clean up)
     if [[ -d "$path" ]]; then
@@ -211,21 +203,6 @@ build_project() {
     log_info "Build completed successfully"
 }
 
-run_check() {
-    local path="$1"
-    
-    cd "$path"
-    
-    log_info "Running lint..."
-    $PM check 2>&1 || log_warn "Lint checks failed"
-    
-    log_info "Running type-check..."
-    $PM type-check 2>&1 || log_warn "Type checks failed"
-    
-    log_info "Running tests..."
-    $PM test 2>&1 || log_warn "Tests failed"
-}
-
 # ============================================================================
 # Command: Create
 # ============================================================================
@@ -236,8 +213,9 @@ cmd_create() {
     local no_install="false"
     local no_build="false"
     local auto="false"
+    local positional_args=()
     
-    # Parse arguments
+    # Parse arguments - flags first, then positional
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --no-install)
@@ -257,18 +235,23 @@ cmd_create() {
                 exit 1
                 ;;
             *)
-                if [[ -z "$name" ]]; then
-                    name="$1"
-                elif [[ -z "$branch" ]]; then
-                    branch="$1"
-                else
-                    log_error "Too many arguments: $1"
-                    exit 1
-                fi
+                positional_args+=("$1")
                 shift
                 ;;
         esac
     done
+    
+    # Assign positional args
+    if [[ ${#positional_args[@]} -gt 0 ]]; then
+        name="${positional_args[0]}"
+    fi
+    if [[ ${#positional_args[@]} -gt 1 ]]; then
+        branch="${positional_args[1]}"
+    fi
+    if [[ ${#positional_args[@]} -gt 2 ]]; then
+        log_error "Too many arguments: ${positional_args[2]}"
+        exit 1
+    fi
     
     # Validate
     validate_worktree_name "$name"
@@ -312,7 +295,6 @@ cmd_create() {
     log_info "Worktree '$name' is ready!"
     echo ""
     log_info "Worktree location: $(get_worktree_path "$name")"
-    log_info "To start dev server: ./worktree-manager.sh dev $name"
 }
 
 # ============================================================================
@@ -320,13 +302,35 @@ cmd_create() {
 # ============================================================================
 
 cmd_remove() {
-    local name="$1"
+    local name=""
     local auto="false"
+    local positional_args=()
     
-    if [[ $# -gt 1 ]]; then
-        if [[ "$2" == "--auto" ]]; then
-            auto="true"
-        fi
+    # Parse arguments - flags first, then positional
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --auto)
+                auto="true"
+                shift
+                ;;
+            -*)
+                log_error "Unknown option: $1"
+                exit 1
+                ;;
+            *)
+                positional_args+=("$1")
+                shift
+                ;;
+        esac
+    done
+    
+    # Assign positional args
+    if [[ ${#positional_args[@]} -gt 0 ]]; then
+        name="${positional_args[0]}"
+    fi
+    if [[ ${#positional_args[@]} -gt 1 ]]; then
+        log_error "Too many arguments: ${positional_args[1]}"
+        exit 1
     fi
     
     validate_worktree_name "$name"
@@ -338,175 +342,13 @@ cmd_remove() {
     
     if [[ "$auto" != "true" ]]; then
         read -p "Are you sure you want to remove worktree '$name'? [y/N]: " ans
-        if [[ "$ans" != "${ans#[Yy]}" ]]; then
+        if [[ ! "$ans" =~ ^[Yy] ]]; then
             log_info "Aborted"
             exit 0
         fi
     fi
     
     remove_worktree "$name"
-}
-
-# ============================================================================
-# Command: List
-# ============================================================================
-
-cmd_list() {
-    log_header "Active Worktrees"
-    
-    if [[ ! -d "$WORKTREE_DIR" ]]; then
-        log_info "No worktrees found (directory $WORKTREE_DIR does not exist)"
-        return 0
-    fi
-    
-    echo ""
-    printf "%-20s %-30s %s\n" "NAME" "PATH" "BRANCH"
-    printf "%-20s %-30s %s\n" "----" "----" "------"
-    
-    for dir in "$WORKTREE_DIR"/*/; do
-        if [[ -d "$dir" ]]; then
-            local name=$(basename "$dir")
-            local path="$dir"
-            local branch=$(cd "$dir" && git branch --show-current 2>/dev/null || echo "unknown")
-            printf "%-20s %-30s %s\n" "$name" "$path" "$branch"
-        fi
-    done
-    
-    echo ""
-    log_info "Total: $(ls -1 "$WORKTREE_DIR" 2>/dev/null | wc -l | tr -d ' ') worktree(s)"
-}
-
-# ============================================================================
-# Command: Dev
-# ============================================================================
-
-cmd_dev() {
-    local name="$1"
-    local app="app"
-    
-    # Parse app selection
-    if [[ $# -gt 1 ]]; then
-        app="$2"
-    fi
-    
-    validate_worktree_name "$name"
-    
-    local path="$(get_worktree_path "$name")"
-    
-    if ! worktree_exists "$name"; then
-        log_error "Worktree '$name' does not exist"
-        exit 1
-    fi
-    
-    if [[ "$app" != "app" && "$app" != "app2" ]]; then
-        log_error "Invalid app: $app (must be 'app' or 'app2')"
-        exit 1
-    fi
-    
-    log_info "Starting dev server for $app in worktree '$name'"
-    
-    cd "${path}/${app}"
-    
-    if [[ "$app" == "app" ]]; then
-        $PM run dev
-    else
-        $PM run dev:app2
-    fi
-}
-
-# ============================================================================
-# Command: Build
-# ============================================================================
-
-cmd_build() {
-    local name="$1"
-    
-    validate_worktree_name "$name"
-    
-    local path="$(get_worktree_path "$name")"
-    
-    if ! worktree_exists "$name"; then
-        log_error "Worktree '$name' does not exist"
-        exit 1
-    fi
-    
-    build_project "$path" "false"
-}
-
-# ============================================================================
-# Command: Install
-# ============================================================================
-
-cmd_install() {
-    local name="$1"
-    
-    validate_worktree_name "$name"
-    
-    local path="$(get_worktree_path "$name")"
-    
-    if ! worktree_exists "$name"; then
-        log_error "Worktree '$name' does not exist"
-        exit 1
-    fi
-    
-    install_deps "$path" "false"
-}
-
-# ============================================================================
-# Command: Check
-# ============================================================================
-
-cmd_check() {
-    local name="$1"
-    
-    validate_worktree_name "$name"
-    
-    local path="$(get_worktree_path "$name")"
-    
-    if ! worktree_exists "$name"; then
-        log_error "Worktree '$name' does not exist"
-        exit 1
-    fi
-    
-    run_check "$path"
-}
-
-# ============================================================================
-# Command: Clean
-# ============================================================================
-
-cmd_clean() {
-    local all="false"
-    local name=""
-    
-    if [[ "$1" == "--all" ]]; then
-        all="true"
-    elif [[ -n "$1" ]]; then
-        name="$1"
-    fi
-    
-    if [[ "$all" == "true" ]]; then
-        if [[ -d "$WORKTREE_DIR" ]]; then
-            log_info "Removing all worktrees..."
-            for dir in "$WORKTREE_DIR"/*/; do
-                if [[ -d "$dir" ]]; then
-                    local wname=$(basename "$dir")
-                    log_info "Removing $wname..."
-                    rm -rf "$dir"
-                    git worktree prune 2>/dev/null || true
-                fi
-            done
-            log_info "All worktrees removed"
-        else
-            log_info "No worktrees to clean"
-        fi
-    elif [[ -n "$name" ]]; then
-        validate_worktree_name "$name"
-        remove_worktree "$name"
-    else
-        log_error "Please specify --all or a worktree name"
-        exit 1
-    fi
 }
 
 # ============================================================================
@@ -522,17 +364,11 @@ ${BLUE}Usage:${NC}
 
 ${BLUE}Commands:${NC}
     create [name] [branch]    Create a new worktree
-    remove [name]            Remove a worktree
-    list                     List all worktrees
-    dev [name] [app]         Start dev server (app or app2, default: app)
-    build [name]             Build project in worktree
-    install [name]           Install dependencies only
-    check [name]             Run full verification (lint, type-check, test)
-    clean [--all|name]       Clean worktrees
+    remove [name]            Remove a worktree (aliases: rm, delete)
 
 ${BLUE}Options:${NC}
-    --no-install             Skip dependency installation
-    --no-build               Skip build after setup
+    --no-install             Skip dependency installation (create only)
+    --no-build               Skip build after setup (create only)
     --auto                   Auto-accept prompts (for scripts/CI)
 
 ${BLUE}Examples:${NC}
@@ -542,18 +378,11 @@ ${BLUE}Examples:${NC}
     # Create with auto-accept and no build
     ./worktree-manager.sh create expbranch --auto --no-build
 
-    # Start dev server in worktree
-    ./worktree-manager.sh dev feature-x
-    ./worktree-manager.sh dev feature-x app2
-
-    # Remove worktree
+    # Remove worktree (with confirmation)
     ./worktree-manager.sh remove feature-x
 
-    # List all worktrees
-    ./worktree-manager.sh list
-
-    # Clean all worktrees
-    ./worktree-manager.sh clean --all
+    # Remove worktree without confirmation
+    ./worktree-manager.sh delete feature-x --auto
 
 ${BLUE}Configuration:${NC}
     REPO_ROOT: $REPO_ROOT
@@ -564,7 +393,6 @@ ${BLUE}Configuration:${NC}
 ${BLUE}Notes:${NC}
     - Worktrees are stored in .worktrees/ directory at repo root
     - Each worktree is a complete copy with its own node_modules
-    - Use 'dev app2' to run the React app, 'dev' or 'dev app' for Svelte
     - See .worktrees.log for detailed logs
 EOF
 }
@@ -595,24 +423,6 @@ main() {
             ;;
         remove|rm|delete)
             cmd_remove "$@"
-            ;;
-        list|ls)
-            cmd_list "$@"
-            ;;
-        dev)
-            cmd_dev "$@"
-            ;;
-        build)
-            cmd_build "$@"
-            ;;
-        install)
-            cmd_install "$@"
-            ;;
-        check)
-            cmd_check "$@"
-            ;;
-        clean)
-            cmd_clean "$@"
             ;;
         help|--help|-h)
             usage
