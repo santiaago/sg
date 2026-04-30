@@ -23,7 +23,14 @@ import { CopySvgButton } from "./components/CopySvgButton";
 import { SQUARE_STEPS } from "./geometry/squareSteps";
 import { SIX_FOLD_V0_STEPS } from "./geometry/sixFoldV0Steps";
 import { lightTheme, darkTheme } from "./themes";
-import type { Theme, LegacyStep } from "./types/geometry";
+import type { Theme, LegacyStep, GeometryType } from "./types/geometry";
+
+const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = [
+  "point",
+  "line",
+  "circle",
+  "polygon",
+] as const;
 
 export default function App(): JSX.Element {
   const stroke = 0.5;
@@ -356,6 +363,10 @@ export default function App(): JSX.Element {
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
+                showInputHighlight={false}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
               />
             </div>
           </div>
@@ -421,6 +432,10 @@ export default function App(): JSX.Element {
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
+                showInputHighlight={false}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
               />
             </div>
           </div>
@@ -459,6 +474,10 @@ export default function App(): JSX.Element {
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
+                showInputHighlight={false}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
               />
             </div>
           </div>
@@ -498,6 +517,10 @@ export default function App(): JSX.Element {
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
+                showInputHighlight={false}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
               />
             </div>
           </div>
@@ -586,6 +609,9 @@ export default function App(): JSX.Element {
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
                 showInputHighlight={showInputHighlight}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
               />
             </div>
           </div>
@@ -673,6 +699,9 @@ export default function App(): JSX.Element {
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
                 showInputHighlight={showInputHighlight}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
               />
             </div>
           </div>
