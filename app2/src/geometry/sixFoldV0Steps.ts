@@ -870,66 +870,105 @@ const STEP_13F: SixFoldV0Step = {
 };
 
 /**
- * Step 14: pp, l1, pii1, pii2
- * pp = interceptCircleLineSeg(c1_d1, lpic14)
- * l1 = line from pi3 to pp
- * pii1 = intersection of line(pi3,pp) with lcp1cp3
- * pii2 = intersection of line(pi3,pp) with lcp2cp4
+ * Step 14A: pp point
+ * pp = interceptCircleLineSeg(c1_d1, lpic14, 0)
  */
-const STEP_14: SixFoldV0Step = {
-  id: "step14",
-  inputs: [GEOM.C1_D1, GEOM.LPIC14, GEOM.PI3, GEOM.LCP1CP3, GEOM.LCP2CP4],
-  outputs: [GEOM.PP, GEOM.L1, GEOM.PII1, GEOM.PII2],
+const STEP_14A: SixFoldV0Step = {
+  id: "step14a",
+  inputs: [GEOM.C1_D1, GEOM.LPIC14],
+  outputs: [GEOM.PP],
   parameters: [],
-  compute: computeMultiple((inputs, _config) => {
+  compute: computeSingle(GEOM.PP, (inputs, _config) => {
     const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
     const lpic14 = getGeometry(inputs, GEOM.LPIC14, isLine, "Line");
-    const pi3 = getGeometry(inputs, GEOM.PI3, isPoint, "Point");
-    const lcp1cp3 = getGeometry(inputs, GEOM.LCP1CP3, isLine, "Line");
-    const lcp2cp4 = getGeometry(inputs, GEOM.LCP2CP4, isLine, "Line");
-
     // pp = interceptCircleLine(c1_d1, lpic14, 0)
     const pp = interceptCircleLineSegHelper(c1_d1, lpic14, 0);
-    if (!pp) throw new Error("STEP_14: pp is null");
+    if (!pp) throw new Error("STEP_14A: pp is null");
+    return pp;
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.PP, 2.0, store, theme);
+  },
+};
 
+/**
+ * Step 14B: l1 line
+ * l1 = line from pi3 to pp
+ */
+const STEP_14B: SixFoldV0Step = {
+  id: "step14b",
+  inputs: [GEOM.PI3, GEOM.PP],
+  outputs: [GEOM.L1],
+  parameters: [],
+  compute: computeSingle(GEOM.L1, (inputs, _config) => {
+    const pi3 = getGeometry(inputs, GEOM.PI3, isPoint, "Point");
+    const pp = getGeometry(inputs, GEOM.PP, isPoint, "Point");
     // l1 = line from pi3 to pp
-    const l1 = line(pi3.x, pi3.y, pp.x, pp.y);
+    return line(pi3.x, pi3.y, pp.x, pp.y);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.L1, 0.5, store, theme, theme.COLOR_PRIMARY);
+  },
+};
 
+/**
+ * Step 14C: pii1 point
+ * pii1 = intersection of line(pi3,pp) with lcp1cp3
+ */
+const STEP_14C: SixFoldV0Step = {
+  id: "step14c",
+  inputs: [GEOM.PI3, GEOM.PP, GEOM.LCP1CP3],
+  outputs: [GEOM.PII1],
+  parameters: [],
+  compute: computeSingle(GEOM.PII1, (inputs, _config) => {
+    const pi3 = getGeometry(inputs, GEOM.PI3, isPoint, "Point");
+    const pp = getGeometry(inputs, GEOM.PP, isPoint, "Point");
+    const lcp1cp3 = getGeometry(inputs, GEOM.LCP1CP3, isLine, "Line");
     // pii1 = intersection of line(pi3,pp) with lcp1cp3
     const result1 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, lcp1cp3.x1, lcp1cp3.y1, lcp1cp3.x2, lcp1cp3.y2);
     if (!result1) {
       throw new Error(
-        "STEP_14: lineIntersect returned null - line(pi3,pp) and lcp1cp3 do not intersect",
+        "STEP_14C: lineIntersect returned null - line(pi3,pp) and lcp1cp3 do not intersect",
       );
     }
     const pii1 = validPoint(result1[0], result1[1]);
     if (!pii1) {
-      throw new Error("STEP_14: validPoint returned null - pii1 coordinates are invalid");
+      throw new Error("STEP_14C: validPoint returned null - pii1 coordinates are invalid");
     }
+    return pii1;
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.PII1, 2.0, store, theme);
+  },
+};
 
+/**
+ * Step 14D: pii2 point
+ * pii2 = intersection of line(pi3,pp) with lcp2cp4
+ */
+const STEP_14D: SixFoldV0Step = {
+  id: "step14d",
+  inputs: [GEOM.PI3, GEOM.PP, GEOM.LCP2CP4],
+  outputs: [GEOM.PII2],
+  parameters: [],
+  compute: computeSingle(GEOM.PII2, (inputs, _config) => {
+    const pi3 = getGeometry(inputs, GEOM.PI3, isPoint, "Point");
+    const pp = getGeometry(inputs, GEOM.PP, isPoint, "Point");
+    const lcp2cp4 = getGeometry(inputs, GEOM.LCP2CP4, isLine, "Line");
     // pii2 = intersection of line(pi3,pp) with lcp2cp4
     const result2 = lineIntersect(pi3.x, pi3.y, pp.x, pp.y, lcp2cp4.x1, lcp2cp4.y1, lcp2cp4.x2, lcp2cp4.y2);
     if (!result2) {
       throw new Error(
-        "STEP_14: lineIntersect returned null - line(pi3,pp) and lcp2cp4 do not intersect",
+        "STEP_14D: lineIntersect returned null - line(pi3,pp) and lcp2cp4 do not intersect",
       );
     }
     const pii2 = validPoint(result2[0], result2[1]);
     if (!pii2) {
-      throw new Error("STEP_14: validPoint returned null - pii2 coordinates are invalid");
+      throw new Error("STEP_14D: validPoint returned null - pii2 coordinates are invalid");
     }
-
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.PP, pp);
-    m.set(GEOM.L1, l1);
-    m.set(GEOM.PII1, pii1);
-    m.set(GEOM.PII2, pii2);
-    return m;
+    return pii2;
   }),
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.PP, 2.0, store, theme);
-    drawLine(svg, values, GEOM.L1, 0.5, store, theme, theme.COLOR_PRIMARY);
-    drawPoint(svg, values, GEOM.PII1, 2.0, store, theme);
     drawPoint(svg, values, GEOM.PII2, 2.0, store, theme);
   },
 };
@@ -1590,7 +1629,10 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_13D,
   STEP_13E,
   STEP_13F,
-  STEP_14,
+  STEP_14A,
+  STEP_14B,
+  STEP_14C,
+  STEP_14D,
   STEP_15,
   STEP_16,
   STEP_17,
