@@ -8,8 +8,8 @@ import { point, line, circle, isPoint, isLine, isCircle } from "../types/geometr
 import { directions, lineIntersect } from "@sg/geometry";
 import type { StepExecutionContext } from "../types/geometry";
 import { drawPoint, drawLine, drawCircle } from "../svgElements";
-import { getGeometry, GEOM, computeSingle } from "./sixFold/operations";
-import type { SixFoldV0Config, SixFoldV0Step } from "./sixFold/operations";
+import { getGeometry, GEOM, computeSingleLocal as computeSingle, computeDerived, getDerived, DERIVED } from "./sixFold/operations";
+import type { SixFoldV0Config, SixFoldV0Step, StepOutputValue } from "./sixFold/operations";
 import {
   distance,
   isValidNumber,
@@ -586,19 +586,37 @@ const STEP_6C: SixFoldV0Step = {
 };
 
 /**
+ * Step 6D: Compute D1 distance
+ * Computes d1 as the distance between PIC14 and PI2.
+ * This derived value is used by all D1 circle steps (7A-7D, 8A-8B).
+ */
+const STEP_6D: SixFoldV0Step = {
+  id: "step6d",
+  inputs: [GEOM.PIC14, GEOM.PI2],
+  outputs: [DERIVED.D1],
+  parameters: [],
+  compute: computeDerived(DERIVED.D1, (inputs, _config) => {
+    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
+    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
+    return distance(pic14, pi2);
+  }),
+  draw: (svg, values, store, theme) => {
+    // Derived values don't have visual representation
+  },
+};
+
+/**
  * Step 7A: Circle C1_D1
- * Creates circle centered at cp1 with radius d1 (distance from pic14 to pi2).
+ * Creates circle centered at cp1 with radius d1 (pre-computed distance from pic14 to pi2).
  */
 const STEP_7A: SixFoldV0Step = {
   id: "step7a",
-  inputs: [GEOM.CP1, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.CP1, DERIVED.D1],
   outputs: [GEOM.C1_D1],
   parameters: [],
   compute: computeSingle(GEOM.C1_D1, (inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
+    const d1 = getDerived(inputs, DERIVED.D1);
     return circle(cp1.x, cp1.y, d1);
   }),
   draw: (svg, values, store, theme) => {
@@ -608,18 +626,16 @@ const STEP_7A: SixFoldV0Step = {
 
 /**
  * Step 7B: Circle C2_D1
- * Creates circle centered at cp2 with radius d1 (distance from pic14 to pi2).
+ * Creates circle centered at cp2 with radius d1 (pre-computed distance from pic14 to pi2).
  */
 const STEP_7B: SixFoldV0Step = {
   id: "step7b",
-  inputs: [GEOM.CP2, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.CP2, DERIVED.D1],
   outputs: [GEOM.C2_D1],
   parameters: [],
   compute: computeSingle(GEOM.C2_D1, (inputs, _config) => {
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
+    const d1 = getDerived(inputs, DERIVED.D1);
     return circle(cp2.x, cp2.y, d1);
   }),
   draw: (svg, values, store, theme) => {
@@ -629,18 +645,16 @@ const STEP_7B: SixFoldV0Step = {
 
 /**
  * Step 7C: Circle C3_D1
- * Creates circle centered at cp3 with radius d1 (distance from pic14 to pi2).
+ * Creates circle centered at cp3 with radius d1 (pre-computed distance from pic14 to pi2).
  */
 const STEP_7C: SixFoldV0Step = {
   id: "step7c",
-  inputs: [GEOM.CP3, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.CP3, DERIVED.D1],
   outputs: [GEOM.C3_D1],
   parameters: [],
   compute: computeSingle(GEOM.C3_D1, (inputs, _config) => {
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
+    const d1 = getDerived(inputs, DERIVED.D1);
     return circle(cp3.x, cp3.y, d1);
   }),
   draw: (svg, values, store, theme) => {
@@ -650,18 +664,16 @@ const STEP_7C: SixFoldV0Step = {
 
 /**
  * Step 7D: Circle C4_D1
- * Creates circle centered at cp4 with radius d1 (distance from pic14 to pi2).
+ * Creates circle centered at cp4 with radius d1 (pre-computed distance from pic14 to pi2).
  */
 const STEP_7D: SixFoldV0Step = {
   id: "step7d",
-  inputs: [GEOM.CP4, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.CP4, DERIVED.D1],
   outputs: [GEOM.C4_D1],
   parameters: [],
   compute: computeSingle(GEOM.C4_D1, (inputs, _config) => {
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
+    const d1 = getDerived(inputs, DERIVED.D1);
     return circle(cp4.x, cp4.y, d1);
   }),
   draw: (svg, values, store, theme) => {
@@ -675,17 +687,16 @@ const STEP_7D: SixFoldV0Step = {
  */
 /**
  * Step 8A: Circle C14_D1
- * Creates circle centered at pic14 with radius d1 (distance from pic14 to pi2).
+ * Creates circle centered at pic14 with radius d1 (pre-computed distance from pic14 to pi2).
  */
 const STEP_8A: SixFoldV0Step = {
   id: "step8a",
-  inputs: [GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.PIC14, DERIVED.D1],
   outputs: [GEOM.C14_D1],
   parameters: [],
   compute: computeSingle(GEOM.C14_D1, (inputs, _config) => {
     const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
+    const d1 = getDerived(inputs, DERIVED.D1);
     return circle(pic14.x, pic14.y, d1);
   }),
   draw: (svg, values, store, theme) => {
@@ -695,18 +706,16 @@ const STEP_8A: SixFoldV0Step = {
 
 /**
  * Step 8B: Circle C12_D1
- * Creates circle centered at pic12 with radius d1 (distance from pic14 to pi2).
+ * Creates circle centered at pic12 with radius d1 (pre-computed distance from pic14 to pi2).
  */
 const STEP_8B: SixFoldV0Step = {
   id: "step8b",
-  inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.PIC12, DERIVED.D1],
   outputs: [GEOM.C12_D1],
   parameters: [],
   compute: computeSingle(GEOM.C12_D1, (inputs, _config) => {
     const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
+    const d1 = getDerived(inputs, DERIVED.D1);
     return circle(pic12.x, pic12.y, d1);
   }),
   draw: (svg, values, store, theme) => {
@@ -982,19 +991,16 @@ const STEP_12E: SixFoldV0Step = {
 
 /**
  * Step 13A: cpic12 circle
- * cpic12 = circle at pic12 with radius d1 (distance from pic14 to pi2)
+ * cpic12 = circle at pic12 with radius d1 (pre-computed distance from pic14 to pi2)
  */
 const STEP_13A: SixFoldV0Step = {
   id: "step13a",
-  inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.PIC12, DERIVED.D1],
   outputs: [GEOM.CPI12],
   parameters: [],
   compute: computeSingle(GEOM.CPI12, (inputs, _config) => {
     const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    // d1 = distance from pic14 to pi2
-    const d1 = distance(pic14, pi2);
+    const d1 = getDerived(inputs, DERIVED.D1);
     // cpic12 = circle at pic12 with radius d1
     return circle(pic12.x, pic12.y, d1);
   }),
@@ -2140,6 +2146,7 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_6A,
   STEP_6B,
   STEP_6C,
+  STEP_6D,
   STEP_7A,
   STEP_7B,
   STEP_7C,

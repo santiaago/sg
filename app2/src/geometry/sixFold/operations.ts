@@ -16,6 +16,18 @@ export type { GeometryStore, Theme };
 // Constants
 export const CUT_LINE_BY = 8;
 
+// Derived value identifiers (non-geometry values computed during construction)
+export const DERIVED = {
+  D1: "d1",  // distance(PIC14, PI2)
+  D2: "d2",  // distance(PC23, C23S)
+  D3: "d3",  // Other derived distances can be added here
+} as const;
+
+export type DerivedId = (typeof DERIVED)[keyof typeof DERIVED];
+
+// Step output value can be either a GeometryValue or a number (for derived values)
+export type StepOutputValue = GeometryValue | number;
+
 // Geometry ID constants
 export const GEOM = {
   LINE1: "line1",
@@ -122,12 +134,12 @@ export interface SixFoldV0Step {
   outputs: string[];
   parameters?: (keyof SixFoldV0Config)[];
   compute: (
-    inputs: Map<string, GeometryValue>,
+    inputs: Map<string, StepOutputValue>,
     config: SixFoldV0Config,
-  ) => Map<string, GeometryValue>;
+  ) => Map<string, StepOutputValue>;
   draw: (
     svg: SVGSVGElement,
-    values: Map<string, GeometryValue>,
+    values: Map<string, StepOutputValue>,
     store: GeometryStore,
     theme: Theme,
   ) => void;
@@ -190,4 +202,101 @@ export function computeSixFoldV0Config(width: number, height: number): SixFoldV0
     cy2: safe(cy2),
     cp1OffsetRatio: 5 / 8,
   };
+}
+
+// ========================================
+// Local compute helpers that work with StepOutputValue
+// ========================================
+
+/**
+ * Create a compute function that produces a single geometry output.
+ * Local version that works with StepOutputValue instead of GeometryValue.
+ * @param geomId - The geometry ID to produce
+ * @param fn - Function that takes inputs and config, returns the geometry value
+ * @returns A compute function for use in a Step definition
+ */
+export function computeSingleLocal<TConfig>(
+  geomId: string,
+  fn: (inputs: Map<string, StepOutputValue>, config: TConfig) => GeometryValue,
+): (inputs: Map<string, StepOutputValue>, config: TConfig) => Map<string, StepOutputValue> {
+  return (inputs, config) => {
+    const value = fn(inputs, config);
+    return new Map([[geomId, value]]);
+  };
+}
+
+/**
+ * Create a compute function that produces multiple geometry outputs.
+ * Local version that works with StepOutputValue instead of GeometryValue.
+ */
+export function computeMultipleLocal<TConfig>(
+  fn: (inputs: Map<string, StepOutputValue>, config: TConfig) => Map<string, GeometryValue>,
+): (inputs: Map<string, StepOutputValue>, config: TConfig) => Map<string, StepOutputValue> {
+  return (inputs, config) => fn(inputs, config);
+}
+
+// ========================================
+// Helper functions for derived values
+// ========================================
+
+/**
+ * Create a compute function that produces a single derived value (number).
+ * Similar to computeSingle but for non-geometry outputs.
+ * @param derivedId - The derived value ID to produce
+ * @param fn - Function that takes inputs and config, returns the derived value
+ * @returns A compute function for use in a Step definition
+ */
+export function computeDerived<TConfig>(
+  derivedId: string,
+  fn: (inputs: Map<string, StepOutputValue>, config: TConfig) => number,
+): (inputs: Map<string, StepOutputValue>, config: TConfig) => Map<string, StepOutputValue> {
+  return (inputs, config) => {
+    const value = fn(inputs, config);
+    return new Map([[derivedId, value]]);
+  };
+}
+
+/**
+ * Get a derived value from a Map with type validation.
+ * @param values - Map of IDs to StepOutputValue
+ * @param id - The derived value ID to retrieve
+ * @returns The derived value (number)
+ * @throws Error if derived value is missing or has wrong type
+ */
+export function getDerived(
+  values: Map<string, StepOutputValue>,
+  id: string,
+): number {
+  const value = values.get(id);
+  if (value === undefined) {
+    throw new Error(`Missing derived value: ${id}`);
+  }
+  if (typeof value !== 'number') {
+    throw new Error(`Expected number for derived value ${id}, got ${typeof value}`);
+  }
+  return value;
+}
+
+/**
+ * Get a geometry value from a Map with type validation.
+ * Overloaded version that accepts both GeometryValue and StepOutputValue maps.
+ * This allows existing code to continue working while supporting new derived values.
+ */
+export function getGeometry<T extends GeometryValue>(
+  values: Map<string, GeometryValue> | Map<string, StepOutputValue>,
+  id: string,
+  typeGuard: (v: GeometryValue) => v is T,
+  typeName: string,
+): T {
+  const value = values.get(id);
+  if (!value) {
+    throw new Error(`Missing geometry: ${id}`);
+  }
+  if (typeof value === 'number') {
+    throw new Error(`Expected ${typeName} for ${id}, got number (derived value)`);
+  }
+  if (!typeGuard(value)) {
+    throw new Error(`Expected ${typeName} for ${id}, got ${value.type}`);
+  }
+  return value;
 }
