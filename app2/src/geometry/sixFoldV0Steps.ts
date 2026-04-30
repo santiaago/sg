@@ -715,40 +715,80 @@ const STEP_12E: SixFoldV0Step = {
 };
 
 /**
- * Step 13: cpic12, c34n, lpic12c34n, pc34, c34e, c34 circle
+ * Step 13A: cpic12 circle
  * cpic12 = circle at pic12 with radius d1 (distance from pic14 to pi2)
- * c34n = bisectCircleAndPoint(cpic12, prx6)
- * lpic12c34n = line from pic12 to c34n
- * pc34 = linesIntersection(l34, lpic12c34n)
- * c34e = interceptCircleLine(c4_d1, line(pc34, cp4), 0)
- * c34 = circle at pc34 with radius = distance(pc34, c34e)
  */
-const STEP_13: SixFoldV0Step = {
-  id: "step13",
-  inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2, GEOM.PRX6, GEOM.L34, GEOM.CP4, GEOM.C4_D1],
-  outputs: [GEOM.CPI12, GEOM.C34N, GEOM.LPIC12C34N, GEOM.PC34, GEOM.C34E, GEOM.C34],
+const STEP_13A: SixFoldV0Step = {
+  id: "step13a",
+  inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
+  outputs: [GEOM.CPI12],
   parameters: [],
-  compute: computeMultiple((inputs, _config) => {
+  compute: computeSingle(GEOM.CPI12, (inputs, _config) => {
     const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
     const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
     const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const pi6 = getGeometry(inputs, GEOM.PRX6, isPoint, "Point");
-    const l34 = getGeometry(inputs, GEOM.L34, isLine, "Line");
-    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
-    const c4_d1 = getGeometry(inputs, GEOM.C4_D1, isCircle, "Circle");
-
     // d1 = distance from pic14 to pi2
     const d1 = distance(pic14, pi2);
-
     // cpic12 = circle at pic12 with radius d1
-    const cpic12 = circle(pic12.x, pic12.y, d1);
+    return circle(pic12.x, pic12.y, d1);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawCircle(svg, values, GEOM.CPI12, 0.5, store, theme);
+  },
+};
 
+/**
+ * Step 13B: c34n point
+ * c34n = bisectCircleAndPoint(cpic12, prx6)
+ */
+const STEP_13B: SixFoldV0Step = {
+  id: "step13b",
+  inputs: [GEOM.CPI12, GEOM.PRX6],
+  outputs: [GEOM.C34N],
+  parameters: [],
+  compute: computeSingle(GEOM.C34N, (inputs, _config) => {
+    const cpic12 = getGeometry(inputs, GEOM.CPI12, isCircle, "Circle");
+    const pi6 = getGeometry(inputs, GEOM.PRX6, isPoint, "Point");
     // c34n = bisectCircleAndPoint(cpic12, pi6)
-    const c34nPt = bisectCircleAndPoint(cpic12, pi6);
+    return bisectCircleAndPoint(cpic12, pi6);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.C34N, 2.0, store, theme);
+  },
+};
 
+/**
+ * Step 13C: lpic12c34n line
+ * lpic12c34n = line from pic12 to c34n
+ */
+const STEP_13C: SixFoldV0Step = {
+  id: "step13c",
+  inputs: [GEOM.PIC12, GEOM.C34N],
+  outputs: [GEOM.LPIC12C34N],
+  parameters: [],
+  compute: computeSingle(GEOM.LPIC12C34N, (inputs, _config) => {
+    const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
+    const c34n = getGeometry(inputs, GEOM.C34N, isPoint, "Point");
     // lpic12c34n = line from pic12 to c34n
-    const lpic12c34n = line(pic12.x, pic12.y, c34nPt.x, c34nPt.y);
+    return line(pic12.x, pic12.y, c34n.x, c34n.y);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.LPIC12C34N, 0.5, store, theme, theme.COLOR_PRIMARY);
+  },
+};
 
+/**
+ * Step 13D: pc34 point
+ * pc34 = linesIntersection(l34, lpic12c34n)
+ */
+const STEP_13D: SixFoldV0Step = {
+  id: "step13d",
+  inputs: [GEOM.L34, GEOM.LPIC12C34N],
+  outputs: [GEOM.PC34],
+  parameters: [],
+  compute: computeSingle(GEOM.PC34, (inputs, _config) => {
+    const l34 = getGeometry(inputs, GEOM.L34, isLine, "Line");
+    const lpic12c34n = getGeometry(inputs, GEOM.LPIC12C34N, isLine, "Line");
     // pc34 = intersection of l34 and lpic12c34n
     const pc34Result = lineIntersect(
       l34.x1,
@@ -762,42 +802,69 @@ const STEP_13: SixFoldV0Step = {
     );
     if (!pc34Result) {
       throw new Error(
-        "STEP_13: lineIntersect returned null - lines l34 and lpic12c34n do not intersect",
+        "STEP_13D: lineIntersect returned null - lines l34 and lpic12c34n do not intersect",
       );
     }
     const pc34Pt = validPoint(pc34Result[0], pc34Result[1]);
     if (!pc34Pt) {
-      throw new Error("STEP_13: validPoint returned null - pc34Pt coordinates are invalid");
+      throw new Error("STEP_13D: validPoint returned null - pc34Pt coordinates are invalid");
     }
+    return pc34Pt;
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.PC34, 2.0, store, theme);
+  },
+};
+
+/**
+ * Step 13E: c34e point
+ * line = line from pc34 to cp4
+ * c34e = interceptCircleLine(c4_d1, line, 0)
+ */
+const STEP_13E: SixFoldV0Step = {
+  id: "step13e",
+  inputs: [GEOM.C4_D1, GEOM.PC34, GEOM.CP4],
+  outputs: [GEOM.C34E],
+  parameters: [],
+  compute: computeSingle(GEOM.C34E, (inputs, _config) => {
+    const c4_d1 = getGeometry(inputs, GEOM.C4_D1, isCircle, "Circle");
+    const pc34 = getGeometry(inputs, GEOM.PC34, isPoint, "Point");
+    const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
 
     // line from pc34 to cp4
-    const lineToCp4 = line(pc34Pt.x, pc34Pt.y, cp4.x, cp4.y);
+    const lineToCp4 = line(pc34.x, pc34.y, cp4.x, cp4.y);
 
     // c34e = interceptCircleLine(c4_d1, line, 0) - first intersection point
     const c34e = interceptCircleLineSegHelper(c4_d1, lineToCp4, 0);
-    if (!c34e) throw new Error("STEP_13: c34e is null");
-
-    // d2 = distance from pc34 to c34e
-    const d2 = distance(pc34Pt, c34e);
-
-    // c34 = circle at pc34 with radius d2
-    const c34 = circle(pc34Pt.x, pc34Pt.y, d2);
-
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.CPI12, cpic12);
-    m.set(GEOM.C34N, c34nPt);
-    m.set(GEOM.LPIC12C34N, lpic12c34n);
-    m.set(GEOM.PC34, pc34Pt);
-    m.set(GEOM.C34E, c34e);
-    m.set(GEOM.C34, c34);
-    return m;
+    if (!c34e) throw new Error("STEP_13E: c34e is null");
+    return c34e;
   }),
   draw: (svg, values, store, theme) => {
-    drawCircle(svg, values, GEOM.CPI12, 0.5, store, theme);
-    drawPoint(svg, values, GEOM.C34N, 2.0, store, theme);
-    drawLine(svg, values, GEOM.LPIC12C34N, 0.5, store, theme, theme.COLOR_PRIMARY);
-    drawPoint(svg, values, GEOM.PC34, 2.0, store, theme);
     drawPoint(svg, values, GEOM.C34E, 2.0, store, theme);
+  },
+};
+
+/**
+ * Step 13F: c34 circle
+ * d2 = distance from pc34 to c34e
+ * c34 = circle at pc34 with radius d2
+ */
+const STEP_13F: SixFoldV0Step = {
+  id: "step13f",
+  inputs: [GEOM.PC34, GEOM.C34E],
+  outputs: [GEOM.C34],
+  parameters: [],
+  compute: computeSingle(GEOM.C34, (inputs, _config) => {
+    const pc34 = getGeometry(inputs, GEOM.PC34, isPoint, "Point");
+    const c34e = getGeometry(inputs, GEOM.C34E, isPoint, "Point");
+
+    // d2 = distance from pc34 to c34e
+    const d2 = distance(pc34, c34e);
+
+    // c34 = circle at pc34 with radius d2
+    return circle(pc34.x, pc34.y, d2);
+  }),
+  draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C34, 0.5, store, theme);
   },
 };
@@ -1517,7 +1584,12 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_12C,
   STEP_12D,
   STEP_12E,
-  STEP_13,
+  STEP_13A,
+  STEP_13B,
+  STEP_13C,
+  STEP_13D,
+  STEP_13E,
+  STEP_13F,
   STEP_14,
   STEP_15,
   STEP_16,
