@@ -585,35 +585,57 @@ const STEP_11: SixFoldV0Step = {
 };
 
 /**
- * Step 12: c23w, l14p, pc23, c23s, c23 circle
- * From Svelte:
- *   c23w = bisectCircleAndPoint(c14_d1, prx5)
- *   l14p = line from pic14 to c23w
- *   pc23 = linesIntersection(l23, l14p)
- *   line = line from pc23 to cp2
- *   c23s = interceptCircleLine(c2_d1, line, 0)
- *   d2 = distance from pc23 to c23s
- *   c23 = new Circle(pc23, d2)
+ * Step 12A: c23w point
+ * c23w = bisectCircleAndPoint(c14_d1, prx5)
  */
-const STEP_12: SixFoldV0Step = {
-  id: "step12",
-  inputs: [GEOM.C14_D1, GEOM.PRX5, GEOM.PIC14, GEOM.L23, GEOM.CP2, GEOM.C2_D1],
-  outputs: [GEOM.C23W, GEOM.L14P, GEOM.PC23, GEOM.C23S, GEOM.C23],
+const STEP_12A: SixFoldV0Step = {
+  id: "step12a",
+  inputs: [GEOM.C14_D1, GEOM.PRX5],
+  outputs: [GEOM.C23W],
   parameters: [],
-  compute: computeMultiple((inputs, _config) => {
+  compute: computeSingle(GEOM.C23W, (inputs, _config) => {
     const c14_d1 = getGeometry(inputs, GEOM.C14_D1, isCircle, "Circle");
     const prx5 = getGeometry(inputs, GEOM.PRX5, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const l23 = getGeometry(inputs, GEOM.L23, isLine, "Line");
-    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
-    const c2_d1 = getGeometry(inputs, GEOM.C2_D1, isCircle, "Circle");
-
     // c23w = bisect from c14_d1 center through prx5
-    const c23wPt = bisectCircleAndPoint(c14_d1, prx5);
+    return bisectCircleAndPoint(c14_d1, prx5);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.C23W, 2.0, store, theme);
+  },
+};
 
+/**
+ * Step 12B: l14p line
+ * l14p = line from pic14 to c23w
+ */
+const STEP_12B: SixFoldV0Step = {
+  id: "step12b",
+  inputs: [GEOM.PIC14, GEOM.C23W],
+  outputs: [GEOM.L14P],
+  parameters: [],
+  compute: computeSingle(GEOM.L14P, (inputs, _config) => {
+    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
+    const c23w = getGeometry(inputs, GEOM.C23W, isPoint, "Point");
     // l14p = line from pic14 to c23w
-    const l14p = line(pic14.x, pic14.y, c23wPt.x, c23wPt.y);
+    return line(pic14.x, pic14.y, c23w.x, c23w.y);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.L14P, 0.5, store, theme, theme.COLOR_PRIMARY);
+  },
+};
 
+/**
+ * Step 12C: pc23 point
+ * pc23 = linesIntersection(l23, l14p)
+ */
+const STEP_12C: SixFoldV0Step = {
+  id: "step12c",
+  inputs: [GEOM.L23, GEOM.L14P],
+  outputs: [GEOM.PC23],
+  parameters: [],
+  compute: computeSingle(GEOM.PC23, (inputs, _config) => {
+    const l23 = getGeometry(inputs, GEOM.L23, isLine, "Line");
+    const l14p = getGeometry(inputs, GEOM.L14P, isLine, "Line");
     // pc23 = intersection of l23 and l14p
     const pc23Result = lineIntersect(
       l23.x1,
@@ -626,39 +648,68 @@ const STEP_12: SixFoldV0Step = {
       l14p.y2,
     );
     if (!pc23Result) {
-      throw new Error("STEP_13: lineIntersect returned null - lines l23 and l14p do not intersect");
+      throw new Error("STEP_12C: lineIntersect returned null - lines l23 and l14p do not intersect");
     }
     const pc23Pt = validPoint(pc23Result[0], pc23Result[1]);
     if (!pc23Pt) {
-      throw new Error("STEP_13: validPoint returned null - pc23Pt coordinates are invalid");
+      throw new Error("STEP_12C: validPoint returned null - pc23Pt coordinates are invalid");
     }
+    return pc23Pt;
+  }),
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.PC23, 2.0, store, theme);
+  },
+};
+
+/**
+ * Step 12D: c23s point
+ * line = line from pc23 to cp2
+ * c23s = interceptCircleLine(c2_d1, line, 0)
+ */
+const STEP_12D: SixFoldV0Step = {
+  id: "step12d",
+  inputs: [GEOM.C2_D1, GEOM.PC23, GEOM.CP2],
+  outputs: [GEOM.C23S],
+  parameters: [],
+  compute: computeSingle(GEOM.C23S, (inputs, _config) => {
+    const c2_d1 = getGeometry(inputs, GEOM.C2_D1, isCircle, "Circle");
+    const pc23 = getGeometry(inputs, GEOM.PC23, isPoint, "Point");
+    const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
 
     // line from pc23 to cp2
-    const lineToCp2 = line(pc23Pt.x, pc23Pt.y, cp2.x, cp2.y);
+    const lineToCp2 = line(pc23.x, pc23.y, cp2.x, cp2.y);
 
     // c23s = interceptCircleLine(c2_d1, line, 0) - first intersection point
     const c23s = interceptCircleLineSegHelper(c2_d1, lineToCp2, 0);
-    if (!c23s) throw new Error("STEP_13: c23s is null");
-
-    // d2 = distance from pc23 to c23s
-    const d2 = distance(pc23Pt, c23s);
-
-    // c23 = circle at pc23 with radius d2
-    const c23 = circle(pc23Pt.x, pc23Pt.y, d2);
-
-    const m = new Map<string, GeometryValue>();
-    m.set(GEOM.C23W, c23wPt);
-    m.set(GEOM.L14P, l14p);
-    m.set(GEOM.PC23, pc23Pt);
-    m.set(GEOM.C23S, c23s);
-    m.set(GEOM.C23, c23);
-    return m;
+    if (!c23s) throw new Error("STEP_12D: c23s is null");
+    return c23s;
   }),
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.C23W, 2.0, store, theme);
-    drawLine(svg, values, GEOM.L14P, 0.5, store, theme, theme.COLOR_PRIMARY);
-    drawPoint(svg, values, GEOM.PC23, 2.0, store, theme);
     drawPoint(svg, values, GEOM.C23S, 2.0, store, theme);
+  },
+};
+
+/**
+ * Step 12E: c23 circle
+ * d2 = distance from pc23 to c23s
+ * c23 = new Circle(pc23, d2)
+ */
+const STEP_12E: SixFoldV0Step = {
+  id: "step12e",
+  inputs: [GEOM.PC23, GEOM.C23S],
+  outputs: [GEOM.C23],
+  parameters: [],
+  compute: computeSingle(GEOM.C23, (inputs, _config) => {
+    const pc23 = getGeometry(inputs, GEOM.PC23, isPoint, "Point");
+    const c23s = getGeometry(inputs, GEOM.C23S, isPoint, "Point");
+
+    // d2 = distance from pc23 to c23s
+    const d2 = distance(pc23, c23s);
+
+    // c23 = circle at pc23 with radius d2
+    return circle(pc23.x, pc23.y, d2);
+  }),
+  draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C23, 0.5, store, theme);
   },
 };
@@ -1461,7 +1512,11 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_9,
   STEP_10,
   STEP_11,
-  STEP_12,
+  STEP_12A,
+  STEP_12B,
+  STEP_12C,
+  STEP_12D,
+  STEP_12E,
   STEP_13,
   STEP_14,
   STEP_15,
