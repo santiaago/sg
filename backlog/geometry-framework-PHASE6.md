@@ -7,7 +7,7 @@ This final phase focuses on documentation, cleanup, and ensuring the entire fram
 **Status**: NOT STARTED  
 **Priority**: MEDIUM  
 **Estimated Duration**: 2-3 days  
-**Prerequisites**: Phase 1-5 must be complete
+**Prerequisites**: Phase 1-5 must be complete  
 
 ---
 
@@ -34,7 +34,6 @@ By the end of this phase, we will have:
 Add comprehensive JSDoc comments to all public methods and types.
 
 **Files to update**:
-
 - `app2/src/geometry/construction.ts`
 - `app2/src/geometry/construction-to-steps.ts`
 - `app2/src/geometry/renderers/svgRenderer.ts`
@@ -42,16 +41,16 @@ Add comprehensive JSDoc comments to all public methods and types.
 
 **Example JSDoc Format**:
 
-````typescript
+```typescript
 /**
  * Creates a point at specific coordinates.
- *
+ * 
  * @param x - The x-coordinate of the point
  * @param y - The y-coordinate of the point
  * @param name - Optional name/ID for the point. If not provided, an auto-generated
  *               name will be used (format: "point_N" where N is the step number)
  * @returns A PointRef that can be used to reference this point in subsequent operations
- *
+ * 
  * @example
  * ```typescript
  * const c = new Construction();
@@ -60,10 +59,9 @@ Add comprehensive JSDoc comments to all public methods and types.
  * ```
  */
 point(x: number, y: number, name?: string): PointRef { ... }
-````
+```
 
 **Checklist**:
-
 - [ ] JSDoc for all Construction methods
 - [ ] JSDoc for all Ref type interfaces
 - [ ] JSDoc for all error classes
@@ -79,7 +77,7 @@ Create a comprehensive API documentation file.
 
 **File**: `backlog/geometry-framework-API.md`
 
-````markdown
+```markdown
 # Geometry Framework API Documentation
 
 ## Overview
@@ -107,7 +105,6 @@ interface PointRef {
   readonly id: string;
 }
 ```
-````
 
 Reference to a Point geometry. This is a pure identifier with no data storage.
 
@@ -176,7 +173,7 @@ The main class for creating geometric constructions. All operations are methods 
 ### Constructor
 
 ```typescript
-new Construction();
+new Construction()
 ```
 
 Creates a new, empty Construction.
@@ -244,7 +241,6 @@ Creates a line perpendicular to another line at a specific point.
 Finds intersection point between two geometries.
 
 Supports:
-
 - Circle-Circle: Use direction ("north"/"south") to select which intersection
 - Circle-Line: Use direction ("left"/"right") or exclude option
 - Line-Circle: Same as Circle-Line (order doesn't matter)
@@ -416,7 +412,6 @@ Convert a Construction to an array of Step objects for compatibility with existi
 Base error class for Construction operations.
 
 Properties:
-
 - `stepIndex`: number - The step index where the error occurred
 - `stepId`: string - The step ID where the error occurred
 - `message`: string - The error message
@@ -442,8 +437,8 @@ Thrown when a geometry type mismatch occurs.
 
 ```typescript
 interface DrawPointOptions {
-  stroke?: number; // Radius of the point (default: 2)
-  name?: string; // Name for data-name attribute
+  stroke?: number;  // Radius of the point (default: 2)
+  name?: string;    // Name for data-name attribute
 }
 ```
 
@@ -451,8 +446,8 @@ interface DrawPointOptions {
 
 ```typescript
 interface DrawLineOptions {
-  stroke?: number; // Stroke width (default: 0.5)
-  name?: string; // Name for data-name attribute
+  stroke?: number;  // Stroke width (default: 0.5)
+  name?: string;    // Name for data-name attribute
 }
 ```
 
@@ -460,8 +455,8 @@ interface DrawLineOptions {
 
 ```typescript
 interface DrawCircleOptions {
-  stroke?: number; // Stroke width (default: 0.5)
-  name?: string; // Name for data-name attribute
+  stroke?: number;  // Stroke width (default: 0.5)
+  name?: string;    // Name for data-name attribute
 }
 ```
 
@@ -469,13 +464,12 @@ interface DrawCircleOptions {
 
 ```typescript
 interface DrawPolygonOptions {
-  stroke?: number; // Stroke width (default: 0.5)
-  fill?: string; // Fill color (default: "none")
-  name?: string; // Name for data-name attribute
+  stroke?: number;  // Stroke width (default: 0.5)
+  fill?: string;    // Fill color (default: "none")
+  name?: string;    // Name for data-name attribute
 }
 ```
-
-````
+```
 
 ---
 
@@ -505,7 +499,7 @@ const mid = c.midpoint(p1, p2, "midpoint");
 const svg = document.getElementById("my-svg") as SVGSVGElement;
 const renderer = new SvgRenderer(svg);
 renderer.drawConstruction(c);
-````
+```
 
 ## Square Construction
 
@@ -540,20 +534,20 @@ import { SvgRenderer } from "./geometry/renderers/svgRenderer";
 
 function MyGeometryComponent({ step }: { step: number }) {
   const svgRef = useRef<SVGSVGElement>(null);
-
+  
   const construction = useMemo(() => {
     const c = new Construction();
     // Build your construction...
     return c;
   }, []);
-
+  
   useEffect(() => {
     if (!svgRef.current) return;
     const renderer = new SvgRenderer(svgRef.current);
     renderer.clear();
     renderer.drawConstructionUpTo(construction, step);
   }, [step, construction]);
-
+  
   return <svg ref={svgRef} />;
 }
 ```
@@ -648,8 +642,7 @@ const line = c.lineTowards(p1, p2, "extension" * 100, "extended_line");
 // Get parameter value
 const radius = c.getParameter("radius");
 ```
-
-````
+```
 
 ---
 
@@ -707,7 +700,7 @@ const mid = c.midpoint(p1, p2, "midpoint");
 const svg = document.getElementById("my-svg") as SVGSVGElement;
 const renderer = new SvgRenderer(svg);
 renderer.drawConstruction(c);
-````
+```
 
 ## Documentation
 
@@ -727,7 +720,6 @@ The framework is implemented in 6 phases:
 6. **Phase 6**: Documentation & Cleanup
 
 See the individual phase documents for details:
-
 - [Phase 1](geometry-framework-PHASE1.md)
 - [Phase 2](geometry-framework-PHASE2.md)
 - [Phase 3](geometry-framework-PHASE3.md)
@@ -770,8 +762,7 @@ This is part of the sg monorepo and follows its licensing.
 
 - Architecture and design: User
 - Implementation: Mistral Vibe
-
-````
+```
 
 ---
 
@@ -832,7 +823,7 @@ pnpm test
 
 # Run build
 pnpm build
-````
+```
 
 Expected: All commands succeed with exit code 0
 
@@ -882,7 +873,6 @@ Phase 6 is complete when:
 Once Phase 6 is complete, the Geometry Framework is production-ready! 🎉
 
 The framework provides:
-
 - A clean, declarative API for geometric constructions
 - Full type safety with TypeScript
 - Separation of geometry logic and rendering
