@@ -357,7 +357,7 @@ const STEP_3: SixFoldV0Step = {
  */
 const STEP_4: SixFoldV0Step = {
   id: "step4",
-  inputs: [GEOM.C1, GEOM.C2, GEOM.C3, GEOM.C4],
+  inputs: [GEOM.C1, GEOM.C2, GEOM.C4],
   outputs: [GEOM.PIC12, GEOM.PIC14],
   parameters: [],
   compute: computeMultiple((inputs, _config) => {
@@ -517,8 +517,8 @@ const STEP_9: SixFoldV0Step = {
     const c4_d1 = getGeometry(inputs, GEOM.C4_D1, isCircle, "Circle");
     const pi3 = circlesIntersectionPointHelper(c14_d1, c2_d1, directions.right);
     const pi4 = circlesIntersectionPointHelper(c12_d1, c4_d1, directions.right);
-    if (!pi3) throw new Error("STEP_10: pi3 is null - circles do not intersect");
-    if (!pi4) throw new Error("STEP_10: pi4 is null - circles do not intersect");
+    if (!pi3) throw new Error("STEP_9: pi3 is null - circles do not intersect");
+    if (!pi4) throw new Error("STEP_9: pi4 is null - circles do not intersect");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.PI3, pi3);
     m.set(GEOM.PI4, pi4);
@@ -571,8 +571,8 @@ const STEP_11: SixFoldV0Step = {
     const lpic12 = getGeometry(inputs, GEOM.LPIC12, isLine, "Line");
     const prx5 = interceptCircleLineSegHelper(c14_d1, lpic14, 0);
     const prx6 = interceptCircleLineSegHelper(c12_d1, lpic12, 0);
-    if (!prx5) throw new Error("STEP_12: prx5 is null - circle-line intersection not found");
-    if (!prx6) throw new Error("STEP_12: prx6 is null - circle-line intersection not found");
+    if (!prx5) throw new Error("STEP_11: prx5 is null - circle-line intersection not found");
+    if (!prx6) throw new Error("STEP_11: prx6 is null - circle-line intersection not found");
     const m = new Map<string, GeometryValue>();
     m.set(GEOM.PRX5, prx5);
     m.set(GEOM.PRX6, prx6);
