@@ -104,14 +104,14 @@ describe("GeometryList", () => {
     it("displays item count", () => {
       render(<GeometryList store={store} />);
 
-      expect(screen.getByText("Store has 3 items")).toBeInTheDocument();
+      expect(screen.getByText("Showing 3 of 3 items")).toBeInTheDocument();
     });
 
     it("renders empty message when no items", () => {
       const emptyStore = createMockStore({});
       render(<GeometryList store={emptyStore} />);
 
-      expect(screen.getByText("Store has 0 items")).toBeInTheDocument();
+      expect(screen.getByText("Showing 0 of 0 items")).toBeInTheDocument();
     });
   });
 
@@ -316,7 +316,7 @@ describe("GeometryList", () => {
       const nullStore = createMockStore(null as any);
       render(<GeometryList store={nullStore} />);
 
-      expect(screen.getByText("Store has 0 items")).toBeInTheDocument();
+      expect(screen.getByText("Showing 0 of 0 items")).toBeInTheDocument();
     });
 
     it("handles geometry item with missing element", () => {
@@ -378,6 +378,232 @@ describe("GeometryList", () => {
       fireEvent.click(screen.getByText("c1 | point"));
 
       expect(store.update).toHaveBeenCalled();
+    });
+  });
+
+  describe("Filtering", () => {
+    describe("Name Filter", () => {
+      it("filters items by name", () => {
+        render(<GeometryList store={store} />);
+
+        const filterInput = screen.getByPlaceholderText(/filter by name/i);
+        fireEvent.change(filterInput, { target: { value: "c1" } });
+
+        expect(screen.getByText("c1 | point")).toBeInTheDocument();
+        expect(screen.getByText("c1_c | circle")).toBeInTheDocument();
+        expect(screen.queryByText("line_main | line")).not.toBeInTheDocument();
+      });
+
+      it("filters case-insensitively", () => {
+        render(<GeometryList store={store} />);
+
+        const filterInput = screen.getByPlaceholderText(/filter by name/i);
+        fireEvent.change(filterInput, { target: { value: "LINE" } });
+
+        expect(screen.getByText("line_main | line")).toBeInTheDocument();
+        expect(screen.queryByText("c1 | point")).not.toBeInTheDocument();
+      });
+
+      it("shows all items when filter is empty", () => {
+        render(<GeometryList store={store} />);
+
+        expect(screen.getByText("line_main | line")).toBeInTheDocument();
+        expect(screen.getByText("c1 | point")).toBeInTheDocument();
+        expect(screen.getByText("c1_c | circle")).toBeInTheDocument();
+      });
+
+      it("displays filtered count when name filter applied", () => {
+        render(<GeometryList store={store} />);
+
+        const filterInput = screen.getByPlaceholderText(/filter by name/i);
+        fireEvent.change(filterInput, { target: { value: "c1" } });
+
+        expect(screen.getByText("Showing 2 of 3 items")).toBeInTheDocument();
+      });
+    });
+
+    describe("Type Filter", () => {
+      it("filters by type when button clicked", () => {
+        render(<GeometryList store={store} />);
+
+        const pointButton = screen.getByText(/^point$/i);
+        fireEvent.click(pointButton);
+
+        expect(screen.getByText("c1 | point")).toBeInTheDocument();
+        expect(screen.queryByText("line_main | line")).not.toBeInTheDocument();
+        expect(screen.queryByText("c1_c | circle")).not.toBeInTheDocument();
+      });
+
+      it("shows multiple types when multiple selected", () => {
+        render(<GeometryList store={store} />);
+
+        const pointButton = screen.getByText(/^point$/i);
+        const circleButton = screen.getByText(/^circle$/i);
+        fireEvent.click(pointButton);
+        fireEvent.click(circleButton);
+
+        expect(screen.getByText("c1 | point")).toBeInTheDocument();
+        expect(screen.getByText("c1_c | circle")).toBeInTheDocument();
+        expect(screen.queryByText("line_main | line")).not.toBeInTheDocument();
+      });
+
+      it("toggles type filter off when clicked again", () => {
+        render(<GeometryList store={store} />);
+
+        const pointButton = screen.getByText(/^point$/i);
+        // Click to enable
+        fireEvent.click(pointButton);
+        expect(screen.queryByText("line_main | line")).not.toBeInTheDocument();
+
+        // Click again to disable
+        fireEvent.click(pointButton);
+        expect(screen.getByText("line_main | line")).toBeInTheDocument();
+      });
+
+      it("displays filtered count when type filter applied", () => {
+        render(<GeometryList store={store} />);
+
+        const pointButton = screen.getByText(/^point$/i);
+        fireEvent.click(pointButton);
+
+        expect(screen.getByText("Showing 1 of 3 items")).toBeInTheDocument();
+      });
+    });
+
+    describe("Combined Filters", () => {
+      it("applies name AND type filters together", () => {
+        render(<GeometryList store={store} />);
+
+        const filterInput = screen.getByPlaceholderText(/filter by name/i);
+        fireEvent.change(filterInput, { target: { value: "c1" } });
+
+        const pointButton = screen.getByText(/^point$/i);
+        fireEvent.click(pointButton);
+
+        // Only c1 (point, name contains c1) should show
+        expect(screen.getByText("c1 | point")).toBeInTheDocument();
+        // c1_c is circle, so filtered out by type
+        expect(screen.queryByText("c1_c | circle")).not.toBeInTheDocument();
+        // line_main doesn't contain c1, so filtered out by name
+        expect(screen.queryByText("line_main | line")).not.toBeInTheDocument();
+      });
+
+      it("displays correct count with combined filters", () => {
+        render(<GeometryList store={store} />);
+
+        const filterInput = screen.getByPlaceholderText(/filter by name/i);
+        fireEvent.change(filterInput, { target: { value: "c1" } });
+
+        const pointButton = screen.getByText(/^point$/i);
+        fireEvent.click(pointButton);
+
+        expect(screen.getByText("Showing 1 of 3 items")).toBeInTheDocument();
+      });
+    });
+
+    describe("Clear Filters", () => {
+      it("clears name filter", () => {
+        render(<GeometryList store={store} />);
+
+        const filterInput = screen.getByPlaceholderText(/filter by name/i);
+        fireEvent.change(filterInput, { target: { value: "c1" } });
+
+        const clearButton = screen.getByText(/clear filters/i);
+        fireEvent.click(clearButton);
+
+        expect(filterInput).toHaveValue("");
+        expect(screen.getByText("line_main | line")).toBeInTheDocument();
+        expect(screen.getByText("c1 | point")).toBeInTheDocument();
+        expect(screen.getByText("c1_c | circle")).toBeInTheDocument();
+      });
+
+      it("clears type filters", () => {
+        render(<GeometryList store={store} />);
+
+        const pointButton = screen.getByText(/^point$/i);
+        fireEvent.click(pointButton);
+
+        const clearButton = screen.getByText(/clear filters/i);
+        fireEvent.click(clearButton);
+
+        expect(screen.getByText("line_main | line")).toBeInTheDocument();
+      });
+
+      it("clears both name and type filters", () => {
+        render(<GeometryList store={store} />);
+
+        const filterInput = screen.getByPlaceholderText(/filter by name/i);
+        fireEvent.change(filterInput, { target: { value: "c1" } });
+
+        const pointButton = screen.getByText(/^point$/i);
+        fireEvent.click(pointButton);
+
+        const clearButton = screen.getByText(/clear filters/i);
+        fireEvent.click(clearButton);
+
+        expect(filterInput).toHaveValue("");
+        expect(screen.getByText("Showing 3 of 3 items")).toBeInTheDocument();
+      });
+
+      it("hides clear button when no filters active", () => {
+        render(<GeometryList store={store} />);
+
+        expect(screen.queryByText(/clear filters/i)).not.toBeInTheDocument();
+      });
+    });
+
+    describe("Filter Props", () => {
+      it("hides name filter when showNameFilter is false", () => {
+        render(<GeometryList store={store} showNameFilter={false} />);
+
+        expect(screen.queryByPlaceholderText(/filter by name/i)).not.toBeInTheDocument();
+      });
+
+      it("hides type filters when showTypeFilters is false", () => {
+        render(<GeometryList store={store} showTypeFilters={false} />);
+
+        expect(screen.queryByText(/^point$/i)).not.toBeInTheDocument();
+      });
+
+      it("uses custom availableTypes", () => {
+        render(<GeometryList store={store} availableTypes={["point", "line"]} />);
+
+        expect(screen.getByText(/^point$/i)).toBeInTheDocument();
+        expect(screen.getByText(/^line$/i)).toBeInTheDocument();
+        expect(screen.queryByText(/^circle$/i)).not.toBeInTheDocument();
+      });
+    });
+
+    describe("Edge Cases", () => {
+      it("shows empty filtered count when no items match", () => {
+        render(<GeometryList store={store} />);
+
+        const filterInput = screen.getByPlaceholderText(/filter by name/i);
+        fireEvent.change(filterInput, { target: { value: "nonexistent" } });
+
+        expect(screen.getByText("Showing 0 of 3 items")).toBeInTheDocument();
+      });
+
+      it("handles type filter with no matching items", () => {
+        const polygonStore = createMockStore({
+          poly1: {
+            name: "poly1",
+            element: createMockElement(),
+            selected: false,
+            type: "polygon",
+            context: undefined,
+            initialState: { stroke: "white", "stroke-width": "0.5" },
+            dependsOn: [],
+          },
+        });
+
+        render(<GeometryList store={polygonStore} />);
+
+        const pointButton = screen.getByText(/^point$/i);
+        fireEvent.click(pointButton);
+
+        expect(screen.getByText("Showing 0 of 1 items")).toBeInTheDocument();
+      });
     });
   });
 });
