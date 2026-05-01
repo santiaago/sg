@@ -45,6 +45,7 @@ export const GEOM = {
   LCP1CP3: "lcp1cp3",
   LCP2CP4: "lcp2cp4",
   PI2: "pi2",
+  D1: "d1",
   C1_D1: "c1_d1",
   C2_D1: "c2_d1",
   C3_D1: "c3_d1",

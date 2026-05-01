@@ -52,8 +52,14 @@ export interface Polygon {
   points: { x: number; y: number }[];
 }
 
+/** Scalar value for storing numeric values like distances */
+export interface Scalar {
+  type: "scalar";
+  value: number;
+}
+
 // Union type for all geometry values
-export type GeometryValue = Point | Line | Circle | Polygon;
+export type GeometryValue = Point | Line | Circle | Polygon | Scalar;
 
 // Geometry Node (for dependency tracking)
 
@@ -157,4 +163,12 @@ export function polygon(points: { x: number; y: number }[]): Polygon {
 
 export function isPolygon(value: GeometryValue): value is Polygon {
   return value.type === "polygon";
+}
+
+export function isScalar(value: GeometryValue): value is Scalar {
+  return value.type === "scalar";
+}
+
+export function scalar(value: number): Scalar {
+  return { type: "scalar", value };
 }
