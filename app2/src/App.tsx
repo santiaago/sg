@@ -1,20 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { JSX } from "react";
 import {
-  useGeometryStore,
   useGeometryStoreSquare,
-  useGeometryStorev2,
-  useGeometryStorev3,
-  useGeometryStorev4,
   useGeometryStoreSixFoldV0,
 } from "./react-store";
-import { SixFold } from "./components/SixFold";
-import { SixFoldv2 } from "./components/SixFoldv2";
-import { SixFoldv3 } from "./components/SixFoldv3";
-import { SixFoldv4 } from "./components/SixFoldv4";
 import { SixFoldV0 } from "./components/SixFoldV0";
 import { Square } from "./components/Square";
-import { standardSvgConfig, sixFoldSvgConfig } from "./config/svgConfig";
+import { standardSvgConfig } from "./config/svgConfig";
 import { GeometryList } from "./components/GeometryList";
 import { GeometryDetails } from "./components/GeometryDetails";
 import { Navigation } from "./components/Navigation";
@@ -23,7 +15,7 @@ import { CopySvgButton } from "./components/CopySvgButton";
 import { SQUARE_STEPS } from "./geometry/squareSteps";
 import { SIX_FOLD_V0_STEPS } from "./geometry/sixFoldV0Steps";
 import { lightTheme, darkTheme } from "./themes";
-import type { Theme, LegacyStep, GeometryType } from "./types/geometry";
+import type { Theme, GeometryType } from "./types/geometry";
 
 const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = [
   "point",
@@ -49,21 +41,15 @@ export default function App(): JSX.Element {
   }, [svgTheme]);
 
   // Navigation menu state
-  const [activeSection, setActiveSection] = useState<
-    "sixfold-v4" | "sixfold-v3" | "sixfold-v2" | "sixfold-v1" | "sixfold-v0" | "square"
-  >("sixfold-v4");
+  const [activeSection, setActiveSection] = useState<"sixfold-v0" | "square">("sixfold-v0");
   const sectionRefs = {
-    "sixfold-v4": useRef<HTMLDivElement>(null),
-    "sixfold-v3": useRef<HTMLDivElement>(null),
-    "sixfold-v2": useRef<HTMLDivElement>(null),
-    "sixfold-v1": useRef<HTMLDivElement>(null),
     "sixfold-v0": useRef<HTMLDivElement>(null),
     square: useRef<HTMLDivElement>(null),
   };
 
   // Scroll to section when navigation changes
   const scrollToSection = (
-    sectionId: "sixfold-v4" | "sixfold-v3" | "sixfold-v2" | "sixfold-v1" | "sixfold-v0" | "square",
+    sectionId: "sixfold-v0" | "square",
   ) => {
     setActiveSection(sectionId);
     // Update URL hash
@@ -80,34 +66,9 @@ export default function App(): JSX.Element {
   // Handle URL hash changes
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.substring(1) as
-        | "sixfold-v4"
-        | "sixfold-v3"
-        | "sixfold-v2"
-        | "sixfold-v1"
-        | "sixfold-v0"
-        | "square"
-        | "";
-      const validSections = [
-        "sixfold-v4",
-        "sixfold-v3",
-        "sixfold-v2",
-        "sixfold-v1",
-        "sixfold-v0",
-        "square",
-      ] as const;
-      if (
-        hash &&
-        validSections.includes(
-          hash as
-            | "sixfold-v4"
-            | "sixfold-v3"
-            | "sixfold-v2"
-            | "sixfold-v1"
-            | "sixfold-v0"
-            | "square",
-        )
-      ) {
+      const hash = window.location.hash.substring(1) as "sixfold-v0" | "square" | "";
+      const validSections = ["sixfold-v0", "square"] as const;
+      if (hash && validSections.includes(hash as "sixfold-v0" | "square")) {
         scrollToSection(hash);
       }
     };
@@ -123,112 +84,8 @@ export default function App(): JSX.Element {
     };
   }, []);
 
-  const store = useGeometryStore();
   const storeSquare = useGeometryStoreSquare();
-  const storev2 = useGeometryStorev2();
-  const storev3 = useGeometryStorev3();
-  const storev4 = useGeometryStorev4();
   const storeSixFoldV0 = useGeometryStoreSixFoldV0();
-
-  const [stepsv3, setStepsv3] = useState<readonly LegacyStep[]>([]);
-  const [currentStepv3, setCurrentStepv3] = useState<number>(0);
-  const [restartKeyv3, setRestartKeyv3] = useState<number>(0);
-
-  const handleNextClickv3 = (): void => {
-    console.log("next step", currentStepv3, stepsv3.length);
-    if (currentStepv3 < stepsv3.length) {
-      console.log("inside");
-      const step = stepsv3[currentStepv3];
-      console.log(step);
-      step.draw = true;
-      step.drawShapes();
-      console.log("after drawShapes");
-      setCurrentStepv3(currentStepv3 + 1);
-    }
-  };
-
-  const handleRestartv3 = (): void => {
-    // Reset all steps
-    const resetSteps = stepsv3.map((step) => ({ ...step, draw: false }));
-    setStepsv3(resetSteps);
-    setCurrentStepv3(0);
-
-    // Clear the store using the proper clear method
-    if (storev3 && storev3.clear) {
-      // Remove elements from SVG if they exist
-      Object.keys(storev3.items).forEach((key) => {
-        const item = storev3.items[key];
-        if (item && item.element && item.element.parentNode) {
-          item.element.parentNode.removeChild(item.element);
-        }
-        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
-          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
-        }
-        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
-          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
-        }
-      });
-      storev3.clear();
-    }
-
-    // Trigger re-render by incrementing restart key
-    setRestartKeyv3(restartKeyv3 + 1);
-  };
-
-  const updateStepsv3 = useCallback((steps: readonly LegacyStep[]): void => {
-    console.log("steps", steps, "stepsv3", stepsv3);
-    setStepsv3(steps);
-  }, []);
-
-  const [stepsv4, setStepsv4] = useState<readonly LegacyStep[]>([]);
-  const [currentStepv4, setCurrentStepv4] = useState<number>(0);
-  const [restartKeyv4, setRestartKeyv4] = useState<number>(0);
-
-  const handleNextClickv4 = (): void => {
-    console.log("next step", currentStepv4, stepsv4.length);
-    if (currentStepv4 < stepsv4.length) {
-      console.log("inside");
-      const step = stepsv4[currentStepv4];
-      console.log(step);
-      step.draw = true;
-      step.drawShapes();
-      console.log("after drawShapes");
-      setCurrentStepv4(currentStepv4 + 1);
-    }
-  };
-
-  const handleRestartv4 = (): void => {
-    // Reset all steps
-    const resetSteps = stepsv4.map((step) => ({ ...step, draw: false }));
-    setStepsv4(resetSteps);
-    setCurrentStepv4(0);
-
-    // Clear the store using the proper clear method
-    if (storev4 && storev4.clear) {
-      // Remove elements from SVG if they exist
-      Object.keys(storev4.items).forEach((key) => {
-        const item = storev4.items[key];
-        if (item && item.element && item.element.parentNode) {
-          item.element.parentNode.removeChild(item.element);
-        }
-        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
-          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
-        }
-        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
-          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
-        }
-      });
-      storev4.clear();
-    }
-
-    // Trigger re-render by incrementing restart key
-    setRestartKeyv4(restartKeyv4 + 1);
-  };
-
-  const updateStepsv4 = useCallback((steps: readonly LegacyStep[]): void => {
-    console.log("steps", steps, "stepsv4", stepsv4);
-    setStepsv4(steps);
-  }, []);
 
   // SixFoldV0 state
   const [currentStepv0, setCurrentStepv0] = useState<number>(1);
@@ -306,227 +163,6 @@ export default function App(): JSX.Element {
         svgTheme={svgTheme}
       />
 
-      {/* v4 Section */}
-      <div
-        ref={sectionRefs["sixfold-v4"]}
-        className="mb-8 p-8 bg-dark-card rounded-lg"
-        id="sixfold-v4"
-      >
-        <div className="mb-6 flex items-center">
-          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v4</h1>
-          <CopyUrlButton />
-        </div>
-        <div className="mb-4">
-          <small className="block text-gray-400 mb-2">14/05/2023</small>
-          <p className="text-gray-300 mb-4">1/4 Six fold pattern, with input output geometries</p>
-        </div>
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-9">
-            <SixFoldv4
-              store={storev4}
-              stroke={stroke}
-              strokeMid={strokeMid}
-              strokeBig={strokeBig}
-              strokeLine={strokeLine}
-              steps={stepsv4}
-              updateSteps={updateStepsv4}
-            />
-            <div className="mt-1 flex gap-2">
-              <button
-                onClick={handleNextClickv4}
-                className={`px-4 py-2 text-white rounded ${
-                  currentStepv4 >= stepsv4.length
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                disabled={currentStepv4 >= stepsv4.length}
-              >
-                next
-              </button>
-              <button
-                onClick={handleRestartv4}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-              >
-                restart
-              </button>
-            </div>
-          </div>
-          <div className="col-span-3 pl-4">
-            <h2 className="text-lg font-medium mb-4">Right pane</h2>
-            <p className="text-gray-300 mb-4">
-              Current step {currentStepv4}/{stepsv4.length}
-            </p>
-            <div>
-              <GeometryList
-                store={storev4}
-                stroke={stroke}
-                strokeMid={strokeMid}
-                strokeBig={strokeBig}
-                strokeLine={strokeLine}
-                showInputHighlight={false}
-                showNameFilter={true}
-                showTypeFilters={true}
-                availableTypes={GEOMETRY_TYPES}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* v3 Section */}
-      <div
-        ref={sectionRefs["sixfold-v3"]}
-        className="mb-8 p-8 bg-gray-900 rounded-lg"
-        id="sixfold-v3"
-      >
-        <div className="mb-6 flex items-center">
-          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v3</h1>
-          <CopyUrlButton />
-        </div>
-        <div className="mb-4">
-          <small className="block text-gray-400 mb-2">11/03/2023</small>
-          <p className="text-gray-300 mb-4">
-            1/4 Six fold pattern, with steps to display geometry incrementally
-          </p>
-        </div>
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-9">
-            <SixFoldv3
-              store={storev3}
-              stroke={stroke}
-              strokeMid={strokeMid}
-              strokeBig={strokeBig}
-              strokeLine={strokeLine}
-              steps={stepsv3}
-              updateSteps={updateStepsv3}
-            />
-            <div className="mt-1 flex gap-2">
-              <button
-                onClick={handleNextClickv3}
-                className={`px-4 py-2 text-white rounded ${
-                  currentStepv3 >= stepsv3.length
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                disabled={currentStepv3 >= stepsv3.length}
-              >
-                next
-              </button>
-              <button
-                onClick={handleRestartv3}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-              >
-                restart
-              </button>
-            </div>
-          </div>
-          <div className="col-span-3 pl-4">
-            <h2 className="text-lg font-medium mb-4">Right pane</h2>
-            <p className="text-gray-300 mb-4">
-              Current step {currentStepv3}/{stepsv3.length}
-            </p>
-            <div>
-              <GeometryList
-                store={storev3}
-                stroke={stroke}
-                strokeMid={strokeMid}
-                strokeBig={strokeBig}
-                strokeLine={strokeLine}
-                showInputHighlight={false}
-                showNameFilter={true}
-                showTypeFilters={true}
-                availableTypes={GEOMETRY_TYPES}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* v2 Section */}
-      <div
-        ref={sectionRefs["sixfold-v2"]}
-        className="mb-8 p-8 bg-gray-900 rounded-lg"
-        id="sixfold-v2"
-      >
-        <div className="mb-6 flex items-center">
-          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v2</h1>
-          <CopyUrlButton />
-        </div>
-        <div className="mb-4">
-          <small className="block text-gray-400 mb-2">24/12/2022</small>
-        </div>
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-9">
-            <SixFoldv2
-              store={storev2}
-              stroke={stroke}
-              strokeMid={strokeMid}
-              strokeBig={strokeBig}
-              strokeLine={strokeLine}
-            />
-          </div>
-          <div className="col-span-3 pl-4">
-            <h2 className="text-lg font-medium mb-4">Right pane</h2>
-            <div>
-              <GeometryList
-                store={storev2}
-                stroke={stroke}
-                strokeMid={strokeMid}
-                strokeBig={strokeBig}
-                strokeLine={strokeLine}
-                showInputHighlight={false}
-                showNameFilter={true}
-                showTypeFilters={true}
-                availableTypes={GEOMETRY_TYPES}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* v1 Section */}
-      <div
-        ref={sectionRefs["sixfold-v1"]}
-        className="mb-8 p-8 bg-gray-900 rounded-lg"
-        id="sixfold-v1"
-      >
-        <div className="mb-6 flex items-center">
-          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern</h1>
-          <CopyUrlButton />
-        </div>
-        <div className="mb-4">
-          <small className="block text-gray-400 mb-2">08/10/2022</small>
-        </div>
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-9">
-            <SixFold
-              store={store}
-              stroke={stroke}
-              strokeMid={strokeMid}
-              strokeBig={strokeBig}
-              strokeLine={strokeLine}
-              svgConfig={sixFoldSvgConfig}
-            />
-          </div>
-          <div className="col-span-3 pl-4">
-            <h2 className="text-lg font-medium mb-4">Right pane</h2>
-            <div>
-              <GeometryList
-                store={store}
-                stroke={stroke}
-                strokeMid={strokeMid}
-                strokeBig={strokeBig}
-                strokeLine={strokeLine}
-                showInputHighlight={false}
-                showNameFilter={true}
-                showTypeFilters={true}
-                availableTypes={GEOMETRY_TYPES}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* v0 Section */}
       <div
         ref={sectionRefs["sixfold-v0"]}
@@ -534,13 +170,13 @@ export default function App(): JSX.Element {
         id="sixfold-v0"
       >
         <div className="mb-6 flex items-center">
-          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v3</h1>
+          <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v0</h1>
           <CopyUrlButton />
         </div>
         <div className="mb-4">
           <small className="block text-gray-400 mb-2">11/03/2023</small>
           <p className="text-gray-300 mb-4">
-            1/4 Six fold pattern v3, with steps to display geometry incrementally
+            1/4 Six fold pattern v0, with steps to display geometry incrementally
           </p>
         </div>
         <div className="grid grid-cols-12 gap-8">
