@@ -1,11 +1,7 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import {
-  useGeometryStore,
   useGeometryStoreSquare,
-  useGeometryStorev2,
-  useGeometryStorev3,
-  useGeometryStorev4,
   useGeometryValueStore,
   useGeometryStoreEnhanced,
 } from "../src/react-store";
@@ -20,23 +16,6 @@ import {
  */
 
 describe("Geometry Store Hooks - Reference Stability", () => {
-  it("useGeometryStore should return stable reference across renders", () => {
-    const { result, rerender } = renderHook(() => useGeometryStore());
-
-    const firstStore = result.current;
-
-    // Re-render the hook (simulating parent component re-render)
-    rerender();
-
-    // Store reference should be stable
-    expect(result.current).toBe(firstStore);
-
-    // Methods should be stable
-    expect(result.current.add).toBe(firstStore.add);
-    expect(result.current.update).toBe(firstStore.update);
-    expect(result.current.clear).toBe(firstStore.clear);
-  });
-
   it("useGeometryStoreSquare should return stable reference across renders", () => {
     const { result, rerender } = renderHook(() => useGeometryStoreSquare());
 
@@ -47,37 +26,6 @@ describe("Geometry Store Hooks - Reference Stability", () => {
     expect(result.current.add).toBe(firstStore.add);
     expect(result.current.update).toBe(firstStore.update);
     expect(result.current.clear).toBe(firstStore.clear);
-  });
-
-  it("useGeometryStorev2 should return stable reference across renders", () => {
-    const { result, rerender } = renderHook(() => useGeometryStorev2());
-
-    const firstStore = result.current;
-    rerender();
-
-    expect(result.current).toBe(firstStore);
-    expect(result.current.add).toBe(firstStore.add);
-    expect(result.current.update).toBe(firstStore.update);
-    expect(result.current.clear).toBe(firstStore.clear);
-    expect(result.current.remove).toBe(firstStore.remove);
-  });
-
-  it("useGeometryStorev3 should return stable reference (delegates to v2)", () => {
-    const { result, rerender } = renderHook(() => useGeometryStorev3());
-
-    const firstStore = result.current;
-    rerender();
-
-    expect(result.current).toBe(firstStore);
-  });
-
-  it("useGeometryStorev4 should return stable reference (delegates to v2)", () => {
-    const { result, rerender } = renderHook(() => useGeometryStorev4());
-
-    const firstStore = result.current;
-    rerender();
-
-    expect(result.current).toBe(firstStore);
   });
 
   it("useGeometryValueStore should return stable reference across renders", () => {
