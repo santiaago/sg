@@ -4,7 +4,7 @@
  */
 
 import type { GeometryValue } from "../types/geometry";
-import { point, line, circle, isPoint, isLine, isCircle } from "../types/geometry";
+import { point, line, circle, isPoint, isLine, isCircle, scalar, isScalar } from "../types/geometry";
 import { directions, lineIntersect } from "@sg/geometry";
 import type { StepExecutionContext } from "../types/geometry";
 import { drawPoint, drawLine, drawCircle } from "../svgElements";
@@ -586,20 +586,38 @@ const STEP_6C: SixFoldV0Step = {
 };
 
 /**
+ * Step 7: Compute D1 scalar value
+ * Computes the distance from PIC14 to PI2, which is reused as radius in multiple subsequent steps.
+ * This follows the SQUARE pattern of computing derived values once and reusing them.
+ */
+const STEP_7: SixFoldV0Step = {
+  id: "step7",
+  inputs: [GEOM.PIC14, GEOM.PI2],
+  outputs: [GEOM.D1],
+  parameters: [],
+  compute: computeSingle(GEOM.D1, (inputs, _config) => {
+    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
+    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
+    return scalar(distance(pic14, pi2));
+  }),
+  draw: (svg, values, store, theme) => {
+    // D1 is a scalar value, no visual representation needed
+  },
+};
+
+/**
  * Step 7A: Circle C1_D1
  * Creates circle centered at cp1 with radius d1 (distance from pic14 to pi2).
  */
 const STEP_7A: SixFoldV0Step = {
   id: "step7a",
-  inputs: [GEOM.CP1, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.CP1, GEOM.D1],
   outputs: [GEOM.C1_D1],
   parameters: [],
   compute: computeSingle(GEOM.C1_D1, (inputs, _config) => {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
-    return circle(cp1.x, cp1.y, d1);
+    const d1 = getGeometry(inputs, GEOM.D1, isScalar, "Scalar");
+    return circle(cp1.x, cp1.y, d1.value);
   }),
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C1_D1, 0.5, store, theme);
@@ -612,15 +630,13 @@ const STEP_7A: SixFoldV0Step = {
  */
 const STEP_7B: SixFoldV0Step = {
   id: "step7b",
-  inputs: [GEOM.CP2, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.CP2, GEOM.D1],
   outputs: [GEOM.C2_D1],
   parameters: [],
   compute: computeSingle(GEOM.C2_D1, (inputs, _config) => {
     const cp2 = getGeometry(inputs, GEOM.CP2, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
-    return circle(cp2.x, cp2.y, d1);
+    const d1 = getGeometry(inputs, GEOM.D1, isScalar, "Scalar");
+    return circle(cp2.x, cp2.y, d1.value);
   }),
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C2_D1, 0.5, store, theme);
@@ -633,15 +649,13 @@ const STEP_7B: SixFoldV0Step = {
  */
 const STEP_7C: SixFoldV0Step = {
   id: "step7c",
-  inputs: [GEOM.CP3, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.CP3, GEOM.D1],
   outputs: [GEOM.C3_D1],
   parameters: [],
   compute: computeSingle(GEOM.C3_D1, (inputs, _config) => {
     const cp3 = getGeometry(inputs, GEOM.CP3, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
-    return circle(cp3.x, cp3.y, d1);
+    const d1 = getGeometry(inputs, GEOM.D1, isScalar, "Scalar");
+    return circle(cp3.x, cp3.y, d1.value);
   }),
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C3_D1, 0.5, store, theme);
@@ -654,15 +668,13 @@ const STEP_7C: SixFoldV0Step = {
  */
 const STEP_7D: SixFoldV0Step = {
   id: "step7d",
-  inputs: [GEOM.CP4, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.CP4, GEOM.D1],
   outputs: [GEOM.C4_D1],
   parameters: [],
   compute: computeSingle(GEOM.C4_D1, (inputs, _config) => {
     const cp4 = getGeometry(inputs, GEOM.CP4, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
-    return circle(cp4.x, cp4.y, d1);
+    const d1 = getGeometry(inputs, GEOM.D1, isScalar, "Scalar");
+    return circle(cp4.x, cp4.y, d1.value);
   }),
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C4_D1, 0.5, store, theme);
@@ -679,14 +691,13 @@ const STEP_7D: SixFoldV0Step = {
  */
 const STEP_8A: SixFoldV0Step = {
   id: "step8a",
-  inputs: [GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.PIC14, GEOM.D1],
   outputs: [GEOM.C14_D1],
   parameters: [],
   compute: computeSingle(GEOM.C14_D1, (inputs, _config) => {
     const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
-    return circle(pic14.x, pic14.y, d1);
+    const d1 = getGeometry(inputs, GEOM.D1, isScalar, "Scalar");
+    return circle(pic14.x, pic14.y, d1.value);
   }),
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C14_D1, 0.5, store, theme);
@@ -699,15 +710,13 @@ const STEP_8A: SixFoldV0Step = {
  */
 const STEP_8B: SixFoldV0Step = {
   id: "step8b",
-  inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.PIC12, GEOM.D1],
   outputs: [GEOM.C12_D1],
   parameters: [],
   compute: computeSingle(GEOM.C12_D1, (inputs, _config) => {
     const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    const d1 = distance(pic14, pi2);
-    return circle(pic12.x, pic12.y, d1);
+    const d1 = getGeometry(inputs, GEOM.D1, isScalar, "Scalar");
+    return circle(pic12.x, pic12.y, d1.value);
   }),
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C12_D1, 0.5, store, theme);
@@ -986,17 +995,14 @@ const STEP_12E: SixFoldV0Step = {
  */
 const STEP_13A: SixFoldV0Step = {
   id: "step13a",
-  inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
+  inputs: [GEOM.PIC12, GEOM.D1],
   outputs: [GEOM.CPI12],
   parameters: [],
   compute: computeSingle(GEOM.CPI12, (inputs, _config) => {
     const pic12 = getGeometry(inputs, GEOM.PIC12, isPoint, "Point");
-    const pic14 = getGeometry(inputs, GEOM.PIC14, isPoint, "Point");
-    const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
-    // d1 = distance from pic14 to pi2
-    const d1 = distance(pic14, pi2);
+    const d1 = getGeometry(inputs, GEOM.D1, isScalar, "Scalar");
     // cpic12 = circle at pic12 with radius d1
-    return circle(pic12.x, pic12.y, d1);
+    return circle(pic12.x, pic12.y, d1.value);
   }),
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.CPI12, 0.5, store, theme);
@@ -2140,6 +2146,7 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_6A,
   STEP_6B,
   STEP_6C,
+  STEP_7,
   STEP_7A,
   STEP_7B,
   STEP_7C,
