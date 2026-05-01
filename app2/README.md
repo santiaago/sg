@@ -20,7 +20,7 @@ npm run preview
 
 ## Components
 
-- SixFold (v1-v4)
+- SixFoldV0
 - Square
 - GeometryList
 - All with same props and structure as original
