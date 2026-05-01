@@ -31,17 +31,6 @@ export interface GeometryStore {
   clear: () => void;
 }
 
-/**
- * Extended geometry store interface for v2, v3, and v4 implementations.
- * Adds context support for geometry items.
- */
-interface GeometryStorev2v3v4 {
-  items: Record<string, GeometryItem>;
-  add: (name: string, element: any, type: string, dependsOn: string[], context?: any) => void;
-  update: (key: string, object: Partial<GeometryItem>) => void;
-  clear: () => void;
-}
-
 // Attributes to preserve for each geometry type
 const ATTRIBUTES_TO_PRESERVE: Record<string, string[]> = {
   point: ["fill", "r", "cx", "cy"],
@@ -71,53 +60,6 @@ function captureInitialState(element: any, type: string, name: string): Record<s
   });
 
   return initialState;
-}
-
-/**
- * React hook that creates and manages a geometry store.
- * Returns a GeometryStore instance with items, add, update, and clear methods.
- */
-export function useGeometryStore(): GeometryStore {
-  const [items, setItems] = useState<Record<string, GeometryItem>>({});
-
-  const add = useCallback((name: string, element: any, type: string, dependsOn: string[]) => {
-    setItems((old) => {
-      const newItems = { ...old };
-      const initialState = captureInitialState(element, type, name);
-      const existingItem = old[name];
-
-      newItems[name] = {
-        name,
-        element,
-        // Preserve existing selected state if this item already exists
-        selected: existingItem?.selected ?? false,
-        type,
-        initialState:
-          Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
-        dependsOn: existingItem?.dependsOn ?? dependsOn,
-        stepId: "",
-        parameterValues: {},
-      };
-      return newItems;
-    });
-  }, []);
-
-  const update = useCallback((k: string, o: Partial<GeometryItem>) => {
-    setItems((old) => {
-      const newItems = { ...old };
-      newItems[k] = {
-        ...old[k],
-        ...o,
-      };
-      return newItems;
-    });
-  }, []);
-
-  const clear = useCallback(() => {
-    setItems({});
-  }, []);
-
-  return useMemo(() => ({ items, add, update, clear }), [items, add, update, clear]);
 }
 
 /**
@@ -165,84 +107,6 @@ export function useGeometryStoreSquare(): GeometryStore {
   }, []);
 
   return useMemo(() => ({ items, add, update, clear }), [items, add, update, clear]);
-}
-
-/**
- * React hook for v2 geometry store with extended features.
- * Returns a GeometryStorev2v3v4 instance with additional context support.
- */
-export function useGeometryStorev2(): GeometryStorev2v3v4 {
-  const [items, setItems] = useState<Record<string, GeometryItem>>({});
-
-  const add = useCallback(
-    (name: string, element: any, type: string, dependsOn: string[], context?: any) => {
-      setItems((old) => {
-        const newItems = { ...old };
-        const initialState = captureInitialState(element, type, name);
-        const existingItem = old[name];
-
-        newItems[name] = {
-          name,
-          element,
-          // Preserve existing selected state if this item already exists
-          selected: existingItem?.selected ?? false,
-          type,
-          context,
-          initialState:
-            Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
-          dependsOn: existingItem?.dependsOn ?? dependsOn,
-          stepId: "",
-          parameterValues: {},
-        };
-        return newItems;
-      });
-    },
-    [],
-  );
-
-  const update = useCallback((k: string, o: Partial<GeometryItem>) => {
-    setItems((old) => {
-      const newItems = { ...old };
-      newItems[k] = {
-        ...old[k],
-        ...o,
-      };
-      return newItems;
-    });
-  }, []);
-
-  const clear = useCallback(() => {
-    setItems({});
-  }, []);
-
-  const remove = useCallback((key: string) => {
-    setItems((old) => {
-      const newItems = { ...old };
-      delete newItems[key];
-      return newItems;
-    });
-  }, []);
-
-  return useMemo(
-    () => ({ items, add, update, clear, remove }),
-    [items, add, update, clear, remove],
-  );
-}
-
-/**
- * React hook for v3 geometry store.
- * Alias for useGeometryStorev2 for backward compatibility.
- */
-export function useGeometryStorev3(): GeometryStorev2v3v4 {
-  return useGeometryStorev2();
-}
-
-/**
- * React hook for v4 geometry store.
- * Alias for useGeometryStorev2 for backward compatibility.
- */
-export function useGeometryStorev4(): GeometryStorev2v3v4 {
-  return useGeometryStorev2();
 }
 
 /**
