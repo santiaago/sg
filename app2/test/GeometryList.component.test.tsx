@@ -199,6 +199,29 @@ describe("GeometryList", () => {
       expect(store.items.line_main.selected).toBe(true);
     });
 
+    it("unselects item when clicking it twice", () => {
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
+
+      const c1Item = screen.getByText("c1 | point");
+
+      // First click - select c1
+      fireEvent.click(c1Item);
+      expect(store.items.c1.selected).toBe(true);
+
+      // Second click on same item - unselect c1
+      fireEvent.click(c1Item);
+      expect(store.items.c1.selected).toBe(false);
+      expect(store.items.line_main.selected).toBe(false);
+    });
+
     it("applies red highlighting to selected point with context", () => {
       const storeWithContext = createMockStore({
         c1: { ...mockItems.c1, context: {} },
@@ -368,6 +391,31 @@ describe("GeometryList", () => {
         />,
       );
       expect(screen.getByText("line_main | line")).not.toHaveClass("text-orange-400");
+    });
+
+    it("clears input highlights when unselecting by clicking twice", () => {
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
+
+      const c1Item = screen.getByText("c1 | point");
+      const lineMainItem = screen.getByText("line_main | line");
+
+      // First click - select c1, should highlight line_main
+      fireEvent.click(c1Item);
+      expect(c1Item).toHaveClass("text-yellow-400");
+      expect(lineMainItem).toHaveClass("text-orange-400");
+
+      // Second click on c1 - unselect it, should clear all highlights
+      fireEvent.click(c1Item);
+      expect(c1Item).not.toHaveClass("text-yellow-400");
+      expect(lineMainItem).not.toHaveClass("text-orange-400");
     });
 
     it("shows selected geometry in yellow and its input in orange", () => {
