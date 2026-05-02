@@ -168,9 +168,11 @@ describe("Render Loop Detection", () => {
     });
 
     it("should detect when object changes on every render (without causing actual loop)", () => {
-      const ObjectConsumer = ({ _obj }: { _obj: { value: number } }) => {
+      const ObjectConsumer = ({ obj }: { obj: { value: number } }) => {
         // We don't use useEffect with obj as dependency here
         // because that would cause the actual loop
+        // Use obj to avoid unused var error
+        void obj;
         return <div>Consumer</div>;
       };
 

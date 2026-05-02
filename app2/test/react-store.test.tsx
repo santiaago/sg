@@ -2,6 +2,7 @@ import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import {
   useGeometryStoreSquare,
+  useGeometryStore,
   useGeometryValueStore,
   useGeometryStoreEnhanced,
 } from "../src/react-store";
@@ -69,7 +70,7 @@ describe("Geometry Store Hooks - Reference Stability", () => {
         // Add an item through the store's add method
         // This will trigger a state update internally
         // The store object should now be different
-        firstStore.add("test-item", {} as any, "point");
+        firstStore.add("test-item", {} as any, "point", []);
       });
 
       // Force a re-render to get the new store reference

@@ -2,6 +2,13 @@ import React, { useState } from "react";
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
 
+// Extend Window interface for test properties
+declare global {
+  interface Window {
+    __testCallback?: () => number;
+  }
+}
+
 /**
  * Tests for patterns used in App.tsx to ensure they don't cause infinite loops.
  *
@@ -32,16 +39,8 @@ describe("App.tsx Patterns - Callback Stability", () => {
       // Note: We don't actually render this in a way that causes infinite loop
       // because that would hang the test suite. We just document the pattern.
 
-      const _BrokenParent = () => {
-        const [_steps, _setSteps] = useState<any[]>([]);
-
-        // BUG: callback is recreated on every render
-        const _updateSteps = (_newSteps: any[]) => {
-          _setSteps(_newSteps);
-        };
-
-        return <MockSquare updateSteps={_updateSteps} />;
-      };
+      // Documentation: broken pattern where callback is recreated on every render
+      // This pattern causes infinite loops - the fix uses useCallback
 
       // We don't render this to avoid actual infinite loop in test
       // Instead, we test the fixed version below
@@ -210,7 +209,6 @@ describe("App.tsx Patterns - Callback Stability", () => {
         return <div>Parent</div>;
       };
 
-      // @ts-expect-error - adding to window for test
       delete window.__testCallback;
 
       const { rerender } = render(<Parent deps={1} />);

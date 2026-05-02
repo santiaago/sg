@@ -97,6 +97,14 @@ export function pointFromCircleAndLine(
 }
 
 /**
+ * Creates a circle at a center point with radius from another circle.
+ * Useful for creating circles with the same radius as an existing circle.
+ */
+export function circleWithRadiusFrom(center: Point, sourceCircle: Circle): Circle {
+  return circle(center.x, center.y, sourceCircle.r);
+}
+
+/**
  * Creates a square polygon from 4 corner points in order.
  * Wrapper around polygon() factory.
  */

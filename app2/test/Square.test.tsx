@@ -1,4 +1,3 @@
-import React from "react";
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { Square, SQUARE_STEPS } from "../src/components/Square";
@@ -15,7 +14,12 @@ import type { GeometryStore, GeometryItem } from "../src/react-store";
  */
 
 // Mock stores for testing
-const createMockStore = (): GeometryStore => ({
+// Cast to include vitest Mock methods
+const createMockStore = (): GeometryStore & {
+  add: ReturnType<typeof vi.fn>;
+  update: ReturnType<typeof vi.fn>;
+  clear: ReturnType<typeof vi.fn>;
+} => ({
   items: {},
   add: vi.fn(),
   update: vi.fn(),
@@ -280,7 +284,7 @@ describe("Square Component - Metadata Population", () => {
       expect(typeof call.data.parameterValues).toBe("object");
     }
 
-    const hasParams = updateCalls.some((c) => Object.keys(c.data.parameterValues).length > 0);
+    const hasParams = updateCalls.some((c) => Object.keys(c.data.parameterValues || {}).length > 0);
     expect(hasParams).toBe(true);
   });
 
@@ -299,7 +303,7 @@ describe("Square Component - Metadata Population", () => {
     expect(mainLineUpdate!.data.parameterValues).toBeDefined();
 
     const expectedParams = ["lx1", "ly1", "lx2", "ly2"];
-    const paramKeys = Object.keys(mainLineUpdate!.data.parameterValues);
+    const paramKeys = Object.keys(mainLineUpdate!.data.parameterValues || {});
 
     for (const param of expectedParams) {
       expect(paramKeys).toContain(param);
@@ -340,7 +344,7 @@ describe("Square Component - Metadata Population", () => {
     );
 
     expect(mainLineUpdate).toBeDefined();
-    const paramCount = Object.keys(mainLineUpdate!.data.parameterValues).length;
+    const paramCount = Object.keys(mainLineUpdate!.data.parameterValues || {}).length;
     expect(paramCount).toBeGreaterThan(1);
   });
 

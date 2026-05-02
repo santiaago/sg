@@ -7,6 +7,9 @@ import { SQUARE_STEPS, executeSteps, computeSquareConfig } from "../geometry/squ
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
 
+// Re-export SQUARE_STEPS for test accessibility
+export { SQUARE_STEPS };
+
 // Props for the Square component.
 export interface SquareProps {
   // Store for managing SVG elements and tooltips

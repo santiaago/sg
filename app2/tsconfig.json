@@ -24,8 +24,6 @@
 
     /* Output */
     "outDir": "./dist",
-    "rootDir": ".",
-    "composite": true,
 
     /* Source Map */
     "sourceMap": true,
