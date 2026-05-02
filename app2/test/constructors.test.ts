@@ -10,7 +10,7 @@ import {
   circleWithRadiusFrom,
 } from "../src/geometry/constructors";
 import { point, line, circle } from "../src/types/geometry";
-import type { Point, Line, Circle, Polygon } from "../src/types/geometry";
+import type { Point, Line, Circle } from "../src/types/geometry";
 
 // Test fixtures
 const origin: Point = point(0, 0);
@@ -18,21 +18,6 @@ const pointA: Point = point(10, 0);
 const pointB: Point = point(0, 10);
 const pointC: Point = point(10, 10);
 const circleA: Circle = circle(0, 0, 5);
-const circleB: Circle = circle(10, 0, 5);
-const lineAB: Line = line(0, 0, 10, 0);
-
-// Helper to check if two points are approximately equal
-function pointsEqual(p1: Point, p2: Point, epsilon = 0.001): boolean {
-  return Math.abs(p1.x - p2.x) < epsilon && Math.abs(p1.y - p2.y) < epsilon;
-}
-
-// Helper to check if two lines are approximately equal
-function linesEqual(l1: Line, l2: Line, epsilon = 0.001): boolean {
-  return (
-    pointsEqual({ x: l1.x1, y: l1.y1 }, { x: l2.x1, y: l2.y1 }, epsilon) &&
-    pointsEqual({ x: l1.x2, y: l1.y2 }, { x: l2.x2, y: l2.y2 }, epsilon)
-  );
-}
 
 describe("circleFromPoint", () => {
   it("creates a circle with correct center and radius", () => {

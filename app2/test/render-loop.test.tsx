@@ -141,7 +141,7 @@ describe("Render Loop Detection", () => {
       };
 
       const ParentWithFix = () => {
-        const [state, setState] = useState(0);
+        const [state, _setState] = useState(0);
 
         // FIX: callback is memoized
         const callback = React.useCallback(() => {
@@ -168,14 +168,14 @@ describe("Render Loop Detection", () => {
     });
 
     it("should detect when object changes on every render (without causing actual loop)", () => {
-      const ObjectConsumer = ({ obj }: { obj: { value: number } }) => {
+      const ObjectConsumer = ({ _obj }: { _obj: { value: number } }) => {
         // We don't use useEffect with obj as dependency here
         // because that would cause the actual loop
         return <div>Consumer</div>;
       };
 
       const ParentWithBug = () => {
-        const [count, setCount] = useState(0);
+        const [count, _setCount] = useState(0);
 
         // BUG: object is recreated on every render
         const obj = { value: count };
@@ -209,7 +209,7 @@ describe("Render Loop Detection", () => {
       };
 
       const ParentWithFix = () => {
-        const [count, setCount] = useState(0);
+        const [count, _setCount] = useState(0);
 
         // FIX: object is memoized
         const obj = React.useMemo(() => ({ value: count }), [count]);
