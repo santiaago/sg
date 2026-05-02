@@ -260,7 +260,7 @@ export default function App(): JSX.Element {
             <p className="text-gray-300 mb-4">
               Current step {currentStepv0}/{SIX_FOLD_V0_STEPS.length}
             </p>
-            <GeometryDetails store={storeSixFoldV0} />
+            <GeometryDetails store={storeSixFoldV0} stroke={stroke} strokeBig={strokeBig} steps={SIX_FOLD_V0_STEPS} />
           </div>
           <div className="col-span-3">
             <div>
@@ -366,7 +366,7 @@ export default function App(): JSX.Element {
             <p className="text-gray-300 mb-4">
               Current step {currentStepSquare}/{SQUARE_STEPS.length}
             </p>
-            <GeometryDetails store={storeSquare} />
+            <GeometryDetails store={storeSquare} stroke={stroke} strokeBig={strokeBig} steps={SQUARE_STEPS} />
           </div>
           <div className="col-span-3">
             <div>
