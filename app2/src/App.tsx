@@ -211,6 +211,13 @@ export default function App(): JSX.Element {
             />
             <div className="mt-1 flex gap-2">
               <button
+                onClick={handleRestartv0}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to beginning"
+              >
+                ««
+              </button>
+              <button
                 onClick={handlePrevClickv0}
                 className={`px-4 py-2 text-white rounded ${
                   currentStepv0 <= 1
@@ -233,24 +240,17 @@ export default function App(): JSX.Element {
                 next
               </button>
               <button
-                onClick={handleRestartv0}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-              >
-                restart
-              </button>
-              <button
-                onClick={handleRestartv0}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-                title="Go to beginning"
-              >
-                ««
-              </button>
-              <button
                 onClick={handleLastStepv0}
                 className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
                 title="Go to end"
               >
                 »»
+              </button>
+              <button
+                onClick={handleRestartv0}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              >
+                restart
               </button>
               <button
                 onClick={() => setShowInputHighlight(!showInputHighlight)}
@@ -316,6 +316,13 @@ export default function App(): JSX.Element {
             />
             <div className="mt-1 flex gap-2">
               <button
+                onClick={handleFirstStepSquare}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to beginning"
+              >
+                ««
+              </button>
+              <button
                 onClick={handlePrevClickSquare}
                 className={`px-4 py-2 text-white rounded ${
                   currentStepSquare <= 1
@@ -338,24 +345,17 @@ export default function App(): JSX.Element {
                 next
               </button>
               <button
-                onClick={handleRestartSquare}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-              >
-                restart
-              </button>
-              <button
-                onClick={handleFirstStepSquare}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-                title="Go to beginning"
-              >
-                ««
-              </button>
-              <button
                 onClick={handleLastStepSquare}
                 className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
                 title="Go to end"
               >
                 »»
+              </button>
+              <button
+                onClick={handleRestartSquare}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              >
+                restart
               </button>
               <button
                 onClick={() => setShowInputHighlight(!showInputHighlight)}
