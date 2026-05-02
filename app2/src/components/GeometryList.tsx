@@ -2,6 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import type { JSX } from "react";
 import type { GeometryItem } from "../react-store";
 import type { GeometryType } from "../types/geometry";
+import {
+  applyInputVisualFeedback,
+  restoreInitialState,
+  applyVisualFeedback,
+} from "../utils/geometryHighlighting";
 
 interface GeometryListProps {
   store: any;
@@ -205,104 +210,4 @@ export function GeometryList({
   );
 }
 
-// Apply orange visual feedback to SVG elements for highlighted input dependencies
-export function applyInputVisualFeedback(element: any, shape: GeometryItem, scale: number) {
-  if (!element) return;
 
-  try {
-    if (shape.type === "point") {
-      element.setAttribute("fill", "orange");
-      element.setAttribute("r", scale.toString());
-    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
-      element.setAttribute("stroke", "orange");
-      element.setAttribute("stroke-width", scale.toString());
-    }
-
-    // Show tooltip and background for highlighted inputs
-    if (element.tooltip) {
-      element.tooltip.setAttribute("opacity", "1");
-    }
-    if (element.tooltipBg) {
-      element.tooltipBg.setAttribute("opacity", "1");
-    }
-  } catch (error) {
-    console.error("Error applying input visual feedback:", error);
-  }
-}
-
-// Restore an SVG element to its initial state
-export function restoreInitialState(element: any, shape: GeometryItem) {
-  if (!element) return;
-
-  try {
-    if (shape.initialState) {
-      Object.entries(shape.initialState).forEach(([attr, value]) => {
-        element.setAttribute(attr, value);
-      });
-    }
-
-    // Hide tooltips
-    if (element.tooltip) {
-      element.tooltip.setAttribute("opacity", "0");
-    }
-    if (element.tooltipBg) {
-      element.tooltipBg.setAttribute("opacity", "0");
-    }
-  } catch (error) {
-    console.error("Error restoring initial state:", error);
-  }
-}
-
-// Apply visual feedback to SVG elements based on selection state
-function applyVisualFeedback(
-  element: any,
-  shape: GeometryItem,
-  _stroke: number,
-  strokeBig: number,
-) {
-  if (!element) return;
-
-  try {
-    if (shape.selected) {
-      // Apply selection styles (consistent red highlighting)
-      if (shape.type === "point") {
-        element.setAttribute("fill", "red");
-        element.setAttribute("r", strokeBig.toString());
-        // Show tooltip and background when selected
-        if (element.tooltip) {
-          element.tooltip.setAttribute("opacity", "1");
-        }
-        if (element.tooltipBg) {
-          element.tooltipBg.setAttribute("opacity", "1");
-        }
-      } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
-        element.setAttribute("stroke-width", strokeBig.toString());
-        element.setAttribute("stroke", "red");
-        // Show tooltip and background when selected
-        if (element.tooltip) {
-          element.tooltip.setAttribute("opacity", "1");
-        }
-        if (element.tooltipBg) {
-          element.tooltipBg.setAttribute("opacity", "1");
-        }
-      }
-    } else {
-      // Restore original state from store
-      if (shape.initialState) {
-        Object.entries(shape.initialState).forEach(([attr, value]) => {
-          element.setAttribute(attr, value);
-        });
-      }
-
-      // Hide tooltips for all geometry types when unselected
-      if (element.tooltip) {
-        element.tooltip.setAttribute("opacity", "0");
-      }
-      if (element.tooltipBg) {
-        element.tooltipBg.setAttribute("opacity", "0");
-      }
-    }
-  } catch (error) {
-    console.error("Error applying visual feedback:", error);
-  }
-}
