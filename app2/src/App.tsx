@@ -109,11 +109,6 @@ export default function App(): JSX.Element {
     setRestartKeyv0(restartKeyv0 + 1);
   };
 
-  const handleFirstStepv0 = (): void => {
-    setCurrentStepv0(1);
-    setRestartKeyv0(restartKeyv0 + 1);
-  };
-
   const handleLastStepv0 = (): void => {
     setCurrentStepv0(SIX_FOLD_V0_STEPS.length);
     setRestartKeyv0(restartKeyv0 + 1);
@@ -244,7 +239,7 @@ export default function App(): JSX.Element {
                 restart
               </button>
               <button
-                onClick={handleFirstStepv0}
+                onClick={handleRestartv0}
                 className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
                 title="Go to beginning"
               >
