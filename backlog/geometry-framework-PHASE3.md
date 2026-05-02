@@ -7,7 +7,7 @@ This phase creates the rendering layer that consumes Construction output and ren
 **Status**: NOT STARTED  
 **Priority**: HIGH  
 **Estimated Duration**: 2-3 days  
-**Prerequisites**: Phase 1 (Core Construction DSL) must be complete  
+**Prerequisites**: Phase 1 (Core Construction DSL) must be complete
 
 ---
 
@@ -30,6 +30,7 @@ By the end of this phase, we will have:
 **Decision**: Create a dedicated `SvgRenderer` class that is completely independent of Construction.
 
 **Rationale**:
+
 - Clean separation of concerns: Construction does geometry, SvgRenderer does rendering
 - SvgRenderer doesn't need to know about Construction internals
 - Can be used with other geometry sources (not just Construction)
@@ -41,6 +42,7 @@ By the end of this phase, we will have:
 **Decision**: Use `document.createElementNS("http://www.w3.org/2000/svg", ...)` for all SVG elements.
 
 **Rationale**:
+
 - Required for creating SVG elements in the DOM
 - Different namespace than HTML elements
 - Ensures proper SVG element creation
@@ -50,6 +52,7 @@ By the end of this phase, we will have:
 **Decision**: Accept GeometryStore as optional parameter and use it for tooltip management.
 
 **Rationale**:
+
 - GeometryStore already exists in the codebase for managing SVG elements and tooltips
 - Optional parameter allows SvgRenderer to be used without GeometryStore (for testing, etc.)
 - Follows existing patterns in the codebase
@@ -59,6 +62,7 @@ By the end of this phase, we will have:
 **Decision**: Use options objects for configurable styling.
 
 **Rationale**:
+
 - Flexible: can add new options without breaking API
 - Follows common TypeScript/React patterns
 - Allows per-element customization
@@ -74,10 +78,10 @@ This is the main file for Phase 3.
 ```typescript
 /**
  * svgRenderer.ts
- * 
+ *
  * Rendering layer for geometry constructions.
  * Consumes GeometryValue types and renders them to SVG.
- * 
+ *
  * Key principles:
  * - Pure rendering logic (NO geometry construction)
  * - Takes GeometryValue types from Construction or any source
@@ -133,7 +137,7 @@ export interface DrawPolygonOptions {
 /**
  * Options for drawing geometry (union of all specific options).
  */
-export type DrawGeometryOptions = 
+export type DrawGeometryOptions =
   | DrawPointOptions
   | DrawLineOptions
   | DrawCircleOptions
@@ -141,7 +145,7 @@ export type DrawGeometryOptions =
 
 /**
  * SvgRenderer class for rendering geometry to SVG.
- * 
+ *
  * Features:
  * - Draws Point, Line, Circle, Polygon geometries
  * - Optional GeometryStore integration for tooltip management
@@ -173,23 +177,23 @@ export class SvgRenderer {
   drawPoint(point: Point, options?: DrawPointOptions): SVGElement {
     const radius = options?.stroke ?? 2;
     const el = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    
+
     el.setAttribute("cx", point.x.toString());
     el.setAttribute("cy", point.y.toString());
     el.setAttribute("r", radius.toString());
     el.setAttribute("stroke", "currentColor");
     el.setAttribute("fill", "none");
-    
+
     if (options?.name) {
       el.setAttribute("data-name", options.name);
     }
-    
+
     this._svg.appendChild(el);
-    
+
     if (this._store && options?.name) {
       this._store.add(options.name, el, "circle", []);
     }
-    
+
     return el;
   }
 
@@ -202,24 +206,24 @@ export class SvgRenderer {
   drawLine(line: Line, options?: DrawLineOptions): SVGElement {
     const strokeWidth = options?.stroke ?? 0.5;
     const el = document.createElementNS("http://www.w3.org/2000/svg", "line");
-    
+
     el.setAttribute("x1", line.x1.toString());
     el.setAttribute("y1", line.y1.toString());
     el.setAttribute("x2", line.x2.toString());
     el.setAttribute("y2", line.y2.toString());
     el.setAttribute("stroke", "currentColor");
     el.setAttribute("stroke-width", strokeWidth.toString());
-    
+
     if (options?.name) {
       el.setAttribute("data-name", options.name);
     }
-    
+
     this._svg.appendChild(el);
-    
+
     if (this._store && options?.name) {
       this._store.add(options.name, el, "line", []);
     }
-    
+
     return el;
   }
 
@@ -232,24 +236,24 @@ export class SvgRenderer {
   drawCircle(circle: Circle, options?: DrawCircleOptions): SVGElement {
     const strokeWidth = options?.stroke ?? 0.5;
     const el = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    
+
     el.setAttribute("cx", circle.cx.toString());
     el.setAttribute("cy", circle.cy.toString());
     el.setAttribute("r", circle.r.toString());
     el.setAttribute("stroke", "currentColor");
     el.setAttribute("stroke-width", strokeWidth.toString());
     el.setAttribute("fill", "none");
-    
+
     if (options?.name) {
       el.setAttribute("data-name", options.name);
     }
-    
+
     this._svg.appendChild(el);
-    
+
     if (this._store && options?.name) {
       this._store.add(options.name, el, "circle", []);
     }
-    
+
     return el;
   }
 
@@ -259,32 +263,27 @@ export class SvgRenderer {
    * @param options - Drawing options
    * @returns The created SVG element
    */
-  drawPolygon(
-    polygon: Polygon,
-    options?: DrawPolygonOptions,
-  ): SVGElement {
+  drawPolygon(polygon: Polygon, options?: DrawPolygonOptions): SVGElement {
     const strokeWidth = options?.stroke ?? 0.5;
     const fill = options?.fill ?? "none";
     const el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-    
-    const pointsStr = polygon.points
-      .map((p) => `${p.x},${p.y}`)
-      .join(" ");
+
+    const pointsStr = polygon.points.map((p) => `${p.x},${p.y}`).join(" ");
     el.setAttribute("points", pointsStr);
     el.setAttribute("stroke", "currentColor");
     el.setAttribute("stroke-width", strokeWidth.toString());
     el.setAttribute("fill", fill);
-    
+
     if (options?.name) {
       el.setAttribute("data-name", options.name);
     }
-    
+
     this._svg.appendChild(el);
-    
+
     if (this._store && options?.name) {
       this._store.add(options.name, el, "polygon", []);
     }
-    
+
     return el;
   }
 
@@ -312,7 +311,7 @@ export class SvgRenderer {
   ): void {
     const values = construction.getValues();
     const steps = construction.getSteps().slice(0, stepIndex + 1);
-    
+
     for (const step of steps) {
       const geom = values.get(step.id);
       if (geom) {
@@ -383,7 +382,13 @@ export class SvgRenderer {
 ```typescript
 // At the end of svgRenderer.ts
 export { SvgRenderer };
-export type { DrawPointOptions, DrawLineOptions, DrawCircleOptions, DrawPolygonOptions, DrawGeometryOptions };
+export type {
+  DrawPointOptions,
+  DrawLineOptions,
+  DrawCircleOptions,
+  DrawPolygonOptions,
+  DrawGeometryOptions,
+};
 ```
 
 ### Step 3: Update Renderers Index
@@ -464,7 +469,7 @@ describe("SvgRenderer", () => {
     it("should draw a point", () => {
       const p = point(100, 200);
       const el = renderer.drawPoint(p, { name: "test_point" });
-      
+
       expect(el.tagName).toBe("circle");
       expect(el.getAttribute("cx")).toBe("100");
       expect(el.getAttribute("cy")).toBe("200");
@@ -484,7 +489,7 @@ describe("SvgRenderer", () => {
     it("should draw a line", () => {
       const l = line(100, 200, 300, 400);
       const el = renderer.drawLine(l, { name: "test_line" });
-      
+
       expect(el.tagName).toBe("line");
       expect(el.getAttribute("x1")).toBe("100");
       expect(el.getAttribute("y1")).toBe("200");
@@ -505,7 +510,7 @@ describe("SvgRenderer", () => {
     it("should draw a circle", () => {
       const c = circle(100, 200, 50);
       const el = renderer.drawCircle(c, { name: "test_circle" });
-      
+
       expect(el.tagName).toBe("circle");
       expect(el.getAttribute("cx")).toBe("100");
       expect(el.getAttribute("cy")).toBe("200");
@@ -524,7 +529,7 @@ describe("SvgRenderer", () => {
         { x: 0, y: 100 },
       ]);
       const el = renderer.drawPolygon(p, { name: "test_polygon" });
-      
+
       expect(el.tagName).toBe("polygon");
       expect(el.getAttribute("points")).toBe("0,0 100,0 100,100 0,100");
       expect(el.getAttribute("data-name")).toBe("test_polygon");
@@ -532,7 +537,10 @@ describe("SvgRenderer", () => {
     });
 
     it("should use custom fill", () => {
-      const p = polygon([{ x: 0, y: 0 }, { x: 10, y: 10 }]);
+      const p = polygon([
+        { x: 0, y: 0 },
+        { x: 10, y: 10 },
+      ]);
       const el = renderer.drawPolygon(p, { fill: "red" });
       expect(el.getAttribute("fill")).toBe("red");
     });
@@ -543,7 +551,7 @@ describe("SvgRenderer", () => {
       renderer.drawPoint(point(0, 0), { name: "p1" });
       renderer.drawPoint(point(10, 10), { name: "p2" });
       expect(svg.children).toHaveLength(2);
-      
+
       renderer.clear();
       expect(svg.children).toHaveLength(0);
     });
@@ -553,15 +561,10 @@ describe("SvgRenderer", () => {
     it("should register elements with store", () => {
       const mockStore = createMockStore();
       const rendererWithStore = new SvgRenderer(svg, mockStore);
-      
+
       rendererWithStore.drawPoint(point(0, 0), { name: "p1" });
-      
-      expect(mockStore.add).toHaveBeenCalledWith(
-        "p1",
-        expect.any(SVGElement),
-        "circle",
-        []
-      );
+
+      expect(mockStore.add).toHaveBeenCalledWith("p1", expect.any(SVGElement), "circle", []);
     });
   });
 });
