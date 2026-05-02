@@ -141,7 +141,7 @@ export const Square = forwardRef(function Square(
 
       // Build dependency map and step maps for parameter values
       if (currentStep > 0) {
-        for (const [id] of allValues) {
+        for (const [id, _] of allValues) {
           const deps = stepDependencies.get(id) ?? [];
           const step = stepForOutput.get(id);
           const paramValues = step?.parameters ? pick(squareConfig, step.parameters) : {};
@@ -162,12 +162,15 @@ export const Square = forwardRef(function Square(
   const handleSliderChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newStep = parseInt(e.target.value, 10);
-      onStepChange?.(newStep);
+      if (!isNaN(newStep)) {
+        onStepChange?.(newStep);
+      }
     },
     [onStepChange],
   );
 
   const maxSteps = totalSteps ?? SQUARE_STEPS.length;
+  const progressPercent = ((currentStep ?? 0) / maxSteps) * 100;
 
   return (
     <div className={`${svgConfig.containerClass} flex justify-center`}>
@@ -179,11 +182,14 @@ export const Square = forwardRef(function Square(
               type="range"
               min={1}
               max={maxSteps}
+              step={1}
               value={currentStep ?? 0}
               onChange={handleSliderChange}
+              aria-label="Step navigation"
+              name="step-slider"
               className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
               style={{
-                background: `linear-gradient(to right, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} 0%, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} ${((currentStep ?? 0) / maxSteps) * 100}%, #4b5563 ${((currentStep ?? 0) / maxSteps) * 100}%, #4b5563 100%)`,
+                background: `linear-gradient(to right, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} 0%, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
               }}
             />
             <div className="flex justify-between text-xs text-gray-400 mt-1">

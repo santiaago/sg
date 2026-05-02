@@ -53,7 +53,7 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
     } else {
       ref.current = svgRef.current;
     }
-  }, [ref, svgRef.current]);
+  }, [ref]);
 
   const prevStepRef = useRef<number>(0);
 
@@ -141,12 +141,15 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
   const handleSliderChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newStep = parseInt(e.target.value, 10);
-      onStepChange?.(newStep);
+      if (!isNaN(newStep)) {
+        onStepChange?.(newStep);
+      }
     },
     [onStepChange],
   );
 
   const maxSteps = totalSteps ?? SIX_FOLD_V0_STEPS.length;
+  const progressPercent = ((currentStep ?? 0) / maxSteps) * 100;
 
   return (
     <div className={`${svgConfig.containerClass} flex justify-center`}>
@@ -158,11 +161,14 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
               type="range"
               min={1}
               max={maxSteps}
+              step={1}
               value={currentStep ?? 0}
               onChange={handleSliderChange}
+              aria-label="Step navigation"
+              name="step-slider"
               className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
               style={{
-                background: `linear-gradient(to right, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} 0%, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} ${((currentStep ?? 0) / maxSteps) * 100}%, #4b5563 ${((currentStep ?? 0) / maxSteps) * 100}%, #4b5563 100%)`,
+                background: `linear-gradient(to right, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} 0%, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
               }}
             />
             <div className="flex justify-between text-xs text-gray-400 mt-1">
