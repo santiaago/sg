@@ -109,6 +109,16 @@ export default function App(): JSX.Element {
     setRestartKeyv0(restartKeyv0 + 1);
   };
 
+  const handleFirstStepv0 = (): void => {
+    setCurrentStepv0(1);
+    setRestartKeyv0(restartKeyv0 + 1);
+  };
+
+  const handleLastStepv0 = (): void => {
+    setCurrentStepv0(SIX_FOLD_V0_STEPS.length);
+    setRestartKeyv0(restartKeyv0 + 1);
+  };
+
   const [currentStepSquare, setCurrentStepSquare] = useState<number>(1);
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
   const [showInputHighlight, setShowInputHighlight] = useState(true);
@@ -152,6 +162,54 @@ export default function App(): JSX.Element {
     setRestartKeySquare(restartKeySquare + 1);
   };
 
+  const handleFirstStepSquare = (): void => {
+    // Clear the store using the proper clear method
+    if (storeSquare && storeSquare.clear) {
+      // Remove elements from SVG if they exist
+      Object.keys(storeSquare.items).forEach((key) => {
+        const item = storeSquare.items[key];
+        if (item && item.element && item.element.parentNode) {
+          item.element.parentNode.removeChild(item.element);
+        }
+        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
+          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
+        }
+        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
+          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
+        }
+      });
+      storeSquare.clear();
+    }
+
+    // Reset to step 1 and trigger re-render
+    setCurrentStepSquare(1);
+    setRestartKeySquare(restartKeySquare + 1);
+  };
+
+  const handleLastStepSquare = (): void => {
+    // Clear the store using the proper clear method
+    if (storeSquare && storeSquare.clear) {
+      // Remove elements from SVG if they exist
+      Object.keys(storeSquare.items).forEach((key) => {
+        const item = storeSquare.items[key];
+        if (item && item.element && item.element.parentNode) {
+          item.element.parentNode.removeChild(item.element);
+        }
+        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
+          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
+        }
+        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
+          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
+        }
+      });
+      storeSquare.clear();
+    }
+
+    // Set to last step and trigger re-render
+    setCurrentStepSquare(SQUARE_STEPS.length);
+    setRestartKeySquare(restartKeySquare + 1);
+  };
+
   return (
     <main className="p-8 bg-gray-900 text-white">
       <h1 className="text-5xl font-bold mb-8 text-left text-blue-400">sg</h1>
@@ -162,7 +220,6 @@ export default function App(): JSX.Element {
         onToggleTheme={toggleTheme}
         svgTheme={svgTheme}
       />
-
       {/* v0 Section */}
       <div
         ref={sectionRefs["sixfold-v0"]}
@@ -217,6 +274,20 @@ export default function App(): JSX.Element {
                 className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
               >
                 restart
+              </button>
+              <button
+                onClick={handleFirstStepv0}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to beginning"
+              >
+                ««
+              </button>
+              <button
+                onClick={handleLastStepv0}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to end"
+              >
+                »»
               </button>
               <button
                 onClick={() => setShowInputHighlight(!showInputHighlight)}
@@ -308,6 +379,20 @@ export default function App(): JSX.Element {
                 className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
               >
                 restart
+              </button>
+              <button
+                onClick={handleFirstStepSquare}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to beginning"
+              >
+                ««
+              </button>
+              <button
+                onClick={handleLastStepSquare}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to end"
+              >
+                »»
               </button>
               <button
                 onClick={() => setShowInputHighlight(!showInputHighlight)}
