@@ -41,12 +41,12 @@
 - Follow commit message pattern
 
 ```
-git commit -m"<type>(<optional scope>): <description>" \
+git commit -m"<type>(<scope>): <description>" \
   -m"<optional body>" \
   -m"<optional footer>"
 ```
 
-- Use **repo-root relative paths** for scope (e.g., `app2/squares`, `packages/geometry`, `app`), never `src/` or directory-only scopes like `app2`
+- Scope is **MANDATORY** - use repo-root relative paths (e.g., `app2/squares`, `packages/geometry`, `app`, `backlog`), never `src/` or directory-only scopes like `app2`
 - Group related changes; avoid bundling unrelated refactors.
 - You can be author of commit messages
 
