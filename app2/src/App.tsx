@@ -123,6 +123,28 @@ export default function App(): JSX.Element {
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
   const [showInputHighlight, setShowInputHighlight] = useState(true);
 
+  // Helper function to clear Square store and remove DOM elements.
+  // Square store requires manual DOM cleanup because SVG elements and tooltips
+  // are directly appended to the SVG container and need explicit removal.
+  // v0 store does not need this because it uses a different rendering approach.
+  const clearSquareStore = (): void => {
+    if (storeSquare?.clear) {
+      Object.keys(storeSquare.items).forEach((key) => {
+        const item = storeSquare.items[key];
+        if (item && item.element && item.element.parentNode) {
+          item.element.parentNode.removeChild(item.element);
+        }
+        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
+          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
+        }
+        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
+          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
+        }
+      });
+      storeSquare.clear();
+    }
+  };
+
   const handleNextClickSquare = (): void => {
     console.log("next step", currentStepSquare, SQUARE_STEPS.length);
     if (currentStepSquare < SQUARE_STEPS.length) {
@@ -139,73 +161,19 @@ export default function App(): JSX.Element {
   };
 
   const handleRestartSquare = (): void => {
-    // Clear the store using the proper clear method
-    if (storeSquare && storeSquare.clear) {
-      // Remove elements from SVG if they exist
-      Object.keys(storeSquare.items).forEach((key) => {
-        const item = storeSquare.items[key];
-        if (item && item.element && item.element.parentNode) {
-          item.element.parentNode.removeChild(item.element);
-        }
-        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
-          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
-        }
-        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
-          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
-        }
-      });
-      storeSquare.clear();
-    }
-
-    // Reset to step 1 and trigger re-render
+    clearSquareStore();
     setCurrentStepSquare(1);
     setRestartKeySquare(restartKeySquare + 1);
   };
 
   const handleFirstStepSquare = (): void => {
-    // Clear the store using the proper clear method
-    if (storeSquare && storeSquare.clear) {
-      // Remove elements from SVG if they exist
-      Object.keys(storeSquare.items).forEach((key) => {
-        const item = storeSquare.items[key];
-        if (item && item.element && item.element.parentNode) {
-          item.element.parentNode.removeChild(item.element);
-        }
-        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
-          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
-        }
-        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
-          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
-        }
-      });
-      storeSquare.clear();
-    }
-
-    // Reset to step 1 and trigger re-render
+    clearSquareStore();
     setCurrentStepSquare(1);
     setRestartKeySquare(restartKeySquare + 1);
   };
 
   const handleLastStepSquare = (): void => {
-    // Clear the store using the proper clear method
-    if (storeSquare && storeSquare.clear) {
-      // Remove elements from SVG if they exist
-      Object.keys(storeSquare.items).forEach((key) => {
-        const item = storeSquare.items[key];
-        if (item && item.element && item.element.parentNode) {
-          item.element.parentNode.removeChild(item.element);
-        }
-        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
-          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
-        }
-        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
-          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
-        }
-      });
-      storeSquare.clear();
-    }
-
-    // Set to last step and trigger re-render
+    clearSquareStore();
     setCurrentStepSquare(SQUARE_STEPS.length);
     setRestartKeySquare(restartKeySquare + 1);
   };
