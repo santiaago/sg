@@ -139,14 +139,12 @@ export interface SixFoldV0Config {
   height: number;
   border: number;
   radius: number;
-  lx1: number;
-  ly1: number;
-  lx2: number;
-  ly2: number;
-  cx1: number;
-  cy1: number;
-  cx2: number;
-  cy2: number;
+  // P1 and P2 are the endpoints of LINE1
+  p1x: number;
+  p1y: number;
+  p2x: number;
+  p2y: number;
+  // CP1 is the first circle center on LINE1
   cp1OffsetRatio: number;
 }
 
@@ -156,18 +154,15 @@ export interface SixFoldV0Config {
  */
 export function computeSixFoldV0Config(width: number, height: number): SixFoldV0Config {
   const border = height / 3;
-  const lx1 = border;
-  const ly1 = height - border;
-  const lx2 = width - border;
-  const ly2 = height - border;
+  // P1 and P2 define the endpoints of LINE1
+  const p1x = border;
+  const p1y = height - border;
+  const p2x = width - border;
+  const p2y = height - border;
 
   // Match v3's circlesFromLine computation
-  const lineLength = lx2 - lx1;
+  const lineLength = p2x - p1x;
   const radius = (lineLength * 2) / CUT_LINE_BY;
-  const cx1 = lx1 + (lineLength * 5) / CUT_LINE_BY;
-  const cy1 = ly1; // v3 uses line.p2.y which equals ly1
-  const cx2 = cx1 - radius;
-  const cy2 = cy1;
 
   // Ensure all values are valid numbers
   function safe(val: number): number {
@@ -180,14 +175,10 @@ export function computeSixFoldV0Config(width: number, height: number): SixFoldV0
     height,
     border,
     radius,
-    lx1: safe(lx1),
-    ly1: safe(ly1),
-    lx2: safe(lx2),
-    ly2: safe(ly2),
-    cx1: safe(cx1),
-    cy1: safe(cy1),
-    cx2: safe(cx2),
-    cy2: safe(cy2),
+    p1x: safe(p1x),
+    p1y: safe(p1y),
+    p2x: safe(p2x),
+    p2y: safe(p2y),
     cp1OffsetRatio: 5 / 8,
   };
 }

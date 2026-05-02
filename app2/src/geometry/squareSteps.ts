@@ -50,41 +50,17 @@ export { computeSquareConfig, GEOM, getGeometry, computeSingle };
 export type { SquareConfig };
 
 /**
- * Step 1: Draw the main horizontal line
- * Base line for the entire construction.
- * Uses SVG config coordinates to draw the initial horizontal reference line.
- */
-const STEP_MAIN_LINE: Step = {
-  id: "step_main_line",
-  inputs: [],
-  outputs: [GEOM.MAIN_LINE],
-  parameters: ["lx1", "ly1", "lx2", "ly2"],
-
-  compute: computeSingle(GEOM.MAIN_LINE, (_inputs, params) => {
-    return line(params.lx1, params.ly1, params.lx2, params.ly2);
-  }),
-
-  draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store, theme, theme.COLOR_PRIMARY);
-  },
-};
-
-/**
- * Step 2: Draw circle center C1
- * First circle center positioned at C1_POSITION_RATIO along the main line.
- * C1 must lie on the main line as it's the center of the first circle.
+ * Step 1: Draw circle center C1
+ * First circle center point.
  */
 const STEP_C1: Step = {
   id: "step_c1",
-  inputs: [GEOM.MAIN_LINE],
+  inputs: [],
   outputs: [GEOM.C1],
-  parameters: ["C1_POSITION_RATIO"],
+  parameters: ["c1x", "c1y"],
 
-  compute: computeSingle(GEOM.C1, (inputs, params) => {
-    const mainLine = getGeometry(inputs, GEOM.MAIN_LINE, isLine, "Line");
-    const lineLength = mainLine.x2 - mainLine.x1;
-    const c1x = mainLine.x1 + lineLength * params.C1_POSITION_RATIO;
-    return point(c1x, mainLine.y1);
+  compute: computeSingle(GEOM.C1, (_inputs, params) => {
+    return point(params.c1x, params.c1y);
   }),
 
   draw: (svg, values, store, theme) => {
@@ -93,7 +69,47 @@ const STEP_C1: Step = {
 };
 
 /**
- * Step 3: Draw circle outline C1_C
+ * Step 2: Draw circle center C2
+ * Second circle center point.
+ */
+const STEP_C2: Step = {
+  id: "step_c2",
+  inputs: [],
+  outputs: [GEOM.C2],
+  parameters: ["c2x", "c2y"],
+
+  compute: computeSingle(GEOM.C2, (_inputs, params) => {
+    return point(params.c2x, params.c2y);
+  }),
+
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.C2, 2.0, store, theme);
+  },
+};
+
+/**
+ * Step 3: Draw the main horizontal line
+ * Base line for the entire construction, connecting C1 and C2.
+ */
+const STEP_MAIN_LINE: Step = {
+  id: "step_main_line",
+  inputs: [GEOM.C1, GEOM.C2],
+  outputs: [GEOM.MAIN_LINE],
+  parameters: [],
+
+  compute: computeSingle(GEOM.MAIN_LINE, (inputs, _params) => {
+    const c1 = getGeometry(inputs, GEOM.C1, isPoint, "Point");
+    const c2 = getGeometry(inputs, GEOM.C2, isPoint, "Point");
+    return line(c1.x, c1.y, c2.x, c2.y);
+  }),
+
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store, theme, theme.COLOR_PRIMARY);
+  },
+};
+
+/**
+ * Step 4: Draw circle outline C1_C
  * First circle centered at C1 with the configured radius.
  * This circle will intersect with the main line at C2.
  */
@@ -110,33 +126,6 @@ const STEP_C1_CIRCLE: Step = {
 
   draw: (svg, values, store, theme) => {
     drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store, theme);
-  },
-};
-
-/**
- * Step 4: Draw circle center C2
- * Second circle center at the left intersection of C1_CIRCLE with MAIN_LINE.
- * C2 lies on the main line, left of C1, at a distance of circleRadius.
- */
-const STEP_C2: Step = {
-  id: "step_c2",
-  inputs: [GEOM.MAIN_LINE, GEOM.C1_CIRCLE],
-  outputs: [GEOM.C2],
-  parameters: ["tolerance"],
-
-  compute: computeSingle(GEOM.C2, (inputs, params) => {
-    const mainLine = getGeometry(inputs, GEOM.MAIN_LINE, isLine, "Line");
-    const c1_c = getGeometry(inputs, GEOM.C1_CIRCLE, isCircle, "Circle");
-    // C2 is the left intersection point of C1_CIRCLE with MAIN_LINE
-    const c2 = pointFromCircleAndLine(c1_c, mainLine, {
-      tolerance: params.tolerance,
-    });
-    if (!c2) throw new Error("C1_CIRCLE and MAIN_LINE do not intersect");
-    return c2;
-  }),
-
-  draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.C2, 2.0, store, theme);
   },
 };
 
@@ -463,10 +452,10 @@ const STEP_FINAL_SQUARE: Step = {
 
 /** All steps in the square construction, in order */
 export const SQUARE_STEPS: readonly Step[] = [
-  STEP_MAIN_LINE,
   STEP_C1,
-  STEP_C1_CIRCLE,
   STEP_C2,
+  STEP_MAIN_LINE,
+  STEP_C1_CIRCLE,
   STEP_C2_CIRCLE,
   STEP_INTERSECTION_POINT,
   STEP_INTERSECTION_CIRCLE,
