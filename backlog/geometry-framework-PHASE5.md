@@ -7,7 +7,7 @@ This phase adds advanced features to the geometry framework that enhance its usa
 **Status**: NOT STARTED  
 **Priority**: MEDIUM  
 **Estimated Duration**: 3-5 days  
-**Prerequisites**: Phase 1-4 must be complete  
+**Prerequisites**: Phase 1-4 must be complete
 
 ---
 
@@ -36,7 +36,7 @@ By the end of this phase, we will have:
 
 export class Construction {
   // ... existing state ...
-  
+
   // History stack for undo/redo
   private _history: ConstructionState[] = [];
   private _historyIndex = -1;
@@ -48,17 +48,17 @@ export class Construction {
   private _saveToHistory(): void {
     // Remove any redo history
     this._history = this._history.slice(0, this._historyIndex + 1);
-    
+
     // Save current state
     const state: ConstructionState = {
       values: new Map(this._values),
       steps: [...this._steps],
       stepIndex: this._stepIndex,
     };
-    
+
     this._history.push(state);
     this._historyIndex = this._history.length - 1;
-    
+
     // Limit history size
     if (this._history.length > this._maxHistory) {
       this._history.shift();
@@ -71,10 +71,10 @@ export class Construction {
    */
   undo(): void {
     if (this._historyIndex <= 0) return;
-    
+
     this._historyIndex--;
     const previousState = this._history[this._historyIndex];
-    
+
     this._values = new Map(previousState.values);
     this._steps = [...previousState.steps];
     this._stepIndex = previousState.stepIndex;
@@ -85,10 +85,10 @@ export class Construction {
    */
   redo(): void {
     if (this._historyIndex >= this._history.length - 1) return;
-    
+
     this._historyIndex++;
     const nextState = this._history[this._historyIndex];
-    
+
     this._values = new Map(nextState.values);
     this._steps = [...nextState.steps];
     this._stepIndex = nextState.stepIndex;
@@ -133,6 +133,7 @@ c.redo(); // p2 is restored
 ```
 
 **Tests**:
+
 - Test undo removes last operation
 - Test redo restores undone operation
 - Test multiple undo/redo
@@ -170,7 +171,7 @@ export function serializeConstruction(construction: Construction): SerializedCon
  */
 export function deserializeConstruction(data: SerializedConstruction): Construction {
   const c = new Construction();
-  
+
   // Recreate all geometries
   for (const geom of data.geometries) {
     switch (geom.type) {
@@ -189,10 +190,10 @@ export function deserializeConstruction(data: SerializedConstruction): Construct
         break;
     }
   }
-  
+
   // Set step index
   c.goTo(data.stepIndex);
-  
+
   return c;
 }
 
@@ -238,6 +239,7 @@ if (savedJson) {
 ```
 
 **Tests**:
+
 - Test serialize/deserialize round-trip
 - Test with all geometry types
 - Test with different step indices
@@ -256,7 +258,7 @@ if (savedJson) {
 
 export class Construction {
   // ... existing state ...
-  
+
   private _parameters = new Map<string, number>();
 
   /**
@@ -289,10 +291,11 @@ export class Construction {
 // For example, in circle creation:
 export class Construction {
   circle(center: PointRef, radiusParamOrValue: number | string, name?: string): CircleRef {
-    const radius = typeof radiusParamOrValue === "string"
-      ? this.getParameter(radiusParamOrValue)
-      : radiusParamOrValue;
-    
+    const radius =
+      typeof radiusParamOrValue === "string"
+        ? this.getParameter(radiusParamOrValue)
+        : radiusParamOrValue;
+
     // ... rest of implementation
   }
 }
@@ -307,6 +310,7 @@ const line_c2_pi = c.lineTowards(c2, pi, "lineExtension" * 150, "line_c2_pi");
 ```
 
 **Tests**:
+
 - Test parameter setting and getting
 - Test parameter usage in geometry operations
 - Test parameter changes update geometry
@@ -433,6 +437,7 @@ if (result.warnings.length > 0) {
 ```
 
 **Tests**:
+
 - Test validation with valid construction
 - Test validation catches missing dependencies
 - Test validation catches zero-length lines
@@ -455,18 +460,18 @@ if (result.warnings.length > 0) {
 export function createTriangleConstruction(c: Construction, width: number, height: number): void {
   // Base line
   const base = c.line(0, height - 50, width, height - 50, "base");
-  
+
   // Two circles at ends
   const radius = width / 4;
   const p1 = c.point(0, height - 50, "p1");
   const p2 = c.point(width, height - 50, "p2");
   const c1 = c.circle(p1, radius, "c1");
   const c2 = c.circle(p2, radius, "c2");
-  
+
   // Intersection points
   const p3 = c.intersection(c1, c2, "north", "p3");
   const p4 = c.intersection(c1, c2, "south", "p4");
-  
+
   // Connect points to form triangle
   const side1 = c.line(p1, p3, "side1");
   const side2 = c.line(p2, p3, "side2");
@@ -479,10 +484,15 @@ export function createTriangleConstruction(c: Construction, width: number, heigh
 ```typescript
 // app2/src/geometry/test-constructions/hexagon.ts
 
-export function createHexagonConstruction(c: Construction, centerX: number, centerY: number, radius: number): void {
+export function createHexagonConstruction(
+  c: Construction,
+  centerX: number,
+  centerY: number,
+  radius: number,
+): void {
   const center = c.point(centerX, centerY, "center");
   const circle = c.circle(center, radius, "hex_circle");
-  
+
   // Create 6 points around the circle
   const points: PointRef[] = [];
   for (let i = 0; i < 6; i++) {
@@ -492,13 +502,13 @@ export function createHexagonConstruction(c: Construction, centerX: number, cent
     const p = c.point(x, y, `hex_p${i}`);
     points.push(p);
   }
-  
+
   // Connect points in order
   for (let i = 0; i < 6; i++) {
     const j = (i + 1) % 6;
     c.line(points[i], points[j], `hex_side${i}`);
   }
-  
+
   // Create hexagon polygon
   c.polygon(points, "hexagon");
 }
@@ -515,6 +525,7 @@ export * from "./pentagon";
 ```
 
 **Tests**:
+
 - Test triangle construction renders correctly
 - Test hexagon construction renders correctly
 - Test constructions with various parameters
@@ -526,7 +537,7 @@ export * from "./pentagon";
 ### Feature 1: Undo/Redo
 
 - [ ] Add history state to Construction class
-- [ ] Implement _saveToHistory method
+- [ ] Implement \_saveToHistory method
 - [ ] Implement undo method
 - [ ] Implement redo method
 - [ ] Implement clearHistory method
