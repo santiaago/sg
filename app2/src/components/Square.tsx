@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from "react";
+import { useEffect, useRef, useMemo, forwardRef } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
@@ -33,16 +33,23 @@ export interface SquareProps {
 // - Lazy calculation: geometries are computed only when their step becomes current
 // - Dependency tracking: each step declares its input/output geometries
 // - Separation of concerns: math (compute) vs rendering (draw)
-export function Square({
-  store,
-  dotStrokeWidth = 2.0,
-  svgConfig,
-  restartTrigger = 0,
-  currentStep = 0,
-  theme = darkTheme,
-}: SquareProps): React.JSX.Element {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const prevStepRef = useRef<number>(0);
+export const Square = forwardRef<SVGSVGElement, SquareProps>(
+  (
+    { store, dotStrokeWidth = 2.0, svgConfig, restartTrigger = 0, currentStep = 0, theme = darkTheme },
+    ref,
+  ) => {
+    const svgRef = useRef<SVGSVGElement>(null);
+    const prevStepRef = useRef<number>(0);
+
+    // Forward the ref to the SVG element
+    useEffect(() => {
+      if (!ref) return;
+      if (typeof ref === "function") {
+        ref(svgRef.current);
+      } else {
+        ref.current = svgRef.current;
+      }
+    }, [ref]);
 
   // Input validation
   useEffect(() => {
@@ -139,4 +146,4 @@ export function Square({
       <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="square-svg" />
     </div>
   );
-}
+});

@@ -109,9 +109,36 @@ export default function App(): JSX.Element {
     setRestartKeyv0(restartKeyv0 + 1);
   };
 
+  const handleLastStepv0 = (): void => {
+    setCurrentStepv0(SIX_FOLD_V0_STEPS.length);
+    setRestartKeyv0(restartKeyv0 + 1);
+  };
+
   const [currentStepSquare, setCurrentStepSquare] = useState<number>(1);
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
   const [showInputHighlight, setShowInputHighlight] = useState(true);
+
+  // Helper function to clear Square store and remove DOM elements.
+  // Square store requires manual DOM cleanup because SVG elements and tooltips
+  // are directly appended to the SVG container and need explicit removal.
+  // v0 store does not need this because it uses a different rendering approach.
+  const clearSquareStore = (): void => {
+    if (storeSquare?.clear) {
+      Object.keys(storeSquare.items).forEach((key) => {
+        const item = storeSquare.items[key];
+        if (item && item.element && item.element.parentNode) {
+          item.element.parentNode.removeChild(item.element);
+        }
+        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
+          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
+        }
+        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
+          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
+        }
+      });
+      storeSquare.clear();
+    }
+  };
 
   const handleNextClickSquare = (): void => {
     console.log("next step", currentStepSquare, SQUARE_STEPS.length);
@@ -129,26 +156,20 @@ export default function App(): JSX.Element {
   };
 
   const handleRestartSquare = (): void => {
-    // Clear the store using the proper clear method
-    if (storeSquare && storeSquare.clear) {
-      // Remove elements from SVG if they exist
-      Object.keys(storeSquare.items).forEach((key) => {
-        const item = storeSquare.items[key];
-        if (item && item.element && item.element.parentNode) {
-          item.element.parentNode.removeChild(item.element);
-        }
-        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
-          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
-        }
-        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
-          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
-        }
-      });
-      storeSquare.clear();
-    }
-
-    // Reset to step 1 and trigger re-render
+    clearSquareStore();
     setCurrentStepSquare(1);
+    setRestartKeySquare(restartKeySquare + 1);
+  };
+
+  const handleFirstStepSquare = (): void => {
+    clearSquareStore();
+    setCurrentStepSquare(1);
+    setRestartKeySquare(restartKeySquare + 1);
+  };
+
+  const handleLastStepSquare = (): void => {
+    clearSquareStore();
+    setCurrentStepSquare(SQUARE_STEPS.length);
     setRestartKeySquare(restartKeySquare + 1);
   };
 
@@ -162,7 +183,6 @@ export default function App(): JSX.Element {
         onToggleTheme={toggleTheme}
         svgTheme={svgTheme}
       />
-
       {/* v0 Section */}
       <div
         ref={sectionRefs["sixfold-v0"]}
@@ -191,6 +211,13 @@ export default function App(): JSX.Element {
             />
             <div className="mt-1 flex gap-2">
               <button
+                onClick={handleRestartv0}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to beginning"
+              >
+                ««
+              </button>
+              <button
                 onClick={handlePrevClickv0}
                 className={`px-4 py-2 text-white rounded ${
                   currentStepv0 <= 1
@@ -211,6 +238,13 @@ export default function App(): JSX.Element {
                 disabled={currentStepv0 >= SIX_FOLD_V0_STEPS.length}
               >
                 next
+              </button>
+              <button
+                onClick={handleLastStepv0}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to end"
+              >
+                »»
               </button>
               <button
                 onClick={handleRestartv0}
@@ -282,6 +316,13 @@ export default function App(): JSX.Element {
             />
             <div className="mt-1 flex gap-2">
               <button
+                onClick={handleFirstStepSquare}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to beginning"
+              >
+                ««
+              </button>
+              <button
                 onClick={handlePrevClickSquare}
                 className={`px-4 py-2 text-white rounded ${
                   currentStepSquare <= 1
@@ -302,6 +343,13 @@ export default function App(): JSX.Element {
                 disabled={currentStepSquare >= SQUARE_STEPS.length}
               >
                 next
+              </button>
+              <button
+                onClick={handleLastStepSquare}
+                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                title="Go to end"
+              >
+                »»
               </button>
               <button
                 onClick={handleRestartSquare}
