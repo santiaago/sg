@@ -15,12 +15,7 @@ interface GeometryListProps {
   availableTypes: ReadonlyArray<GeometryType>;
 }
 
-const DEFAULT_TYPES: ReadonlyArray<GeometryType> = [
-  "point",
-  "line",
-  "circle",
-  "polygon",
-] as const;
+const DEFAULT_TYPES: ReadonlyArray<GeometryType> = ["point", "line", "circle", "polygon"] as const;
 
 export function GeometryList({
   store,
@@ -57,10 +52,8 @@ export function GeometryList({
     return Object.entries(items).filter(([_, item]) => {
       const geometryItem = item as GeometryItem;
       const matchesName =
-        nameFilter === "" ||
-        geometryItem.name.toLowerCase().includes(nameFilter.toLowerCase());
-      const matchesType =
-        typeFilters.size === 0 || typeFilters.has(geometryItem.type);
+        nameFilter === "" || geometryItem.name.toLowerCase().includes(nameFilter.toLowerCase());
+      const matchesType = typeFilters.size === 0 || typeFilters.has(geometryItem.type);
       return matchesName && matchesType;
     });
   }, [store.items, nameFilter, typeFilters]);
@@ -175,10 +168,7 @@ export function GeometryList({
       )}
 
       {(nameFilter !== "" || typeFilters.size > 0) && (
-        <button
-          onClick={clearFilters}
-          className="text-xs text-gray-400 hover:text-white mb-2"
-        >
+        <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-white mb-2">
           Clear filters
         </button>
       )}

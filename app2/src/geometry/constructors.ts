@@ -201,7 +201,11 @@ export function circlesIntersectionPointHelper(
 
 // Circle-Line Segment Intersection
 /** Helper to find intersection of circle with line segment */
-export function interceptCircleLineSegHelper(circle: Circle, line: Line, index: number = 0): Point | null {
+export function interceptCircleLineSegHelper(
+  circle: Circle,
+  line: Line,
+  index: number = 0,
+): Point | null {
   const result = inteceptCircleLineSeg(
     circle.cx,
     circle.cy,
@@ -258,7 +262,7 @@ export function interceptCircleLineHelper(circle: Circle, line: Line, index: num
   if (dist > r) return null; // no intersection
   if (dist === r) {
     // tangent - one intersection point
-    const sign = (a * cx + b * cy + c) < 0 ? 1 : -1;
+    const sign = a * cx + b * cy + c < 0 ? 1 : -1;
     const dx = b * sign * (r / Math.sqrt(denom));
     const dy = -a * sign * (r / Math.sqrt(denom));
     const px = cx + dx;

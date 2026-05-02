@@ -4,12 +4,7 @@ import { GeometryList } from "../src/components/GeometryList";
 import type { GeometryItem } from "../src/react-store";
 import type { GeometryType } from "../src/types/geometry";
 
-const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = [
-  "point",
-  "line",
-  "circle",
-  "polygon",
-] as const;
+const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = ["point", "line", "circle", "polygon"] as const;
 
 // Mock SVG elements
 const createMockElement = () => ({
@@ -33,7 +28,16 @@ const createMockStore = (initialItems: Record<string, GeometryItem> = {}) => {
       items[key] = { ...items[key], ...partial };
     }),
     add: vi.fn((name: string, element: any, type: string, dependsOn: string[] = []) => {
-      items[name] = { name, element, selected: false, type, dependsOn, context: undefined, stepId: "", parameterValues: {} };
+      items[name] = {
+        name,
+        element,
+        selected: false,
+        type,
+        dependsOn,
+        context: undefined,
+        stepId: "",
+        parameterValues: {},
+      };
     }),
     clear: vi.fn(() => {
       items = {};
@@ -96,7 +100,15 @@ describe("GeometryList", () => {
 
   describe("Rendering", () => {
     it("renders all geometry items", () => {
-      render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       expect(screen.getByText("line_main | line")).toBeInTheDocument();
       expect(screen.getByText("c1 | point")).toBeInTheDocument();
@@ -104,20 +116,44 @@ describe("GeometryList", () => {
     });
 
     it("displays the header", () => {
-      render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       expect(screen.getByText("Geometry Items")).toBeInTheDocument();
     });
 
     it("displays item count", () => {
-      render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       expect(screen.getByText("Showing 3 of 3 items")).toBeInTheDocument();
     });
 
     it("renders empty message when no items", () => {
       const emptyStore = createMockStore({});
-      render(<GeometryList store={emptyStore}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={emptyStore}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       expect(screen.getByText("Showing 0 of 0 items")).toBeInTheDocument();
     });
@@ -125,7 +161,15 @@ describe("GeometryList", () => {
 
   describe("Selection Behavior (single selection mode)", () => {
     it("selects item on click", () => {
-      render(<GeometryList store={store} showInputHighlight={false}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       fireEvent.click(screen.getByText("c1 | point"));
 
@@ -134,7 +178,15 @@ describe("GeometryList", () => {
     });
 
     it("only one item can be selected at a time", () => {
-      render(<GeometryList store={store} showInputHighlight={false}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       // Click on c1
       fireEvent.click(screen.getByText("c1 | point"));
@@ -152,7 +204,15 @@ describe("GeometryList", () => {
         c1: { ...mockItems.c1, context: {} },
       });
 
-      render(<GeometryList store={storeWithContext} showInputHighlight={false}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={storeWithContext}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       const item = screen.getByText("c1 | point");
       fireEvent.click(item);
@@ -164,7 +224,15 @@ describe("GeometryList", () => {
     });
 
     it("applies highlighting to selected point without context", () => {
-      render(<GeometryList store={store} showInputHighlight={false}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       const item = screen.getByText("c1 | point");
       fireEvent.click(item);
@@ -175,7 +243,15 @@ describe("GeometryList", () => {
     });
 
     it("applies highlighting to selected line without context", () => {
-      render(<GeometryList store={store} showInputHighlight={false}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       const item = screen.getByText("line_main | line");
       fireEvent.click(item);
@@ -188,7 +264,15 @@ describe("GeometryList", () => {
 
   describe("Input Highlighting (feature ON)", () => {
     it("highlights input dependencies when geometry is selected", () => {
-      render(<GeometryList store={store} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       fireEvent.click(screen.getByText("c1 | point"));
 
@@ -197,7 +281,15 @@ describe("GeometryList", () => {
     });
 
     it("highlights c1 when c1_c is selected", () => {
-      render(<GeometryList store={store} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       fireEvent.click(screen.getByText("c1_c | circle"));
 
@@ -206,7 +298,15 @@ describe("GeometryList", () => {
     });
 
     it("switches highlights when selecting different geometry", () => {
-      render(<GeometryList store={store} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       const c1Item = screen.getByText("c1 | point");
       const c1cItem = screen.getByText("c1_c | circle");
@@ -223,7 +323,15 @@ describe("GeometryList", () => {
     });
 
     it("clears highlights when switching to different geometry", () => {
-      render(<GeometryList store={store} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       // Select c1_c - highlights c1
       fireEvent.click(screen.getByText("c1_c | circle"));
@@ -237,17 +345,41 @@ describe("GeometryList", () => {
     });
 
     it("clears highlights when toggle is turned OFF", () => {
-      const { rerender } = render(<GeometryList store={store} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      const { rerender } = render(
+        <GeometryList
+          store={store}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       fireEvent.click(screen.getByText("c1 | point"));
       expect(screen.getByText("line_main | line")).toHaveClass("text-orange-400");
 
-      rerender(<GeometryList store={store} showInputHighlight={false}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      rerender(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
       expect(screen.getByText("line_main | line")).not.toHaveClass("text-orange-400");
     });
 
     it("shows selected geometry in yellow and its input in orange", () => {
-      render(<GeometryList store={store} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       fireEvent.click(screen.getByText("c1 | point"));
 
@@ -258,7 +390,15 @@ describe("GeometryList", () => {
     });
 
     it("handles geometries with no dependencies", () => {
-      render(<GeometryList store={store} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       fireEvent.click(screen.getByText("line_main | line"));
 
@@ -283,7 +423,15 @@ describe("GeometryList", () => {
         },
       });
 
-      render(<GeometryList store={storeWithEmptyDeps} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={storeWithEmptyDeps}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       fireEvent.click(screen.getByText("isolated | point"));
 
@@ -294,7 +442,15 @@ describe("GeometryList", () => {
 
   describe("Accessibility", () => {
     it("has cursor-pointer on list items", () => {
-      render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       const items = screen.getAllByRole("listitem");
       items.forEach((item) => {
@@ -303,7 +459,15 @@ describe("GeometryList", () => {
     });
 
     it("has hover:underline style on list items", () => {
-      render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       const items = screen.getAllByRole("listitem");
       items.forEach((item) => {
@@ -314,7 +478,15 @@ describe("GeometryList", () => {
 
   describe("Edge Cases", () => {
     it("handles click on existing geometry name", () => {
-      render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       // Should not throw when clicking a name that exists in store
       expect(() => {
@@ -324,7 +496,15 @@ describe("GeometryList", () => {
 
     it("handles store with null items", () => {
       const nullStore = createMockStore(null as any);
-      render(<GeometryList store={nullStore}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={nullStore}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       expect(screen.getByText("Showing 0 of 0 items")).toBeInTheDocument();
     });
@@ -344,7 +524,15 @@ describe("GeometryList", () => {
         },
       });
 
-      render(<GeometryList store={storeWithNullElement} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={storeWithNullElement}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       // Should not throw
       expect(() => {
@@ -367,7 +555,15 @@ describe("GeometryList", () => {
         },
       });
 
-      render(<GeometryList store={storeWithoutDependsOn} showInputHighlight={true}  showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={storeWithoutDependsOn}
+          showInputHighlight={true}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       // Should not throw
       expect(() => {
@@ -378,7 +574,17 @@ describe("GeometryList", () => {
 
   describe("Custom stroke props", () => {
     it("uses custom stroke values", () => {
-      render(<GeometryList store={store} stroke={1} strokeBig={3}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          stroke={1}
+          strokeBig={3}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       fireEvent.click(screen.getByText("c1 | point"));
 
@@ -387,7 +593,15 @@ describe("GeometryList", () => {
     });
 
     it("uses default stroke values when not provided", () => {
-      render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+      render(
+        <GeometryList
+          store={store}
+          showInputHighlight={false}
+          showNameFilter={true}
+          showTypeFilters={true}
+          availableTypes={GEOMETRY_TYPES}
+        />,
+      );
 
       fireEvent.click(screen.getByText("c1 | point"));
 
@@ -398,7 +612,15 @@ describe("GeometryList", () => {
   describe("Filtering", () => {
     describe("Name Filter", () => {
       it("filters items by name", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const filterInput = screen.getByPlaceholderText(/filter by name/i);
         fireEvent.change(filterInput, { target: { value: "c1" } });
@@ -409,7 +631,15 @@ describe("GeometryList", () => {
       });
 
       it("filters case-insensitively", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const filterInput = screen.getByPlaceholderText(/filter by name/i);
         fireEvent.change(filterInput, { target: { value: "LINE" } });
@@ -419,7 +649,15 @@ describe("GeometryList", () => {
       });
 
       it("shows all items when filter is empty", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         expect(screen.getByText("line_main | line")).toBeInTheDocument();
         expect(screen.getByText("c1 | point")).toBeInTheDocument();
@@ -427,7 +665,15 @@ describe("GeometryList", () => {
       });
 
       it("displays filtered count when name filter applied", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const filterInput = screen.getByPlaceholderText(/filter by name/i);
         fireEvent.change(filterInput, { target: { value: "c1" } });
@@ -438,7 +684,15 @@ describe("GeometryList", () => {
 
     describe("Type Filter", () => {
       it("filters by type when button clicked", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const pointButton = screen.getByText(/^point$/i);
         fireEvent.click(pointButton);
@@ -449,7 +703,15 @@ describe("GeometryList", () => {
       });
 
       it("shows multiple types when multiple selected", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const pointButton = screen.getByText(/^point$/i);
         const circleButton = screen.getByText(/^circle$/i);
@@ -462,7 +724,15 @@ describe("GeometryList", () => {
       });
 
       it("toggles type filter off when clicked again", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const pointButton = screen.getByText(/^point$/i);
         // Click to enable
@@ -475,7 +745,15 @@ describe("GeometryList", () => {
       });
 
       it("displays filtered count when type filter applied", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const pointButton = screen.getByText(/^point$/i);
         fireEvent.click(pointButton);
@@ -486,7 +764,15 @@ describe("GeometryList", () => {
 
     describe("Combined Filters", () => {
       it("applies name AND type filters together", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const filterInput = screen.getByPlaceholderText(/filter by name/i);
         fireEvent.change(filterInput, { target: { value: "c1" } });
@@ -503,7 +789,15 @@ describe("GeometryList", () => {
       });
 
       it("displays correct count with combined filters", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const filterInput = screen.getByPlaceholderText(/filter by name/i);
         fireEvent.change(filterInput, { target: { value: "c1" } });
@@ -517,7 +811,15 @@ describe("GeometryList", () => {
 
     describe("Clear Filters", () => {
       it("clears name filter", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const filterInput = screen.getByPlaceholderText(/filter by name/i);
         fireEvent.change(filterInput, { target: { value: "c1" } });
@@ -532,7 +834,15 @@ describe("GeometryList", () => {
       });
 
       it("clears type filters", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const pointButton = screen.getByText(/^point$/i);
         fireEvent.click(pointButton);
@@ -544,7 +854,15 @@ describe("GeometryList", () => {
       });
 
       it("clears both name and type filters", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const filterInput = screen.getByPlaceholderText(/filter by name/i);
         fireEvent.change(filterInput, { target: { value: "c1" } });
@@ -560,7 +878,15 @@ describe("GeometryList", () => {
       });
 
       it("hides clear button when no filters active", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         expect(screen.queryByText(/clear filters/i)).not.toBeInTheDocument();
       });
@@ -568,20 +894,44 @@ describe("GeometryList", () => {
 
     describe("Filter Props", () => {
       it("hides name filter when showNameFilter is false", () => {
-        render(<GeometryList store={store} showNameFilter={false}  showInputHighlight={false} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showNameFilter={false}
+            showInputHighlight={false}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         expect(screen.queryByPlaceholderText(/filter by name/i)).not.toBeInTheDocument();
       });
 
       it("hides type filters when showTypeFilters is false", () => {
-        render(<GeometryList store={store} showTypeFilters={false}  showInputHighlight={false} showNameFilter={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showTypeFilters={false}
+            showInputHighlight={false}
+            showNameFilter={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         expect(screen.queryByText(/^point$/i)).not.toBeInTheDocument();
       });
 
       it("uses custom availableTypes", () => {
         const customTypes: ReadonlyArray<GeometryType> = ["point", "line"] as const;
-        render(<GeometryList store={store} availableTypes={customTypes}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true}/>);
+        render(
+          <GeometryList
+            store={store}
+            availableTypes={customTypes}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+          />,
+        );
 
         expect(screen.getByText(/^point$/i)).toBeInTheDocument();
         expect(screen.getByText(/^line$/i)).toBeInTheDocument();
@@ -591,7 +941,15 @@ describe("GeometryList", () => {
 
     describe("Edge Cases", () => {
       it("shows empty filtered count when no items match", () => {
-        render(<GeometryList store={store}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={store}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const filterInput = screen.getByPlaceholderText(/filter by name/i);
         fireEvent.change(filterInput, { target: { value: "nonexistent" } });
@@ -614,7 +972,15 @@ describe("GeometryList", () => {
           },
         });
 
-        render(<GeometryList store={polygonStore}  showInputHighlight={false} showNameFilter={true} showTypeFilters={true} availableTypes={GEOMETRY_TYPES}/>);
+        render(
+          <GeometryList
+            store={polygonStore}
+            showInputHighlight={false}
+            showNameFilter={true}
+            showTypeFilters={true}
+            availableTypes={GEOMETRY_TYPES}
+          />,
+        );
 
         const pointButton = screen.getByText(/^point$/i);
         fireEvent.click(pointButton);

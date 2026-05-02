@@ -572,7 +572,9 @@ const STEP_6C: SixFoldV0Step = {
       lcp2cp4.y2,
     );
     if (!pi2Result) {
-      throw new Error("STEP_6C: lineIntersect returned null - lines lcp1cp3 and lcp2cp4 do not intersect");
+      throw new Error(
+        "STEP_6C: lineIntersect returned null - lines lcp1cp3 and lcp2cp4 do not intersect",
+      );
     }
     const pi2 = validPoint(pi2Result[0], pi2Result[1]);
     if (!pi2) {
@@ -914,7 +916,9 @@ const STEP_12C: SixFoldV0Step = {
       l14p.y2,
     );
     if (!pc23Result) {
-      throw new Error("STEP_12C: lineIntersect returned null - lines l23 and l14p do not intersect");
+      throw new Error(
+        "STEP_12C: lineIntersect returned null - lines l23 and l14p do not intersect",
+      );
     }
     const pc23Pt = validPoint(pc23Result[0], pc23Result[1]);
     if (!pc23Pt) {
@@ -1190,11 +1194,18 @@ const STEP_14C: SixFoldV0Step = {
     const l1 = getGeometry(inputs, GEOM.L1, isLine, "Line");
     const lcp1cp3 = getGeometry(inputs, GEOM.LCP1CP3, isLine, "Line");
     // pii1 = intersection of l1 with lcp1cp3
-    const result1 = lineIntersect(l1.x1, l1.y1, l1.x2, l1.y2, lcp1cp3.x1, lcp1cp3.y1, lcp1cp3.x2, lcp1cp3.y2);
+    const result1 = lineIntersect(
+      l1.x1,
+      l1.y1,
+      l1.x2,
+      l1.y2,
+      lcp1cp3.x1,
+      lcp1cp3.y1,
+      lcp1cp3.x2,
+      lcp1cp3.y2,
+    );
     if (!result1) {
-      throw new Error(
-        "STEP_14C: lineIntersect returned null - l1 and lcp1cp3 do not intersect",
-      );
+      throw new Error("STEP_14C: lineIntersect returned null - l1 and lcp1cp3 do not intersect");
     }
     const pii1 = validPoint(result1[0], result1[1]);
     if (!pii1) {
@@ -1220,11 +1231,18 @@ const STEP_14D: SixFoldV0Step = {
     const l1 = getGeometry(inputs, GEOM.L1, isLine, "Line");
     const lcp2cp4 = getGeometry(inputs, GEOM.LCP2CP4, isLine, "Line");
     // pii2 = intersection of l1 with lcp2cp4
-    const result2 = lineIntersect(l1.x1, l1.y1, l1.x2, l1.y2, lcp2cp4.x1, lcp2cp4.y1, lcp2cp4.x2, lcp2cp4.y2);
+    const result2 = lineIntersect(
+      l1.x1,
+      l1.y1,
+      l1.x2,
+      l1.y2,
+      lcp2cp4.x1,
+      lcp2cp4.y1,
+      lcp2cp4.x2,
+      lcp2cp4.y2,
+    );
     if (!result2) {
-      throw new Error(
-        "STEP_14D: lineIntersect returned null - l1 and lcp2cp4 do not intersect",
-      );
+      throw new Error("STEP_14D: lineIntersect returned null - l1 and lcp2cp4 do not intersect");
     }
     const pii2 = validPoint(result2[0], result2[1]);
     if (!pii2) {

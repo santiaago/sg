@@ -1,9 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { JSX } from "react";
-import {
-  useGeometryStoreSquare,
-  useGeometryStoreSixFoldV0,
-} from "./react-store";
+import { useGeometryStoreSquare, useGeometryStoreSixFoldV0 } from "./react-store";
 import { SixFoldV0 } from "./components/SixFoldV0";
 import { Square } from "./components/Square";
 import { standardSvgConfig } from "./config/svgConfig";
@@ -17,12 +14,7 @@ import { SIX_FOLD_V0_STEPS } from "./geometry/sixFoldV0Steps";
 import { lightTheme, darkTheme } from "./themes";
 import type { Theme, GeometryType } from "./types/geometry";
 
-const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = [
-  "point",
-  "line",
-  "circle",
-  "polygon",
-] as const;
+const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = ["point", "line", "circle", "polygon"] as const;
 
 export default function App(): JSX.Element {
   const stroke = 0.5;
@@ -48,9 +40,7 @@ export default function App(): JSX.Element {
   };
 
   // Scroll to section when navigation changes
-  const scrollToSection = (
-    sectionId: "sixfold-v0" | "square",
-  ) => {
+  const scrollToSection = (sectionId: "sixfold-v0" | "square") => {
     setActiveSection(sectionId);
     // Update URL hash
     window.location.hash = sectionId;

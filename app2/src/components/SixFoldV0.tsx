@@ -6,10 +6,7 @@ import { pick, setupSvg, buildStepMaps } from "../svg";
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
 import type { SixFoldV0Step } from "../geometry/sixFold/operations";
-import {
-  SIX_FOLD_V0_STEPS,
-  executeSteps,
-} from "../geometry/sixFoldV0Steps";
+import { SIX_FOLD_V0_STEPS, executeSteps } from "../geometry/sixFoldV0Steps";
 import { computeSixFoldV0Config } from "../geometry/sixFold/operations";
 
 // Props for the SixFoldV0 component.
@@ -110,10 +107,7 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(
 
       // Build dependency map and step maps for GeometryList display
       if (currentStep > 0) {
-        const { stepDependencies, stepForOutput } = buildStepMaps(
-          SIX_FOLD_V0_STEPS,
-          currentStep,
-        );
+        const { stepDependencies, stepForOutput } = buildStepMaps(SIX_FOLD_V0_STEPS, currentStep);
 
         for (const id of allValues.keys()) {
           const deps = stepDependencies.get(id) ?? [];

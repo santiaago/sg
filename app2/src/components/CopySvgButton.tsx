@@ -12,18 +12,21 @@ export interface CopySvgButtonProps {
 function formatSvg(svg: SVGSVGElement): string {
   // Clone the SVG to avoid modifying the original
   const clone = svg.cloneNode(true) as SVGSVGElement;
-  
+
   // Serialize the SVG to a string
   const serializer = new XMLSerializer();
   let svgString = serializer.serializeToString(clone);
-  
+
   // Add XML declaration
   svgString = '<?xml version="1.0" standalone="no"?>\n' + svgString;
-  
+
   return svgString;
 }
 
-export function CopySvgButton({ svgRef, title = "Copy SVG to clipboard" }: CopySvgButtonProps): JSX.Element {
+export function CopySvgButton({
+  svgRef,
+  title = "Copy SVG to clipboard",
+}: CopySvgButtonProps): JSX.Element {
   const [copied, setCopied] = useState<boolean>(false);
 
   const copySvgToClipboard = (): void => {
