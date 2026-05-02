@@ -1,4 +1,5 @@
-import { useEffect, useRef, useMemo, forwardRef } from "react";
+import { useEffect, useRef, useMemo, useCallback, forwardRef } from "react";
+import type { Ref } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
@@ -16,6 +17,8 @@ export interface SixFoldV0Props {
   svgConfig: SvgConfig;
   restartTrigger?: number;
   currentStep?: number;
+  totalSteps?: number;
+  onStepChange?: (step: number) => void;
   theme?: Theme;
 }
 
@@ -27,22 +30,30 @@ export interface SixFoldV0Props {
  * - useEffect for SVG setup
  * - useEffect for step execution with store integration
  */
-export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(
-  (
-    { store, dotStrokeWidth = 2.0, svgConfig, restartTrigger = 0, currentStep = 0, theme = darkTheme },
-    ref,
-  ) => {
-    const svgRef = useRef<SVGSVGElement>(null);
+export const SixFoldV0 = forwardRef(function SixFoldV0(
+  {
+    store,
+    dotStrokeWidth = 2.0,
+    svgConfig,
+    restartTrigger = 0,
+    currentStep = 0,
+    totalSteps,
+    onStepChange,
+    theme = darkTheme,
+  }: SixFoldV0Props,
+  ref: Ref<SVGSVGElement | null>,
+): React.JSX.Element {
+  const svgRef = useRef<SVGSVGElement>(null);
 
-    // Forward the ref to the SVG element
-    useEffect(() => {
-      if (!ref) return;
-      if (typeof ref === "function") {
-        ref(svgRef.current);
-      } else {
-        ref.current = svgRef.current;
-      }
-    }, [ref]);
+  // Forward the ref to the SVG element
+  useEffect(() => {
+    if (!ref) return;
+    if (typeof ref === "function") {
+      ref(svgRef.current);
+    } else {
+      ref.current = svgRef.current;
+    }
+  }, [ref]);
 
   const prevStepRef = useRef<number>(0);
 
@@ -127,9 +138,46 @@ export const SixFoldV0 = forwardRef<SVGSVGElement, SixFoldV0Props>(
     }
   }, [currentStep, restartTrigger, svgConfig, theme, config, dotStrokeWidth]);
 
+  const handleSliderChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newStep = parseInt(e.target.value, 10);
+      if (!isNaN(newStep)) {
+        onStepChange?.(newStep);
+      }
+    },
+    [onStepChange],
+  );
+
+  const maxSteps = totalSteps ?? SIX_FOLD_V0_STEPS.length;
+  const progressPercent = ((currentStep ?? 0) / maxSteps) * 100;
+
   return (
     <div className={`${svgConfig.containerClass} flex justify-center`}>
-      <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="sixfoldv0-svg" />
+      <div className="flex flex-col items-center gap-2">
+        <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="sixfoldv0-svg" />
+        {onStepChange && totalSteps && (
+          <div className="w-full max-w-md">
+            <input
+              type="range"
+              min={1}
+              max={maxSteps}
+              step={1}
+              value={currentStep ?? 0}
+              onChange={handleSliderChange}
+              aria-label="Step navigation"
+              name="step-slider"
+              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+              style={{
+                background: `linear-gradient(to right, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} 0%, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
+              }}
+            />
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <span>1</span>
+              <span>{maxSteps}</span>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 });

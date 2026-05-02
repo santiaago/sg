@@ -197,6 +197,8 @@ export default function App(): JSX.Element {
               svgConfig={standardSvgConfig}
               restartTrigger={restartKeyv0}
               currentStep={currentStepv0}
+              totalSteps={SIX_FOLD_V0_STEPS.length}
+              onStepChange={setCurrentStepv0}
               theme={svgTheme}
             />
             <div className="mt-1 flex gap-2">
@@ -302,6 +304,8 @@ export default function App(): JSX.Element {
               svgConfig={standardSvgConfig}
               restartTrigger={restartKeySquare}
               currentStep={currentStepSquare}
+              totalSteps={SQUARE_STEPS.length}
+              onStepChange={setCurrentStepSquare}
               theme={svgTheme}
             />
             <div className="mt-1 flex gap-2">
