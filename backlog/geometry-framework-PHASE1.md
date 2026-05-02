@@ -7,7 +7,7 @@ This phase creates the foundation of the geometry framework: the **Construction 
 **Status**: NOT STARTED  
 **Priority**: HIGH  
 **Estimated Duration**: 3-5 days  
-**Prerequisites**: None (can start immediately)  
+**Prerequisites**: None (can start immediately)
 
 ---
 
@@ -30,19 +30,21 @@ By the end of this phase, we will have:
 
 **Decision**: Construction class uses mutable internal state (not immutable/functional style).
 
-**Rationale**: 
+**Rationale**:
+
 - User confirmed "Immutable (functional style) - YES" but this refers to geometry **values**, not the Construction builder itself
 - Mutable builder pattern is simpler and matches the step-by-step nature of geometric constructions
 - Each method call mutates the Construction's internal state and returns a Ref
 - GeometryValue types themselves remain immutable (plain data objects)
 
 **Implementation**:
+
 ```typescript
 class Construction {
   private _values = new Map<string, GeometryValue>();  // Mutable
   private _steps: InternalStep[] = [];                   // Mutable
   private _stepIndex = 0;                               // Mutable
-  
+
   point(x: number, y: number, name?: string): PointRef {
     const id = name || this._autoName("point");
     const value: Point = point(x, y);  // Immutable value
@@ -58,12 +60,14 @@ class Construction {
 **Decision**: Values are computed eagerly (when methods are called), not lazily.
 
 **Rationale**:
+
 - Simpler implementation for v1
 - Step-by-step navigation requires sequential computation anyway
 - Square construction uses all steps (no unused branches)
 - Can add lazy evaluation in v2 if needed without breaking API
 
 **Implementation**:
+
 ```typescript
 private _storeGeom(id: string, value: GeometryValue, dependencies: string[]): void {
   this._values.set(id, value);  // Store computed value immediately
@@ -81,12 +85,14 @@ private _storeGeom(id: string, value: GeometryValue, dependencies: string[]): vo
 **Decision**: Use options object `{ exclude: PointRef }` for selecting "the other" intersection point.
 
 **Rationale**:
+
 - More type-safe than string "other"
 - Matches existing pattern in `constructors.ts` which uses `{ exclude: Point }`
 - Clear and explicit about which point to exclude
 - Supports both Direction-based selection AND exclusion-based selection
 
 **Implementation**:
+
 ```typescript
 type IntersectionOptions = Direction | { exclude: PointRef };
 
@@ -102,14 +108,14 @@ intersection(
 
 **Decision**: Direction values have specific meanings based on geometry pair:
 
-| Geometry Pair | Direction | Meaning |
-|---------------|-----------|---------|
-| Circle-Circle | `"north"` | Intersection with smaller y (SVG coords: y increases downward) |
-| Circle-Circle | `"south"` | Intersection with larger y |
-| Circle-Line | `"left"` | Intersection with smaller x when looking from circle center toward line start |
-| Circle-Line | `"right"` | Intersection with larger x when looking from circle center toward line start |
-| Line-Line | N/A | Lines intersect at one point (unless parallel, which throws error) |
-| Any | `{ exclude: PointRef }` | The intersection point that is NOT the excluded one |
+| Geometry Pair | Direction               | Meaning                                                                       |
+| ------------- | ----------------------- | ----------------------------------------------------------------------------- |
+| Circle-Circle | `"north"`               | Intersection with smaller y (SVG coords: y increases downward)                |
+| Circle-Circle | `"south"`               | Intersection with larger y                                                    |
+| Circle-Line   | `"left"`                | Intersection with smaller x when looking from circle center toward line start |
+| Circle-Line   | `"right"`               | Intersection with larger x when looking from circle center toward line start  |
+| Line-Line     | N/A                     | Lines intersect at one point (unless parallel, which throws error)            |
+| Any           | `{ exclude: PointRef }` | The intersection point that is NOT the excluded one                           |
 
 ---
 
@@ -139,10 +145,10 @@ This is the main file for Phase 1. It contains:
 
 /**
  * Construction DSL - Higher-level declarative language for geometric constructions
- * 
+ *
  * This module provides a fluid, chainable API for creating geometric constructions.
  * It is a facade/abstraction layer on top of the existing step-based system.
- * 
+ *
  * Key principles:
  * - Pure geometry logic (NO SVG, NO rendering)
  * - Single API surface for ALL operations
@@ -259,11 +265,7 @@ export class ConstructionError extends Error {
  */
 export class NoIntersectionError extends ConstructionError {
   constructor(stepIndex: number, stepId: string, g1Id: string, g2Id: string) {
-    super(
-      stepIndex,
-      stepId,
-      `No intersection between ${g1Id} and ${g2Id}`,
-    );
+    super(stepIndex, stepId, `No intersection between ${g1Id} and ${g2Id}`);
     this.name = "NoIntersectionError";
   }
 }
@@ -282,17 +284,8 @@ export class GeometryNotFoundError extends ConstructionError {
  * Error thrown when a geometry type mismatch occurs.
  */
 export class TypeMismatchError extends ConstructionError {
-  constructor(
-    stepIndex: number,
-    stepId: string,
-    expectedType: string,
-    actualType: string,
-  ) {
-    super(
-      stepIndex,
-      stepId,
-      `Expected ${expectedType}, got ${actualType}`,
-    );
+  constructor(stepIndex: number, stepId: string, expectedType: string, actualType: string) {
+    super(stepIndex, stepId, `Expected ${expectedType}, got ${actualType}`);
     this.name = "TypeMismatchError";
   }
 }
@@ -318,19 +311,19 @@ export interface InternalStep {
 ### Step 6: Construction Class - Internal State
 
 - [ ] Define class with private state
-- [ ] Initialize _values Map
-- [ ] Initialize _steps array
-- [ ] Initialize _stepIndex
-- [ ] Initialize _errors array
-- [ ] Initialize _pointsOnGeom tracking
+- [ ] Initialize \_values Map
+- [ ] Initialize \_steps array
+- [ ] Initialize \_stepIndex
+- [ ] Initialize \_errors array
+- [ ] Initialize \_pointsOnGeom tracking
 
 ```typescript
 /**
  * Construction class - Core DSL for geometric constructions.
- * 
+ *
  * Provides a single API surface for all geometry operations.
  * All operations are methods on Construction with typed parameters.
- * 
+ *
  * Features:
  * - Pure geometry logic (NO SVG, NO rendering)
  * - Eager computation (values computed when methods called)
@@ -341,16 +334,16 @@ export interface InternalStep {
 export class Construction {
   // All geometry values stored by ID
   private _values = new Map<string, GeometryValue>();
-  
+
   // All steps in order
   private _steps: InternalStep[] = [];
-  
+
   // Current step index for navigation
   private _stepIndex = 0;
-  
+
   // Errors collected during construction
   private _errors: ConstructionError[] = [];
-  
+
   // Track which points lie on which geometries (for "other" intersection)
   private _pointsOnGeom = new Map<string, Set<string>>();
 
@@ -420,7 +413,7 @@ export class Construction {
       this._storeGeom(id, value, []);
       return { id };
     }
-    
+
     // Handle PointRef overload: line(p1, p2, name?)
     if (this._isPointRef(arg1) && this._isPointRef(arg2)) {
       const p1 = arg1;
@@ -433,7 +426,7 @@ export class Construction {
       this._storeGeom(id, value, [p1.id, p2.id]);
       return { id };
     }
-    
+
     throw new Error("Invalid arguments to line()");
   }
 
@@ -459,7 +452,7 @@ export class Construction {
       this._storeGeom(id, value, []);
       return { id };
     }
-    
+
     // Handle PointRef overload: circle(center, radius, name?)
     if (this._isPointRef(arg1)) {
       const center = arg1;
@@ -471,7 +464,7 @@ export class Construction {
       this._storeGeom(id, value, [center.id]);
       return { id };
     }
-    
+
     throw new Error("Invalid arguments to circle()");
   }
 
@@ -546,22 +539,22 @@ export class Construction {
   ): PointRef {
     const l = this.get<Line>(line);
     const start = this.get<Point>(from);
-    
+
     // Calculate vector from start to end of line
     const dx = l.x2 - l.x1;
     const dy = l.y2 - l.y1;
     const len = Math.sqrt(dx * dx + dy * dy);
-    
+
     if (len === 0) {
       // Line has zero length, can't determine direction
       throw new Error(`Cannot compute pointOnLineAtDistance: line ${line.id} has zero length`);
     }
-    
+
     // Calculate point at distance from start
     const scale = distance / len;
     const x = l.x1 + dx * scale;
     const y = l.y1 + dy * scale;
-    
+
     const id = name || this._autoName("point_on_line");
     const value: Point = point(x, y);
     this._storeGeom(id, value, [line.id, from.id]);
@@ -592,11 +585,11 @@ export class Construction {
     const dx = l.x2 - l.x1;
     const dy = l.y2 - l.y1;
     const len = Math.sqrt(dx * dx + dy * dy);
-    
+
     if (len === 0) {
       throw new Error(`Cannot extend line ${line.id}: has zero length`);
     }
-    
+
     const scale = (len + length) / len;
     const x2 = l.x1 + dx * scale;
     const y2 = l.y1 + dy * scale;
@@ -612,11 +605,11 @@ export class Construction {
     const dx = t.x - f.x;
     const dy = t.y - f.y;
     const len = Math.sqrt(dx * dx + dy * dy);
-    
+
     if (len === 0) {
       throw new Error(`Cannot create lineTowards from ${from.id} to ${towards.id}: zero distance`);
     }
-    
+
     const scale = length / len;
     const x2 = f.x + dx * scale;
     const y2 = f.y + dy * scale;
@@ -629,29 +622,29 @@ export class Construction {
   perpendicular(line: LineRef, at: PointRef, name?: string): LineRef {
     const l = this.get<Line>(line);
     const p = this.get<Point>(at);
-    
+
     // Vector of original line
     const dx = l.x2 - l.x1;
     const dy = l.y2 - l.y1;
-    
+
     // Perpendicular vector (rotated 90 degrees)
     const px = -dy;
     const py = dx;
-    
+
     // Normalize
     const len = Math.sqrt(px * px + py * py);
     if (len === 0) {
       throw new Error(`Cannot create perpendicular: original line ${line.id} has zero length`);
     }
-    
+
     const ux = px / len;
     const uy = py / len;
-    
+
     // Use the same length as the original line for the perpendicular
     const length = Math.sqrt(dx * dx + dy * dy);
     const x2 = p.x + ux * length;
     const y2 = p.y + uy * length;
-    
+
     return this.line(p.x, p.y, x2, y2, name);
   }
 ```
@@ -670,13 +663,13 @@ export class Construction {
 
   /**
    * Find intersection point between two geometries.
-   * 
+   *
    * Supports:
    * - Circle-Circle: Use direction to select which intersection
    * - Circle-Line: Use direction or exclude to select which intersection
    * - Line-Circle: Same as Circle-Line (order doesn't matter)
    * - Line-Line: Returns the single intersection point
-   * 
+   *
    * @param a - First geometry (CircleRef or LineRef)
    * @param b - Second geometry (CircleRef or LineRef)
    * @param directionOrOptions - Direction or exclude option
@@ -692,9 +685,9 @@ export class Construction {
     const id = name || this._autoName("intersection");
     const valA = this.get(a);
     const valB = this.get(b);
-    
+
     let resultPoint: Point | null = null;
-    
+
     // Circle-Circle intersection
     if (valA.type === "circle" && valB.type === "circle") {
       resultPoint = this._intersectCircles(valA, valB, directionOrOptions);
@@ -711,7 +704,7 @@ export class Construction {
       this._trackPointOnGeom(id, b.id);
       return { id };
     }
-    
+
     // Circle-Line intersection (order matters for direction semantics)
     if (valA.type === "circle" && valB.type === "line") {
       resultPoint = this._intersectCircleLine(valA, valB, directionOrOptions);
@@ -728,12 +721,12 @@ export class Construction {
       this._trackPointOnGeom(id, b.id);
       return { id };
     }
-    
+
     // Line-Circle intersection (swap and recurse)
     if (valA.type === "line" && valB.type === "circle") {
       return this.intersection(b, a, directionOrOptions, name);
     }
-    
+
     // Line-Line intersection
     if (valA.type === "line" && valB.type === "line") {
       resultPoint = this._intersectLines(valA, valB);
@@ -750,7 +743,7 @@ export class Construction {
       this._trackPointOnGeom(id, b.id);
       return { id };
     }
-    
+
     throw new Error(`Unsupported intersection: ${valA.type} and ${valB.type}`);
   }
 
@@ -766,13 +759,13 @@ export class Construction {
       c1.cx, c1.cy, c1.r,
       c2.cx, c2.cy, c2.r,
     );
-    
+
     if (!result || result.length !== 4) {
       return null;
     }
-    
+
     const [x1, y1, x2, y2] = result;
-    
+
     // Handle exclude option
     if (typeof directionOrOptions === "object" && "exclude" in directionOrOptions) {
       const excludedPoint = this.get<Point>(directionOrOptions.exclude);
@@ -780,7 +773,7 @@ export class Construction {
       const d2 = this._distanceSq(x2, y2, excludedPoint.x, excludedPoint.y);
       return d1 < d2 ? point(x2, y2) : point(x1, y1);
     }
-    
+
     // Handle direction (north/south based on y-coordinate in SVG)
     const dir = directionOrOptions as Direction;
     if (dir === "north") {
@@ -790,7 +783,7 @@ export class Construction {
       // Pick intersection with larger y (south)
       return point(y1 > y2 ? x1 : x2, y1 > y2 ? y1 : y2);
     }
-    
+
     // Default: pick first intersection
     return point(x1, y1);
   }
@@ -808,11 +801,11 @@ export class Construction {
       line.x1, line.y1, line.x2, line.y2,
       circle.r,
     );
-    
+
     if (!result || result.length === 0) {
       return null;
     }
-    
+
     // Handle exclude option
     if (typeof directionOrOptions === "object" && "exclude" in directionOrOptions) {
       const excludedPoint = this.get<Point>(directionOrOptions.exclude);
@@ -823,7 +816,7 @@ export class Construction {
       }
       return null; // All intersections are the excluded point
     }
-    
+
     // Handle direction for circle-line
     const dir = directionOrOptions as Direction;
     if (dir === "left") {
@@ -835,7 +828,7 @@ export class Construction {
       const sorted = [...result].sort((a, b) => a[0] - b[0]);
       return point(sorted[sorted.length - 1][0], sorted[sorted.length - 1][1]);
     }
-    
+
     // Default: pick first intersection
     return point(result[0][0], result[0][1]);
   }
@@ -848,11 +841,11 @@ export class Construction {
       l1.x1, l1.y1, l1.x2, l1.y2,
       l2.x1, l2.y1, l2.x2, l2.y2,
     );
-    
+
     if (!result || result.length !== 2) {
       return null;
     }
-    
+
     return point(result[0], result[1]);
   }
 
@@ -995,7 +988,7 @@ export class Construction {
    */
   validate(): boolean {
     this._errors = [];
-    
+
     // Try to get all values to trigger any errors
     for (const [id] of this._values) {
       try {
@@ -1013,7 +1006,7 @@ export class Construction {
         }
       }
     }
-    
+
     return this._errors.length === 0;
   }
 
@@ -1034,10 +1027,10 @@ export class Construction {
 
 ### Step 13: Construction Class - Private Helpers
 
-- [ ] Implement _autoName()
-- [ ] Implement _storeGeom()
-- [ ] Implement _trackPointOnGeom()
-- [ ] Implement _isPointRef(), _isLineRef(), etc.
+- [ ] Implement \_autoName()
+- [ ] Implement \_storeGeom()
+- [ ] Implement \_trackPointOnGeom()
+- [ ] Implement \_isPointRef(), \_isLineRef(), etc.
 
 ```typescript
   // ===== Private Helpers =====
@@ -1389,7 +1382,7 @@ describe("Construction", () => {
       c.point(0, 0, "p1");
       c.point(10, 10, "p2");
       c.point(20, 20, "p3");
-      
+
       expect(c.currentStepIndex).toBe(0);
       c.goTo(1);
       expect(c.currentStepIndex).toBe(1);
@@ -1399,7 +1392,7 @@ describe("Construction", () => {
       const c = new Construction();
       c.point(0, 0, "p1");
       c.point(10, 10, "p2");
-      
+
       c.next();
       expect(c.currentStepIndex).toBe(1);
       c.next();
@@ -1425,7 +1418,7 @@ describe("Construction", () => {
       c.point(10, 10, "p2");
       c.point(20, 20, "p3");
       c.goTo(1);
-      
+
       const steps = c.getSteps();
       expect(steps).toHaveLength(2);
       expect(steps[0].id).toBe("p1");
