@@ -159,12 +159,7 @@ export function useGeometryValueStore(): GeometryValueStore {
   const [geometryValues, setGeometryValues] = useState<Map<string, any>>(new Map());
   const [nodes, setNodes] = useState<Map<string, DependencyNode>>(new Map());
 
-  const addGeometry = useCallback((
-    id: string,
-    value: any,
-    type: string,
-    dependsOn: string[],
-  ) => {
+  const addGeometry = useCallback((id: string, value: any, type: string, dependsOn: string[]) => {
     setGeometryValues((prev) => {
       const newMap = new Map(prev);
       newMap.set(id, value);
@@ -182,13 +177,19 @@ export function useGeometryValueStore(): GeometryValueStore {
     });
   }, []);
 
-  const getGeometry = useCallback((id: string) => {
-    return geometryValues.get(id);
-  }, [geometryValues]);
+  const getGeometry = useCallback(
+    (id: string) => {
+      return geometryValues.get(id);
+    },
+    [geometryValues],
+  );
 
-  const getNode = useCallback((id: string) => {
-    return nodes.get(id);
-  }, [nodes]);
+  const getNode = useCallback(
+    (id: string) => {
+      return nodes.get(id);
+    },
+    [nodes],
+  );
 
   const getAllNodes = useCallback(() => {
     return Array.from(nodes.values());
@@ -204,7 +205,15 @@ export function useGeometryValueStore(): GeometryValueStore {
   }, []);
 
   return useMemo(
-    () => ({ geometryValues, addGeometry, getGeometry, getNode, getAllNodes, getDependencyGraph, clear }),
+    () => ({
+      geometryValues,
+      addGeometry,
+      getGeometry,
+      getNode,
+      getAllNodes,
+      getDependencyGraph,
+      clear,
+    }),
     [geometryValues, addGeometry, getGeometry, getNode, getAllNodes, getDependencyGraph, clear],
   );
 }
