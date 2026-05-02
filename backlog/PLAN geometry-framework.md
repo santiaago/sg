@@ -11,21 +11,22 @@ The framework is a **facade/abstraction layer** on top of the existing step syst
 ## Executive Summary
 
 ### Goal
+
 Create a declarative geometry construction DSL that allows users to write algorithmic geometry in a fluid, readable syntax while maintaining the existing step-based architecture.
 
 ### Key Design Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Abstraction vs Replacement | Abstraction layer on top of existing steps | Preserves existing architecture |
-| Construction vs Rendering | Completely separate concerns | Pure geometry logic vs SVG drawing |
-| New Component | `SquaresV2.tsx` | Keeps existing `Square.tsx` untouched |
-| Backward Compatibility | Not required | Framework is only for future components |
-| API Design | Option A: Construction-only API | Single API surface, no dual API, no methods on refs |
-| Type System | app2's `GeometryValue` types (canonical) | No conversion needed, @sg/geometry utilities use coordinates |
-| Reference Semantics | Pure identifiers (no data) | Construction holds all state, refs are typed IDs |
-| Step Generation | Automatic from Construction | Reduces boilerplate |
-| @sg/geometry Usage | Coordinate-based utilities only | Don't use classes, use functions with raw numbers |
+| Decision                   | Choice                                     | Rationale                                                    |
+| -------------------------- | ------------------------------------------ | ------------------------------------------------------------ |
+| Abstraction vs Replacement | Abstraction layer on top of existing steps | Preserves existing architecture                              |
+| Construction vs Rendering  | Completely separate concerns               | Pure geometry logic vs SVG drawing                           |
+| New Component              | `SquaresV2.tsx`                            | Keeps existing `Square.tsx` untouched                        |
+| Backward Compatibility     | Not required                               | Framework is only for future components                      |
+| API Design                 | Option A: Construction-only API            | Single API surface, no dual API, no methods on refs          |
+| Type System                | app2's `GeometryValue` types (canonical)   | No conversion needed, @sg/geometry utilities use coordinates |
+| Reference Semantics        | Pure identifiers (no data)                 | Construction holds all state, refs are typed IDs             |
+| Step Generation            | Automatic from Construction                | Reduces boilerplate                                          |
+| @sg/geometry Usage         | Coordinate-based utilities only            | Don't use classes, use functions with raw numbers            |
 
 ---
 
@@ -136,10 +137,18 @@ export type GeometryValue = Point | Line | Circle | Polygon;
 ```typescript
 // Typed reference objects - each is JUST an ID with type info
 // NO data storage - all data lives in Construction
-export interface PointRef { readonly id: string; }
-export interface LineRef { readonly id: string; }
-export interface CircleRef { readonly id: string; }
-export interface PolygonRef { readonly id: string; }
+export interface PointRef {
+  readonly id: string;
+}
+export interface LineRef {
+  readonly id: string;
+}
+export interface CircleRef {
+  readonly id: string;
+}
+export interface PolygonRef {
+  readonly id: string;
+}
 export type GeomRef = PointRef | LineRef | CircleRef | PolygonRef;
 
 // Direction type for intersection selection
@@ -167,6 +176,7 @@ The Construction class is the **single API surface** for all geometry operations
 #### Public API
 
 **Base Geometry Creators**:
+
 - `point(x: number, y: number, name?: string): PointRef`
 - `point(p: PointRef): PointRef` (copy)
 - `line(x1: number, y1: number, x2: number, y2: number, name?: string): LineRef`
@@ -176,6 +186,7 @@ The Construction class is the **single API surface** for all geometry operations
 - `polygon(points: PointRef[], name?: string): PolygonRef`
 
 **Derived Geometry Operations**:
+
 - `pointAt(line: LineRef, ratio: number, name?: string): PointRef`
 - `pointOnLineAtDistance(line: LineRef, distance: number, from: PointRef, name?: string): PointRef`
 - `midpoint(p1: PointRef, p2: PointRef, name?: string): PointRef`
@@ -184,12 +195,14 @@ The Construction class is the **single API surface** for all geometry operations
 - `perpendicular(line: LineRef, at: PointRef, name?: string): LineRef`
 
 **Intersection Operations**:
+
 - `intersection(c1: CircleRef, c2: CircleRef, direction: Direction, name?: string): PointRef`
 - `intersection(circle: CircleRef, line: LineRef, directionOrOptions: Direction | {exclude: PointRef}, name?: string): PointRef`
 - `intersection(line: LineRef, circle: CircleRef, directionOrOptions: Direction | {exclude: PointRef}, name?: string): PointRef`
 - `intersection(l1: LineRef, l2: LineRef, name?: string): PointRef`
 
 **Step Management**:
+
 - `goTo(index: number): void`
 - `next(): void`
 - `prev(): void`
@@ -198,10 +211,12 @@ The Construction class is the **single API surface** for all geometry operations
 - `get currentStepIndex(): number`
 
 **Value Access**:
+
 - `get<T extends GeometryValue>(ref: GeomRef): T`
 - `getValues(): Map<string, GeometryValue>`
 
 **Error Handling**:
+
 - `validate(): boolean` - Checks all operations without throwing
 - `getErrors(): ConstructionError[]` - Returns all collected errors
 
@@ -255,17 +270,18 @@ const result = intersection(c1.cx, c1.cy, c1.r, c2.cx, c2.cy, c2.r);
 
 // Circle-Line intersection
 const result = inteceptCircleLineSeg(
-  circle.cx, circle.cy,
-  line.x1, line.y1, line.x2, line.y2,
-  circle.r
+  circle.cx,
+  circle.cy,
+  line.x1,
+  line.y1,
+  line.x2,
+  line.y2,
+  circle.r,
 );
 // Returns [[x1, y1], [x2, y2]] or null
 
 // Line-Line intersection
-const result = lineIntersect(
-  l1.x1, l1.y1, l1.x2, l1.y2,
-  l2.x1, l2.y1, l2.x2, l2.y2
-);
+const result = lineIntersect(l1.x1, l1.y1, l1.x2, l1.y2, l2.x1, l2.y1, l2.x2, l2.y2);
 // Returns [x, y] or null
 ```
 
@@ -314,16 +330,22 @@ import type { Point, Line, Circle, Polygon, GeometryValue } from "../../types/ge
 import type { GeometryStore } from "../../react-store";
 
 export class SvgRenderer {
-  constructor(private svg: SVGSVGElement, private store?: GeometryStore) {}
+  constructor(
+    private svg: SVGSVGElement,
+    private store?: GeometryStore,
+  ) {}
 
-  drawPoint(point: Point, options?: { stroke?: number; name?: string }): SVGElement
-  drawLine(line: Line, options?: { stroke?: number; name?: string }): SVGElement
-  drawCircle(circle: Circle, options?: { stroke?: number; name?: string }): SVGElement
-  drawPolygon(polygon: Polygon, options?: { stroke?: number; fill?: string; name?: string }): SVGElement
+  drawPoint(point: Point, options?: { stroke?: number; name?: string }): SVGElement;
+  drawLine(line: Line, options?: { stroke?: number; name?: string }): SVGElement;
+  drawCircle(circle: Circle, options?: { stroke?: number; name?: string }): SVGElement;
+  drawPolygon(
+    polygon: Polygon,
+    options?: { stroke?: number; fill?: string; name?: string },
+  ): SVGElement;
 
-  drawConstruction(construction: Construction): void
-  drawConstructionUpTo(construction: Construction, stepIndex: number): void
-  clear(): void
+  drawConstruction(construction: Construction): void;
+  drawConstructionUpTo(construction: Construction, stepIndex: number): void;
+  clear(): void;
 }
 ```
 
@@ -485,9 +507,11 @@ All imports flow in one direction. No cycles possible.
 The implementation is divided into 6 phases. Each phase has its own detailed document:
 
 ### Phase 1: Core Construction DSL
+
 **Document**: `backlog/geometry-framework-PHASE1.md`
 
 Create the foundation:
+
 - Define Ref types (PointRef, LineRef, CircleRef, PolygonRef, GeomRef)
 - Define Direction type and ConstructionError class
 - Implement Construction class with internal state
@@ -500,18 +524,22 @@ Create the foundation:
 - Add comprehensive unit tests
 
 ### Phase 2: Integration Layer
+
 **Document**: `backlog/geometry-framework-PHASE2.md`
 
 Bridge to existing infrastructure:
+
 - Create construction-to-steps adapter
 - Update geometry/index.ts exports
 - Verify no circular dependencies
 - Test conversion with square construction
 
 ### Phase 3: Rendering Layer
+
 **Document**: `backlog/geometry-framework-PHASE3.md`
 
 Create the rendering system:
+
 - Implement SvgRenderer class
 - Implement drawPoint, drawLine, drawCircle, drawPolygon
 - Implement drawConstruction and drawConstructionUpTo
@@ -520,9 +548,11 @@ Create the rendering system:
 - Add rendering tests
 
 ### Phase 4: Proof of Concept - SquaresV2 Component
+
 **Document**: `backlog/geometry-framework-PHASE4.md`
 
 Build the first component using the framework:
+
 - Create SquaresV2.tsx with all 16 square steps
 - Integrate Construction and SvgRenderer
 - Add step navigation
@@ -532,9 +562,11 @@ Build the first component using the framework:
 - Test all steps render correctly
 
 ### Phase 5: Advanced Features
+
 **Document**: `backlog/geometry-framework-PHASE5.md`
 
 Add advanced capabilities:
+
 - Undo/redo support
 - Construction serialization/deserialization (JSON)
 - Parameter slider integration
@@ -542,9 +574,11 @@ Add advanced capabilities:
 - Create additional test constructions (triangle, hexagon)
 
 ### Phase 6: Documentation & Cleanup
+
 **Document**: `backlog/geometry-framework-PHASE6.md`
 
 Finalize the implementation:
+
 - Add JSDoc comments to all public methods
 - Document Construction API
 - Document Ref types
