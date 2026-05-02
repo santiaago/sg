@@ -42,14 +42,14 @@ export interface SquareConfig {
   border: number;
   lineLength: number;
   circleRadius: number;
+  // C1 and C2 are the circle centers that define the main line
   c1x: number;
+  c1y: number;
   c2x: number;
-  ly1: number;
-  ly2: number;
-  lx1: number;
-  lx2: number;
+  c2y: number;
   // Parameters used by step compute functions
   C1_POSITION_RATIO: number;
+  C2_POSITION_RATIO: number;
   tolerance: number;
   selectMinY: boolean;
 }
@@ -77,12 +77,11 @@ export function computeSquareConfig(width: number, height: number): SquareConfig
     lineLength: LINE_LENGTH,
     circleRadius: CIRCLE_RADIUS,
     c1x: C1_X_POSITION,
+    c1y: ly2,
     c2x: C2_X_POSITION,
-    ly1: ly2,
-    ly2,
-    lx1: BORDER,
-    lx2: width - BORDER,
+    c2y: ly2,
     C1_POSITION_RATIO,
+    C2_POSITION_RATIO,
     tolerance: DEFAULT_TOLERANCE,
     selectMinY: true,
   };

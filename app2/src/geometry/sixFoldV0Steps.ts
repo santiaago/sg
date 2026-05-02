@@ -21,34 +21,16 @@ import {
 } from "../geometry/constructors";
 
 /**
- * Step 1A: Main line
- * Creates the base horizontal line.
- * Uses SVG config coordinates (lx1, ly1, lx2, ly2) as parameters.
- */
-const STEP_1A: SixFoldV0Step = {
-  id: "step1a",
-  inputs: [],
-  outputs: [GEOM.LINE1],
-  parameters: ["lx1", "ly1", "lx2", "ly2"],
-  compute: computeSingle(GEOM.LINE1, (_inputs, config) => {
-    return line(config.lx1, config.ly1, config.lx2, config.ly2);
-  }),
-  draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LINE1, 0.5, store, theme, theme.COLOR_PRIMARY);
-  },
-};
-
-/**
- * Step 1B: Point P1
+ * Step 1: Point P1
  * Creates the first endpoint point of LINE1.
  */
-const STEP_1B: SixFoldV0Step = {
-  id: "step1b",
+const STEP_1: SixFoldV0Step = {
+  id: "step1",
   inputs: [],
   outputs: [GEOM.P1],
-  parameters: ["lx1", "ly1"],
+  parameters: ["p1x", "p1y"],
   compute: computeSingle(GEOM.P1, (_inputs, config) => {
-    return point(config.lx1, config.ly1);
+    return point(config.p1x, config.p1y);
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.P1, 2.0, store, theme);
@@ -56,16 +38,16 @@ const STEP_1B: SixFoldV0Step = {
 };
 
 /**
- * Step 1C: Point P2
+ * Step 2: Point P2
  * Creates the second endpoint point of LINE1.
  */
-const STEP_1C: SixFoldV0Step = {
-  id: "step1c",
+const STEP_2: SixFoldV0Step = {
+  id: "step2",
   inputs: [],
   outputs: [GEOM.P2],
-  parameters: ["lx2", "ly2"],
+  parameters: ["p2x", "p2y"],
   compute: computeSingle(GEOM.P2, (_inputs, config) => {
-    return point(config.lx2, config.ly2);
+    return point(config.p2x, config.p2y);
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.P2, 2.0, store, theme);
@@ -73,16 +55,35 @@ const STEP_1C: SixFoldV0Step = {
 };
 
 /**
- * Step 2A1: Create CP1
+ * Step 3: Main line
+ * Creates the base horizontal line from P1 to P2.
+ */
+const STEP_3: SixFoldV0Step = {
+  id: "step3",
+  inputs: [GEOM.P1, GEOM.P2],
+  outputs: [GEOM.LINE1],
+  parameters: [],
+  compute: computeSingle(GEOM.LINE1, (inputs, _config) => {
+    const p1 = getGeometry(inputs, GEOM.P1, isPoint, "Point");
+    const p2 = getGeometry(inputs, GEOM.P2, isPoint, "Point");
+    return line(p1.x, p1.y, p2.x, p2.y);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawLine(svg, values, GEOM.LINE1, 0.5, store, theme, theme.COLOR_PRIMARY);
+  },
+};
+
+/**
+ * Step 4: Create CP1
  * Creates the first circle center (cp1) on LINE1.
  */
-const STEP_2A1: SixFoldV0Step = {
-  id: "step2a1",
+const STEP_4: SixFoldV0Step = {
+  id: "step4",
   inputs: [GEOM.LINE1],
   outputs: [GEOM.CP1],
   parameters: ["cp1OffsetRatio"],
   compute: computeSingle(GEOM.CP1, (inputs, config) => {
-    // Get line from step 1
+    // Get line from step 3
     const line1 = getGeometry(inputs, GEOM.LINE1, isLine, "Line");
 
     // Use line coordinates
@@ -104,11 +105,11 @@ const STEP_2A1: SixFoldV0Step = {
 };
 
 /**
- * Step 2A2: Create C1
+ * Step 5: Create C1
  * Creates the first circle (c1) centered at CP1.
  */
-const STEP_2A2: SixFoldV0Step = {
-  id: "step2a2",
+const STEP_5: SixFoldV0Step = {
+  id: "step5",
   inputs: [GEOM.CP1],
   outputs: [GEOM.C1],
   parameters: ["radius"],
@@ -122,11 +123,11 @@ const STEP_2A2: SixFoldV0Step = {
 };
 
 /**
- * Step 2B: Create CP2 as intersection of C1 and LINE1
+ * Step 6: Create CP2 as intersection of C1 and LINE1
  * Finds CP2 where C1 intersects LINE1 (leftmost point).
  */
-const STEP_2B: SixFoldV0Step = {
-  id: "step2b",
+const STEP_6: SixFoldV0Step = {
+  id: "step6",
   inputs: [GEOM.C1, GEOM.LINE1],
   outputs: [GEOM.CP2],
   parameters: [],
@@ -137,7 +138,7 @@ const STEP_2B: SixFoldV0Step = {
     // Find leftmost intersection of C1 with LINE1
     const cp2 = interceptCircleLineDirHelper(c1, line1, directions.left);
     if (!cp2) {
-      throw new Error("STEP_2B: C1 and LINE1 do not intersect");
+      throw new Error("STEP_6: C1 and LINE1 do not intersect");
     }
     return cp2;
   }),
@@ -147,11 +148,11 @@ const STEP_2B: SixFoldV0Step = {
 };
 
 /**
- * Step 2C: Create C2 at CP2
+ * Step 7: Create C2 at CP2
  * Creates the second circle (c2) centered at CP2 with same radius.
  */
-const STEP_2C: SixFoldV0Step = {
-  id: "step2c",
+const STEP_7: SixFoldV0Step = {
+  id: "step7",
   inputs: [GEOM.CP2],
   outputs: [GEOM.C2],
   parameters: ["radius"],
@@ -165,11 +166,11 @@ const STEP_2C: SixFoldV0Step = {
 };
 
 /**
- * Step 2D1: Intersection point PIC12
+ * Step 8: Intersection point PIC12
  * Finds the intersection point of c1 and c2 (top point).
  */
-const STEP_2D1: SixFoldV0Step = {
-  id: "step2d1",
+const STEP_8: SixFoldV0Step = {
+  id: "step8",
   inputs: [GEOM.C1, GEOM.C2],
   outputs: [GEOM.PIC12],
   parameters: [],
@@ -181,7 +182,7 @@ const STEP_2D1: SixFoldV0Step = {
     const pxPy = circlesIntersectionPointHelper(c1, c2, directions.up);
     if (!pxPy) {
       throw new Error(
-        "STEP_2D1: circlesIntersectionPointHelper(c1, c2, up) returned null - circles do not intersect",
+        "STEP_8: circlesIntersectionPointHelper(c1, c2, up) returned null - circles do not intersect",
       );
     }
     return pxPy;
@@ -192,11 +193,11 @@ const STEP_2D1: SixFoldV0Step = {
 };
 
 /**
- * Step 2D2: Circle at PIC12
+ * Step 9: Circle at PIC12
  * Creates circle at PIC12 with the configured radius.
  */
-const STEP_2D2: SixFoldV0Step = {
-  id: "step2d2",
+const STEP_9: SixFoldV0Step = {
+  id: "step9",
   inputs: [GEOM.PIC12],
   outputs: [GEOM.CPIC12],
   parameters: ["radius"],
@@ -211,11 +212,11 @@ const STEP_2D2: SixFoldV0Step = {
 };
 
 /**
- * Step 2E1: Bisected point P3
+ * Step 10: Bisected point P3
  * Computes p3 by bisecting from cPic12 through cp2.
  */
-const STEP_2E1: SixFoldV0Step = {
-  id: "step2e1",
+const STEP_10: SixFoldV0Step = {
+  id: "step10",
   inputs: [GEOM.CPIC12, GEOM.CP2],
   outputs: [GEOM.P3],
   parameters: [],
@@ -231,11 +232,11 @@ const STEP_2E1: SixFoldV0Step = {
 };
 
 /**
- * Step 2E2: Bisected point P4
+ * Step 11: Bisected point P4
  * Computes p4 by bisecting from cPic12 through cp1.
  */
-const STEP_2E2: SixFoldV0Step = {
-  id: "step2e2",
+const STEP_11: SixFoldV0Step = {
+  id: "step11",
   inputs: [GEOM.CPIC12, GEOM.CP1],
   outputs: [GEOM.P4],
   parameters: [],
@@ -251,12 +252,12 @@ const STEP_2E2: SixFoldV0Step = {
 };
 
 /**
- * Step 2F: Create line L13
+ * Step 12: Create line L13
  * Creates temporary connecting line from CP1 to P3.
- * Note: This is different from the crossing line LCP1CP3 in STEP_6 (CP1→CP3).
+ * Note: This is different from the crossing line LCP1CP3 in STEP_15 (CP1→CP3).
  */
-const STEP_2F: SixFoldV0Step = {
-  id: "step2f",
+const STEP_12: SixFoldV0Step = {
+  id: "step12",
   inputs: [GEOM.CP1, GEOM.P3],
   outputs: [GEOM.L13],
   parameters: [],
@@ -272,12 +273,12 @@ const STEP_2F: SixFoldV0Step = {
 };
 
 /**
- * Step 2G: Create line L24
+ * Step 13: Create line L24
  * Creates temporary connecting line from CP2 to P4.
- * Note: This is different from the crossing line LCP2CP4 in STEP_6 (CP2→CP4).
+ * Note: This is different from the crossing line LCP2CP4 in STEP_16 (CP2→CP4).
  */
-const STEP_2G: SixFoldV0Step = {
-  id: "step2g",
+const STEP_13: SixFoldV0Step = {
+  id: "step13",
   inputs: [GEOM.CP2, GEOM.P4],
   outputs: [GEOM.L24],
   parameters: [],
@@ -293,11 +294,11 @@ const STEP_2G: SixFoldV0Step = {
 };
 
 /**
- * Step 2H: Find CP4
+ * Step 14: Find CP4
  * Finds CP4 as intersection of C1 with L13.
  */
-const STEP_2H: SixFoldV0Step = {
-  id: "step2h",
+const STEP_14: SixFoldV0Step = {
+  id: "step14",
   inputs: [GEOM.C1, GEOM.L13],
   outputs: [GEOM.CP4],
   parameters: [],
@@ -307,7 +308,7 @@ const STEP_2H: SixFoldV0Step = {
     // cp4 = intersection of circle1 with l13 line
     const cp4Pt = interceptCircleLineSegHelper(circle1, l13, 0);
     if (!cp4Pt) {
-      throw new Error("STEP_2H: Failed to find circle intersection for cp4 center");
+      throw new Error("STEP_14: Failed to find circle intersection for cp4 center");
     }
     return cp4Pt;
   }),
@@ -317,11 +318,11 @@ const STEP_2H: SixFoldV0Step = {
 };
 
 /**
- * Step 2I: Find CP3
+ * Step 15: Find CP3
  * Finds CP3 as intersection of C2 with L24.
  */
-const STEP_2I: SixFoldV0Step = {
-  id: "step2i",
+const STEP_15: SixFoldV0Step = {
+  id: "step55",
   inputs: [GEOM.C2, GEOM.L24],
   outputs: [GEOM.CP3],
   parameters: [],
@@ -331,7 +332,7 @@ const STEP_2I: SixFoldV0Step = {
     // cp3 = intersection of circle2 with l24 line
     const cp3Pt = interceptCircleLineSegHelper(circle2, l24, 0);
     if (!cp3Pt) {
-      throw new Error("STEP_2I: Failed to find circle intersection for cp3 center");
+      throw new Error("STEP_15: Failed to find circle intersection for cp3 center");
     }
     return cp3Pt;
   }),
@@ -341,11 +342,11 @@ const STEP_2I: SixFoldV0Step = {
 };
 
 /**
- * Step 2J: Create circle C4
+ * Step 16: Create circle C4
  * Creates circle at CP4 with the configured radius.
  */
-const STEP_2J: SixFoldV0Step = {
-  id: "step2j",
+const STEP_16: SixFoldV0Step = {
+  id: "step16",
   inputs: [GEOM.CP4],
   outputs: [GEOM.C4],
   parameters: ["radius"],
@@ -359,11 +360,11 @@ const STEP_2J: SixFoldV0Step = {
 };
 
 /**
- * Step 2K: Create circle C3
+ * Step 17: Create circle C3
  * Creates circle at CP3 with the configured radius.
  */
-const STEP_2K: SixFoldV0Step = {
-  id: "step2k",
+const STEP_17: SixFoldV0Step = {
+  id: "step17",
   inputs: [GEOM.CP3],
   outputs: [GEOM.C3],
   parameters: ["radius"],
@@ -377,11 +378,11 @@ const STEP_2K: SixFoldV0Step = {
 };
 
 /**
- * Step 3A: Line L12
+ * Step 18: Line L12
  * Draws connecting line between cp2 and cp1.
  */
-const STEP_3A: SixFoldV0Step = {
-  id: "step3a",
+const STEP_18: SixFoldV0Step = {
+  id: "step18",
   inputs: [GEOM.CP1, GEOM.CP2],
   outputs: [GEOM.L12],
   parameters: [],
@@ -396,11 +397,11 @@ const STEP_3A: SixFoldV0Step = {
 };
 
 /**
- * Step 3B: Line L23
+ * Step 19: Line L23
  * Draws connecting line between cp2 and cp3.
  */
-const STEP_3B: SixFoldV0Step = {
-  id: "step3b",
+const STEP_19: SixFoldV0Step = {
+  id: "step19",
   inputs: [GEOM.CP2, GEOM.CP3],
   outputs: [GEOM.L23],
   parameters: [],
@@ -415,11 +416,11 @@ const STEP_3B: SixFoldV0Step = {
 };
 
 /**
- * Step 3C: Line L34
+ * Step 20: Line L34
  * Draws connecting line between cp3 and cp4.
  */
-const STEP_3C: SixFoldV0Step = {
-  id: "step3c",
+const STEP_20: SixFoldV0Step = {
+  id: "step20",
   inputs: [GEOM.CP3, GEOM.CP4],
   outputs: [GEOM.L34],
   parameters: [],
@@ -434,11 +435,11 @@ const STEP_3C: SixFoldV0Step = {
 };
 
 /**
- * Step 3D: Line L41
+ * Step 21: Line L41
  * Draws connecting line between cp4 and cp1, completing the quadrilateral.
  */
-const STEP_3D: SixFoldV0Step = {
-  id: "step3d",
+const STEP_21: SixFoldV0Step = {
+  id: "step21",
   inputs: [GEOM.CP4, GEOM.CP1],
   outputs: [GEOM.L41],
   parameters: [],
@@ -453,11 +454,11 @@ const STEP_3D: SixFoldV0Step = {
 };
 
 /**
- * Step 4B: Intersection point PIC14
+ * Step 22: Intersection point PIC14
  * Finds intersection point of circles c4 and c1 (direction: left).
  */
-const STEP_4B: SixFoldV0Step = {
-  id: "step4b",
+const STEP_22: SixFoldV0Step = {
+  id: "step22",
   inputs: [GEOM.C4, GEOM.C1],
   outputs: [GEOM.PIC14],
   parameters: [],
@@ -465,7 +466,7 @@ const STEP_4B: SixFoldV0Step = {
     const c4 = getGeometry(inputs, GEOM.C4, isCircle, "Circle");
     const c1 = getGeometry(inputs, GEOM.C1, isCircle, "Circle");
     const pic14 = circlesIntersectionPointHelper(c4, c1, directions.left);
-    if (!pic14) throw new Error("STEP_4B: pic14 is null - circles do not intersect");
+    if (!pic14) throw new Error("STEP_22: pic14 is null - circles do not intersect");
     return pic14;
   }),
   draw: (svg, values, store, theme) => {
@@ -477,8 +478,8 @@ const STEP_4B: SixFoldV0Step = {
  * Step 5A: Line LPIC12
  * Draws line from circle center cp1 to intersection point pic12.
  */
-const STEP_5A: SixFoldV0Step = {
-  id: "step5a",
+const STEP_23: SixFoldV0Step = {
+  id: "step23",
   inputs: [GEOM.CP1, GEOM.PIC12],
   outputs: [GEOM.LPIC12],
   parameters: [],
@@ -496,8 +497,8 @@ const STEP_5A: SixFoldV0Step = {
  * Step 5B: Line LPIC14
  * Draws line from circle center cp1 to intersection point pic14.
  */
-const STEP_5B: SixFoldV0Step = {
-  id: "step5b",
+const STEP_77: SixFoldV0Step = {
+  id: "step77",
   inputs: [GEOM.CP1, GEOM.PIC14],
   outputs: [GEOM.LPIC14],
   parameters: [],
@@ -515,8 +516,8 @@ const STEP_5B: SixFoldV0Step = {
  * Step 6A: Line LCP1CP3
  * Draws diagonal line connecting opposite circle centers cp1 and cp3.
  */
-const STEP_6A: SixFoldV0Step = {
-  id: "step6a",
+const STEP_78: SixFoldV0Step = {
+  id: "step78",
   inputs: [GEOM.CP1, GEOM.CP3],
   outputs: [GEOM.LCP1CP3],
   parameters: [],
@@ -534,8 +535,8 @@ const STEP_6A: SixFoldV0Step = {
  * Step 6B: Line LCP2CP4
  * Draws diagonal line connecting opposite circle centers cp2 and cp4.
  */
-const STEP_6B: SixFoldV0Step = {
-  id: "step6b",
+const STEP_26: SixFoldV0Step = {
+  id: "step26",
   inputs: [GEOM.CP2, GEOM.CP4],
   outputs: [GEOM.LCP2CP4],
   parameters: [],
@@ -553,8 +554,8 @@ const STEP_6B: SixFoldV0Step = {
  * Step 6C: Intersection point PI2
  * Computes pi2 as the intersection point of lines lcp1cp3 and lcp2cp4.
  */
-const STEP_6C: SixFoldV0Step = {
-  id: "step6c",
+const STEP_27: SixFoldV0Step = {
+  id: "step27",
   inputs: [GEOM.LCP1CP3, GEOM.LCP2CP4],
   outputs: [GEOM.PI2],
   parameters: [],
@@ -573,12 +574,12 @@ const STEP_6C: SixFoldV0Step = {
     );
     if (!pi2Result) {
       throw new Error(
-        "STEP_6C: lineIntersect returned null - lines lcp1cp3 and lcp2cp4 do not intersect",
+        "STEP_27: lineIntersect returned null - lines lcp1cp3 and lcp2cp4 do not intersect",
       );
     }
     const pi2 = validPoint(pi2Result[0], pi2Result[1]);
     if (!pi2) {
-      throw new Error("STEP_6C: validPoint returned null - intersection coordinates are invalid");
+      throw new Error("STEP_27: validPoint returned null - intersection coordinates are invalid");
     }
     return pi2;
   }),
@@ -591,8 +592,8 @@ const STEP_6C: SixFoldV0Step = {
  * Step 7A: Circle C1_D1
  * Creates circle centered at cp1 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_7A: SixFoldV0Step = {
-  id: "step7a",
+const STEP_86: SixFoldV0Step = {
+  id: "step86",
   inputs: [GEOM.CP1, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C1_D1],
   parameters: [],
@@ -612,8 +613,8 @@ const STEP_7A: SixFoldV0Step = {
  * Step 7B: Circle C2_D1
  * Creates circle centered at cp2 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_7B: SixFoldV0Step = {
-  id: "step7b",
+const STEP_87: SixFoldV0Step = {
+  id: "step87",
   inputs: [GEOM.CP2, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C2_D1],
   parameters: [],
@@ -633,8 +634,8 @@ const STEP_7B: SixFoldV0Step = {
  * Step 7C: Circle C3_D1
  * Creates circle centered at cp3 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_7C: SixFoldV0Step = {
-  id: "step7c",
+const STEP_88: SixFoldV0Step = {
+  id: "step88",
   inputs: [GEOM.CP3, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C3_D1],
   parameters: [],
@@ -654,8 +655,8 @@ const STEP_7C: SixFoldV0Step = {
  * Step 7D: Circle C4_D1
  * Creates circle centered at cp4 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_7D: SixFoldV0Step = {
-  id: "step7d",
+const STEP_89: SixFoldV0Step = {
+  id: "step89",
   inputs: [GEOM.CP4, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C4_D1],
   parameters: [],
@@ -679,8 +680,8 @@ const STEP_7D: SixFoldV0Step = {
  * Step 8A: Circle C14_D1
  * Creates circle centered at pic14 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_8A: SixFoldV0Step = {
-  id: "step8a",
+const STEP_90: SixFoldV0Step = {
+  id: "step90",
   inputs: [GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C14_D1],
   parameters: [],
@@ -699,8 +700,8 @@ const STEP_8A: SixFoldV0Step = {
  * Step 8B: Circle C12_D1
  * Creates circle centered at pic12 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_8B: SixFoldV0Step = {
-  id: "step8b",
+const STEP_91: SixFoldV0Step = {
+  id: "step91",
   inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C12_D1],
   parameters: [],
@@ -725,8 +726,8 @@ const STEP_8B: SixFoldV0Step = {
  * Step 9A: Intersection point PI3
  * pi3 = circlesIntersectionPoint(c14_d1, c2_d1, directions.right)
  */
-const STEP_9A: SixFoldV0Step = {
-  id: "step9a",
+const STEP_34: SixFoldV0Step = {
+  id: "step92",
   inputs: [GEOM.C14_D1, GEOM.C2_D1],
   outputs: [GEOM.PI3],
   parameters: [],
@@ -734,7 +735,7 @@ const STEP_9A: SixFoldV0Step = {
     const c14_d1 = getGeometry(inputs, GEOM.C14_D1, isCircle, "Circle");
     const c2_d1 = getGeometry(inputs, GEOM.C2_D1, isCircle, "Circle");
     const pi3 = circlesIntersectionPointHelper(c14_d1, c2_d1, directions.right);
-    if (!pi3) throw new Error("STEP_9A: pi3 is null - circles do not intersect");
+    if (!pi3) throw new Error("STEP_34: pi3 is null - circles do not intersect");
     return pi3;
   }),
   draw: (svg, values, store, theme) => {
@@ -746,8 +747,8 @@ const STEP_9A: SixFoldV0Step = {
  * Step 9B: Intersection point PI4
  * pi4 = circlesIntersectionPoint(c12_d1, c4_d1, directions.right)
  */
-const STEP_9B: SixFoldV0Step = {
-  id: "step9b",
+const STEP_35: SixFoldV0Step = {
+  id: "step93",
   inputs: [GEOM.C12_D1, GEOM.C4_D1],
   outputs: [GEOM.PI4],
   parameters: [],
@@ -755,7 +756,7 @@ const STEP_9B: SixFoldV0Step = {
     const c12_d1 = getGeometry(inputs, GEOM.C12_D1, isCircle, "Circle");
     const c4_d1 = getGeometry(inputs, GEOM.C4_D1, isCircle, "Circle");
     const pi4 = circlesIntersectionPointHelper(c12_d1, c4_d1, directions.right);
-    if (!pi4) throw new Error("STEP_9B: pi4 is null - circles do not intersect");
+    if (!pi4) throw new Error("STEP_35: pi4 is null - circles do not intersect");
     return pi4;
   }),
   draw: (svg, values, store, theme) => {
@@ -771,8 +772,8 @@ const STEP_9B: SixFoldV0Step = {
  * Step 10A: Line LCP1PI3
  * Draws line from circle center cp1 to intersection point pi3.
  */
-const STEP_10A: SixFoldV0Step = {
-  id: "step10a",
+const STEP_36: SixFoldV0Step = {
+  id: "step36",
   inputs: [GEOM.CP1, GEOM.PI3],
   outputs: [GEOM.LCP1PI3],
   parameters: [],
@@ -790,8 +791,8 @@ const STEP_10A: SixFoldV0Step = {
  * Step 10B: Line LCP1PI4
  * Draws line from circle center cp1 to intersection point pi4.
  */
-const STEP_10B: SixFoldV0Step = {
-  id: "step10b",
+const STEP_37: SixFoldV0Step = {
+  id: "step37",
   inputs: [GEOM.CP1, GEOM.PI4],
   outputs: [GEOM.LCP1PI4],
   parameters: [],
@@ -814,8 +815,8 @@ const STEP_10B: SixFoldV0Step = {
  * Step 11A: Point PRX5
  * prx5 = interceptCircleLineSeg(c14_d1, lpic14, 0)
  */
-const STEP_11A: SixFoldV0Step = {
-  id: "step11a",
+const STEP_38: SixFoldV0Step = {
+  id: "step38",
   inputs: [GEOM.C14_D1, GEOM.LPIC14],
   outputs: [GEOM.PRX5],
   parameters: [],
@@ -823,7 +824,7 @@ const STEP_11A: SixFoldV0Step = {
     const c14_d1 = getGeometry(inputs, GEOM.C14_D1, isCircle, "Circle");
     const lpic14 = getGeometry(inputs, GEOM.LPIC14, isLine, "Line");
     const prx5 = interceptCircleLineSegHelper(c14_d1, lpic14, 0);
-    if (!prx5) throw new Error("STEP_11A: prx5 is null - circle-line intersection not found");
+    if (!prx5) throw new Error("STEP_38: prx5 is null - circle-line intersection not found");
     return prx5;
   }),
   draw: (svg, values, store, theme) => {
@@ -835,8 +836,8 @@ const STEP_11A: SixFoldV0Step = {
  * Step 11B: Point PRX6
  * prx6 = interceptCircleLineSeg(c12_d1, lpic12, 0)
  */
-const STEP_11B: SixFoldV0Step = {
-  id: "step11b",
+const STEP_39: SixFoldV0Step = {
+  id: "step39",
   inputs: [GEOM.C12_D1, GEOM.LPIC12],
   outputs: [GEOM.PRX6],
   parameters: [],
@@ -844,7 +845,7 @@ const STEP_11B: SixFoldV0Step = {
     const c12_d1 = getGeometry(inputs, GEOM.C12_D1, isCircle, "Circle");
     const lpic12 = getGeometry(inputs, GEOM.LPIC12, isLine, "Line");
     const prx6 = interceptCircleLineSegHelper(c12_d1, lpic12, 0);
-    if (!prx6) throw new Error("STEP_11B: prx6 is null - circle-line intersection not found");
+    if (!prx6) throw new Error("STEP_39: prx6 is null - circle-line intersection not found");
     return prx6;
   }),
   draw: (svg, values, store, theme) => {
@@ -856,8 +857,8 @@ const STEP_11B: SixFoldV0Step = {
  * Step 12A: c23w point
  * c23w = bisectCircleAndPoint(c14_d1, prx5)
  */
-const STEP_12A: SixFoldV0Step = {
-  id: "step12a",
+const STEP_40: SixFoldV0Step = {
+  id: "step40",
   inputs: [GEOM.C14_D1, GEOM.PRX5],
   outputs: [GEOM.C23W],
   parameters: [],
@@ -876,8 +877,8 @@ const STEP_12A: SixFoldV0Step = {
  * Step 12B: l14p line
  * l14p = line from pic14 to c23w
  */
-const STEP_12B: SixFoldV0Step = {
-  id: "step12b",
+const STEP_41: SixFoldV0Step = {
+  id: "step41",
   inputs: [GEOM.PIC14, GEOM.C23W],
   outputs: [GEOM.L14P],
   parameters: [],
@@ -896,8 +897,8 @@ const STEP_12B: SixFoldV0Step = {
  * Step 12C: pc23 point
  * pc23 = linesIntersection(l23, l14p)
  */
-const STEP_12C: SixFoldV0Step = {
-  id: "step12c",
+const STEP_42: SixFoldV0Step = {
+  id: "step42",
   inputs: [GEOM.L23, GEOM.L14P],
   outputs: [GEOM.PC23],
   parameters: [],
@@ -917,12 +918,12 @@ const STEP_12C: SixFoldV0Step = {
     );
     if (!pc23Result) {
       throw new Error(
-        "STEP_12C: lineIntersect returned null - lines l23 and l14p do not intersect",
+        "STEP_42: lineIntersect returned null - lines l23 and l14p do not intersect",
       );
     }
     const pc23Pt = validPoint(pc23Result[0], pc23Result[1]);
     if (!pc23Pt) {
-      throw new Error("STEP_12C: validPoint returned null - pc23Pt coordinates are invalid");
+      throw new Error("STEP_42: validPoint returned null - pc23Pt coordinates are invalid");
     }
     return pc23Pt;
   }),
@@ -936,8 +937,8 @@ const STEP_12C: SixFoldV0Step = {
  * line = line from pc23 to cp2
  * c23s = interceptCircleLine(c2_d1, line, 0)
  */
-const STEP_12D: SixFoldV0Step = {
-  id: "step12d",
+const STEP_43: SixFoldV0Step = {
+  id: "step43",
   inputs: [GEOM.C2_D1, GEOM.PC23, GEOM.CP2],
   outputs: [GEOM.C23S],
   parameters: [],
@@ -951,7 +952,7 @@ const STEP_12D: SixFoldV0Step = {
 
     // c23s = interceptCircleLine(c2_d1, line, 0) - first intersection point
     const c23s = interceptCircleLineSegHelper(c2_d1, lineToCp2, 0);
-    if (!c23s) throw new Error("STEP_12D: c23s is null");
+    if (!c23s) throw new Error("STEP_43: c23s is null");
     return c23s;
   }),
   draw: (svg, values, store, theme) => {
@@ -964,8 +965,8 @@ const STEP_12D: SixFoldV0Step = {
  * d2 = distance from pc23 to c23s
  * c23 = new Circle(pc23, d2)
  */
-const STEP_12E: SixFoldV0Step = {
-  id: "step12e",
+const STEP_44: SixFoldV0Step = {
+  id: "step44",
   inputs: [GEOM.PC23, GEOM.C23S],
   outputs: [GEOM.C23],
   parameters: [],
@@ -988,8 +989,8 @@ const STEP_12E: SixFoldV0Step = {
  * Step 13A: cpic12 circle
  * cpic12 = circle at pic12 with radius d1 (distance from pic14 to pi2)
  */
-const STEP_13A: SixFoldV0Step = {
-  id: "step13a",
+const STEP_45: SixFoldV0Step = {
+  id: "step45",
   inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.CPI12],
   parameters: [],
@@ -1011,8 +1012,8 @@ const STEP_13A: SixFoldV0Step = {
  * Step 13B: c34n point
  * c34n = bisectCircleAndPoint(cpic12, prx6)
  */
-const STEP_13B: SixFoldV0Step = {
-  id: "step13b",
+const STEP_46: SixFoldV0Step = {
+  id: "step46",
   inputs: [GEOM.CPI12, GEOM.PRX6],
   outputs: [GEOM.C34N],
   parameters: [],
@@ -1031,8 +1032,8 @@ const STEP_13B: SixFoldV0Step = {
  * Step 13C: lpic12c34n line
  * lpic12c34n = line from pic12 to c34n
  */
-const STEP_13C: SixFoldV0Step = {
-  id: "step13c",
+const STEP_47: SixFoldV0Step = {
+  id: "step47",
   inputs: [GEOM.PIC12, GEOM.C34N],
   outputs: [GEOM.LPIC12C34N],
   parameters: [],
@@ -1051,8 +1052,8 @@ const STEP_13C: SixFoldV0Step = {
  * Step 13D: pc34 point
  * pc34 = linesIntersection(l34, lpic12c34n)
  */
-const STEP_13D: SixFoldV0Step = {
-  id: "step13d",
+const STEP_48: SixFoldV0Step = {
+  id: "step48",
   inputs: [GEOM.L34, GEOM.LPIC12C34N],
   outputs: [GEOM.PC34],
   parameters: [],
@@ -1072,12 +1073,12 @@ const STEP_13D: SixFoldV0Step = {
     );
     if (!pc34Result) {
       throw new Error(
-        "STEP_13D: lineIntersect returned null - lines l34 and lpic12c34n do not intersect",
+        "STEP_48: lineIntersect returned null - lines l34 and lpic12c34n do not intersect",
       );
     }
     const pc34Pt = validPoint(pc34Result[0], pc34Result[1]);
     if (!pc34Pt) {
-      throw new Error("STEP_13D: validPoint returned null - pc34Pt coordinates are invalid");
+      throw new Error("STEP_48: validPoint returned null - pc34Pt coordinates are invalid");
     }
     return pc34Pt;
   }),
@@ -1091,8 +1092,8 @@ const STEP_13D: SixFoldV0Step = {
  * line = line from pc34 to cp4
  * c34e = interceptCircleLine(c4_d1, line, 0)
  */
-const STEP_13E: SixFoldV0Step = {
-  id: "step13e",
+const STEP_49: SixFoldV0Step = {
+  id: "step49",
   inputs: [GEOM.C4_D1, GEOM.PC34, GEOM.CP4],
   outputs: [GEOM.C34E],
   parameters: [],
@@ -1106,7 +1107,7 @@ const STEP_13E: SixFoldV0Step = {
 
     // c34e = interceptCircleLine(c4_d1, line, 0) - first intersection point
     const c34e = interceptCircleLineSegHelper(c4_d1, lineToCp4, 0);
-    if (!c34e) throw new Error("STEP_13E: c34e is null");
+    if (!c34e) throw new Error("STEP_49: c34e is null");
     return c34e;
   }),
   draw: (svg, values, store, theme) => {
@@ -1119,8 +1120,8 @@ const STEP_13E: SixFoldV0Step = {
  * d2 = distance from pc34 to c34e
  * c34 = circle at pc34 with radius d2
  */
-const STEP_13F: SixFoldV0Step = {
-  id: "step13f",
+const STEP_50: SixFoldV0Step = {
+  id: "step50",
   inputs: [GEOM.PC34, GEOM.C34E],
   outputs: [GEOM.C34],
   parameters: [],
@@ -1143,8 +1144,8 @@ const STEP_13F: SixFoldV0Step = {
  * Step 14A: pp point
  * pp = interceptCircleLineSeg(c1_d1, lpic14, 0)
  */
-const STEP_14A: SixFoldV0Step = {
-  id: "step14a",
+const STEP_51: SixFoldV0Step = {
+  id: "step51",
   inputs: [GEOM.C1_D1, GEOM.LPIC14],
   outputs: [GEOM.PP],
   parameters: [],
@@ -1153,7 +1154,7 @@ const STEP_14A: SixFoldV0Step = {
     const lpic14 = getGeometry(inputs, GEOM.LPIC14, isLine, "Line");
     // pp = interceptCircleLine(c1_d1, lpic14, 0)
     const pp = interceptCircleLineSegHelper(c1_d1, lpic14, 0);
-    if (!pp) throw new Error("STEP_14A: pp is null");
+    if (!pp) throw new Error("STEP_51: pp is null");
     return pp;
   }),
   draw: (svg, values, store, theme) => {
@@ -1165,8 +1166,8 @@ const STEP_14A: SixFoldV0Step = {
  * Step 14B: l1 line
  * l1 = line from pi3 to pp
  */
-const STEP_14B: SixFoldV0Step = {
-  id: "step14b",
+const STEP_52: SixFoldV0Step = {
+  id: "step52",
   inputs: [GEOM.PI3, GEOM.PP],
   outputs: [GEOM.L1],
   parameters: [],
@@ -1185,8 +1186,8 @@ const STEP_14B: SixFoldV0Step = {
  * Step 14C: pii1 point
  * pii1 = intersection of l1 with lcp1cp3
  */
-const STEP_14C: SixFoldV0Step = {
-  id: "step14c",
+const STEP_53: SixFoldV0Step = {
+  id: "step53",
   inputs: [GEOM.L1, GEOM.LCP1CP3],
   outputs: [GEOM.PII1],
   parameters: [],
@@ -1205,11 +1206,11 @@ const STEP_14C: SixFoldV0Step = {
       lcp1cp3.y2,
     );
     if (!result1) {
-      throw new Error("STEP_14C: lineIntersect returned null - l1 and lcp1cp3 do not intersect");
+      throw new Error("STEP_53: lineIntersect returned null - l1 and lcp1cp3 do not intersect");
     }
     const pii1 = validPoint(result1[0], result1[1]);
     if (!pii1) {
-      throw new Error("STEP_14C: validPoint returned null - pii1 coordinates are invalid");
+      throw new Error("STEP_53: validPoint returned null - pii1 coordinates are invalid");
     }
     return pii1;
   }),
@@ -1222,8 +1223,8 @@ const STEP_14C: SixFoldV0Step = {
  * Step 14D: pii2 point
  * pii2 = intersection of l1 with lcp2cp4
  */
-const STEP_14D: SixFoldV0Step = {
-  id: "step14d",
+const STEP_54: SixFoldV0Step = {
+  id: "step54",
   inputs: [GEOM.L1, GEOM.LCP2CP4],
   outputs: [GEOM.PII2],
   parameters: [],
@@ -1242,11 +1243,11 @@ const STEP_14D: SixFoldV0Step = {
       lcp2cp4.y2,
     );
     if (!result2) {
-      throw new Error("STEP_14D: lineIntersect returned null - l1 and lcp2cp4 do not intersect");
+      throw new Error("STEP_54: lineIntersect returned null - l1 and lcp2cp4 do not intersect");
     }
     const pii2 = validPoint(result2[0], result2[1]);
     if (!pii2) {
-      throw new Error("STEP_14D: validPoint returned null - pii2 coordinates are invalid");
+      throw new Error("STEP_54: validPoint returned null - pii2 coordinates are invalid");
     }
     return pii2;
   }),
@@ -1260,7 +1261,7 @@ const STEP_14D: SixFoldV0Step = {
  * Draws a connecting line between the two intersection points pii1 and pii2.
  */
 const STEP_15: SixFoldV0Step = {
-  id: "step15",
+  id: "step55",
   inputs: [GEOM.PII1, GEOM.PII2],
   outputs: [GEOM.LPII1PII2],
   parameters: [],
@@ -1282,8 +1283,8 @@ const STEP_15: SixFoldV0Step = {
  * Step 16A: Circle C1_D3
  * Creates circle centered at cp1 with radius d3 (distance from pii1 to cp1).
  */
-const STEP_16A: SixFoldV0Step = {
-  id: "step16a",
+const STEP_56: SixFoldV0Step = {
+  id: "step56",
   inputs: [GEOM.CP1, GEOM.PII1],
   outputs: [GEOM.C1_D3],
   parameters: [],
@@ -1292,7 +1293,7 @@ const STEP_16A: SixFoldV0Step = {
     const pii1 = getGeometry(inputs, GEOM.PII1, isPoint, "Point");
     const d3 = distance(pii1, cp1);
     if (!isValidNumber(d3) || d3 <= 0) {
-      throw new Error("STEP_16A: Invalid d3 value - points pii1 and cp1 are coincident or invalid");
+      throw new Error("STEP_56: Invalid d3 value - points pii1 and cp1 are coincident or invalid");
     }
     return circle(cp1.x, cp1.y, d3);
   }),
@@ -1305,8 +1306,8 @@ const STEP_16A: SixFoldV0Step = {
  * Step 16B: Circle C3_D3
  * Creates circle centered at cp3 with radius d3 (distance from pii1 to cp1).
  */
-const STEP_16B: SixFoldV0Step = {
-  id: "step16b",
+const STEP_57: SixFoldV0Step = {
+  id: "step57",
   inputs: [GEOM.CP3, GEOM.PII1, GEOM.CP1],
   outputs: [GEOM.C3_D3],
   parameters: [],
@@ -1316,7 +1317,7 @@ const STEP_16B: SixFoldV0Step = {
     const cp1 = getGeometry(inputs, GEOM.CP1, isPoint, "Point");
     const d3 = distance(pii1, cp1);
     if (!isValidNumber(d3) || d3 <= 0) {
-      throw new Error("STEP_16B: Invalid d3 value - points pii1 and cp1 are coincident or invalid");
+      throw new Error("STEP_57: Invalid d3 value - points pii1 and cp1 are coincident or invalid");
     }
     return circle(cp3.x, cp3.y, d3);
   }),
@@ -1333,8 +1334,8 @@ const STEP_16B: SixFoldV0Step = {
  * Step 17A: Line LCP2PIC14
  * Draws line from cp2 to pic14.
  */
-const STEP_17A: SixFoldV0Step = {
-  id: "step17a",
+const STEP_58: SixFoldV0Step = {
+  id: "step58",
   inputs: [GEOM.CP2, GEOM.PIC14],
   outputs: [GEOM.LCP2PIC14],
   parameters: [],
@@ -1352,8 +1353,8 @@ const STEP_17A: SixFoldV0Step = {
  * Step 17B: Line LCP4PIC12
  * Draws line from cp4 to pic12.
  */
-const STEP_17B: SixFoldV0Step = {
-  id: "step17b",
+const STEP_59: SixFoldV0Step = {
+  id: "step59",
   inputs: [GEOM.CP4, GEOM.PIC12],
   outputs: [GEOM.LCP4PIC12],
   parameters: [],
@@ -1377,8 +1378,8 @@ const STEP_17B: SixFoldV0Step = {
  * Step 18A: Line LPII1PI4
  * lpii1pi4 = line from pii1 to pi4
  */
-const STEP_18A: SixFoldV0Step = {
-  id: "step18a",
+const STEP_60: SixFoldV0Step = {
+  id: "step60",
   inputs: [GEOM.PII1, GEOM.PI4],
   outputs: [GEOM.LPII1PI4],
   parameters: [],
@@ -1397,8 +1398,8 @@ const STEP_18A: SixFoldV0Step = {
  * Step 18B: Point PIC4
  * pic4 = intersection of lpii1pi4 and lcp4pic12
  */
-const STEP_18B: SixFoldV0Step = {
-  id: "step18b",
+const STEP_61: SixFoldV0Step = {
+  id: "step61",
   inputs: [GEOM.LPII1PI4, GEOM.LCP4PIC12],
   outputs: [GEOM.PIC4],
   parameters: [],
@@ -1418,12 +1419,12 @@ const STEP_18B: SixFoldV0Step = {
     );
     if (!pic4Result) {
       throw new Error(
-        "STEP_18B: lineIntersect returned null - lines lpii1pi4 and lcp4pic12 do not intersect",
+        "STEP_61: lineIntersect returned null - lines lpii1pi4 and lcp4pic12 do not intersect",
       );
     }
     const pic4 = validPoint(pic4Result[0], pic4Result[1]);
     if (!pic4) {
-      throw new Error("STEP_18B: validPoint returned null - pic4 coordinates are invalid");
+      throw new Error("STEP_61: validPoint returned null - pic4 coordinates are invalid");
     }
     return pic4;
   }),
@@ -1436,8 +1437,8 @@ const STEP_18B: SixFoldV0Step = {
  * Step 18C: Outline1
  * outline1 = line from pii1 to pic4
  */
-const STEP_18C: SixFoldV0Step = {
-  id: "step18c",
+const STEP_62: SixFoldV0Step = {
+  id: "step62",
   inputs: [GEOM.PII1, GEOM.PIC4],
   outputs: [GEOM.OUTLINE1],
   parameters: [],
@@ -1462,8 +1463,8 @@ const STEP_18C: SixFoldV0Step = {
  * Step 19A: Point PIC2
  * pic2 = intersection of lpii1pii2 and lcp2pic14
  */
-const STEP_19A: SixFoldV0Step = {
-  id: "step19a",
+const STEP_63: SixFoldV0Step = {
+  id: "step63",
   inputs: [GEOM.LPII1PII2, GEOM.LCP2PIC14],
   outputs: [GEOM.PIC2],
   parameters: [],
@@ -1483,12 +1484,12 @@ const STEP_19A: SixFoldV0Step = {
     );
     if (!pic2Result) {
       throw new Error(
-        "STEP_19A: lineIntersect returned null - lines lpii1pii2 and lcp2pic14 do not intersect",
+        "STEP_63: lineIntersect returned null - lines lpii1pii2 and lcp2pic14 do not intersect",
       );
     }
     const pic2 = validPoint(pic2Result[0], pic2Result[1]);
     if (!pic2) {
-      throw new Error("STEP_19A: validPoint returned null - pic2 coordinates are invalid");
+      throw new Error("STEP_63: validPoint returned null - pic2 coordinates are invalid");
     }
     return pic2;
   }),
@@ -1501,8 +1502,8 @@ const STEP_19A: SixFoldV0Step = {
  * Step 19B: Outline2
  * outline2 = line from pii1 to pic2
  */
-const STEP_19B: SixFoldV0Step = {
-  id: "step19b",
+const STEP_64: SixFoldV0Step = {
+  id: "step64",
   inputs: [GEOM.PII1, GEOM.PIC2],
   outputs: [GEOM.OUTLINE2],
   parameters: [],
@@ -1528,8 +1529,8 @@ const STEP_19B: SixFoldV0Step = {
  * Step 20A: Point PIC1W
  * pic1w = interceptCircleLineSeg(c1_d3, lcp1pi3, 0)
  */
-const STEP_20A: SixFoldV0Step = {
-  id: "step20a",
+const STEP_65: SixFoldV0Step = {
+  id: "step65",
   inputs: [GEOM.C1_D3, GEOM.LCP1PI3],
   outputs: [GEOM.PIC1W],
   parameters: [],
@@ -1537,7 +1538,7 @@ const STEP_20A: SixFoldV0Step = {
     const c1_d3 = getGeometry(inputs, GEOM.C1_D3, isCircle, "Circle");
     const lcp1pi3 = getGeometry(inputs, GEOM.LCP1PI3, isLine, "Line");
     const pic1w = interceptCircleLineSegHelper(c1_d3, lcp1pi3, 0);
-    if (!pic1w) throw new Error("STEP_20A: pic1w is null");
+    if (!pic1w) throw new Error("STEP_65: pic1w is null");
     return pic1w;
   }),
   draw: (svg, values, store, theme) => {
@@ -1549,8 +1550,8 @@ const STEP_20A: SixFoldV0Step = {
  * Step 20B: Point PIC34
  * pic34 = interceptCircleLineSeg(c34, l34, 0)
  */
-const STEP_20B: SixFoldV0Step = {
-  id: "step20b",
+const STEP_66: SixFoldV0Step = {
+  id: "step66",
   inputs: [GEOM.C34, GEOM.L34],
   outputs: [GEOM.PIC34],
   parameters: [],
@@ -1558,7 +1559,7 @@ const STEP_20B: SixFoldV0Step = {
     const c34 = getGeometry(inputs, GEOM.C34, isCircle, "Circle");
     const l34 = getGeometry(inputs, GEOM.L34, isLine, "Line");
     const pic34 = interceptCircleLineSegHelper(c34, l34, 0);
-    if (!pic34) throw new Error("STEP_20B: pic34 is null");
+    if (!pic34) throw new Error("STEP_66: pic34 is null");
     return pic34;
   }),
   draw: (svg, values, store, theme) => {
@@ -1570,8 +1571,8 @@ const STEP_20B: SixFoldV0Step = {
  * Step 20C: Outline3
  * outline3 = line from pic1w to pic34
  */
-const STEP_20C: SixFoldV0Step = {
-  id: "step20c",
+const STEP_67: SixFoldV0Step = {
+  id: "step67",
   inputs: [GEOM.PIC1W, GEOM.PIC34],
   outputs: [GEOM.OUTLINE3],
   parameters: [],
@@ -1595,8 +1596,8 @@ const STEP_20C: SixFoldV0Step = {
  * Step 21A: Point PIC1N
  * pic1n = interceptCircleLine(c1_d3, lcp1pi4, 0)
  */
-const STEP_21A: SixFoldV0Step = {
-  id: "step21a",
+const STEP_68: SixFoldV0Step = {
+  id: "step68",
   inputs: [GEOM.C1_D3, GEOM.LCP1PI4],
   outputs: [GEOM.PIC1N],
   parameters: [],
@@ -1604,7 +1605,7 @@ const STEP_21A: SixFoldV0Step = {
     const c1_d3 = getGeometry(inputs, GEOM.C1_D3, isCircle, "Circle");
     const lcp1pi4 = getGeometry(inputs, GEOM.LCP1PI4, isLine, "Line");
     const pic1n = interceptCircleLineSegHelper(c1_d3, lcp1pi4, 0);
-    if (!pic1n) throw new Error("STEP_21A: pic1n is null");
+    if (!pic1n) throw new Error("STEP_68: pic1n is null");
     return pic1n;
   }),
   draw: (svg, values, store, theme) => {
@@ -1616,8 +1617,8 @@ const STEP_21A: SixFoldV0Step = {
  * Step 21B: Point PIC23
  * pic23 = interceptCircleLine(c23, l23, 1) - using index 1
  */
-const STEP_21B: SixFoldV0Step = {
-  id: "step21b",
+const STEP_69: SixFoldV0Step = {
+  id: "step69",
   inputs: [GEOM.C23, GEOM.L23],
   outputs: [GEOM.PIC23],
   parameters: [],
@@ -1625,7 +1626,7 @@ const STEP_21B: SixFoldV0Step = {
     const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
     const l23 = getGeometry(inputs, GEOM.L23, isLine, "Line");
     const pic23 = interceptCircleLineSegHelper(c23, l23, 1);
-    if (!pic23) throw new Error("STEP_21B: pic23 is null");
+    if (!pic23) throw new Error("STEP_69: pic23 is null");
     return pic23;
   }),
   draw: (svg, values, store, theme) => {
@@ -1637,8 +1638,8 @@ const STEP_21B: SixFoldV0Step = {
  * Step 21C: Outline4
  * outline4 = line from pic1n to pic23
  */
-const STEP_21C: SixFoldV0Step = {
-  id: "step21c",
+const STEP_70: SixFoldV0Step = {
+  id: "step70",
   inputs: [GEOM.PIC1N, GEOM.PIC23],
   outputs: [GEOM.OUTLINE4],
   parameters: [],
@@ -1662,8 +1663,8 @@ const STEP_21C: SixFoldV0Step = {
  * Step 22A: Point PC1W
  * pc1w = interceptCircleLineSeg(c1_d1, l12, 0)
  */
-const STEP_22A: SixFoldV0Step = {
-  id: "step22a",
+const STEP_71: SixFoldV0Step = {
+  id: "step71",
   inputs: [GEOM.C1_D1, GEOM.L12],
   outputs: [GEOM.PC1W],
   parameters: [],
@@ -1671,7 +1672,7 @@ const STEP_22A: SixFoldV0Step = {
     const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
     const l12 = getGeometry(inputs, GEOM.L12, isLine, "Line");
     const pc1w = interceptCircleLineSegHelper(c1_d1, l12, 0);
-    if (!pc1w) throw new Error("STEP_22A: pc1w is null");
+    if (!pc1w) throw new Error("STEP_71: pc1w is null");
     return pc1w;
   }),
   draw: (svg, values, store, theme) => {
@@ -1683,8 +1684,8 @@ const STEP_22A: SixFoldV0Step = {
  * Step 22B: Point PC23S
  * pc23s = interceptCircleLineSeg(c23, l23, 0)
  */
-const STEP_22B: SixFoldV0Step = {
-  id: "step22b",
+const STEP_72: SixFoldV0Step = {
+  id: "step72",
   inputs: [GEOM.C23, GEOM.L23],
   outputs: [GEOM.PC23S],
   parameters: [],
@@ -1692,7 +1693,7 @@ const STEP_22B: SixFoldV0Step = {
     const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
     const l23 = getGeometry(inputs, GEOM.L23, isLine, "Line");
     const pc23s = interceptCircleLineSegHelper(c23, l23, 0);
-    if (!pc23s) throw new Error("STEP_22B: pc23s is null");
+    if (!pc23s) throw new Error("STEP_72: pc23s is null");
     return pc23s;
   }),
   draw: (svg, values, store, theme) => {
@@ -1704,8 +1705,8 @@ const STEP_22B: SixFoldV0Step = {
  * Step 22C: Outline5
  * outline5 = line from pc1w to pc23s
  */
-const STEP_22C: SixFoldV0Step = {
-  id: "step22c",
+const STEP_73: SixFoldV0Step = {
+  id: "step73",
   inputs: [GEOM.PC1W, GEOM.PC23S],
   outputs: [GEOM.OUTLINE5],
   parameters: [],
@@ -1729,8 +1730,8 @@ const STEP_22C: SixFoldV0Step = {
  * Step 23A: Point PC1N
  * pc1n = interceptCircleLineSeg(c1_d1, l41, 0)
  */
-const STEP_23A: SixFoldV0Step = {
-  id: "step23a",
+const STEP_74: SixFoldV0Step = {
+  id: "step74",
   inputs: [GEOM.C1_D1, GEOM.L41],
   outputs: [GEOM.PC1N],
   parameters: [],
@@ -1738,7 +1739,7 @@ const STEP_23A: SixFoldV0Step = {
     const c1_d1 = getGeometry(inputs, GEOM.C1_D1, isCircle, "Circle");
     const l41 = getGeometry(inputs, GEOM.L41, isLine, "Line");
     const pc1n = interceptCircleLineSegHelper(c1_d1, l41, 0);
-    if (!pc1n) throw new Error("STEP_23A: pc1n is null");
+    if (!pc1n) throw new Error("STEP_74: pc1n is null");
     return pc1n;
   }),
   draw: (svg, values, store, theme) => {
@@ -1750,8 +1751,8 @@ const STEP_23A: SixFoldV0Step = {
  * Step 23B: Point PC34E
  * pc34e = interceptCircleLineSeg(c34, l34, 1)
  */
-const STEP_23B: SixFoldV0Step = {
-  id: "step23b",
+const STEP_75: SixFoldV0Step = {
+  id: "step75",
   inputs: [GEOM.C34, GEOM.L34],
   outputs: [GEOM.PC34E],
   parameters: [],
@@ -1759,7 +1760,7 @@ const STEP_23B: SixFoldV0Step = {
     const c34 = getGeometry(inputs, GEOM.C34, isCircle, "Circle");
     const l34Line = getGeometry(inputs, GEOM.L34, isLine, "Line");
     const pc34e = interceptCircleLineSegHelper(c34, l34Line, 1);
-    if (!pc34e) throw new Error("STEP_23B: pc34e is null");
+    if (!pc34e) throw new Error("STEP_75: pc34e is null");
     return pc34e;
   }),
   draw: (svg, values, store, theme) => {
@@ -1771,8 +1772,8 @@ const STEP_23B: SixFoldV0Step = {
  * Step 23C: Outline6
  * outline6 = line from pc1n to pc34e
  */
-const STEP_23C: SixFoldV0Step = {
-  id: "step23c",
+const STEP_76: SixFoldV0Step = {
+  id: "step76",
   inputs: [GEOM.PC1N, GEOM.PC34E],
   outputs: [GEOM.OUTLINE6],
   parameters: [],
@@ -1790,8 +1791,8 @@ const STEP_23C: SixFoldV0Step = {
  * Step 24: outline7
  * Draws outline line from pc1n to pic1n.
  */
-const STEP_24: SixFoldV0Step = {
-  id: "step24",
+const STEP_77: SixFoldV0Step = {
+  id: "step77",
   inputs: [GEOM.PC1N, GEOM.PIC1N],
   outputs: [GEOM.OUTLINE7],
   parameters: [],
@@ -1809,8 +1810,8 @@ const STEP_24: SixFoldV0Step = {
  * Step 25: outline8
  * Draws outline line from pc1w to pic1w.
  */
-const STEP_25: SixFoldV0Step = {
-  id: "step25",
+const STEP_78: SixFoldV0Step = {
+  id: "step78",
   inputs: [GEOM.PC1W, GEOM.PIC1W],
   outputs: [GEOM.OUTLINE8],
   parameters: [],
@@ -1835,8 +1836,8 @@ const STEP_25: SixFoldV0Step = {
  * Step 26A: Point PC3SW
  * pc3sw = interceptCircleLineSeg(c3_d3, lcp1cp3, 0)
  */
-const STEP_26A: SixFoldV0Step = {
-  id: "step26a",
+const STEP_79: SixFoldV0Step = {
+  id: "step79",
   inputs: [GEOM.C3_D3, GEOM.LCP1CP3],
   outputs: [GEOM.PC3SW],
   parameters: [],
@@ -1844,7 +1845,7 @@ const STEP_26A: SixFoldV0Step = {
     const c3_d3 = getGeometry(inputs, GEOM.C3_D3, isCircle, "Circle");
     const lcp1cp3 = getGeometry(inputs, GEOM.LCP1CP3, isLine, "Line");
     const pc3sw = interceptCircleLineSegHelper(c3_d3, lcp1cp3, 0);
-    if (!pc3sw) throw new Error("STEP_26A: pc3sw is null - circle-line intersection not found");
+    if (!pc3sw) throw new Error("STEP_79: pc3sw is null - circle-line intersection not found");
     return pc3sw;
   }),
   draw: (svg, values, store, theme) => {
@@ -1856,8 +1857,8 @@ const STEP_26A: SixFoldV0Step = {
  * Step 26B: Line LC23CP1
  * lc23cp1 = line from c23 center to cp1
  */
-const STEP_26B: SixFoldV0Step = {
-  id: "step26b",
+const STEP_80: SixFoldV0Step = {
+  id: "step80",
   inputs: [GEOM.C23, GEOM.CP1],
   outputs: [GEOM.LC23CP1],
   parameters: [],
@@ -1876,8 +1877,8 @@ const STEP_26B: SixFoldV0Step = {
  * pc23e = interceptCircleLineSeg(c23, lc23cp1, 0)
  * outline9 = line from pc3sw to pc23e
  */
-const STEP_26C: SixFoldV0Step = {
-  id: "step26c",
+const STEP_81: SixFoldV0Step = {
+  id: "step81",
   inputs: [GEOM.C23, GEOM.LC23CP1, GEOM.PC3SW],
   outputs: [GEOM.PC23E],
   parameters: [],
@@ -1885,7 +1886,7 @@ const STEP_26C: SixFoldV0Step = {
     const c23 = getGeometry(inputs, GEOM.C23, isCircle, "Circle");
     const lc23cp1 = getGeometry(inputs, GEOM.LC23CP1, isLine, "Line");
     const pc23e = interceptCircleLineSegHelper(c23, lc23cp1, 0);
-    if (!pc23e) throw new Error("STEP_26C: pc23e is null - circle-line intersection not found");
+    if (!pc23e) throw new Error("STEP_81: pc23e is null - circle-line intersection not found");
     return pc23e;
   }),
   draw: (svg, values, store, theme) => {
@@ -1897,8 +1898,8 @@ const STEP_26C: SixFoldV0Step = {
  * Step 26D: Outline9
  * outline9 = line from pc3sw to pc23e
  */
-const STEP_26D: SixFoldV0Step = {
-  id: "step26d",
+const STEP_82: SixFoldV0Step = {
+  id: "step82",
   inputs: [GEOM.PC3SW, GEOM.PC23E],
   outputs: [GEOM.OUTLINE9],
   parameters: [],
@@ -1922,8 +1923,8 @@ const STEP_26D: SixFoldV0Step = {
  * Step 27A: Line LC34CP1
  * lc34cp1 = line from c34 center to cp1
  */
-const STEP_27A: SixFoldV0Step = {
-  id: "step27a",
+const STEP_83: SixFoldV0Step = {
+  id: "step83",
   inputs: [GEOM.C34, GEOM.CP1],
   outputs: [GEOM.LC34CP1],
   parameters: [],
@@ -1941,8 +1942,8 @@ const STEP_27A: SixFoldV0Step = {
  * Step 27B: Point PC34S
  * pc34s = interceptCircleLineSeg(c34, lc34cp1, 0)
  */
-const STEP_27B: SixFoldV0Step = {
-  id: "step27b",
+const STEP_84: SixFoldV0Step = {
+  id: "step84",
   inputs: [GEOM.C34, GEOM.LC34CP1],
   outputs: [GEOM.PC34S],
   parameters: [],
@@ -1950,7 +1951,7 @@ const STEP_27B: SixFoldV0Step = {
     const c34 = getGeometry(inputs, GEOM.C34, isCircle, "Circle");
     const lc34cp1 = getGeometry(inputs, GEOM.LC34CP1, isLine, "Line");
     const pc34s = interceptCircleLineSegHelper(c34, lc34cp1, 0);
-    if (!pc34s) throw new Error("STEP_27B: pc34s is null");
+    if (!pc34s) throw new Error("STEP_84: pc34s is null");
     return pc34s;
   }),
   draw: (svg, values, store, theme) => {
@@ -1962,8 +1963,8 @@ const STEP_27B: SixFoldV0Step = {
  * Step 27C: Outline10
  * outline10 = line from pc34s to pc3sw
  */
-const STEP_27C: SixFoldV0Step = {
-  id: "step27c",
+const STEP_85: SixFoldV0Step = {
+  id: "step85",
   inputs: [GEOM.PC34S, GEOM.PC3SW],
   outputs: [GEOM.OUTLINE10],
   parameters: [],
@@ -1981,8 +1982,8 @@ const STEP_27C: SixFoldV0Step = {
  * Step 28: outline11
  * Draws outline line from pc34e to pc34s.
  */
-const STEP_28: SixFoldV0Step = {
-  id: "step28",
+const STEP_86: SixFoldV0Step = {
+  id: "step86",
   inputs: [GEOM.PC34E, GEOM.PC34S],
   outputs: [GEOM.OUTLINE11],
   parameters: [],
@@ -2000,8 +2001,8 @@ const STEP_28: SixFoldV0Step = {
  * Step 29: outline12 (symmetric to outline11, closer to cp2)
  * Draws outline line from pc23s to pc23e.
  */
-const STEP_29: SixFoldV0Step = {
-  id: "step29",
+const STEP_87: SixFoldV0Step = {
+  id: "step87",
   inputs: [GEOM.PC23S, GEOM.PC23E],
   outputs: [GEOM.OUTLINE12],
   parameters: [],
@@ -2019,8 +2020,8 @@ const STEP_29: SixFoldV0Step = {
  * Step 30: outline13 (cp4 to pic4)
  * Draws outline line from circle center cp4 to point pic4.
  */
-const STEP_30: SixFoldV0Step = {
-  id: "step30",
+const STEP_88: SixFoldV0Step = {
+  id: "step88",
   inputs: [GEOM.CP4, GEOM.PIC4],
   outputs: [GEOM.OUTLINE13],
   parameters: [],
@@ -2038,8 +2039,8 @@ const STEP_30: SixFoldV0Step = {
  * Step 31: outline14 (cp2 to pic2)
  * Draws outline line from circle center cp2 to point pic2.
  */
-const STEP_31: SixFoldV0Step = {
-  id: "step31",
+const STEP_89: SixFoldV0Step = {
+  id: "step89",
   inputs: [GEOM.CP2, GEOM.PIC2],
   outputs: [GEOM.OUTLINE14],
   parameters: [],
@@ -2057,8 +2058,8 @@ const STEP_31: SixFoldV0Step = {
  * Step 32: Outline15 - line from cp2 to cp1
  * Draws outline line connecting circle centers cp2 to cp1.
  */
-const STEP_32: SixFoldV0Step = {
-  id: "step32",
+const STEP_90: SixFoldV0Step = {
+  id: "step90",
   inputs: [GEOM.CP1, GEOM.CP2],
   outputs: [GEOM.OUTLINE15],
   parameters: [],
@@ -2076,8 +2077,8 @@ const STEP_32: SixFoldV0Step = {
  * Step 33: Outline16 - line from cp2 to cp3
  * Draws outline line connecting circle centers cp2 to cp3.
  */
-const STEP_33: SixFoldV0Step = {
-  id: "step33",
+const STEP_91: SixFoldV0Step = {
+  id: "step91",
   inputs: [GEOM.CP2, GEOM.CP3],
   outputs: [GEOM.OUTLINE16],
   parameters: [],
@@ -2096,7 +2097,7 @@ const STEP_33: SixFoldV0Step = {
  * Draws outline line connecting circle centers cp3 to cp4.
  */
 const STEP_34: SixFoldV0Step = {
-  id: "step34",
+  id: "step92",
   inputs: [GEOM.CP3, GEOM.CP4],
   outputs: [GEOM.OUTLINE17],
   parameters: [],
@@ -2115,7 +2116,7 @@ const STEP_34: SixFoldV0Step = {
  * Draws outline line connecting circle centers cp4 to cp1, completing the quadrilateral.
  */
 const STEP_35: SixFoldV0Step = {
-  id: "step35",
+  id: "step93",
   inputs: [GEOM.CP4, GEOM.CP1],
   outputs: [GEOM.OUTLINE18],
   parameters: [],
@@ -2131,97 +2132,97 @@ const STEP_35: SixFoldV0Step = {
 
 /** All steps in order */
 export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
-  STEP_1A,
-  STEP_1B,
-  STEP_1C,
-  STEP_2A1,
-  STEP_2A2,
-  STEP_2B,
-  STEP_2C,
-  STEP_2D1,
-  STEP_2D2,
-  STEP_2E1,
-  STEP_2E2,
-  STEP_2F,
-  STEP_2G,
-  STEP_2H,
-  STEP_2I,
-  STEP_2J,
-  STEP_2K,
-  STEP_3A,
-  STEP_3B,
-  STEP_3C,
-  STEP_3D,
-  STEP_4B,
-  STEP_5A,
-  STEP_5B,
-  STEP_6A,
-  STEP_6B,
-  STEP_6C,
-  STEP_7A,
-  STEP_7B,
-  STEP_7C,
-  STEP_7D,
-  STEP_8A,
-  STEP_8B,
-  STEP_9A,
-  STEP_9B,
-  STEP_10A,
-  STEP_10B,
-  STEP_11A,
-  STEP_11B,
-  STEP_12A,
-  STEP_12B,
-  STEP_12C,
-  STEP_12D,
-  STEP_12E,
-  STEP_13A,
-  STEP_13B,
-  STEP_13C,
-  STEP_13D,
-  STEP_13E,
-  STEP_13F,
-  STEP_14A,
-  STEP_14B,
-  STEP_14C,
-  STEP_14D,
+  STEP_1,
+  STEP_2,
+  STEP_3,
+  STEP_4,
+  STEP_5,
+  STEP_6,
+  STEP_7,
+  STEP_8,
+  STEP_9,
+  STEP_10,
+  STEP_11,
+  STEP_12,
+  STEP_13,
+  STEP_14,
   STEP_15,
-  STEP_16A,
-  STEP_16B,
-  STEP_17A,
-  STEP_17B,
-  STEP_18A,
-  STEP_18B,
-  STEP_18C,
-  STEP_19A,
-  STEP_19B,
-  STEP_20A,
-  STEP_20B,
-  STEP_20C,
-  STEP_21A,
-  STEP_21B,
-  STEP_21C,
-  STEP_22A,
-  STEP_22B,
-  STEP_22C,
-  STEP_23A,
-  STEP_23B,
-  STEP_23C,
+  STEP_16,
+  STEP_17,
+  STEP_18,
+  STEP_19,
+  STEP_20,
+  STEP_21,
+  STEP_22,
+  STEP_23,
   STEP_24,
   STEP_25,
-  STEP_26A,
-  STEP_26B,
-  STEP_26C,
-  STEP_26D,
-  STEP_27A,
-  STEP_27B,
-  STEP_27C,
+  STEP_26,
+  STEP_27,
   STEP_28,
   STEP_29,
   STEP_30,
   STEP_31,
   STEP_32,
   STEP_33,
+  STEP_34,
+  STEP_35,
+  STEP_36,
+  STEP_37,
+  STEP_38,
+  STEP_39,
+  STEP_40,
+  STEP_41,
+  STEP_42,
+  STEP_43,
+  STEP_44,
+  STEP_45,
+  STEP_46,
+  STEP_47,
+  STEP_48,
+  STEP_49,
+  STEP_50,
+  STEP_51,
+  STEP_52,
+  STEP_53,
+  STEP_54,
+  STEP_15,
+  STEP_56,
+  STEP_57,
+  STEP_58,
+  STEP_59,
+  STEP_60,
+  STEP_61,
+  STEP_62,
+  STEP_63,
+  STEP_64,
+  STEP_65,
+  STEP_66,
+  STEP_67,
+  STEP_68,
+  STEP_69,
+  STEP_70,
+  STEP_71,
+  STEP_72,
+  STEP_73,
+  STEP_74,
+  STEP_75,
+  STEP_76,
+  STEP_77,
+  STEP_78,
+  STEP_79,
+  STEP_80,
+  STEP_81,
+  STEP_82,
+  STEP_83,
+  STEP_84,
+  STEP_85,
+  STEP_86,
+  STEP_87,
+  STEP_88,
+  STEP_89,
+  STEP_90,
+  STEP_91,
   STEP_34,
   STEP_35,
 ];
