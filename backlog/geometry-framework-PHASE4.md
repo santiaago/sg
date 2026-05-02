@@ -7,7 +7,7 @@ This phase creates the first component using the new geometry framework: **Squar
 **Status**: NOT STARTED  
 **Priority**: HIGH  
 **Estimated Duration**: 2-3 days  
-**Prerequisites**: Phase 1 (Core Construction DSL), Phase 2 (Integration Layer), Phase 3 (Rendering Layer) must be complete  
+**Prerequisites**: Phase 1 (Core Construction DSL), Phase 2 (Integration Layer), Phase 3 (Rendering Layer) must be complete
 
 ---
 
@@ -29,12 +29,14 @@ By the end of this phase, we will have:
 ### 1. Component Structure
 
 **Decision**: SquaresV2 is a standalone React component that:
+
 - Creates a Construction in useMemo
 - Manages step navigation
 - Uses SvgRenderer for drawing
 - Does NOT modify existing Square component
 
 **Rationale**:
+
 - Isolated proof of concept
 - Can be tested independently
 - Demonstrates the new framework's capabilities
@@ -45,6 +47,7 @@ By the end of this phase, we will have:
 **Decision**: Use React's useEffect to update Construction's step index when props change.
 
 **Rationale**:
+
 - React manages the component lifecycle
 - Construction's goTo() method handles navigation
 - Clean separation: React manages UI state, Construction manages geometry state
@@ -54,6 +57,7 @@ By the end of this phase, we will have:
 **Decision**: Reuse existing `computeSquareConfig` from operations.ts.
 
 **Rationale**:
+
 - Avoids duplication
 - Maintains consistency with existing Square component
 - Proves the new framework can use existing utilities
@@ -67,10 +71,10 @@ By the end of this phase, we will have:
 ```typescript
 /**
  * SquaresV2.tsx
- * 
+ *
  * Proof-of-concept component using the new Construction DSL and SvgRenderer.
  * Demonstrates the higher-level declarative geometry construction framework.
- * 
+ *
  * This component:
  * - Creates geometry using Construction DSL
  * - Renders using SvgRenderer
@@ -93,26 +97,26 @@ import { useGeometryStore } from "../react-store";
 export interface SquaresV2Props {
   // Store for managing SVG elements and tooltips
   store: GeometryStore;
-  
+
   // SVG configuration (dimensions, classes)
   svgConfig: SvgConfig;
-  
+
   // Current step index (0-based)
   currentStep: number;
-  
+
   // Theme for styling
   theme?: Theme;
 }
 
 /**
  * SquaresV2 component - Proof of concept for the new geometry framework.
- * 
+ *
  * Creates a square using compass and straightedge techniques, rendering
  * step-by-step as the user navigates through the construction.
  */
 export function SquaresV2({ store, svgConfig, currentStep, theme }: SquaresV2Props): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
-  
+
   // Memoize the square configuration (derived from SVG dimensions)
   const config = useMemo(() => {
     return computeSquareConfig(svgConfig.width, svgConfig.height);
@@ -193,22 +197,22 @@ export function SquaresV2({ store, svgConfig, currentStep, theme }: SquaresV2Pro
   // Render the construction up to the current step
   useEffect(() => {
     if (!svgRef.current) return;
-    
+
     const svg = svgRef.current;
     const renderer = new SvgRenderer(svg, store);
-    
+
     // Clear previous rendering
     renderer.clear();
-    
+
     // Draw all geometries up to the current step
     renderer.drawConstructionUpTo(construction, currentStep);
   }, [currentStep, store, construction, theme]);
 
   return (
     <div className={`${svgConfig.containerClass} flex justify-center`}>
-      <svg 
-        ref={svgRef} 
-        className={`${svgConfig.svgClass} block`} 
+      <svg
+        ref={svgRef}
+        className={`${svgConfig.svgClass} block`}
         data-testid="squaresv2-svg"
       />
     </div>
@@ -312,68 +316,68 @@ describe("SquaresV2", () => {
 
   it("should render without errors", () => {
     render(
-      <SquaresV2 
-        store={mockStore} 
-        svgConfig={mockSvgConfig} 
-        currentStep={0} 
+      <SquaresV2
+        store={mockStore}
+        svgConfig={mockSvgConfig}
+        currentStep={0}
         theme={darkTheme}
       />
     );
-    
+
     expect(screen.getByTestId("squaresv2-svg")).toBeInTheDocument();
   });
 
   it("should render all 16 steps when currentStep is 15", () => {
     render(
-      <SquaresV2 
-        store={mockStore} 
-        svgConfig={mockSvgConfig} 
-        currentStep={15} 
+      <SquaresV2
+        store={mockStore}
+        svgConfig={mockSvgConfig}
+        currentStep={15}
         theme={darkTheme}
       />
     );
-    
+
     // Verify SVG element exists
     const svg = screen.getByTestId("squaresv2-svg");
     expect(svg).toBeInTheDocument();
-    
+
     // Note: Testing the actual rendered geometries requires more complex setup
     // with a real DOM environment. This is a basic smoke test.
   });
 
   it("should render only first step when currentStep is 0", () => {
     render(
-      <SquaresV2 
-        store={mockStore} 
-        svgConfig={mockSvgConfig} 
-        currentStep={0} 
+      <SquaresV2
+        store={mockStore}
+        svgConfig={mockSvgConfig}
+        currentStep={0}
         theme={darkTheme}
       />
     );
-    
+
     expect(screen.getByTestId("squaresv2-svg")).toBeInTheDocument();
   });
 
   it("should update rendering when currentStep changes", () => {
     const { rerender } = render(
-      <SquaresV2 
-        store={mockStore} 
-        svgConfig={mockSvgConfig} 
-        currentStep={0} 
+      <SquaresV2
+        store={mockStore}
+        svgConfig={mockSvgConfig}
+        currentStep={0}
         theme={darkTheme}
       />
     );
-    
+
     // Change step
     rerender(
-      <SquaresV2 
-        store={mockStore} 
-        svgConfig={mockSvgConfig} 
-        currentStep={5} 
+      <SquaresV2
+        store={mockStore}
+        svgConfig={mockSvgConfig}
+        currentStep={5}
         theme={darkTheme}
       />
     );
-    
+
     expect(screen.getByTestId("squaresv2-svg")).toBeInTheDocument();
   });
 });
@@ -407,15 +411,15 @@ describe("SquaresV2 geometry", () => {
     // Create the same construction as in SquaresV2
     const c = new Construction();
     const config = computeSquareConfig(800, 600);
-    
+
     // ... all 16 steps ...
-    
+
     // Get the final square
     const square = c.get<Polygon>({ id: "square" });
-    
+
     // Verify it has 4 points
     expect(square.points).toHaveLength(4);
-    
+
     // Verify it's a valid polygon (not self-intersecting, etc.)
     // This requires more sophisticated geometry verification
   });
