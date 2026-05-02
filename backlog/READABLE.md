@@ -4,21 +4,21 @@
 
 > **Generated**: After reviewing git changes, new files (sixFoldV0Steps.ts, graph.md, CRITIQUE.md, PLAN geometry-framework.md), and comparing with original READABLE.md recommendations.
 
---- 
+---
 
 ## Executive Summary
 
 ### Overall Readability Score: **8.8/10** (Improved from 8.5/10)
 
-| Category          | Score | Change | Strengths | Weaknesses |
-| ----------------- | ----- | ------ | ---------- | ---------- |
-| Architecture      | 10/10 | ✅ Same | Step pattern, lazy evaluation, dependency tracking | None |
-| Code Organization | 9.5/10 | +0.5 | Modular, well-separated, SixFoldV0 demonstrates scalability | Store fragmentation remains, SixFold.tsx unchanged |
-| Naming            | 8.5/10 | +0.5 | Generally clear | Cryptic geometry IDs persist (PI, PL, PR in operations.ts) |
-| Documentation     | 8.5/10 | +1.5 | Excellent JSDoc in svg.ts, good in new files | Inconsistent across codebase, missing in some areas |
-| Type Safety       | 9/10  | ✅ Same | Strong TypeScript | Some `any` types in store, geometry types could be more specific |
-| Reusability       | 9/10  | +1.0 | Step pattern proven to scale (SixFoldV0: 36 steps) | SixFold.tsx still needs refactoring |
-| Maintainability   | 9/10  | +1.0 | Well-structured, proven pattern | Store versioning, code duplication in SixFold.tsx |
+| Category          | Score  | Change  | Strengths                                                   | Weaknesses                                                       |
+| ----------------- | ------ | ------- | ----------------------------------------------------------- | ---------------------------------------------------------------- |
+| Architecture      | 10/10  | ✅ Same | Step pattern, lazy evaluation, dependency tracking          | None                                                             |
+| Code Organization | 9.5/10 | +0.5    | Modular, well-separated, SixFoldV0 demonstrates scalability | Store fragmentation remains, SixFold.tsx unchanged               |
+| Naming            | 8.5/10 | +0.5    | Generally clear                                             | Cryptic geometry IDs persist (PI, PL, PR in operations.ts)       |
+| Documentation     | 8.5/10 | +1.5    | Excellent JSDoc in svg.ts, good in new files                | Inconsistent across codebase, missing in some areas              |
+| Type Safety       | 9/10   | ✅ Same | Strong TypeScript                                           | Some `any` types in store, geometry types could be more specific |
+| Reusability       | 9/10   | +1.0    | Step pattern proven to scale (SixFoldV0: 36 steps)          | SixFold.tsx still needs refactoring                              |
+| Maintainability   | 9/10   | +1.0    | Well-structured, proven pattern                             | Store versioning, code duplication in SixFold.tsx                |
 
 **Verdict**: Significant progress has been made. The architecture is production-ready and the step pattern has been proven to scale. With remaining high-priority fixes (especially store consolidation and SixFold.tsx refactoring), this will be an excellent foundation for all future geometric construction components.
 
@@ -47,7 +47,7 @@
    - Revealed redundant re-computation issues
    - **Impact**: Provides roadmap for optimization
 
-4. **Architecture Documentation** 
+4. **Architecture Documentation**
    - `PLAN geometry-framework.md`: Comprehensive plan for higher-level DSL
    - `CRITIQUE.md`: Detailed analysis of 18 issues with the proposed framework
    - Multiple critique documents for specific components
@@ -95,18 +95,18 @@
 
 ### 📊 Progress on Original Recommendations
 
-| Original Recommendation | Status | Notes |
-| ---------------------- | ------ | ----- |
-| Consolidate store | ⚠️ NOT DONE | Still fragmented, but more stores added |
-| Add JSDoc everywhere | 🟡 PARTIAL | Significant improvements, but gaps remain |
-| Fix type safety in react-store.ts | ⚠️ NOT DONE | Still uses `any` for element and type |
-| Improve geometry naming | ⚠️ NOT DONE | Still cryptic in operations.ts |
-| Create step helpers | ⚠️ NOT DONE | Not yet implemented |
-| Refactor SixFold.tsx | 🟡 PARTIAL | SixFoldV0 created, but SixFold.tsx unchanged |
-| Add error classes | ⚠️ NOT DONE | Not yet implemented |
-| Add tests | ⚠️ NOT DONE | GeometryList.test.tsx exists, but no squareSteps tests |
-| Code organization | ⚠️ NOT DONE | New folder structure in geometry/sixFold/ |
-| Tooltip system | 🟡 PARTIAL | WeakMap not implemented, but type extensions expanded |
+| Original Recommendation           | Status      | Notes                                                  |
+| --------------------------------- | ----------- | ------------------------------------------------------ |
+| Consolidate store                 | ⚠️ NOT DONE | Still fragmented, but more stores added                |
+| Add JSDoc everywhere              | 🟡 PARTIAL  | Significant improvements, but gaps remain              |
+| Fix type safety in react-store.ts | ⚠️ NOT DONE | Still uses `any` for element and type                  |
+| Improve geometry naming           | ⚠️ NOT DONE | Still cryptic in operations.ts                         |
+| Create step helpers               | ⚠️ NOT DONE | Not yet implemented                                    |
+| Refactor SixFold.tsx              | 🟡 PARTIAL  | SixFoldV0 created, but SixFold.tsx unchanged           |
+| Add error classes                 | ⚠️ NOT DONE | Not yet implemented                                    |
+| Add tests                         | ⚠️ NOT DONE | GeometryList.test.tsx exists, but no squareSteps tests |
+| Code organization                 | ⚠️ NOT DONE | New folder structure in geometry/sixFold/              |
+| Tooltip system                    | 🟡 PARTIAL  | WeakMap not implemented, but type extensions expanded  |
 
 ---
 
@@ -185,33 +185,33 @@ The Square.tsx pattern has been successfully replicated in SixFoldV0.tsx:
 
 ### Files Added Since Last Report
 
-| File | Lines | Purpose | Quality |
-| ---- | ----- | ------- | ------- |
-| `SixFoldV0.tsx` | 134 | New component following Square pattern | ✅ Excellent |
-| `sixFoldV0Steps.ts` | 45,367 | 36-step construction for SixFoldV0 | ✅ Good, needs optimization |
-| `sixFold/operations.ts` | 188 | Configuration for SixFoldV0 | ✅ Good |
-| `graph.md` | 466 | Dependency analysis of steps | ✅ Excellent analysis |
-| `CRITIQUE.md` | 512 | Critique of geometry-framework.md plan | ✅ Comprehensive |
-| `PLAN geometry-framework.md` | 1721+ | Architecture plan for higher-level DSL | ✅ Detailed |
-| `CRITIQUE_SIXFOLDv0.md` | ? | Specific critique of SixFoldV0 | Not read yet |
-| `CRITIQUE_SQUARES.md` | ? | Specific critique of Squares | Not read yet |
+| File                         | Lines  | Purpose                                | Quality                     |
+| ---------------------------- | ------ | -------------------------------------- | --------------------------- |
+| `SixFoldV0.tsx`              | 134    | New component following Square pattern | ✅ Excellent                |
+| `sixFoldV0Steps.ts`          | 45,367 | 36-step construction for SixFoldV0     | ✅ Good, needs optimization |
+| `sixFold/operations.ts`      | 188    | Configuration for SixFoldV0            | ✅ Good                     |
+| `graph.md`                   | 466    | Dependency analysis of steps           | ✅ Excellent analysis       |
+| `CRITIQUE.md`                | 512    | Critique of geometry-framework.md plan | ✅ Comprehensive            |
+| `PLAN geometry-framework.md` | 1721+  | Architecture plan for higher-level DSL | ✅ Detailed                 |
+| `CRITIQUE_SIXFOLDv0.md`      | ?      | Specific critique of SixFoldV0         | Not read yet                |
+| `CRITIQUE_SQUARES.md`        | ?      | Specific critique of Squares           | Not read yet                |
 
 ### Files Modified Since Last Report
 
-| File | Changes | Quality |
-| ---- | ------- | ------- |
-| `react-store.ts` | Added `useGeometryStoreSixFoldV0()` | ⚠️ Adds to fragmentation |
-| `constructors.ts` | Added SixFoldV0 helper functions | ✅ Good additions |
-| `operations.ts` | Minor updates | ✅ Good |
+| File              | Changes                             | Quality                  |
+| ----------------- | ----------------------------------- | ------------------------ |
+| `react-store.ts`  | Added `useGeometryStoreSixFoldV0()` | ⚠️ Adds to fragmentation |
+| `constructors.ts` | Added SixFoldV0 helper functions    | ✅ Good additions        |
+| `operations.ts`   | Minor updates                       | ✅ Good                  |
 
 ### Files Unchanged (Still Need Work)
 
-| File | Issue | Priority |
-| ---- | ----- | -------- |
-| `SixFold.tsx` | Monolithic, no step pattern | HIGH |
-| `react-store.ts` | Fragmented store implementations | HIGH |
-| `operations.ts` | Cryptic naming (PI, P3, P4, etc.) | MEDIUM |
-| `svgElements.ts` | Tooltip type extensions incomplete | MEDIUM |
+| File             | Issue                              | Priority |
+| ---------------- | ---------------------------------- | -------- |
+| `SixFold.tsx`    | Monolithic, no step pattern        | HIGH     |
+| `react-store.ts` | Fragmented store implementations   | HIGH     |
+| `operations.ts`  | Cryptic naming (PI, P3, P4, etc.)  | MEDIUM   |
+| `svgElements.ts` | Tooltip type extensions incomplete | MEDIUM   |
 
 ---
 
@@ -269,20 +269,23 @@ The Square.tsx pattern has been successfully replicated in SixFoldV0.tsx:
 
 4. **Cryptic Naming in operations.ts**
    - Current GEOM constants are hard to understand:
+
    ```typescript
    export const GEOM = {
      MAIN_LINE: "line_main",
-     C1: "c1",              // What is c1?
-     C2: "c2",              // What is c2?
-     PI: "pi",              // Intersection point - but "pi"?
-     P3: "p3",              // Third point - but what is it?
+     C1: "c1", // What is c1?
+     C2: "c2", // What is c2?
+     PI: "pi", // Intersection point - but "pi"?
+     P3: "p3", // Third point - but what is it?
      P4: "p4",
-     PL: "pl",              // Tangent left?
-     PR: "pr",              // Tangent right?
+     PL: "pl", // Tangent left?
+     PR: "pr", // Tangent right?
      // ...
-   }
+   };
    ```
+
    - **Solution**: Use descriptive names as recommended in original report:
+
    ```typescript
    export const GEOM = {
      MAIN_LINE: "main_line",
@@ -294,8 +297,9 @@ The Square.tsx pattern has been successfully replicated in SixFoldV0.tsx:
      TANGENT_LEFT: "tangent_left",
      TANGENT_RIGHT: "tangent_right",
      // ...
-   }
+   };
    ```
+
    - **Impact**: Significantly improves code readability
    - **Estimated effort**: 1-2 hours (plus updating all references)
 
@@ -321,14 +325,16 @@ The Square.tsx pattern has been successfully replicated in SixFoldV0.tsx:
 
 7. **Type Safety Gaps**
    - `react-store.ts` still uses `any` for element and type:
+
    ```typescript
    export interface GeometryItem {
      name: string;
-     element: any;      // Should be SVGElement | null
-     type: string;      // Should be GeometryType
-     context?: any;     // Should be typed or removed
+     element: any; // Should be SVGElement | null
+     type: string; // Should be GeometryType
+     context?: any; // Should be typed or removed
    }
    ```
+
    - **Solution**: Use proper types as originally recommended
    - **Impact**: Better type safety, fewer runtime errors
    - **Estimated effort**: 1-2 hours
@@ -374,6 +380,7 @@ The Square.tsx pattern has been successfully replicated in SixFoldV0.tsx:
 **Status**: ✅ Gold standard, unchanged
 
 **Strengths**:
+
 - Clean structure (142 lines)
 - Proper hooks usage
 - Input validation
@@ -394,6 +401,7 @@ The Square.tsx pattern has been successfully replicated in SixFoldV0.tsx:
 **Status**: ✅ NEW: Excellent implementation following Square pattern
 
 **Strengths**:
+
 - Follows Square.tsx pattern exactly
 - Clean structure (134 lines)
 - Proper hooks usage
@@ -405,6 +413,7 @@ The Square.tsx pattern has been successfully replicated in SixFoldV0.tsx:
 - Uses sixFoldV0Steps for construction
 
 **Issues**:
+
 - Missing component-level JSDoc (minor)
 - Interface could be more precise (minor)
 
@@ -428,12 +437,14 @@ The Square.tsx pattern has been successfully replicated in SixFoldV0.tsx:
 **Status**: ⚠️ WORSE: More fragmentation added
 
 **Strengths**:
+
 - Detailed interfaces
 - React hooks pattern
 - Memoization
 - Attribute preservation
 
 **Issues**:
+
 - **WORSE**: Now has 8 implementations (was 6 in original report)
 - Code duplication between versions
 - Type safety issues (`any` for element, string for type)
@@ -444,6 +455,7 @@ The Square.tsx pattern has been successfully replicated in SixFoldV0.tsx:
 - `useGeometryStoreSixFoldV0()` is identical to the original
 
 **Current implementations**:
+
 1. `GeometryStore` interface
 2. `GeometryStorev2v3v4` interface
 3. `GeometryValueStore` interface (unused?)
@@ -479,6 +491,7 @@ export interface GeometryStore {
 **Status**: ✅ Still the gold standard for documentation
 
 **Strengths**:
+
 - Excellent JSDoc on every function
 - Pure functions
 - Generic types
@@ -494,18 +507,21 @@ export interface GeometryStore {
 **Status**: ✅ Documentation improvements
 
 **Strengths**:
+
 - Constants extracted
 - Global type extensions for tooltips
 - Draw helpers reduce boilerplate
 - constants defined (TOOLTIP_OFFSET_X, etc.)
 
 **Issues**:
+
 - Inconsistent documentation (some functions have JSDoc, some don't)
 - Tooltip types incomplete (missing SVGPolygonElement)
 - Some duplication between primitives and draw functions
 
 **Recent improvements**:
-- Added TOOLTIP_* constants
+
+- Added TOOLTIP\_\* constants
 - Better organization
 - drawPoint, drawLine, drawCircle helpers added
 
@@ -516,10 +532,12 @@ export interface GeometryStore {
 **Status**: ✅ Good, minor improvements possible
 
 **Strengths**:
+
 - Clear interface
 - Pre-configured configs
 
 **Issues**:
+
 - Missing JSDoc (minor)
 - Inconsistent class naming between configs (minor)
 
@@ -530,6 +548,7 @@ export interface GeometryStore {
 **Status**: ✅ Good
 
 **Strengths**:
+
 - Clear interface
 - Two complete themes
 - Comments explaining choices
@@ -543,6 +562,7 @@ export interface GeometryStore {
 **Status**: ✅ Slightly improved
 
 **Strengths**:
+
 - Excellent type system
 - Type guards
 - Factory functions
@@ -550,6 +570,7 @@ export interface GeometryStore {
 - Step interface well-designed
 
 **Issues**:
+
 - Re-exports create confusion (SquareConfig, Theme)
 - LegacyStep unused (can be removed)
 - Step interface could have better defaults (minor)
@@ -562,6 +583,7 @@ export interface GeometryStore {
 **Status**: ✅ Documentation added
 
 **Strengths**:
+
 - Constants extracted (GOLDEN_RATIO, C1_POSITION_RATIO, etc.)
 - Pure functions
 - Type-safe access (getGeometry)
@@ -571,6 +593,7 @@ export interface GeometryStore {
 - File-level and function JSDoc added
 
 **Issues**:
+
 - GEOM constants use cryptic naming (PI, P3, P4, PL, PR)
 - SquareConfig could be better organized
 - Some magic values in GEOM
@@ -583,6 +606,7 @@ export interface GeometryStore {
 **Status**: ✅ Improved with SixFoldV0 additions
 
 **Strengths**:
+
 - File-level documentation
 - JSDoc on most functions
 - Pure functions
@@ -591,6 +615,7 @@ export interface GeometryStore {
 - SixFoldV0 helper functions added
 
 **Issues**:
+
 - Minor: Long import line
 - Some functions may be redundant
 - Some helpers are SixFoldV0-specific (could be moved)
@@ -602,6 +627,7 @@ export interface GeometryStore {
 **Status**: ✅ Still excellent
 
 **Strengths**:
+
 - File-level docs with algorithm overview
 - Each step has header comment
 - Consistent structure
@@ -609,7 +635,8 @@ export interface GeometryStore {
 - Execution utilities (executeStep, executeSteps)
 
 **Issues**:
-- Step IDs inconsistent (some have "step_" prefix, some don't - but they all do now)
+
+- Step IDs inconsistent (some have "step\_" prefix, some don't - but they all do now)
 - Descriptions could be more detailed
 - polygon tooltip handling uses `as any` cast
 - GOLDEN_RATIO for stroke width seems arbitrary
@@ -621,12 +648,14 @@ export interface GeometryStore {
 **Status**: ✅ NEW: Good but needs optimization
 
 **Strengths**:
+
 - 36 well-structured steps
 - Follows same pattern as squareSteps.ts
 - Comprehensive construction
 - Each step has header comment
 
 **Issues** (identified in graph.md analysis):
+
 - 23 geometries produced but never consumed as inputs
 - Redundant re-computation of L13, L24, PI2
 - Pass-through step (step7) with no computational purpose
@@ -634,6 +663,7 @@ export interface GeometryStore {
 - Step IDs are simple ("step1", "step2", ...) - could be more descriptive
 
 **Recommendation**: Apply the optimizations documented in graph.md:
+
 - Remove step7 (pass-through)
 - Remove unused outputs from steps
 - Eliminate redundant re-computation
@@ -647,6 +677,7 @@ export interface GeometryStore {
 **Strengths**: None significant
 
 **Issues**:
+
 - Monolithic 883-line component
 - Duplicate drawing functions (dot, line, circle defined inline)
 - No step pattern
@@ -663,21 +694,21 @@ export interface GeometryStore {
 
 ## Comparison: Square Pattern vs SixFold Pattern vs SixFoldV0 Pattern
 
-| Aspect | Square.tsx | SixFold.tsx | SixFoldV0.tsx |
-| ------ | ---------- | ----------- | ------------ |
-| Pattern | Step-based | Monolithic | Step-based |
-| Lines of Component | 142 | 883 | 134 |
-| Modularity | High | Low | High |
-| Reusability | High | Low | High |
-| Testability | High | Low | High |
-| Lines of Steps | N/A | N/A | 36 steps |
-| Drawing Functions | Shared (svgElements.ts) | Inline, duplicated | Shared (svgElements.ts) |
-| Error Handling | try/catch | Silent failures | try/catch |
-| Store Usage | Consistent | Inconsistent | Consistent |
-| Dependency Tracking | Yes | No | Yes |
-| Input Validation | Yes | No | Yes |
-| Memoization | Yes | No | Yes |
-| Step Navigation | Yes | No | Yes |
+| Aspect              | Square.tsx              | SixFold.tsx        | SixFoldV0.tsx           |
+| ------------------- | ----------------------- | ------------------ | ----------------------- |
+| Pattern             | Step-based              | Monolithic         | Step-based              |
+| Lines of Component  | 142                     | 883                | 134                     |
+| Modularity          | High                    | Low                | High                    |
+| Reusability         | High                    | Low                | High                    |
+| Testability         | High                    | Low                | High                    |
+| Lines of Steps      | N/A                     | N/A                | 36 steps                |
+| Drawing Functions   | Shared (svgElements.ts) | Inline, duplicated | Shared (svgElements.ts) |
+| Error Handling      | try/catch               | Silent failures    | try/catch               |
+| Store Usage         | Consistent              | Inconsistent       | Consistent              |
+| Dependency Tracking | Yes                     | No                 | Yes                     |
+| Input Validation    | Yes                     | No                 | Yes                     |
+| Memoization         | Yes                     | No                 | Yes                     |
+| Step Navigation     | Yes                     | No                 | Yes                     |
 
 **Conclusion**: SixFoldV0.tsx successfully replicates Square's pattern and scales to 36 steps. SixFold.tsx should be refactored or deleted.
 
@@ -721,19 +752,19 @@ export interface GeometryStore {
 
 The `graph.md` file provides a comprehensive analysis comparing the two step files:
 
-| Metric | sixFoldV0Steps | squareSteps |
-| ------ | --------------- | ----------- |
-| Total Steps | 36 | 16 |
-| Total GEOM Constants | 90 | 17 |
-| Total Outputs | 90 | 16 |
-| Total Unique Inputs | 49 | 15 |
-| Steps with No Output | 0 | 0 |
-| Produced but Never Consumed | 41 | 1 |
-| - Terminal (OK) | 18 (OUTLINES) | 1 (SQUARE) |
-| - Non-terminal (PROBLEM) | 23 | 0 |
-| Consumed but Never Produced | 0 | 0 |
-| Redundant Re-computation | Yes (L13, L24, PI2) | No |
-| Pass-through Steps | Yes (step7) | No |
+| Metric                      | sixFoldV0Steps      | squareSteps |
+| --------------------------- | ------------------- | ----------- |
+| Total Steps                 | 36                  | 16          |
+| Total GEOM Constants        | 90                  | 17          |
+| Total Outputs               | 90                  | 16          |
+| Total Unique Inputs         | 49                  | 15          |
+| Steps with No Output        | 0                   | 0           |
+| Produced but Never Consumed | 41                  | 1           |
+| - Terminal (OK)             | 18 (OUTLINES)       | 1 (SQUARE)  |
+| - Non-terminal (PROBLEM)    | 23                  | 0           |
+| Consumed but Never Produced | 0                   | 0           |
+| Redundant Re-computation    | Yes (L13, L24, PI2) | No          |
+| Pass-through Steps          | Yes (step7)         | No          |
 
 ### Specific Issues in sixFoldV0Steps
 
@@ -811,14 +842,14 @@ export type GeometryType = GeometryValue["type"];
 
 export interface GeometryItem {
   name: string;
-  element: SVGElement | null;  // NOT any
+  element: SVGElement | null; // NOT any
   selected: boolean;
-  type: GeometryType;           // NOT string
+  type: GeometryType; // NOT string
   initialState?: Record<string, string>;
   dependsOn: string[];
   stepId: string;
   parameterValues: Record<string, unknown>;
-  context?: Record<string, unknown>;  // NOT any
+  context?: Record<string, unknown>; // NOT any
 }
 
 export interface GeometryStore {
@@ -845,6 +876,7 @@ export function useGeometryStore(): GeometryStore {
 ```
 
 **Files to update after consolidation**:
+
 - Square.tsx (minor: import unchanged)
 - SixFoldV0.tsx (minor: import unchanged)
 - All other components using specific store versions
@@ -880,41 +912,42 @@ export const GEOM = {
 export const GEOM = {
   // Base elements
   MAIN_LINE: "main_line",
-  
+
   // Circle centers (points on the main line)
   CIRCLE_CENTER_LEFT: "circle_center_left",
   CIRCLE_CENTER_RIGHT: "circle_center_right",
-  
+
   // Circle outlines
   CIRCLE_LEFT: "circle_left",
   CIRCLE_RIGHT: "circle_right",
-  
+
   // Intersection of the two circles
   INTERSECTION_POINT: "intersection_point",
   INTERSECTION_CIRCLE: "intersection_circle",
-  
+
   // Points at the top of the construction
   TOP_LEFT_POINT: "top_left_point",
   TOP_RIGHT_POINT: "top_right_point",
-  
+
   // Tangent points on the sides
   TANGENT_LEFT: "tangent_left",
   TANGENT_RIGHT: "tangent_right",
-  
+
   // Lines from circle centers to intersection point
   LINE_LEFT_CENTER_TO_INTERSECTION: "line_left_center_to_intersection",
   LINE_RIGHT_CENTER_TO_INTERSECTION: "line_right_center_to_intersection",
-  
+
   // Lines from circle centers to top points
   LINE_LEFT_CENTER_TO_TOP_RIGHT: "line_left_center_to_top_right",
   LINE_RIGHT_CENTER_TO_TOP_LEFT: "line_right_center_to_top_left",
-  
+
   // Final result
   SQUARE: "square",
 };
 ```
 
 **Required**: Update ALL references to these constants throughout the codebase:
+
 - In squareSteps.ts (step definitions, compute functions, draw functions)
 - In Square.tsx (if any)
 - In any tests
@@ -960,6 +993,7 @@ Follow the pattern in `svg.ts` (gold standard):
   - Example (for key functions)
 
 **Files needing improvement**:
+
 - `react-store.ts` (after consolidation)
 - `svgElements.ts` (inconsistent)
 - `operations.ts` (mostly done, minor gaps)
@@ -980,10 +1014,10 @@ Follow the pattern in `svg.ts` (gold standard):
 // BEFORE:
 export interface GeometryItem {
   name: string;
-  element: any;      // ❌ Should be SVGElement | null
+  element: any; // ❌ Should be SVGElement | null
   selected: boolean;
-  type: string;      // ❌ Should be GeometryType
-  context?: any;     // ❌ Should be typed or removed
+  type: string; // ❌ Should be GeometryType
+  context?: any; // ❌ Should be typed or removed
   initialState?: Record<string, string>;
   dependsOn: string[];
   stepId: string;
@@ -1046,11 +1080,17 @@ const tooltipMap = new WeakMap<
   { tooltip: SVGTextElement; tooltipBg: SVGRectElement }
 >();
 
-export function getTooltip(element: SVGElement): { tooltip: SVGTextElement; tooltipBg: SVGRectElement } | undefined {
+export function getTooltip(
+  element: SVGElement,
+): { tooltip: SVGTextElement; tooltipBg: SVGRectElement } | undefined {
   return tooltipMap.get(element);
 }
 
-export function setTooltip(element: SVGElement, tooltip: SVGTextElement, tooltipBg: SVGRectElement): void {
+export function setTooltip(
+  element: SVGElement,
+  tooltip: SVGTextElement,
+  tooltipBg: SVGRectElement,
+): void {
   tooltipMap.set(element, { tooltip, tooltipBg });
 }
 
@@ -1086,7 +1126,7 @@ export class GeometryError extends Error {
     message: string,
     public stepId?: string,
     public geometryId?: string,
-    cause?: Error
+    cause?: Error,
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -1104,7 +1144,10 @@ export class MissingGeometryError extends GeometryError {
 
 export class TypeMismatchError extends GeometryError {
   constructor(expectedType: string, actualType: string, geometryId: string, stepId?: string) {
-    super(`Type mismatch for ${geometryId}: expected ${expectedType}, got ${actualType}`, { geometryId, stepId });
+    super(`Type mismatch for ${geometryId}: expected ${expectedType}, got ${actualType}`, {
+      geometryId,
+      stepId,
+    });
   }
 }
 
@@ -1158,6 +1201,7 @@ export function getGeometry<T extends GeometryValue>(
 **Action**: Add comprehensive test coverage
 
 **Test files needed**:
+
 - `Square.test.tsx` - Component rendering, step execution, clearing
 - `SixFoldV0.test.tsx` - Component rendering, step execution
 - `react-store.test.ts` - Store operations, dependency tracking
@@ -1231,11 +1275,13 @@ app2/src/
 ### Recommendation: Adopt SixFoldV0 Pattern for All New Components
 
 The SixFoldV0 component has proven that:
+
 1. The Square pattern scales to complex constructions (36 steps)
 2. The step-based architecture works for any geometric construction
 3. The pattern is maintainable and testable
 
 **Action**: For all new geometric construction components:
+
 - Follow the Square/SixFoldV0 pattern exactly
 - Create a `[ComponentName]Steps.ts` file with step definitions
 - Create a `[ComponentName].tsx` file following the component template
@@ -1251,6 +1297,7 @@ The `graph.md` analysis provides valuable insights:
 4. **Keep step outputs minimal**
 
 **Action**: Apply these principles to all step definitions:
+
 - Each step should produce only what's needed by later steps
 - Intermediate values should be computed internally, not exposed as outputs
 - If a geometry is only drawn but not used computationally, reconsider whether it needs to be an output
@@ -1270,6 +1317,7 @@ const c2 = c.intersection(c1_c, ml, "left", "c2");
 ```
 
 **However**, the `CRITIQUE.md` identifies 18 critical issues with this plan that must be addressed first:
+
 1. Circular dependency problem
 2. Dual type system confusion
 3. GeomRef design flaws
@@ -1280,9 +1328,10 @@ const c2 = c.intersection(c1_c, ml, "left", "c2");
 8. Incomplete error handling
 9. Performance: No caching/lazy evaluation
 10. Testing strategy gaps
-...and 8 more
+    ...and 8 more
 
 **Recommendation**: Before implementing the higher-level DSL:
+
 - Resolve the 5 critical issues identified in CRITIQUE.md
 - Complete the prerequisites documented in PLAN geometry-framework.md
 - Consider whether the current step pattern is sufficient for most use cases
@@ -1483,12 +1532,14 @@ export type { Step, GeometryValue };
 
 **Current State**: 8.8/10 - Significant improvements, but critical cleanup needed (store consolidation, component version cleanup).
 
-**Blockers**: 
+**Blockers**:
+
 - Store fragmentation (8 implementations)
 - Multiple SixFold versions (confusing)
 - SixFold.tsx still uses anti-pattern
 
-**Recommendation**: 
+**Recommendation**:
+
 1. **Clean up immediately**: Delete old versions, consolidate store, fix naming
 2. **Standardize**: Apply Square/SixFoldV0 pattern to all components
 3. **Document**: Continue improving JSDoc coverage
@@ -1505,28 +1556,28 @@ The step pattern architecture is **production-ready and proven**. With the clean
 
 ### Analysis Documents (NEW)
 
-| File | Purpose | Status |
-| ---- | ------- | ------ |
-| `graph.md` | Dependency analysis of sixFoldV0Steps vs squareSteps | ✅ Excellent, actionable |
-| `CRITIQUE.md` | Critique of geometry-framework.md plan | ✅ Comprehensive, 18 issues identified |
-| `CRITIQUE_SIXFOLDv0.md` | Specific critique of SixFoldV0 | ⚠️ Not reviewed yet |
-| `CRITIQUE_SQUARES.md` | Specific critique of Squares | ⚠️ Not reviewed yet |
-| `DEAD.md` | Unknown | ⚠️ Not reviewed yet |
+| File                    | Purpose                                              | Status                                 |
+| ----------------------- | ---------------------------------------------------- | -------------------------------------- |
+| `graph.md`              | Dependency analysis of sixFoldV0Steps vs squareSteps | ✅ Excellent, actionable               |
+| `CRITIQUE.md`           | Critique of geometry-framework.md plan               | ✅ Comprehensive, 18 issues identified |
+| `CRITIQUE_SIXFOLDv0.md` | Specific critique of SixFoldV0                       | ⚠️ Not reviewed yet                    |
+| `CRITIQUE_SQUARES.md`   | Specific critique of Squares                         | ⚠️ Not reviewed yet                    |
+| `DEAD.md`               | Unknown                                              | ⚠️ Not reviewed yet                    |
 
 ### Code Files (NEW)
 
-| File | Purpose | Quality | Notes |
-| ---- | ------- | ------- | ----- |
-| `SixFoldV0.tsx` | Component following Square pattern | ✅ 9/10 | Should replace SixFold.tsx |
-| `sixFoldV0Steps.ts` | 36-step construction | ✅ 8.5/10 | Needs optimization per graph.md |
-| `sixFold/operations.ts` | Configuration for SixFoldV0 | ✅ 9/10 | Good |
+| File                    | Purpose                            | Quality   | Notes                           |
+| ----------------------- | ---------------------------------- | --------- | ------------------------------- |
+| `SixFoldV0.tsx`         | Component following Square pattern | ✅ 9/10   | Should replace SixFold.tsx      |
+| `sixFoldV0Steps.ts`     | 36-step construction               | ✅ 8.5/10 | Needs optimization per graph.md |
+| `sixFold/operations.ts` | Configuration for SixFoldV0        | ✅ 9/10   | Good                            |
 
 ### Planning Documents (NEW)
 
-| File | Purpose | Status |
-| ---- | ------- | ------ |
-| `PLAN geometry-framework.md` | Higher-level DSL architecture | ✅ Comprehensive | 18 critical issues identified in CRITIQUE.md |
-| `ROADMAP.md` | Not found at expected location | ❌ | May be at root level |
+| File                         | Purpose                        | Status           |
+| ---------------------------- | ------------------------------ | ---------------- | -------------------------------------------- |
+| `PLAN geometry-framework.md` | Higher-level DSL architecture  | ✅ Comprehensive | 18 critical issues identified in CRITIQUE.md |
+| `ROADMAP.md`                 | Not found at expected location | ❌               | May be at root level                         |
 
 ---
 

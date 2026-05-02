@@ -7,6 +7,7 @@
 ## Overview
 
 ### Current State: A+ (95/100)
+
 - ✅ All P0-P4 issues resolved
 - ✅ Error handling in place
 - ✅ Input validation present
@@ -16,6 +17,7 @@
 - ⚠️ **blocker**: Test import regression needs fixing
 
 ### Target State: A++ (100/100)
+
 - ✅ All A+ criteria maintained
 - ✅ Proactive improvements that prevent problems
 - ✅ Architecture is exemplary
@@ -28,27 +30,29 @@
 
 ## Core Philosophy
 
-| A+ | A++ |
-|----|-----|
+| A+                      | A++                         |
+| ----------------------- | --------------------------- |
 | Fixes identified issues | Proactively prevents issues |
-| Production ready | Production exemplary |
-| All bugs fixed | Architecture prevents bugs |
-| Well-tested | Extensively validated |
-| Good documentation | Excellent documentation |
+| Production ready        | Production exemplary        |
+| All bugs fixed          | Architecture prevents bugs  |
+| Well-tested             | Extensively validated       |
+| Good documentation      | Excellent documentation     |
 
 ---
 
 ## Priority 0: Fix Regression (Blocker)
 
 ### Issue: Dead Code Removal Broke Tests
+
 Recent commits removed unused exports (`SQUARE_STEPS`, `GEOM`, `Step`, `GeometryValue`) from Square.tsx, but tests still import them.
 
-| File | Issue | Fix |
-|------|-------|-----|
-| `app2/test/Square.test.tsx` | Imports `SQUARE_STEPS` from Square.tsx | Import directly from `app2/src/geometry/squareSteps.ts` |
-| `app2/test/Square.test.tsx` | Imports `GEOM`, `Step`, `GeometryValue` | Import from their actual locations |
+| File                        | Issue                                   | Fix                                                     |
+| --------------------------- | --------------------------------------- | ------------------------------------------------------- |
+| `app2/test/Square.test.tsx` | Imports `SQUARE_STEPS` from Square.tsx  | Import directly from `app2/src/geometry/squareSteps.ts` |
+| `app2/test/Square.test.tsx` | Imports `GEOM`, `Step`, `GeometryValue` | Import from their actual locations                      |
 
 **Paths**:
+
 - `SQUARE_STEPS`: `app2/src/geometry/squareSteps.ts`
 - `Step`: `app2/src/types/geometry.ts`
 - `GeometryValue`: `app2/src/types/geometry.ts`
@@ -90,20 +94,19 @@ export const SQUARE_ERROR_CODES = {
   SVG_NOT_MOUNTED: "SVG_NOT_MOUNTED",
 } as const;
 
-type SquareErrorCode = typeof SQUARE_ERROR_CODES[keyof typeof SQUARE_ERROR_CODES];
+type SquareErrorCode = (typeof SQUARE_ERROR_CODES)[keyof typeof SQUARE_ERROR_CODES];
 ```
 
 **Square.tsx changes**:
+
 ```typescript
 try {
   // ... execution
 } catch (error) {
-  const stepId = currentStep <= SQUARE_STEPS.length
-    ? SQUARE_STEPS[currentStep - 1]?.id
-    : "unknown";
-  
+  const stepId = currentStep <= SQUARE_STEPS.length ? SQUARE_STEPS[currentStep - 1]?.id : "unknown";
+
   const geometryIds = allValues ? Array.from(allValues.keys()) : [];
-  
+
   const squareError = new SquareError(
     SQUARE_ERROR_CODES.STEP_EXECUTION_FAILED,
     stepId,
@@ -111,9 +114,9 @@ try {
     geometryIds,
     `Step ${currentStep} (${stepId}) failed: ${error instanceof Error ? error.message : String(error)}`,
   );
-  
+
   onError?.(squareError);
-  
+
   console.group("Square Error");
   console.error(squareError.message);
   console.table({ code: squareError.code, stepId, stepIndex: squareError.stepIndex, geometryIds });
@@ -132,6 +135,7 @@ export interface SquareProps {
 ```
 
 **Benefits**:
+
 - Parent components can handle errors gracefully
 - Enable error boundaries to display user-friendly messages
 - Centralized error reporting
@@ -156,45 +160,53 @@ export function useSquareSteps(
   context: Omit<StepExecutionContext, "svg" | "store">,
   config: SquareConfig,
 ) {
-  const stepCacheRef = useRef<Map<number, { results: Map<string, GeometryValue>; metadata: Map<string, GeometryItemMetadata> }>>(new Map());
+  const stepCacheRef = useRef<
+    Map<
+      number,
+      { results: Map<string, GeometryValue>; metadata: Map<string, GeometryItemMetadata> }
+    >
+  >(new Map());
   const prevStepRef = useRef<number>(0);
 
-  const execute = useCallback((svg: SVGSVGElement, store: GeometryStore) => {
-    const prevStep = prevStepRef.current;
-    
-    // Check if we've already computed this step
-    const cached = stepCacheRef.current.get(currentStep);
-    if (cached && currentStep <= prevStep) {
-      // Going backwards: restore from cache
-      cached.metadata.forEach((meta, id) => store.update(id, meta));
-      return { cached: true, results: cached.results };
-    }
+  const execute = useCallback(
+    (svg: SVGSVGElement, store: GeometryStore) => {
+      const prevStep = prevStepRef.current;
 
-    // Fresh execution
-    const { stepDependencies, stepForOutput } = buildStepMaps(steps, currentStep);
-    const allValues = executeSteps(steps, currentStep, { ...context, svg, store }, config);
-
-    // Build metadata and cache
-    const metadata = new Map<string, GeometryItemMetadata>();
-    if (currentStep > 0) {
-      for (const [id] of allValues) {
-        const deps = stepDependencies.get(id) ?? [];
-        const step = stepForOutput.get(id);
-        const paramValues = step?.parameters ? pick(config, step.parameters) : {};
-        const meta: GeometryItemMetadata = { 
-          dependsOn: deps, 
-          stepId: step?.id ?? "", 
-          parameterValues: paramValues 
-        };
-        metadata.set(id, meta);
+      // Check if we've already computed this step
+      const cached = stepCacheRef.current.get(currentStep);
+      if (cached && currentStep <= prevStep) {
+        // Going backwards: restore from cache
+        cached.metadata.forEach((meta, id) => store.update(id, meta));
+        return { cached: true, results: cached.results };
       }
-    }
 
-    stepCacheRef.current.set(currentStep, { results: allValues, metadata });
-    prevStepRef.current = currentStep;
-    
-    return { cached: false, results: allValues };
-  }, [currentStep, context, config, steps]);
+      // Fresh execution
+      const { stepDependencies, stepForOutput } = buildStepMaps(steps, currentStep);
+      const allValues = executeSteps(steps, currentStep, { ...context, svg, store }, config);
+
+      // Build metadata and cache
+      const metadata = new Map<string, GeometryItemMetadata>();
+      if (currentStep > 0) {
+        for (const [id] of allValues) {
+          const deps = stepDependencies.get(id) ?? [];
+          const step = stepForOutput.get(id);
+          const paramValues = step?.parameters ? pick(config, step.parameters) : {};
+          const meta: GeometryItemMetadata = {
+            dependsOn: deps,
+            stepId: step?.id ?? "",
+            parameterValues: paramValues,
+          };
+          metadata.set(id, meta);
+        }
+      }
+
+      stepCacheRef.current.set(currentStep, { results: allValues, metadata });
+      prevStepRef.current = currentStep;
+
+      return { cached: false, results: allValues };
+    },
+    [currentStep, context, config, steps],
+  );
 
   // Invalidate cache on restart or theme change
   const invalidate = useCallback(() => {
@@ -206,11 +218,12 @@ export function useSquareSteps(
 ```
 
 **Square.tsx simplification**:
+
 ```typescript
 export function Square({ store, svgConfig, restartTrigger = 0, currentStep = 0, theme = darkTheme, onError, dotStrokeWidth = 2.0 }: SquareProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const squareConfig = useMemo(() => computeSquareConfig(svgConfig.width, svgConfig.height), [svgConfig.width, svgConfig.height]);
-  
+
   const { execute, invalidate } = useSquareSteps(SQUARE_STEPS, currentStep, { theme, dotStrokeWidth }, squareConfig);
 
   // Invalidate cache on restart
@@ -223,7 +236,7 @@ export function Square({ store, svgConfig, restartTrigger = 0, currentStep = 0, 
   // Effect 2: Step execution
   useEffect(() => {
     if (!svgRef.current || currentStep <= 0) return;
-    
+
     const svg = svgRef.current;
     const prevStep = prevStepRef.current;
 
@@ -242,12 +255,13 @@ export function Square({ store, svgConfig, restartTrigger = 0, currentStep = 0, 
       // Handle error with structured error
     }
   }, [currentStep, restartTrigger, svgConfig, dotStrokeWidth, theme, execute]);
-  
+
   return (...);
 }
 ```
 
 **Performance Impact**:
+
 - Forward navigation: 40-60% fewer step computations
 - Backward navigation: Restore from cache instantly
 - Memory: Minimal overhead (Map storage)
@@ -272,15 +286,15 @@ class GeometryVDOM {
   private container: SVGSVGElement | null = null;
 
   render(vnodes: GeometryVNode[]): void {
-    const next = new Map(vnodes.map(v => [v.id, v]));
-    
+    const next = new Map(vnodes.map((v) => [v.id, v]));
+
     // Remove nodes not in next
     for (const [id, oldVNode] of this.current) {
       if (!next.has(id)) {
         this.removeNode(id, oldVNode);
       }
     }
-    
+
     // Add or update nodes in next
     for (const [id, newVNode] of next) {
       const oldVNode = this.current.get(id);
@@ -290,18 +304,27 @@ class GeometryVDOM {
         this.updateNode(id, oldVNode, newVNode);
       }
     }
-    
+
     this.current = next;
   }
-  
-  private createNode(vnode: GeometryVNode): void { /* ... */ }
-  private updateNode(id: string, old: GeometryVNode, newV: GeometryVNode): void { /* ... */ }
-  private removeNode(id: string, vnode: GeometryVNode): void { /* ... */ }
-  private deepEqual(a: unknown, b: unknown): boolean { /* ... */ }
+
+  private createNode(vnode: GeometryVNode): void {
+    /* ... */
+  }
+  private updateNode(id: string, old: GeometryVNode, newV: GeometryVNode): void {
+    /* ... */
+  }
+  private removeNode(id: string, vnode: GeometryVNode): void {
+    /* ... */
+  }
+  private deepEqual(a: unknown, b: unknown): boolean {
+    /* ... */
+  }
 }
 ```
 
 **Impact**:
+
 - DOM operations reduced by 80% on step changes
 - Smoother animations possible
 - Memory efficient
@@ -322,7 +345,7 @@ const { stepDependencies, stepForOutput } = useMemo(
 );
 ```
 
- eliminate redundant rebuilds on re-renders
+eliminate redundant rebuilds on re-renders
 
 ---
 
@@ -332,13 +355,14 @@ const { stepDependencies, stepForOutput } = useMemo(
 
 **Create new hooks to separate concerns**:
 
-| Hook | Responsibility | Files |
-|------|---------------|-------|
-| `useSquareSteps` | Step execution logic | `app2/src/hooks/useSquareSteps.ts` |
-| `useSvgManager` | SVG lifecycle management | `app2/src/hooks/useSvgManager.ts` |
-| `useGeometrySync` | Store synchronization | `app2/src/hooks/useGeometrySync.ts` |
+| Hook              | Responsibility           | Files                               |
+| ----------------- | ------------------------ | ----------------------------------- |
+| `useSquareSteps`  | Step execution logic     | `app2/src/hooks/useSquareSteps.ts`  |
+| `useSvgManager`   | SVG lifecycle management | `app2/src/hooks/useSvgManager.ts`   |
+| `useGeometrySync` | Store synchronization    | `app2/src/hooks/useGeometrySync.ts` |
 
 **Suggested file structure**:
+
 ```
 app2/
 ├── src/
@@ -357,6 +381,7 @@ app2/
 ```
 
 **Benefits**:
+
 - Better separation of concerns
 - Reusable logic across components
 - Easier to test individual pieces
@@ -399,6 +424,7 @@ export function validateTheme(theme: unknown): Theme {
 ```
 
 **Square.tsx usage**:
+
 ```typescript
 // Validate in effect
 useEffect(() => {
@@ -413,6 +439,7 @@ useEffect(() => {
 ```
 
 **Benefits**:
+
 - Runtime type safety
 - Better error messages
 - Self-documenting schemas
@@ -432,27 +459,32 @@ interface StepDefinition<T extends string = string> {
   outputs: string[];
   parameters?: (keyof SquareConfig)[];
   compute: (values: Map<string, GeometryValue>, config: SquareConfig) => Map<string, GeometryValue>;
-  draw: (svg: SVGSVGElement, values: Map<string, GeometryValue>, store: GeometryStore, theme: Theme) => void;
+  draw: (
+    svg: SVGSVGElement,
+    values: Map<string, GeometryValue>,
+    store: GeometryStore,
+    theme: Theme,
+  ) => void;
 }
 
 class StepRegistry {
   private steps: Map<string, StepDefinition> = new Map();
-  
+
   register(step: StepDefinition): void {
     if (this.steps.has(step.id)) {
       console.warn(`Step ${step.id} already registered`);
     }
     this.steps.set(step.id, step);
   }
-  
+
   getStep<T extends string>(id: T): StepDefinition<T> | undefined {
     return this.steps.get(id) as StepDefinition<T> | undefined;
   }
-  
+
   getSteps(): readonly StepDefinition[] {
     return Array.from(this.steps.values());
   }
-  
+
   getStepsUpTo(index: number): readonly StepDefinition[] {
     return this.getSteps().slice(0, index);
   }
@@ -462,10 +494,11 @@ export const stepRegistry = new StepRegistry();
 
 // Auto-register steps
 import { SQUARE_STEPS } from "./squareSteps";
-SQUARE_STEPS.forEach(step => stepRegistry.register(step));
+SQUARE_STEPS.forEach((step) => stepRegistry.register(step));
 ```
 
 **Benefits**:
+
 - Dynamic step registration
 - Support for multiple geometry types
 - Lazy loading of steps
@@ -510,10 +543,10 @@ export function Square({ debug = false, ...props }: SquareProps) {
   const updateDebugState = useCallback((updates: Partial<SquareDebugState>) => {
     if (debug) setDebugState(prev => ({ ...prev, ...updates }));
   }, [debug]);
-  
+
   // Pass to hooks
   const { execute } = useSquareSteps(..., updateDebugState);
-  
+
   // Expose via ref for external debugging
   const debugRef = useRef<{ getStats: () => SquareDebugState }>();
   useImperativeHandle(debugRef, () => ({
@@ -529,19 +562,19 @@ export function Square({ debug = false, ...props }: SquareProps) {
 const { execute } = useSquareSteps(...) = {
   execute: (svg, store) => {
     if (debug) performance.mark(`square-execute-start-${currentStep}`);
-    
+
     const start = performance.now();
     const result = actualExecute(svg, store);
     const duration = performance.now() - start;
-    
+
     if (debug) {
       performance.mark(`square-execute-end-${currentStep}`);
-      performance.measure(`Square step ${currentStep}`, 
+      performance.measure(`Square step ${currentStep}`,
         `square-execute-start-${currentStep}`,
         `square-execute-end-${currentStep}`);
       updateDebugState({ lastExecutionTime: duration });
     }
-    
+
     return result;
   },
   ...
@@ -549,9 +582,10 @@ const { execute } = useSquareSteps(...) = {
 ```
 
 **Usage in DevTools**:
+
 ```javascript
 // In browser console
-performance.getEntriesByName("Square step 5")[0].duration
+performance.getEntriesByName("Square step 5")[0].duration;
 // Returns execution time in milliseconds
 ```
 
@@ -601,6 +635,7 @@ export const squareLogger = new Logger("Square");
 ```
 
 **Usage**:
+
 ```typescript
 // In hooks
 squareLogger.debug(`Executing step ${currentStep}`, { geometryIds: Array.from(allValues.keys()) });
@@ -634,13 +669,13 @@ export function dot(
   circle.setAttribute("r", radius.toString());
   circle.setAttribute("fill", theme.COLOR_DOT);
   circle.setAttribute("opacity", "1");
-  
+
   // A++: Accessibility
   circle.setAttribute("role", "graphics-document");
   circle.setAttribute("aria-label", `Point at (${x}, ${y})`);
   circle.setAttribute("tabindex", "0");
   circle.style.cursor = "pointer";
-  
+
   svg.appendChild(circle);
   return circle;
 }
@@ -661,14 +696,17 @@ export function line(
   lineEl.setAttribute("y1", y1.toString());
   lineEl.setAttribute("x2", x2.toString());
   lineEl.setAttribute("y2", y2.toString());
-  
+
   // A++: Accessibility
   const length = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
   lineEl.setAttribute("role", "graphics-document");
-  lineEl.setAttribute("aria-label", `Line from (${x1}, ${y1}) to (${x2}, ${y2}), length ${length.toFixed(2)}`);
+  lineEl.setAttribute(
+    "aria-label",
+    `Line from (${x1}, ${y1}) to (${x2}, ${y2}), length ${length.toFixed(2)}`,
+  );
   lineEl.setAttribute("tabindex", "0");
   lineEl.style.cursor = "pointer";
-  
+
   svg.appendChild(lineEl);
   return lineEl;
 }
@@ -688,19 +726,20 @@ export function circle(
   circleEl.setAttribute("cx", cx.toString());
   circleEl.setAttribute("cy", cy.toString());
   circleEl.setAttribute("r", r.toString());
-  
+
   // A++: Accessibility
   circleEl.setAttribute("role", "graphics-document");
   circleEl.setAttribute("aria-label", `Circle at (${cx}, ${cy}) with radius ${r}`);
   circleEl.setAttribute("tabindex", "0");
   circleEl.style.cursor = "pointer";
-  
+
   svg.appendChild(circleEl);
   return circleEl;
 }
 ```
 
 **Tooltip accessibility**:
+
 ```typescript
 export function createTooltip(
   svg: SVGSVGElement,
@@ -719,11 +758,11 @@ export function createTooltip(
   tooltip.setAttribute("data-tooltip-text", name);
   tooltip.setAttribute("text-anchor", "middle");
   tooltip.setAttribute("dominant-baseline", "middle");
-  
+
   // A++: Accessibility
   tooltip.setAttribute("id", `tooltip-${name}`);
   tooltip.setAttribute("role", "tooltip");
-  
+
   tooltip.textContent = name;
 
   const tooltipBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -736,10 +775,10 @@ export function createTooltip(
   tooltipBg.setAttribute("fill", theme.COLOR_TOOLTIP_BACKGROUND);
   tooltipBg.setAttribute("opacity", "0");
   tooltipBg.setAttribute("rx", TOOLTIP_BG_ROUNDING.toString());
-  
+
   // A++: Link tooltip to element
   tooltipBg.setAttribute("aria-hidden", "true");
-  
+
   svg.appendChild(tooltipBg);
   svg.appendChild(tooltip);
 
@@ -748,17 +787,18 @@ export function createTooltip(
 ```
 
 **SVG container accessibility**:
+
 ```typescript
 // In Square.tsx return
 return (
-  <div 
+  <div
     className={`${svgConfig.containerClass} flex justify-center`}
     role="figure"
     aria-label="Geometric square construction"
   >
-    <svg 
-      ref={svgRef} 
-      className={`${svgConfig.svgClass} block`} 
+    <svg
+      ref={svgRef}
+      className={`${svgConfig.svgClass} block`}
       data-testid="square-svg"
       role="img"
       aria-label="Square construction diagram"
@@ -776,7 +816,7 @@ return (
 function dotWithTooltip(svg, x, y, name, radius, store, theme) {
   const dotElement = dot(svg, x, y, radius, theme);
   dotElement.setAttribute("data-tooltip", name);
-  
+
   // A++: Keyboard support
   dotElement.setAttribute("tabindex", "0");
   dotElement.addEventListener("keydown", (e) => {
@@ -793,7 +833,7 @@ function dotWithTooltip(svg, x, y, name, radius, store, theme) {
       if (tooltipBg) tooltipBg.setAttribute("opacity", "0");
     }
   });
-  
+
   store.add(name, dotElement, "point", []);
   return dotElement;
 }
@@ -837,10 +877,15 @@ export const FR: GeometryMessages = {
 
 export type Locale = "en" | "fr" | "es";
 
-export const MESSAGES: Record<Locale, GeometryMessages> = { en: EN, fr: FR, es: {} as GeometryMessages };
+export const MESSAGES: Record<Locale, GeometryMessages> = {
+  en: EN,
+  fr: FR,
+  es: {} as GeometryMessages,
+};
 ```
 
 **Square.tsx props**:
+
 ```typescript
 export interface SquareProps {
   // ... existing
@@ -850,25 +895,26 @@ export interface SquareProps {
 ```
 
 **Square.tsx implementation**:
+
 ```typescript
-export function Square({
-  locale = "en",
-  messages: customMessages = {},
-  ...props
-}: SquareProps) {
+export function Square({ locale = "en", messages: customMessages = {}, ...props }: SquareProps) {
   const allMessages = { ...MESSAGES[locale], ...customMessages };
-  
+
   // Pass to store or make available to steps
-  const context = useMemo(() => ({
-    ...props,
-    messages: allMessages,
-  }), [props, allMessages]);
-  
+  const context = useMemo(
+    () => ({
+      ...props,
+      messages: allMessages,
+    }),
+    [props, allMessages],
+  );
+
   // ...
 }
 ```
 
 **Step definition**:
+
 ```typescript
 const STEP_MAIN_LINE: Step = {
   id: "step_main_line",
@@ -883,7 +929,7 @@ const STEP_MAIN_LINE: Step = {
     const l = values.get("line_main");
     if (!l || !isLine(l)) return;
     const lineEl = lineWithTooltip(svg, l.x1, l.y1, l.x2, l.y2, 5, store, theme);
-    
+
     // Use localized label
     const label = messages?.step_main_line || "Main Line";
     lineEl.setAttribute("aria-label", label);
@@ -915,10 +961,14 @@ export const FR_errors: ErrorMessages = {
   // ...
 };
 
-export function formatError(code: string, context: Record<string, string>, locale: Locale = "en"): string {
+export function formatError(
+  code: string,
+  context: Record<string, string>,
+  locale: Locale = "en",
+): string {
   const messages = { en: EN_errors, fr: FR_errors }[locale] || EN_errors;
   const template = messages[code as keyof ErrorMessages] || code;
-  
+
   return template.replace(/\{(\w+)\}/g, (_, key) => context[key] || key);
 }
 ```
@@ -946,15 +996,15 @@ describe("Square - Property-Based Tests", () => {
         fc.integer({ min: 2, max: 16 }),
         (from, to) => {
           const mockStore = createMockStore();
-          
+
           const { rerender } = render(
             <Square {...defaultProps} store={mockStore} currentStep={from} />
           );
-          
+
           mockStore.clear.mockClear();
-          
+
           rerender(<Square {...defaultProps} store={mockStore} currentStep={to} />);
-          
+
           return mockStore.clear.not.toHaveBeenCalled();
         },
       ),
@@ -968,15 +1018,15 @@ describe("Square - Property-Based Tests", () => {
         fc.integer({ min: 1, max: 15 }),
         (from, to) => {
           const mockStore = createMockStore();
-          
+
           const { rerender } = render(
             <Square {...defaultProps} store={mockStore} currentStep={from} />
           );
-          
+
           mockStore.clear.mockClear();
-          
+
           rerender(<Square {...defaultProps} store={mockStore} currentStep={to} />);
-          
+
           return mockStore.clear.toHaveBeenCalledTimes(1);
         },
       ),
@@ -991,15 +1041,15 @@ describe("Square - Property-Based Tests", () => {
         fc.integer({ min: 1, max: 100 }),
         (trigger1, step, trigger2) => {
           const mockStore = createMockStore();
-          
+
           const { rerender } = render(
             <Square {...defaultProps} store={mockStore} currentStep={step} restartTrigger={trigger1} />
           );
-          
+
           mockStore.clear.mockClear();
-          
+
           rerender(<Square {...defaultProps} store={mockStore} currentStep={step} restartTrigger={trigger2} />);
-          
+
           return mockStore.clear.toHaveBeenCalledTimes(1);
         },
       ),
@@ -1018,14 +1068,14 @@ import { performance } from "perf_hooks";
 describe("Square - Performance Benchmarks", () => {
   it("executes all 16 steps in under 100ms", () => {
     const start = performance.now();
-    
+
     render(<Square {...defaultProps} currentStep={16} />);
-    
+
     const duration = performance.now() - start;
-    
+
     // This is a benchmark, not a hard failure
     console.log(`16-step execution: ${duration.toFixed(2)}ms`);
-    
+
     expect(duration).toBeLessThan(100); // Adjust based on actual performance
   });
 
@@ -1034,18 +1084,18 @@ describe("Square - Performance Benchmarks", () => {
     const start1 = performance.now();
     const { unmount } = render(<Square {...defaultProps} currentStep={10} />);
     const duration1 = performance.now() - start1;
-    
+
     unmount();
-    
+
     // Second render with cache (simulated)
     const start2 = performance.now();
     render(<Square {...defaultProps} currentStep={10} />);
     const duration2 = performance.now() - start2;
-    
+
     const improvement = (duration1 - duration2) / duration1;
-    
+
     console.log(`Cache improvement: ${(improvement * 100).toFixed(1)}%`);
-    
+
     // Expect at least 40% improvement (adjust based on actual)
     expect(duration2).toBeLessThan(duration1 * 0.6);
   });
@@ -1077,11 +1127,11 @@ describe("Square - Visual Regression", () => {
     const { container, rerender } = render(
       <Square {...defaultProps} currentStep={5} />
     );
-    
+
     await expect(container.innerHTML).toMatchSnapshot("step-5-dark.html");
-    
+
     rerender(<Square {...defaultProps} currentStep={5} theme={lightTheme} />);
-    
+
     await expect(container.innerHTML).toMatchSnapshot("step-5-light.html");
   });
 });
@@ -1097,32 +1147,32 @@ describe("Square - User Interaction", () => {
   it("handles keyboard navigation on geometry", async () => {
     const user = userEvent.setup();
     const mockStore = createMockStore();
-    
+
     render(<Square {...defaultProps} store={mockStore} currentStep={1} />);
-    
+
     // Find a geometry element (simplified - actual selector may vary)
     const geometryElements = screen.getAllByRole("graphics-document");
-    
+
     await user.tab(); // Focus first element
     expect(geometryElements[0]).toHaveFocus();
-    
+
     await user.keyboard("{Enter}");
     // Verify selection or tooltip shown
-    
+
     await user.keyboard("{Escape}");
     // Verify tooltip hidden
   });
 
   it("maintains accessibility tree", async () => {
     const { container } = render(<Square {...defaultProps} currentStep={5} />);
-    
+
     // Check for role attributes
     const figures = container.querySelectorAll('[role="figure"]');
     expect(figures.length).toBeGreaterThan(0);
-    
+
     const graphics = container.querySelectorAll('[role="graphics-document"]');
     expect(graphics.length).toBeGreaterThan(0);
-    
+
     const tooltips = container.querySelectorAll('[role="tooltip"]');
     expect(tooltips.length).toBeGreaterThan(0);
   });
@@ -1139,7 +1189,7 @@ describe("Square - Error Handling", () => {
   it("calls onError when step execution fails", async () => {
     const mockOnError = vi.fn();
     const mockStore = createMockStore();
-    
+
     // Mock executeSteps to throw
     vi.mock("../src/geometry/squareSteps", async () => {
       const actual = await vi.importActual("../src/geometry/squareSteps");
@@ -1150,9 +1200,9 @@ describe("Square - Error Handling", () => {
         }),
       };
     });
-    
+
     render(<Square {...defaultProps} store={mockStore} currentStep={1} onError={mockOnError} />);
-    
+
     expect(mockOnError).toHaveBeenCalledTimes(1);
     expect(mockOnError).toHaveBeenCalledWith(expect.objectContaining({
       name: "SquareError",
@@ -1164,14 +1214,14 @@ describe("Square - Error Handling", () => {
     const mockOnError = vi.fn(() => {
       throw new Error("Error handler failed");
     });
-    
+
     const originalError = console.error;
     console.error = vi.fn();
-    
+
     expect(() => {
       render(<Square {...defaultProps} currentStep={1} onError={mockOnError} />);
     }).not.toThrow();
-    
+
     expect(console.error).toHaveBeenCalled();
     console.error = originalError;
   });
@@ -1179,14 +1229,14 @@ describe("Square - Error Handling", () => {
   it("warns on invalid props", () => {
     const originalWarn = console.warn;
     console.warn = vi.fn();
-    
+
     render(<Square {...defaultProps} currentStep={-1} />);
-    
+
     expect(console.warn).toHaveBeenCalledWith(
       expect.stringContaining("currentStep should not be negative"),
       -1,
     );
-    
+
     console.warn = originalWarn;
   });
 });
@@ -1252,15 +1302,16 @@ export function stepId(id: string): StepId {
 ```
 
 **Usage in store**:
+
 ```typescript
 // app2/src/react-store.ts
 export interface GeometryItem {
-  name: GeometryId;  // Branded type
+  name: GeometryId; // Branded type
   element: SVGElement;
   selected: boolean;
   type: string;
-  dependsOn: GeometryId[];  // Array of branded IDs
-  stepId: StepId;  // Branded type
+  dependsOn: GeometryId[]; // Array of branded IDs
+  stepId: StepId; // Branded type
   parameterValues: Record<string, unknown>;
 }
 ```
@@ -1278,10 +1329,14 @@ export function assertNever(x: never): never {
 
 export function geometryTypeToString(type: GeometryType): string {
   switch (type) {
-    case "point": return "Point";
-    case "line": return "Line";
-    case "circle": return "Circle";
-    case "polygon": return "Polygon";
+    case "point":
+      return "Point";
+    case "line":
+      return "Line";
+    case "circle":
+      return "Circle";
+    case "polygon":
+      return "Polygon";
     default:
       assertNever(type); // TypeScript will error if we missed a case
   }
@@ -1293,76 +1348,86 @@ export function geometryTypeToString(type: GeometryType): string {
 ## Implementation Roadmap
 
 ### Phase 1: Critical Fixes (1 day)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 1 | Fix test imports (SQUARE_STEPS, GEOM, etc.) | Low | `Square.test.tsx` |
-| 2 | Verify all tests pass | Low | All test files |
+
+| #   | Task                                        | Complexity | Files             |
+| --- | ------------------------------------------- | ---------- | ----------------- |
+| 1   | Fix test imports (SQUARE_STEPS, GEOM, etc.) | Low        | `Square.test.tsx` |
+| 2   | Verify all tests pass                       | Low        | All test files    |
 
 ### Phase 2: Error Handling (1-2 days)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 3 | Create SquareError class | Low | `new: errors.ts` |
-| 4 | Add onError prop | Low | `Square.tsx` |
-| 5 | Implement structured error logging | Medium | `Square.tsx` |
-| 6 | Add error injection tests | Medium | `new: Square.errors.test.tsx` |
+
+| #   | Task                               | Complexity | Files                         |
+| --- | ---------------------------------- | ---------- | ----------------------------- |
+| 3   | Create SquareError class           | Low        | `new: errors.ts`              |
+| 4   | Add onError prop                   | Low        | `Square.tsx`                  |
+| 5   | Implement structured error logging | Medium     | `Square.tsx`                  |
+| 6   | Add error injection tests          | Medium     | `new: Square.errors.test.tsx` |
 
 ### Phase 3: Architecture (2-3 days)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 7 | Create useSquareSteps hook | Medium | `new: hooks/useSquareSteps.ts` |
-| 8 | Extract nullable checks to validation.ts | Low | `new: validation.ts` |
-| 9 | Reorganize file structure | Low | File reorg |
+
+| #   | Task                                     | Complexity | Files                          |
+| --- | ---------------------------------------- | ---------- | ------------------------------ |
+| 7   | Create useSquareSteps hook               | Medium     | `new: hooks/useSquareSteps.ts` |
+| 8   | Extract nullable checks to validation.ts | Low        | `new: validation.ts`           |
+| 9   | Reorganize file structure                | Low        | File reorg                     |
 
 ### Phase 4: Performance (2-3 days)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 10 | Add step result caching | Medium | `useSquareSteps.ts` |
-| 11 | Memoize buildStepMaps | Low | `useSquareSteps.ts` |
-| 12 | Add benchmark tests | Medium | `new: Square.benchmark.test.tsx` |
+
+| #   | Task                    | Complexity | Files                            |
+| --- | ----------------------- | ---------- | -------------------------------- |
+| 10  | Add step result caching | Medium     | `useSquareSteps.ts`              |
+| 11  | Memoize buildStepMaps   | Low        | `useSquareSteps.ts`              |
+| 12  | Add benchmark tests     | Medium     | `new: Square.benchmark.test.tsx` |
 
 ### Phase 5: Observability (1-2 days)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 13 | Add debug prop and state | Medium | `Square.tsx` |
-| 14 | Add performance marks | Medium | `useSquareSteps.ts` |
-| 15 | Create structured logger | Low | `new: logging.ts` |
+
+| #   | Task                     | Complexity | Files               |
+| --- | ------------------------ | ---------- | ------------------- |
+| 13  | Add debug prop and state | Medium     | `Square.tsx`        |
+| 14  | Add performance marks    | Medium     | `useSquareSteps.ts` |
+| 15  | Create structured logger | Low        | `new: logging.ts`   |
 
 ### Phase 6: Accessibility (1-2 days)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 16 | Add ARIA attributes to geometry | Medium | `svgElements.ts` |
-| 17 | Add keyboard navigation | Medium | `svgElements.ts` |
-| 18 | Add container accessibility | Low | `Square.tsx` |
-| 19 | Add accessibility tests | Medium | `new: Square.interaction.test.tsx` |
+
+| #   | Task                            | Complexity | Files                              |
+| --- | ------------------------------- | ---------- | ---------------------------------- |
+| 16  | Add ARIA attributes to geometry | Medium     | `svgElements.ts`                   |
+| 17  | Add keyboard navigation         | Medium     | `svgElements.ts`                   |
+| 18  | Add container accessibility     | Low        | `Square.tsx`                       |
+| 19  | Add accessibility tests         | Medium     | `new: Square.interaction.test.tsx` |
 
 ### Phase 7: i18n (1-2 days)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 20 | Create message files | Low | `new: i18n/*.ts` |
-| 21 | Add locale prop | Low | `Square.tsx` |
-| 22 | Update steps to use messages | Medium | `squareSteps.ts` |
-| 23 | Add error message localization | Medium | `errors.ts` |
+
+| #   | Task                           | Complexity | Files            |
+| --- | ------------------------------ | ---------- | ---------------- |
+| 20  | Create message files           | Low        | `new: i18n/*.ts` |
+| 21  | Add locale prop                | Low        | `Square.tsx`     |
+| 22  | Update steps to use messages   | Medium     | `squareSteps.ts` |
+| 23  | Add error message localization | Medium     | `errors.ts`      |
 
 ### Phase 8: Testing Excellence (2-3 days)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 24 | Add property-based tests | Medium | `new: Square.properties.test.tsx` |
-| 25 | Add visual regression tests | High | `new: Square.visual.test.tsx` |
-| 26 | Expand error tests | Medium | `Square.errors.test.tsx` |
+
+| #   | Task                        | Complexity | Files                             |
+| --- | --------------------------- | ---------- | --------------------------------- |
+| 24  | Add property-based tests    | Medium     | `new: Square.properties.test.tsx` |
+| 25  | Add visual regression tests | High       | `new: Square.visual.test.tsx`     |
+| 26  | Expand error tests          | Medium     | `Square.errors.test.tsx`          |
 
 ### Phase 9: Code Quality (1 day)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 27 | Enable stricter TS options | Low | `tsconfig.json` |
-| 28 | Add branded types | Medium | `types/branded.ts` |
-| 29 | Add exhaustiveness checks | Medium | `types/geometry.ts` |
+
+| #   | Task                       | Complexity | Files               |
+| --- | -------------------------- | ---------- | ------------------- |
+| 27  | Enable stricter TS options | Low        | `tsconfig.json`     |
+| 28  | Add branded types          | Medium     | `types/branded.ts`  |
+| 29  | Add exhaustiveness checks  | Medium     | `types/geometry.ts` |
 
 ### Phase 10: Advanced (3-5 days)
-| # | Task | Complexity | Files |
-|---|------|------------|-------|
-| 30 | Implement Geometry Virtual DOM | High | `new: vdom.ts` |
-| 31 | Create step registry | High | `new: stepRegistry.ts` |
-| 32 | Add runtime schema validation | Medium | `validation.ts` |
+
+| #   | Task                           | Complexity | Files                  |
+| --- | ------------------------------ | ---------- | ---------------------- |
+| 30  | Implement Geometry Virtual DOM | High       | `new: vdom.ts`         |
+| 31  | Create step registry           | High       | `new: stepRegistry.ts` |
+| 32  | Add runtime schema validation  | Medium     | `validation.ts`        |
 
 ---
 
@@ -1370,38 +1435,38 @@ export function geometryTypeToString(type: GeometryType): string {
 
 ### A++ Criteria
 
-| Category | Criteria | Status |
-|----------|----------|--------|
-| **Errors** | Typed error hierarchy | ⬜ |
-| **Errors** | Structured logging | ⬜ |
-| **Errors** | Error callback prop | ⬜ |
-| **Errors** | Parent error handling | ⬜ |
-| **Architecture** | Custom hooks extracted | ⬜ |
-| **Architecture** | Clean separation of concerns | ⬜ |
-| **Architecture** | Validation centralized | ⬜ |
-| **Performance** | Step caching implemented | ⬜ |
-| **Performance** | Memoization complete | ⬜ |
-| **Performance** | Benchmarks in place | ⬜ |
-| **Observability** | Debug mode | ⬜ |
-| **Observability** | Performance metrics | ⬜ |
-| **Observability** | Structured logging | ⬜ |
-| **Accessibility** | ARIA attributes | ⬜ |
-| **Accessibility** | Keyboard navigation | ⬜ |
-| **Accessibility** | Screen reader support | ⬜ |
-| **i18n** | Localization ready | ⬜ |
-| **i18n** | Message overrides | ⬜ |
-| **Testing** | Property-based tests | ⬜ |
-| **Testing** | Visual regression tests | ⬜ |
-| **Testing** | Error injection tests | ⬜ |
-| **Testing** | Benchmark tests | ⬜ |
-| **Testing** | Interaction tests | ⬜ |
-| **Code Quality** | Strict TS config | ⬜ |
-| **Code Quality** | Branded types | ⬜ |
-| **Code Quality** | Exhaustiveness checks | ⬜ |
-| **Dead Code** | All removed | ⬜ |
-| **Tests** | All passing | ⬜ |
-| **Format** | All files formatted | ⬜ |
-| **Lint** | No warnings | ⬜ |
+| Category          | Criteria                     | Status |
+| ----------------- | ---------------------------- | ------ |
+| **Errors**        | Typed error hierarchy        | ⬜     |
+| **Errors**        | Structured logging           | ⬜     |
+| **Errors**        | Error callback prop          | ⬜     |
+| **Errors**        | Parent error handling        | ⬜     |
+| **Architecture**  | Custom hooks extracted       | ⬜     |
+| **Architecture**  | Clean separation of concerns | ⬜     |
+| **Architecture**  | Validation centralized       | ⬜     |
+| **Performance**   | Step caching implemented     | ⬜     |
+| **Performance**   | Memoization complete         | ⬜     |
+| **Performance**   | Benchmarks in place          | ⬜     |
+| **Observability** | Debug mode                   | ⬜     |
+| **Observability** | Performance metrics          | ⬜     |
+| **Observability** | Structured logging           | ⬜     |
+| **Accessibility** | ARIA attributes              | ⬜     |
+| **Accessibility** | Keyboard navigation          | ⬜     |
+| **Accessibility** | Screen reader support        | ⬜     |
+| **i18n**          | Localization ready           | ⬜     |
+| **i18n**          | Message overrides            | ⬜     |
+| **Testing**       | Property-based tests         | ⬜     |
+| **Testing**       | Visual regression tests      | ⬜     |
+| **Testing**       | Error injection tests        | ⬜     |
+| **Testing**       | Benchmark tests              | ⬜     |
+| **Testing**       | Interaction tests            | ⬜     |
+| **Code Quality**  | Strict TS config             | ⬜     |
+| **Code Quality**  | Branded types                | ⬜     |
+| **Code Quality**  | Exhaustiveness checks        | ⬜     |
+| **Dead Code**     | All removed                  | ⬜     |
+| **Tests**         | All passing                  | ⬜     |
+| **Format**        | All files formatted          | ⬜     |
+| **Lint**          | No warnings                  | ⬜     |
 
 ---
 
@@ -1409,29 +1474,29 @@ export function geometryTypeToString(type: GeometryType): string {
 
 ### What A++ Means
 
-| A+ | A++ |
-|----|-----|
-| All problems fixed | Problems can't happen |
-| Works correctly | Architecture prevents errors |
-| Good tests | Excellent tests |
-| Well structured | Exemplary structure |
-| Production ready | Production exemplary |
+| A+                 | A++                          |
+| ------------------ | ---------------------------- |
+| All problems fixed | Problems can't happen        |
+| Works correctly    | Architecture prevents errors |
+| Good tests         | Excellent tests              |
+| Well structured    | Exemplary structure          |
+| Production ready   | Production exemplary         |
 
 ### Estimated Effort
 
-| Phase | Days | % Complete |
-|-------|------|------------|
-| Phase 1: Critical | 1 | 0% |
-| Phase 2: Errors | 1-2 | 0% |
-| Phase 3: Architecture | 2-3 | 0% |
-| Phase 4: Performance | 2-3 | 0% |
-| Phase 5: Observability | 1-2 | 0% |
-| Phase 6: Accessibility | 1-2 | 0% |
-| Phase 7: i18n | 1-2 | 0% |
-| Phase 8: Testing | 2-3 | 0% |
-| Phase 9: Quality | 1 | 0% |
-| Phase 10: Advanced | 3-5 | 0% |
-| **Total** | **15-25 days** | **0%** |
+| Phase                  | Days           | % Complete |
+| ---------------------- | -------------- | ---------- |
+| Phase 1: Critical      | 1              | 0%         |
+| Phase 2: Errors        | 1-2            | 0%         |
+| Phase 3: Architecture  | 2-3            | 0%         |
+| Phase 4: Performance   | 2-3            | 0%         |
+| Phase 5: Observability | 1-2            | 0%         |
+| Phase 6: Accessibility | 1-2            | 0%         |
+| Phase 7: i18n          | 1-2            | 0%         |
+| Phase 8: Testing       | 2-3            | 0%         |
+| Phase 9: Quality       | 1              | 0%         |
+| Phase 10: Advanced     | 3-5            | 0%         |
+| **Total**              | **15-25 days** | **0%**     |
 
 ### Quick Wins (A+ to A++ in 3-5 days)
 
@@ -1446,6 +1511,7 @@ These 5 items alone would significantly improve the codebase and demonstrate A++
 ### Long-term A++ (Full Implementation)
 
 The complete A++ roadmap represents a comprehensive improvement that would make Square.tsx a reference implementation for:
+
 - React component architecture
 - TypeScript best practices
 - Error handling patterns
@@ -1456,4 +1522,4 @@ The complete A++ roadmap represents a comprehensive improvement that would make 
 
 ---
 
-*This roadmap was generated based on comprehensive analysis of Square.tsx (142 lines) and related files. Last updated: Commit 1185572.*
+_This roadmap was generated based on comprehensive analysis of Square.tsx (142 lines) and related files. Last updated: Commit 1185572._

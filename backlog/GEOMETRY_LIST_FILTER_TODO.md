@@ -9,6 +9,7 @@
 ---
 
 ## Description
+
 Add name-based text filter and type-based tag/button filters to the GeometryList component on the right side pane.
 
 ## Owner: (To be assigned)
@@ -46,12 +47,15 @@ Add name-based text filter and type-based tag/button filters to the GeometryList
 ---
 
 ## Dependencies
+
 - None (self-contained feature in GeometryList.tsx)
 
 ## Blockers
+
 - None identified
 
 ## Related Files
+
 - `app2/src/components/GeometryList.tsx` (primary)
 - `app2/test/GeometryList.component.test.tsx` (tests)
 - `app2/src/types/geometry.ts` (optional type addition)
@@ -79,6 +83,7 @@ Add name-based text filter and type-based tag/button filters to the GeometryList
 ---
 
 ## Notes
+
 - All new props on GeometryList should be optional with sensible defaults
 - No changes required to Square.tsx or SixFoldV0.tsx
 - Consider adding 'arc' type if present in codebase
@@ -87,6 +92,7 @@ Add name-based text filter and type-based tag/button filters to the GeometryList
 ---
 
 ## Resources
+
 - Implementation Plan: `backlog/GEOMETRY_LIST_FILTER_PLAN.md`
 - Current GeometryList: `app2/src/components/GeometryList.tsx`
 - Current Tests: `app2/test/GeometryList.component.test.tsx`

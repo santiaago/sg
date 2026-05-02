@@ -1,9 +1,11 @@
 # Geometry List Filter Feature - Implementation Plan
 
 ## Overview
+
 Add filtering capabilities to the GeometryList component to allow users to filter geometry items by name (text search) and by geometry type (tags/buttons).
 
 ## Current State
+
 - `GeometryList.tsx` displays all geometry items in an unfiltered list
 - Items have `name` and `type` properties (types: point, line, circle, polygon, arc)
 - Used in: App.tsx (6 instances), Square.tsx, SixFoldV0.tsx
@@ -11,6 +13,7 @@ Add filtering capabilities to the GeometryList component to allow users to filte
 - `GeometryItem` has: name, element, selected, type, context, initialState, dependsOn, stepId, parameterValues
 
 ## Requirements
+
 1. Text input filter at top of GeometryList - filters by item name (case-insensitive, partial match)
 2. Type filter buttons/tags - filter by geometry type (point, line, circle, polygon)
 3. Both filters should work together (AND logic)
@@ -21,9 +24,11 @@ Add filtering capabilities to the GeometryList component to allow users to filte
 ## Implementation Plan
 
 ### Phase 1: GeometryList Component Changes
+
 **File: `app2/src/components/GeometryList.tsx`**
 
 Add filter state and UI:
+
 - Add `useState` for `nameFilter` (string, initially empty)
 - Add `useState` for `typeFilters` (Set<string> or array, initially empty = show all)
 - Add filter input element (text input with placeholder "Filter by name...")
@@ -31,28 +36,34 @@ Add filter state and UI:
 - Add clear filters button
 
 Add filter logic:
+
 - Create `filteredItems` memo using `useMemo` that:
   - Filters items where name includes `nameFilter` (case-insensitive)
   - If `typeFilters` is non-empty, also filters by type being in the set
   - Returns all items if both filters are empty
 
 Update render:
+
 - Display filter controls at top of component
 - Render `filteredItems` instead of `store.items`
 - Show count of filtered items vs total items
 
 ### Phase 2: Type Definitions
+
 **File: `app2/src/types/geometry.ts`** (optional)
 
 Consider adding a type for geometry types if not already present:
+
 ```typescript
-export type GeometryType = 'point' | 'line' | 'circle' | 'polygon' | 'arc';
+export type GeometryType = "point" | "line" | "circle" | "polygon" | "arc";
 ```
 
 ### Phase 3: Tests
+
 **File: `app2/test/GeometryList.component.test.tsx`** (extend existing)
 
 Add test cases for:
+
 1. Name filter - filters items by name (case-insensitive)
 2. Type filter - filters items by single type
 3. Multiple type filters - filters by multiple types (OR within types)
@@ -62,10 +73,12 @@ Add test cases for:
 7. Filter count display - shows correct filtered count
 
 **New file: `app2/src/components/GeometryList.test.tsx`** (unit tests for helper functions)
+
 - Test filter logic functions independently
 - Test edge cases (null/undefined, empty strings)
 
 ### Phase 4: Styling
+
 - Use consistent styling with existing app (Tailwind CSS classes)
 - Filter input: dark theme compatible
 - Type buttons: toggleable, show active state
@@ -74,6 +87,7 @@ Add test cases for:
 ## Component API Changes
 
 ### GeometryList Props (Additions)
+
 ```typescript
 interface GeometryListProps {
   store: any;
@@ -83,40 +97,41 @@ interface GeometryListProps {
   strokeLine?: number;
   showInputHighlight?: boolean;
   // New optional props with defaults
-  showNameFilter?: boolean;      // default: true
-  showTypeFilters?: boolean;     // default: true
-  availableTypes?: string[];     // default: ['point', 'line', 'circle', 'polygon']
+  showNameFilter?: boolean; // default: true
+  showTypeFilters?: boolean; // default: true
+  availableTypes?: string[]; // default: ['point', 'line', 'circle', 'polygon']
 }
 ```
 
 ## Implementation Details
 
 ### Filter Logic (pseudocode)
+
 ```typescript
-const allTypes = ['point', 'line', 'circle', 'polygon'];
+const allTypes = ["point", "line", "circle", "polygon"];
 
 const filteredItems = useMemo(() => {
   const items = store.items || {};
-  
+
   return Object.entries(items).filter(([key, item]) => {
     // Name filter
-    const matchesName = nameFilter === '' || 
-      item.name.toLowerCase().includes(nameFilter.toLowerCase());
-    
+    const matchesName =
+      nameFilter === "" || item.name.toLowerCase().includes(nameFilter.toLowerCase());
+
     // Type filter (if any types selected, item type must be in selection)
-    const matchesType = typeFilters.size === 0 || 
-      typeFilters.has(item.type);
-    
+    const matchesType = typeFilters.size === 0 || typeFilters.has(item.type);
+
     return matchesName && matchesType;
   });
 }, [store.items, nameFilter, typeFilters]);
 ```
 
 ### UI Layout
+
 ```jsx
 <div className="geometry-list">
   <h3>Geometry Items</h3>
-  
+
   {/* Name filter */}
   <div className="mb-2">
     <input
@@ -127,7 +142,7 @@ const filteredItems = useMemo(() => {
       className="w-full p-1 text-black rounded text-sm"
     />
   </div>
-  
+
   {/* Type filters */}
   <div className="flex flex-wrap gap-1 mb-2">
     {['point', 'line', 'circle', 'polygon'].map(type => (
@@ -135,8 +150,8 @@ const filteredItems = useMemo(() => {
         key={type}
         onClick={() => toggleTypeFilter(type)}
         className={`px-2 py-1 rounded text-xs ${
-          typeFilters.has(type) 
-            ? 'bg-blue-500 text-white' 
+          typeFilters.has(type)
+            ? 'bg-blue-500 text-white'
             : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
         }`}
       >
@@ -144,7 +159,7 @@ const filteredItems = useMemo(() => {
       </button>
     ))}
   </div>
-  
+
   {/* Clear filters button */}
   {nameFilter !== '' || typeFilters.size > 0 && (
     <button
@@ -154,9 +169,9 @@ const filteredItems = useMemo(() => {
       Clear filters
     </button>
   )}
-  
+
   <p>Showing {filteredItems.length} of {Object.keys(store.items || {}).length} items</p>
-  
+
   <ul>
     {filteredItems.map(([key, item]) => (
       <li key={key} onClick={() => handleClick(key)} ...>
@@ -185,10 +200,10 @@ describe("GeometryList - Filtering", () => {
   describe("Name Filter", () => {
     it("filters items by name", () => {
       render(<GeometryList store={store} />);
-      
+
       const filterInput = screen.getByPlaceholderText(/filter by name/i);
       fireEvent.change(filterInput, { target: { value: "c1" } });
-      
+
       expect(screen.getByText("c1 | point")).toBeInTheDocument();
       expect(screen.getByText("c1_c | circle")).toBeInTheDocument();
       expect(screen.queryByText("line_main | line")).not.toBeInTheDocument();
@@ -196,17 +211,17 @@ describe("GeometryList - Filtering", () => {
 
     it("filters case-insensitively", () => {
       render(<GeometryList store={store} />);
-      
+
       const filterInput = screen.getByPlaceholderText(/filter by name/i);
       fireEvent.change(filterInput, { target: { value: "LINE" } });
-      
+
       expect(screen.getByText("line_main | line")).toBeInTheDocument();
       expect(screen.queryByText("c1 | point")).not.toBeInTheDocument();
     });
 
     it("shows all items when filter is empty", () => {
       render(<GeometryList store={store} />);
-      
+
       expect(screen.getByText("line_main | line")).toBeInTheDocument();
       expect(screen.getByText("c1 | point")).toBeInTheDocument();
       expect(screen.getByText("c1_c | circle")).toBeInTheDocument();
@@ -216,10 +231,10 @@ describe("GeometryList - Filtering", () => {
   describe("Type Filter", () => {
     it("filters by type when button clicked", () => {
       render(<GeometryList store={store} />);
-      
+
       const pointButton = screen.getByText(/^point$/i);
       fireEvent.click(pointButton);
-      
+
       expect(screen.getByText("c1 | point")).toBeInTheDocument();
       expect(screen.queryByText("line_main | line")).not.toBeInTheDocument();
       expect(screen.queryByText("c1_c | circle")).not.toBeInTheDocument();
@@ -227,12 +242,12 @@ describe("GeometryList - Filtering", () => {
 
     it("shows multiple types when multiple selected", () => {
       render(<GeometryList store={store} />);
-      
+
       const pointButton = screen.getByText(/^point$/i);
       const circleButton = screen.getByText(/^circle$/i);
       fireEvent.click(pointButton);
       fireEvent.click(circleButton);
-      
+
       expect(screen.getByText("c1 | point")).toBeInTheDocument();
       expect(screen.getByText("c1_c | circle")).toBeInTheDocument();
       expect(screen.queryByText("line_main | line")).not.toBeInTheDocument();
@@ -249,16 +264,16 @@ describe("GeometryList - Filtering", () => {
       };
       const combinedItems = { ...createMockStoreItems(), ...extraItems };
       const combinedStore = createMockStore(combinedItems);
-      
+
       render(<GeometryList store={combinedStore} />);
-      
+
       // Filter by name "a" and type "point"
       const filterInput = screen.getByPlaceholderText(/filter by name/i);
       fireEvent.change(filterInput, { target: { value: "a" } });
-      
+
       const pointButton = screen.getByText(/^point$/i);
       fireEvent.click(pointButton);
-      
+
       expect(screen.getByText("point_a | point")).toBeInTheDocument();
       expect(screen.queryByText("point_b | point")).not.toBeInTheDocument();
       expect(screen.queryByText("line_a | line")).not.toBeInTheDocument();
@@ -268,26 +283,26 @@ describe("GeometryList - Filtering", () => {
   describe("Clear Filters", () => {
     it("clears name filter", () => {
       render(<GeometryList store={store} />);
-      
+
       const filterInput = screen.getByPlaceholderText(/filter by name/i);
       fireEvent.change(filterInput, { target: { value: "c1" } });
-      
+
       const clearButton = screen.getByText(/clear filters/i);
       fireEvent.click(clearButton);
-      
+
       expect(filterInput).toHaveValue("");
       expect(screen.getByText("line_main | line")).toBeInTheDocument();
     });
 
     it("clears type filters", () => {
       render(<GeometryList store={store} />);
-      
+
       const pointButton = screen.getByText(/^point$/i);
       fireEvent.click(pointButton);
-      
+
       const clearButton = screen.getByText(/clear filters/i);
       fireEvent.click(clearButton);
-      
+
       expect(screen.getByText("line_main | line")).toBeInTheDocument();
     });
   });
@@ -295,10 +310,10 @@ describe("GeometryList - Filtering", () => {
   describe("Filter Count", () => {
     it("displays filtered count", () => {
       render(<GeometryList store={store} />);
-      
+
       const filterInput = screen.getByPlaceholderText(/filter by name/i);
       fireEvent.change(filterInput, { target: { value: "c1" } });
-      
+
       expect(screen.getByText(/showing 2 of 3/i)).toBeInTheDocument();
     });
   });

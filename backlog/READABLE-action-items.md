@@ -16,6 +16,7 @@ These items are blocking progress and should be addressed **immediately** before
 **Problem**: Multiple versions of SixFold component causing confusion.
 
 **Current State**:
+
 - `SixFold.tsx` - 883-line monolithic anti-pattern
 - `SixFoldV0.tsx` - 134-line step-pattern implementation (GOLD STANDARD)
 - `SixFoldv2.tsx` - 911-line wrapper
@@ -36,6 +37,7 @@ mv app2/src/components/SixFoldV0.tsx app2/src/components/SixFold.tsx
 ```
 
 **Files to update**:
+
 - Any imports of old SixFold versions
 - App.tsx or parent components
 - GeometryList.tsx (if it references SixFold)
@@ -51,6 +53,7 @@ mv app2/src/components/SixFoldV0.tsx app2/src/components/SixFold.tsx
 **Problem**: Yet another store implementation was added (`useGeometryStoreSixFoldV0`) in react-store.ts, making the fragmentation worse.
 
 **Current State**: react-store.ts now has:
+
 - `GeometryStore` interface
 - `GeometryStorev2v3v4` interface
 - `GeometryValueStore` interface (unused)
@@ -251,7 +254,8 @@ export function useGeometryStore(): GeometryStore {
           element,
           selected: existingItem?.selected ?? false,
           type,
-          initialState: Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
+          initialState:
+            Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
           dependsOn: existingItem?.dependsOn ?? options.dependsOn ?? [],
           stepId: options.stepId ?? "",
           parameterValues: options.parameterValues ?? {},
@@ -264,9 +268,12 @@ export function useGeometryStore(): GeometryStore {
     [],
   );
 
-  const get = useCallback((name: string): GeometryItem | undefined => {
-    return items.get(name);
-  }, [items]);
+  const get = useCallback(
+    (name: string): GeometryItem | undefined => {
+      return items.get(name);
+    },
+    [items],
+  );
 
   const remove = useCallback((name: string) => {
     setItems((prev) => {
@@ -352,19 +359,21 @@ export default useGeometryStore;
 All components currently using specific store versions need to import from the unified store:
 
 1. **Square.tsx** (line 3):
+
    ```typescript
    // FROM:
    import type { GeometryStore } from "../react-store";
-   
+
    // TO: (no change needed - import is the same)
    import type { GeometryStore } from "../react-store";
    ```
 
 2. **SixFold.tsx** (formerly SixFoldV0.tsx):
+
    ```typescript
    // FROM:
    import type { GeometryStore } from "../react-store";
-   
+
    // TO: (no change needed)
    import type { GeometryStore } from "../react-store";
    ```
@@ -393,6 +402,7 @@ All components currently using specific store versions need to import from the u
 **File**: `app2/src/geometry/operations.ts` (lines 167-195)
 
 **Current code**:
+
 ```typescript
 export const GEOM = {
   MAIN_LINE: "line_main",
@@ -415,38 +425,39 @@ export const GEOM = {
 ```
 
 **Recommended changes**:
+
 ```typescript
 export const GEOM = {
   // Base reference line
   MAIN_LINE: "main_line",
 
   // Circle centers (points on the main line)
-  CIRCLE_CENTER_RIGHT: "circle_center_right",  // Was C1
-  CIRCLE_CENTER_LEFT: "circle_center_left",    // Was C2
+  CIRCLE_CENTER_RIGHT: "circle_center_right", // Was C1
+  CIRCLE_CENTER_LEFT: "circle_center_left", // Was C2
 
   // Circle outlines
-  CIRCLE_RIGHT: "circle_right",              // Was C1_CIRCLE
-  CIRCLE_LEFT: "circle_left",                // Was C2_CIRCLE
+  CIRCLE_RIGHT: "circle_right", // Was C1_CIRCLE
+  CIRCLE_LEFT: "circle_left", // Was C2_CIRCLE
 
   // Intersection of the two circles
-  INTERSECTION_POINT: "intersection_point",    // Was PI
-  INTERSECTION_CIRCLE: "intersection_circle",  // Was CI
+  INTERSECTION_POINT: "intersection_point", // Was PI
+  INTERSECTION_CIRCLE: "intersection_circle", // Was CI
 
   // Points at the top of the construction (from angle bisectors)
-  TOP_LEFT_POINT: "top_left_point",           // Was P4
-  TOP_RIGHT_POINT: "top_right_point",         // Was P3
+  TOP_LEFT_POINT: "top_left_point", // Was P4
+  TOP_RIGHT_POINT: "top_right_point", // Was P3
 
   // Tangent points where lines from circle centers intersect the circles
-  TANGENT_LEFT: "tangent_left",               // Was PL
-  TANGENT_RIGHT: "tangent_right",             // Was PR
+  TANGENT_LEFT: "tangent_left", // Was PL
+  TANGENT_RIGHT: "tangent_right", // Was PR
 
   // Lines from circle centers to intersection point
   LINE_RIGHT_CENTER_TO_INTERSECTION: "line_right_center_to_intersection", // Was LINE_C1_PI
-  LINE_LEFT_CENTER_TO_INTERSECTION: "line_left_center_to_intersection",   // Was LINE_C2_PI
+  LINE_LEFT_CENTER_TO_INTERSECTION: "line_left_center_to_intersection", // Was LINE_C2_PI
 
   // Lines from circle centers to top points
-  LINE_RIGHT_CENTER_TO_TOP_LEFT: "line_right_center_to_top_left",       // Was LINE_C1_P3
-  LINE_LEFT_CENTER_TO_TOP_RIGHT: "line_left_center_to_top_right",       // Was LINE_C2_P4
+  LINE_RIGHT_CENTER_TO_TOP_LEFT: "line_right_center_to_top_left", // Was LINE_C1_P3
+  LINE_LEFT_CENTER_TO_TOP_RIGHT: "line_left_center_to_top_right", // Was LINE_C2_P4
 
   // Final result
   SQUARE: "square",
@@ -477,13 +488,14 @@ export const GEOM = {
 **File**: `app2/src/react-store.ts` (lines 9-17)
 
 **Current code**:
+
 ```typescript
 export interface GeometryItem {
   name: string;
-  element: any;      // ❌ Should be SVGElement | null
+  element: any; // ❌ Should be SVGElement | null
   selected: boolean;
-  type: string;      // ❌ Should be GeometryType
-  context?: any;     // ❌ Should be typed or removed
+  type: string; // ❌ Should be GeometryType
+  context?: any; // ❌ Should be typed or removed
   initialState?: Record<string, string>;
   dependsOn: string[];
   stepId: string;
@@ -492,6 +504,7 @@ export interface GeometryItem {
 ```
 
 **Recommended changes** (part of the consolidation in Priority 1):
+
 ```typescript
 import type { GeometryValue } from "../types/geometry";
 
@@ -499,10 +512,10 @@ export type GeometryType = GeometryValue["type"];
 
 export interface GeometryItem {
   name: string;
-  element: SVGElement | null;  // ✅ Typed
+  element: SVGElement | null; // ✅ Typed
   selected: boolean;
-  type: GeometryType;           // ✅ Typed
-  context?: Record<string, unknown>;  // ✅ Typed
+  type: GeometryType; // ✅ Typed
+  context?: Record<string, unknown>; // ✅ Typed
   initialState?: Record<string, string>;
   dependsOn: string[];
   stepId: string;
@@ -523,6 +536,7 @@ export interface GeometryItem {
 **File**: `app2/src/svgElements.ts` (lines 30-37)
 
 **Current code**:
+
 ```typescript
 declare global {
   interface SVGCircleElement {
@@ -624,11 +638,12 @@ setTooltip(svgPolygon, tooltip, tooltipBg);
 **File**: `app2/src/geometry/sixFoldV0Steps.ts` (STEP_7)
 
 **Current code**:
+
 ```typescript
 const STEP_7: SixFoldV0Step = {
   id: "step7",
   inputs: [GEOM.PI2],
-  outputs: [GEOM.PI2],  // Same as input!
+  outputs: [GEOM.PI2], // Same as input!
   parameters: [],
   compute: computeSingle(GEOM.PI2, (inputs) => {
     const pi2 = getGeometry(inputs, GEOM.PI2, isPoint, "Point");
@@ -659,7 +674,7 @@ const STEP_7: SixFoldV0Step = {
 
 1. **Step 1**: Remove `LINE1`, `P1`, `P2` from outputs (these are just the line coordinates, available via config params)
 2. **Step 2**: Remove `CIRCLE_AT_INTERSECTION`, `P3`, `P4` (intermediate computation values)
-3. **Step 13**: Remove `C23W`, `L14P` 
+3. **Step 13**: Remove `C23W`, `L14P`
 4. **Step 14**: Remove `CPI12`, `C34N`, `LPIC12C34N`, `C34E`
 5. **Step 15**: Remove `PP`, `L1`
 6. **Step 16**: Remove `LPII1PII2`
@@ -671,6 +686,7 @@ const STEP_7: SixFoldV0Step = {
 **Note**: These geometries are still DRAWN (they have draw calls), but they don't need to be OUTPUTS if they're not used as inputs to later steps.
 
 **Decision needed**: Should geometries that are only drawn (not used computationally) be:
+
 - A) Removed from outputs (cleaner, matches squareSteps philosophy)
 - B) Kept as outputs (more explicit, allows for debugging)
 
@@ -689,6 +705,7 @@ const STEP_7: SixFoldV0Step = {
 **File**: `app2/src/geometry/sixFoldV0Steps.ts`
 
 **Current state**:
+
 - Step 2: Computes L13 and L24 as intermediate values
 - Step 6: Recomputes L13 and L24 as outputs
 
@@ -742,12 +759,14 @@ Add JSDoc to all interface members and functions.
 **Current state**: Some functions have JSDoc, some don't.
 
 **Missing JSDoc**:
+
 - `createTooltip` (line 32)
 - `dot` (line 81)
 - `line` (line 95)
 - `circle` (line 111)
 
 ** Already have JSDoc**:
+
 - `rect` ✅
 - `clearGeometryFromSvg` ✅
 - `drawPoint` ✅
@@ -767,6 +786,7 @@ Add JSDoc to all interface members and functions.
 **Current state**: Has file-level JSDoc, but some functions need improvement.
 
 **Missing/Incomplete JSDoc**:
+
 - `computeCircleIntersection` - Add detailed JSDoc
 - `computeBisectedPoints` - Add detailed JSDoc
 - `computeTangentPoints` - Add detailed JSDoc
@@ -784,6 +804,7 @@ Add JSDoc to all interface members and functions.
 **Current state**: Each step has good header comments, but utilities need JSDoc.
 
 **Missing JSDoc**:
+
 - Step execution context needs documentation
 - `executeStep` function
 - `executeSteps` function
@@ -796,6 +817,7 @@ Add JSDoc to all interface members and functions.
 #### sixFoldV0Steps.ts
 
 **Current state**: Each step has header comments, but needs:
+
 - File-level JSDoc
 - Step utilities JSDoc
 - Type definitions JSDoc
@@ -827,10 +849,7 @@ export class GeometryError extends Error {
   public readonly geometryId?: string;
   public readonly cause?: Error;
 
-  constructor(
-    message: string,
-    options?: { stepId?: string; geometryId?: string; cause?: Error }
-  ) {
+  constructor(message: string, options?: { stepId?: string; geometryId?: string; cause?: Error }) {
     super(message);
     this.name = this.constructor.name;
     this.stepId = options?.stepId;
@@ -849,10 +868,10 @@ export class GeometryError extends Error {
  */
 export class MissingGeometryError extends GeometryError {
   constructor(geometryId: string, stepId: string) {
-    super(
-      `Missing geometry: "${geometryId}" (required by step: "${stepId}")`,
-      { geometryId, stepId }
-    );
+    super(`Missing geometry: "${geometryId}" (required by step: "${stepId}")`, {
+      geometryId,
+      stepId,
+    });
     this.name = this.constructor.name;
   }
 }
@@ -865,16 +884,11 @@ export class TypeMismatchError extends GeometryError {
   public readonly expectedType: string;
   public readonly actualType: string;
 
-  constructor(
-    expectedType: string,
-    actualType: string,
-    geometryId: string,
-    stepId?: string
-  ) {
-    super(
-      `Type mismatch for "${geometryId}": expected ${expectedType}, got ${actualType}`,
-      { geometryId, stepId }
-    );
+  constructor(expectedType: string, actualType: string, geometryId: string, stepId?: string) {
+    super(`Type mismatch for "${geometryId}": expected ${expectedType}, got ${actualType}`, {
+      geometryId,
+      stepId,
+    });
     this.name = this.constructor.name;
     this.expectedType = expectedType;
     this.actualType = actualType;
@@ -890,10 +904,7 @@ export class IntersectionNotFoundError extends GeometryError {
   public readonly geometry2: string;
 
   constructor(geometry1: string, geometry2: string, stepId?: string) {
-    super(
-      `No intersection found between "${geometry1}" and "${geometry2}"`,
-      { stepId }
-    );
+    super(`No intersection found between "${geometry1}" and "${geometry2}"`, { stepId });
     this.name = this.constructor.name;
     this.geometry1 = geometry1;
     this.geometry2 = geometry2;
@@ -930,9 +941,7 @@ export function isTypeMismatchError(error: unknown): error is TypeMismatchError 
   return error instanceof TypeMismatchError;
 }
 
-export function isIntersectionNotFoundError(
-  error: unknown
-): error is IntersectionNotFoundError {
+export function isIntersectionNotFoundError(error: unknown): error is IntersectionNotFoundError {
   return error instanceof IntersectionNotFoundError;
 }
 
@@ -946,6 +955,7 @@ export function isComputationError(error: unknown): error is ComputationError {
 **File**: `app2/src/geometry/operations.ts` (lines 84-93)
 
 **Current code**:
+
 ```typescript
 export function getGeometry<T extends GeometryValue>(
   values: Map<string, GeometryValue>,
@@ -965,6 +975,7 @@ export function getGeometry<T extends GeometryValue>(
 ```
 
 **Updated code**:
+
 ```typescript
 import { MissingGeometryError, TypeMismatchError } from "../errors";
 
@@ -987,6 +998,7 @@ export function getGeometry<T extends GeometryValue>(
 ```
 
 **Files to update**:
+
 - All calls to `getGeometry` in squareSteps.ts to pass stepId
 - All calls to `getGeometry` in sixFoldV0Steps.ts to pass stepId
 
@@ -1205,7 +1217,7 @@ describe("buildStepMaps", () => {
 
   it("builds correct dependency maps", () => {
     const { stepDependencies, stepForOutput } = buildStepMaps(mockSteps, 3);
-    
+
     expect(stepDependencies.get("a")).toEqual([]);
     expect(stepDependencies.get("b")).toEqual([]);
     expect(stepDependencies.get("c")).toEqual(["a"]);
@@ -1350,7 +1362,12 @@ export function createCustomStep<TConfig>(
   inputs: string[],
   outputs: string[],
   computeFn: (inputs: Map<string, GeometryValue>, config: TConfig) => Map<string, GeometryValue>,
-  drawFn: (svg: SVGSVGElement, values: Map<string, GeometryValue>, store: GeometryStore, theme: Theme) => void,
+  drawFn: (
+    svg: SVGSVGElement,
+    values: Map<string, GeometryValue>,
+    store: GeometryStore,
+    theme: Theme,
+  ) => void,
   parameters?: (keyof TConfig)[],
 ): Step {
   return {
@@ -1375,6 +1392,7 @@ export function createCustomStep<TConfig>(
 **Action**: Reorganize code structure into logical folders.
 
 **Current structure**:
+
 ```
 app2/src/
 ├── components/
@@ -1389,6 +1407,7 @@ app2/src/
 ```
 
 **Recommended structure**:
+
 ```
 app2/src/
 ├── components/
@@ -1449,20 +1468,20 @@ app2/src/
 
 ## Summary Matrix
 
-| Priority | Task | File | Effort | Impact | Status |
-|----------|------|------|--------|--------|--------|
-| 0 | Delete old SixFold versions | components/ | 1h | Major | ⚠️ |
-| 0 | Consolidate SixFoldV0 store | react-store.ts | 30m | Minor | ⚠️ |
-| 1 | **Store consolidation** | react-store.ts | 2-4h | Major | ⚠️ |
-| 2 | **Improve geometry naming** | geometry/operations.ts | 1-2h | Medium | ⚠️ |
-| 2 | Fix type safety | react-store.ts | 1-2h | Medium | ⚠️ |
-| 3 | Tooltip system | svgElements.ts | 1h | Medium | ⚠️ |
-| 4 | Optimize sixFoldV0Steps | geometry/sixFoldV0Steps.ts | 2-4h | Medium | ⚠️ |
-| 4 | Documentation | Multiple | 2-3h | Medium | ⚠️ |
-| 5 | Error handling | errors.ts, operations.ts | 1h | Medium | ⚠️ |
-| 5 | Add tests | Multiple | 3-5h | Medium | ⚠️ |
-| 8 | Step helpers | geometry/stepHelpers.ts | 1h | Low | ⚠️ |
-| 9 | Code organization | Multiple | 1-2h | Low | ⚠️ |
+| Priority | Task                        | File                       | Effort | Impact | Status |
+| -------- | --------------------------- | -------------------------- | ------ | ------ | ------ |
+| 0        | Delete old SixFold versions | components/                | 1h     | Major  | ⚠️     |
+| 0        | Consolidate SixFoldV0 store | react-store.ts             | 30m    | Minor  | ⚠️     |
+| 1        | **Store consolidation**     | react-store.ts             | 2-4h   | Major  | ⚠️     |
+| 2        | **Improve geometry naming** | geometry/operations.ts     | 1-2h   | Medium | ⚠️     |
+| 2        | Fix type safety             | react-store.ts             | 1-2h   | Medium | ⚠️     |
+| 3        | Tooltip system              | svgElements.ts             | 1h     | Medium | ⚠️     |
+| 4        | Optimize sixFoldV0Steps     | geometry/sixFoldV0Steps.ts | 2-4h   | Medium | ⚠️     |
+| 4        | Documentation               | Multiple                   | 2-3h   | Medium | ⚠️     |
+| 5        | Error handling              | errors.ts, operations.ts   | 1h     | Medium | ⚠️     |
+| 5        | Add tests                   | Multiple                   | 3-5h   | Medium | ⚠️     |
+| 8        | Step helpers                | geometry/stepHelpers.ts    | 1h     | Low    | ⚠️     |
+| 9        | Code organization           | Multiple                   | 1-2h   | Low    | ⚠️     |
 
 **Total estimated effort**: ~18-25 hours
 
@@ -1471,18 +1490,21 @@ app2/src/
 ## Recommended Implementation Order
 
 ### Week 1: Critical Cleanup
+
 1. ✅ Delete old SixFold versions (1h)
 2. ✅ Consolidate store to single implementation (2-4h)
 3. ✅ Fix type safety in react-store.ts (1-2h)
 4. ✅ Fix tooltip system (1h)
 
 ### Week 2: Quality Improvements
+
 1. 🔄 Improve geometry naming (1-2h)
 2. 🔄 Optimize sixFoldV0Steps (2-4h)
 3. 🔄 Add JSDoc to remaining files (2-3h)
 4. 🔄 Add error classes (1h)
 
 ### Week 3: Testing & Extras
+
 1. 🔄 Add tests for Square, store, utilities (3-5h)
 2. 🔄 Create step helpers (1h)
 3. 🔄 Reorganize code structure (1-2h)
@@ -1492,11 +1514,13 @@ app2/src/
 ## Final Notes
 
 **The most critical issues** are:
+
 1. **Store fragmentation** - This causes maintenance nightmares and should be fixed FIRST
 2. **Multiple SixFold versions** - Confusing for developers, should be cleaned up
 3. **Type safety gaps** - Causes runtime errors that could be caught at compile time
 
 **After these are fixed**, the codebase will be in excellent shape for:
+
 - Adding new geometric construction components
 - Scaling to complex constructions (proven by SixFoldV0)
 - Maintaining and refactoring existing code
