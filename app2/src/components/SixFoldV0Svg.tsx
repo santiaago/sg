@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, useCallback, forwardRef } from "react";
+import { useEffect, useRef, useMemo, forwardRef } from "react";
 import type { Ref } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
@@ -11,38 +11,30 @@ import type { SixFoldV0Step } from "../geometry/sixFold/operations";
 import { SIX_FOLD_V0_STEPS, executeSteps } from "../geometry/sixFoldV0Steps";
 import { computeSixFoldV0Config } from "../geometry/sixFold/operations";
 
-// Props for the SixFoldV0 component.
-export interface SixFoldV0Props {
+// Props for the SixFoldV0Svg component.
+export interface SixFoldV0SvgProps {
   store: GeometryStore;
   dotStrokeWidth?: number;
   svgConfig: SvgConfig;
   restartTrigger?: number;
   // Number of steps to execute (0 = none, 1 = first step, N = N steps)
   currentStep?: number;
-  totalSteps?: number;
-  onStepChange?: (step: number) => void;
   theme?: Theme;
 }
 
 /**
- * SixFoldV0 component - Replicates "1/4 Six fold pattern v3" from Svelte app.
- * Follows the exact same pattern as Square.tsx:
- * - Separate steps file with compute/draw functions
- * - useMemo for config
- * - useEffect for SVG setup
- * - useEffect for step execution with store integration
+ * SixFoldV0Svg component - Renders only the SVG canvas for SixFoldV0 geometry.
+ * This is the SVG-only version without player controls.
  */
-export const SixFoldV0 = forwardRef(function SixFoldV0(
+export const SixFoldV0Svg = forwardRef(function SixFoldV0Svg(
   {
     store,
     dotStrokeWidth = 2.0,
     svgConfig,
     restartTrigger = 0,
     currentStep = 0,
-    totalSteps,
-    onStepChange,
     theme = darkTheme,
-  }: SixFoldV0Props,
+  }: SixFoldV0SvgProps,
   ref: Ref<SVGSVGElement | null>,
 ): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -72,16 +64,16 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
   // Effect 1: Input validation
   useEffect(() => {
     if (currentStep < 0) {
-      console.warn("SixFoldV0: currentStep should not be negative, received:", currentStep);
+      console.warn("SixFoldV0Svg: currentStep should not be negative, received:", currentStep);
     }
     if (svgConfig.width <= 0) {
-      console.warn("SixFoldV0: svgConfig.width should be positive, received:", svgConfig.width);
+      console.warn("SixFoldV0Svg: svgConfig.width should be positive, received:", svgConfig.width);
     }
     if (svgConfig.height <= 0) {
-      console.warn("SixFoldV0: svgConfig.height should be positive, received:", svgConfig.height);
+      console.warn("SixFoldV0Svg: svgConfig.height should be positive, received:", svgConfig.height);
     }
     if (!theme || typeof theme !== "object") {
-      console.warn("SixFoldV0: theme should be a valid Theme object, received:", theme);
+      console.warn("SixFoldV0Svg: theme should be a valid Theme object, received:", theme);
     }
   }, [currentStep, svgConfig.width, svgConfig.height, theme]);
 
@@ -134,50 +126,11 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
         }
       }
     } catch (error) {
-      console.error("SixFoldV0 construction failed at step", currentStep, ":", error);
+      console.error("SixFoldV0Svg construction failed at step", currentStep, ":", error);
     }
   }, [currentStep, restartTrigger, svgConfig, theme, config, dotStrokeWidth, shouldClear]);
 
-  const handleSliderChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newStep = parseInt(e.target.value, 10);
-      if (!isNaN(newStep)) {
-        onStepChange?.(newStep);
-      }
-    },
-    [onStepChange],
-  );
-
-  const maxSteps = totalSteps ?? SIX_FOLD_V0_STEPS.length;
-  const progressPercent = ((currentStep ?? 0) / maxSteps) * 100;
-
   return (
-    <div className={`${svgConfig.containerClass} flex justify-center`}>
-      <div className="flex flex-col items-center gap-2">
-        <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="sixfoldv0-svg" />
-        {onStepChange && totalSteps && (
-          <div className="w-full max-w-md">
-            <input
-              type="range"
-              min={0}
-              max={maxSteps}
-              step={1}
-              value={currentStep ?? 0}
-              onChange={handleSliderChange}
-              aria-label="Step navigation"
-              name="step-slider"
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
-              }}
-            />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>0</span>
-              <span>{maxSteps}</span>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+    <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="sixfoldv0-svg" />
   );
 });

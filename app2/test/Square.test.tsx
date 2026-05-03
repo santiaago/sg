@@ -1,13 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { Square, SQUARE_STEPS } from "../src/components/Square";
+import { SquareSvg, SQUARE_STEPS } from "../src/components/SquareSvg";
 import { useGeometryStoreSquare } from "../src/react-store";
 import { standardSvgConfig } from "../src/config/svgConfig";
 import { darkTheme, lightTheme } from "../src/themes";
 import type { GeometryStore, GeometryItem } from "../src/react-store";
 
 /**
- * Tests to prevent infinite render loops in Square component.
+ * Tests to prevent infinite render loops in SquareSvg component.
  *
  * The issue that was fixed: Square component was causing infinite re-renders
  * because:
@@ -27,7 +27,7 @@ const createMockStore = (): GeometryStore & {
   clear: vi.fn(),
 });
 
-describe("Square Component - Infinite Render Prevention", () => {
+describe("SquareSvg Component - Infinite Render Prevention", () => {
   const defaultProps = {
     svgConfig: standardSvgConfig,
     currentStep: 1,
@@ -36,7 +36,7 @@ describe("Square Component - Infinite Render Prevention", () => {
   };
 
   it("should render without crashing", () => {
-    render(<Square {...defaultProps} />);
+    render(<SquareSvg {...defaultProps} />);
     expect(screen.getByTestId("square-svg")).toBeInTheDocument();
   });
 
@@ -47,7 +47,7 @@ describe("Square Component - Infinite Render Prevention", () => {
     // Create a wrapper component to track renders
     const TestWrapper = () => {
       renderCount++;
-      return <Square {...defaultProps} />;
+      return <SquareSvg {...defaultProps} />;
     };
 
     // Reset before test
@@ -67,7 +67,7 @@ describe("Square Component - Infinite Render Prevention", () => {
     const mockStore = createMockStore();
 
     // First render with currentStep=1
-    render(<Square {...defaultProps} store={mockStore} />);
+    render(<SquareSvg {...defaultProps} store={mockStore} />);
 
     // Store's clear method should NOT be called on first render with forward step
     // because prevStepRef.current=0 and currentStep=1, so we're moving forward
@@ -79,16 +79,16 @@ describe("Square Component - Infinite Render Prevention", () => {
 /**
  * Tests for the integration with actual hooks to verify memoization works
  */
-describe("Square Component - Integration Tests", () => {
+describe("SquareSvg Component - Integration Tests", () => {
   it("should work with real useGeometryStoreSquare hook", () => {
-    // This test verifies that when Square receives a store from the real hook,
+    // This test verifies that when SquareSvg receives a store from the real hook,
     // it doesn't cause infinite renders
 
     const TestComponent = () => {
       const store = useGeometryStoreSquare();
 
       return (
-        <Square store={store} svgConfig={standardSvgConfig} currentStep={1} restartTrigger={0} />
+        <SquareSvg store={store} svgConfig={standardSvgConfig} currentStep={1} restartTrigger={0} />
       );
     };
 
@@ -101,7 +101,7 @@ describe("Square Component - Integration Tests", () => {
 /**
  * Regression tests for store clear behavior on step navigation
  */
-describe("Square Component - Store Clear Regression Tests", () => {
+describe("SquareSvg Component - Store Clear Regression Tests", () => {
   const defaultProps = {
     svgConfig: standardSvgConfig,
     currentStep: 0,
@@ -113,13 +113,13 @@ describe("Square Component - Store Clear Regression Tests", () => {
     const mockStore = createMockStore();
 
     // Render with step 1
-    const { rerender } = render(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
 
     // Clear mock for forward navigation test
     mockStore.clear.mockClear();
 
     // Navigate forward to step 2
-    rerender(<Square {...defaultProps} store={mockStore} currentStep={2} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} currentStep={2} />);
 
     // Store should NOT be cleared on forward navigation
     expect(mockStore.clear).not.toHaveBeenCalled();
@@ -129,13 +129,13 @@ describe("Square Component - Store Clear Regression Tests", () => {
     const mockStore = createMockStore();
 
     // Render with step 2
-    const { rerender } = render(<Square {...defaultProps} store={mockStore} currentStep={2} />);
+    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} currentStep={2} />);
 
     // Clear mock for forward navigation test
     mockStore.clear.mockClear();
 
     // Navigate forward to step 3
-    rerender(<Square {...defaultProps} store={mockStore} currentStep={3} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} currentStep={3} />);
 
     // Store should NOT be cleared on forward navigation
     expect(mockStore.clear).not.toHaveBeenCalled();
@@ -145,13 +145,13 @@ describe("Square Component - Store Clear Regression Tests", () => {
     const mockStore = createMockStore();
 
     // Render with step 2
-    const { rerender } = render(<Square {...defaultProps} store={mockStore} currentStep={2} />);
+    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} currentStep={2} />);
 
     // Clear mock for backward navigation test
     mockStore.clear.mockClear();
 
     // Navigate backward to step 1
-    rerender(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
 
     // Store SHOULD be cleared on backward navigation
     expect(mockStore.clear).toHaveBeenCalledTimes(1);
@@ -161,13 +161,13 @@ describe("Square Component - Store Clear Regression Tests", () => {
     const mockStore = createMockStore();
 
     // Render with step 3
-    const { rerender } = render(<Square {...defaultProps} store={mockStore} currentStep={3} />);
+    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} currentStep={3} />);
 
     // Clear mock for backward navigation test
     mockStore.clear.mockClear();
 
     // Navigate backward to step 1
-    rerender(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
 
     // Store SHOULD be cleared on backward navigation (jump back)
     expect(mockStore.clear).toHaveBeenCalledTimes(1);
@@ -178,14 +178,14 @@ describe("Square Component - Store Clear Regression Tests", () => {
 
     // Render with step 3
     const { rerender } = render(
-      <Square {...defaultProps} store={mockStore} currentStep={3} restartTrigger={0} />,
+      <SquareSvg {...defaultProps} store={mockStore} currentStep={3} restartTrigger={0} />,
     );
 
     // Clear mock for restart test
     mockStore.clear.mockClear();
 
     // Trigger restart
-    rerender(<Square {...defaultProps} store={mockStore} currentStep={3} restartTrigger={1} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} currentStep={3} restartTrigger={1} />);
 
     // Store SHOULD be cleared on restart
     expect(mockStore.clear).toHaveBeenCalledTimes(1);
@@ -196,14 +196,14 @@ describe("Square Component - Store Clear Regression Tests", () => {
 
     // Render with step 1
     const { rerender } = render(
-      <Square {...defaultProps} store={mockStore} currentStep={1} restartTrigger={0} />,
+      <SquareSvg {...defaultProps} store={mockStore} currentStep={1} restartTrigger={0} />,
     );
 
     // Clear mock for restart test
     mockStore.clear.mockClear();
 
     // Trigger restart
-    rerender(<Square {...defaultProps} store={mockStore} currentStep={1} restartTrigger={1} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} restartTrigger={1} />);
 
     // Store SHOULD be cleared on restart
     expect(mockStore.clear).toHaveBeenCalledTimes(1);
@@ -213,7 +213,7 @@ describe("Square Component - Store Clear Regression Tests", () => {
 /**
  * Tests for GeometryItem metadata population (stepId and parameterValues)
  */
-describe("Square Component - Metadata Population", () => {
+describe("SquareSvg Component - Metadata Population", () => {
   const createStoreWithTracking = () => {
     const updateCalls: Array<{ key: string; data: Partial<GeometryItem> }> = [];
     const items: Record<string, GeometryItem> = {};
@@ -254,7 +254,7 @@ describe("Square Component - Metadata Population", () => {
   it("populates stepId for output geometries", () => {
     const mockStore = createStoreWithTracking();
 
-    render(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
 
     const updateCalls = mockStore.getUpdateCalls();
 
@@ -276,7 +276,7 @@ describe("Square Component - Metadata Population", () => {
   it("populates parameterValues for geometries", () => {
     const mockStore = createStoreWithTracking();
 
-    render(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
 
     const updateCalls = mockStore.getUpdateCalls();
 
@@ -292,7 +292,7 @@ describe("Square Component - Metadata Population", () => {
   it("populates correct parameters for step_main_line", () => {
     const mockStore = createStoreWithTracking();
 
-    render(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
 
     const updateCalls = mockStore.getUpdateCalls();
 
@@ -319,7 +319,7 @@ describe("Square Component - Metadata Population", () => {
 
       const upToStep = SQUARE_STEPS.findIndex((s) => s.id === stepWithoutParams.id) + 1;
 
-      render(<Square {...defaultProps} store={mockStore} currentStep={upToStep} />);
+      render(<SquareSvg {...defaultProps} store={mockStore} currentStep={upToStep} />);
 
       const updateCalls = mockStore.getUpdateCalls();
 
@@ -336,7 +336,7 @@ describe("Square Component - Metadata Population", () => {
   it("handles steps with multiple parameters", () => {
     const mockStore = createStoreWithTracking();
 
-    render(<Square {...defaultProps} store={mockStore} currentStep={1} />);
+    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
 
     const updateCalls = mockStore.getUpdateCalls();
 
@@ -352,7 +352,7 @@ describe("Square Component - Metadata Population", () => {
   it("populates stepId and parameterValues for all executed steps", () => {
     const mockStore = createStoreWithTracking();
 
-    render(<Square {...defaultProps} store={mockStore} currentStep={3} />);
+    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={3} />);
 
     const updateCalls = mockStore.getUpdateCalls();
 
@@ -372,7 +372,7 @@ describe("Square Component - Metadata Population", () => {
 /**
  * Tests for theme change behavior
  */
-describe("Square Component - Theme Change Tests", () => {
+describe("SquareSvg Component - Theme Change Tests", () => {
   const defaultProps = {
     svgConfig: standardSvgConfig,
     currentStep: 1,
@@ -382,11 +382,11 @@ describe("Square Component - Theme Change Tests", () => {
   it("should clear store when theme changes from dark to light", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<Square {...defaultProps} store={mockStore} theme={darkTheme} />);
+    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />);
 
     mockStore.clear.mockClear();
 
-    rerender(<Square {...defaultProps} store={mockStore} theme={lightTheme} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} theme={lightTheme} />);
 
     expect(mockStore.clear).toHaveBeenCalledTimes(1);
   });
@@ -394,11 +394,11 @@ describe("Square Component - Theme Change Tests", () => {
   it("should clear store when theme changes from light to dark", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<Square {...defaultProps} store={mockStore} theme={lightTheme} />);
+    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} theme={lightTheme} />);
 
     mockStore.clear.mockClear();
 
-    rerender(<Square {...defaultProps} store={mockStore} theme={darkTheme} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />);
 
     expect(mockStore.clear).toHaveBeenCalledTimes(1);
   });
@@ -406,11 +406,11 @@ describe("Square Component - Theme Change Tests", () => {
   it("should NOT clear store when theme stays the same", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<Square {...defaultProps} store={mockStore} theme={darkTheme} />);
+    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />);
 
     mockStore.clear.mockClear();
 
-    rerender(<Square {...defaultProps} store={mockStore} theme={darkTheme} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />);
 
     expect(mockStore.clear).not.toHaveBeenCalled();
   });
@@ -419,12 +419,12 @@ describe("Square Component - Theme Change Tests", () => {
     const mockStore = createMockStore();
 
     const { rerender } = render(
-      <Square {...defaultProps} store={mockStore} theme={darkTheme} currentStep={1} />,
+      <SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} currentStep={1} />,
     );
 
     mockStore.clear.mockClear();
 
-    rerender(<Square {...defaultProps} store={mockStore} theme={lightTheme} currentStep={1} />);
+    rerender(<SquareSvg {...defaultProps} store={mockStore} theme={lightTheme} currentStep={1} />);
 
     expect(mockStore.clear).toHaveBeenCalledTimes(1);
   });
@@ -432,7 +432,7 @@ describe("Square Component - Theme Change Tests", () => {
   it("should render with default darkTheme when theme prop is not provided", () => {
     const mockStore = createMockStore();
 
-    render(<Square {...defaultProps} store={mockStore} />);
+    render(<SquareSvg {...defaultProps} store={mockStore} />);
 
     expect(screen.getByTestId("square-svg")).toBeInTheDocument();
   });

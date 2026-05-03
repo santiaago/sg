@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import "@testing-library/jest-dom";
-import { SixFoldV0 } from "../src/components/SixFoldV0";
+import { SixFoldV0Svg } from "../src/components/SixFoldV0Svg";
 import { useGeometryStoreSixFoldV0 } from "../src/react-store";
 import { sixFoldSvgConfig } from "../src/config/svgConfig";
 import { darkTheme, lightTheme } from "../src/themes";
@@ -19,7 +19,7 @@ const createMockStore = (): GeometryStore & {
   clear: vi.fn(),
 });
 
-describe("SixFoldV0 Component", () => {
+describe("SixFoldV0Svg Component", () => {
   const defaultProps = {
     svgConfig: sixFoldSvgConfig,
     currentStep: 0,
@@ -29,7 +29,7 @@ describe("SixFoldV0 Component", () => {
 
   describe("Infinite Render Prevention", () => {
     it("should render without crashing", () => {
-      render(<SixFoldV0 {...defaultProps} />);
+      render(<SixFoldV0Svg {...defaultProps} />);
       expect(screen.getByTestId("sixfoldv0-svg")).toBeInTheDocument();
     });
 
@@ -37,7 +37,7 @@ describe("SixFoldV0 Component", () => {
       let renderCount = 0;
       const TestWrapper = () => {
         renderCount++;
-        return <SixFoldV0 {...defaultProps} />;
+        return <SixFoldV0Svg {...defaultProps} />;
       };
       renderCount = 0;
       render(<TestWrapper />);
@@ -49,7 +49,7 @@ describe("SixFoldV0 Component", () => {
     it("should work with real useGeometryStoreSixFoldV0 hook", () => {
       const TestComponent = () => {
         const store = useGeometryStoreSixFoldV0();
-        return <SixFoldV0 store={store} svgConfig={sixFoldSvgConfig} currentStep={1} />;
+        return <SixFoldV0Svg store={store} svgConfig={sixFoldSvgConfig} currentStep={1} />;
       };
       render(<TestComponent />);
       expect(screen.getByTestId("sixfoldv0-svg")).toBeInTheDocument();
@@ -60,31 +60,31 @@ describe("SixFoldV0 Component", () => {
     it("should NOT clear store on forward step navigation (1->2)", () => {
       const mockStore = createMockStore();
       const { rerender } = render(
-        <SixFoldV0 {...defaultProps} store={mockStore} currentStep={1} />,
+        <SixFoldV0Svg {...defaultProps} store={mockStore} currentStep={1} />,
       );
       mockStore.clear.mockClear();
-      rerender(<SixFoldV0 {...defaultProps} store={mockStore} currentStep={2} />);
+      rerender(<SixFoldV0Svg {...defaultProps} store={mockStore} currentStep={2} />);
       expect(mockStore.clear).not.toHaveBeenCalled();
     });
 
     it("should clear store on backward step navigation (2->1)", () => {
       const mockStore = createMockStore();
       const { rerender } = render(
-        <SixFoldV0 {...defaultProps} store={mockStore} currentStep={2} />,
+        <SixFoldV0Svg {...defaultProps} store={mockStore} currentStep={2} />,
       );
       mockStore.clear.mockClear();
-      rerender(<SixFoldV0 {...defaultProps} store={mockStore} currentStep={1} />);
+      rerender(<SixFoldV0Svg {...defaultProps} store={mockStore} currentStep={1} />);
       expect(mockStore.clear).toHaveBeenCalledTimes(1);
     });
 
     it("should clear store on restart (restartTrigger changes)", () => {
       const mockStore = createMockStore();
       const { rerender } = render(
-        <SixFoldV0 {...defaultProps} store={mockStore} currentStep={3} restartTrigger={0} />,
+        <SixFoldV0Svg {...defaultProps} store={mockStore} currentStep={3} restartTrigger={0} />,
       );
       mockStore.clear.mockClear();
       rerender(
-        <SixFoldV0 {...defaultProps} store={mockStore} currentStep={3} restartTrigger={1} />,
+        <SixFoldV0Svg {...defaultProps} store={mockStore} currentStep={3} restartTrigger={1} />,
       );
       expect(mockStore.clear).toHaveBeenCalledTimes(1);
     });
@@ -99,7 +99,7 @@ describe("SixFoldV0 Component", () => {
         update: vi.fn((key, data) => updateCalls.push({ key, data })),
         clear: vi.fn(),
       };
-      render(<SixFoldV0 {...defaultProps} store={mockStore} currentStep={1} />);
+      render(<SixFoldV0Svg {...defaultProps} store={mockStore} currentStep={1} />);
       expect(updateCalls.length).toBeGreaterThan(0);
       expect(updateCalls[0].data.parameterValues).toBeDefined();
     });
@@ -109,30 +109,30 @@ describe("SixFoldV0 Component", () => {
     it("should clear store when theme changes from dark to light", () => {
       const mockStore = createMockStore();
       const { rerender } = render(
-        <SixFoldV0 {...defaultProps} store={mockStore} theme={darkTheme} />,
+        <SixFoldV0Svg {...defaultProps} store={mockStore} theme={darkTheme} />,
       );
       mockStore.clear.mockClear();
-      rerender(<SixFoldV0 {...defaultProps} store={mockStore} theme={lightTheme} />);
+      rerender(<SixFoldV0Svg {...defaultProps} store={mockStore} theme={lightTheme} />);
       expect(mockStore.clear).toHaveBeenCalledTimes(1);
     });
 
     it("should clear store when theme changes from light to dark", () => {
       const mockStore = createMockStore();
       const { rerender } = render(
-        <SixFoldV0 {...defaultProps} store={mockStore} theme={lightTheme} />,
+        <SixFoldV0Svg {...defaultProps} store={mockStore} theme={lightTheme} />,
       );
       mockStore.clear.mockClear();
-      rerender(<SixFoldV0 {...defaultProps} store={mockStore} theme={darkTheme} />);
+      rerender(<SixFoldV0Svg {...defaultProps} store={mockStore} theme={darkTheme} />);
       expect(mockStore.clear).toHaveBeenCalledTimes(1);
     });
 
     it("should NOT clear store when theme stays the same", () => {
       const mockStore = createMockStore();
       const { rerender } = render(
-        <SixFoldV0 {...defaultProps} store={mockStore} theme={darkTheme} />,
+        <SixFoldV0Svg {...defaultProps} store={mockStore} theme={darkTheme} />,
       );
       mockStore.clear.mockClear();
-      rerender(<SixFoldV0 {...defaultProps} store={mockStore} theme={darkTheme} />);
+      rerender(<SixFoldV0Svg {...defaultProps} store={mockStore} theme={darkTheme} />);
       expect(mockStore.clear).not.toHaveBeenCalled();
     });
   });
