@@ -189,7 +189,7 @@ export const Square = forwardRef(function Square(
               name="step-slider"
               className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
               style={{
-                background: `linear-gradient(to right, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} 0%, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
+                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
               }}
             />
             <div className="flex justify-between text-xs text-gray-400 mt-1">
