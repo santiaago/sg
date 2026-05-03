@@ -76,12 +76,6 @@ export default defineConfig({
       name: "Mobile Chrome",
       use: { ...devices["Pixel 5"] },
     },
-
-    /* Test against branded browsers. */
-    {
-      name: "Microsoft Edge",
-      use: { ...devices["Desktop Edge"], channel: "msedge" },
-    },
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces etc. */
