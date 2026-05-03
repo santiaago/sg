@@ -4,6 +4,7 @@ import "@testing-library/jest-dom";
 import { SixFoldV0 } from "../src/components/SixFoldV0";
 import { useGeometryStoreSixFoldV0 } from "../src/react-store";
 import { sixFoldSvgConfig } from "../src/config/svgConfig";
+import { darkTheme, lightTheme } from "../src/themes";
 import type { GeometryStore, GeometryItem } from "../src/react-store";
 import type { Mock } from "vitest";
 
@@ -101,6 +102,38 @@ describe("SixFoldV0 Component", () => {
       render(<SixFoldV0 {...defaultProps} store={mockStore} currentStep={1} />);
       expect(updateCalls.length).toBeGreaterThan(0);
       expect(updateCalls[0].data.parameterValues).toBeDefined();
+    });
+  });
+
+  describe("Theme Change Tests", () => {
+    it("should clear store when theme changes from dark to light", () => {
+      const mockStore = createMockStore();
+      const { rerender } = render(
+        <SixFoldV0 {...defaultProps} store={mockStore} theme={darkTheme} />,
+      );
+      mockStore.clear.mockClear();
+      rerender(<SixFoldV0 {...defaultProps} store={mockStore} theme={lightTheme} />);
+      expect(mockStore.clear).toHaveBeenCalledTimes(1);
+    });
+
+    it("should clear store when theme changes from light to dark", () => {
+      const mockStore = createMockStore();
+      const { rerender } = render(
+        <SixFoldV0 {...defaultProps} store={mockStore} theme={lightTheme} />,
+      );
+      mockStore.clear.mockClear();
+      rerender(<SixFoldV0 {...defaultProps} store={mockStore} theme={darkTheme} />);
+      expect(mockStore.clear).toHaveBeenCalledTimes(1);
+    });
+
+    it("should NOT clear store when theme stays the same", () => {
+      const mockStore = createMockStore();
+      const { rerender } = render(
+        <SixFoldV0 {...defaultProps} store={mockStore} theme={darkTheme} />,
+      );
+      mockStore.clear.mockClear();
+      rerender(<SixFoldV0 {...defaultProps} store={mockStore} theme={darkTheme} />);
+      expect(mockStore.clear).not.toHaveBeenCalled();
     });
   });
 });
