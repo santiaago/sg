@@ -625,7 +625,6 @@ describe("GeometryList", () => {
       render(
         <GeometryList
           store={store}
-          stroke={1}
           strokeBig={3}
           showInputHighlight={false}
           showNameFilter={true}

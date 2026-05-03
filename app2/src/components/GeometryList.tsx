@@ -10,7 +10,6 @@ import {
 
 interface GeometryListProps {
   store: any;
-  stroke?: number;
   strokeMid?: number;
   strokeBig?: number;
   strokeLine?: number;
@@ -24,7 +23,6 @@ const DEFAULT_TYPES: ReadonlyArray<GeometryType> = ["point", "line", "circle", "
 
 export function GeometryList({
   store,
-  stroke = 0.5,
   strokeBig = 2,
   showInputHighlight = false,
   showNameFilter = true,
@@ -99,7 +97,7 @@ export function GeometryList({
     // If clicking the already selected item, unselect it
     if (isCurrentlySelected) {
       store.update(name, { selected: false });
-      applyVisualFeedback(item.element, { ...item, selected: false }, stroke, strokeBig);
+      applyVisualFeedback(item.element, { ...item, selected: false }, strokeBig);
 
       // Clear highlighted inputs when unselecting
       if (showInputHighlight) {
@@ -114,12 +112,7 @@ export function GeometryList({
       if (existingItem) {
         store.update(key, { selected: false });
         // Restore visual state for deselected items
-        applyVisualFeedback(
-          existingItem.element,
-          { ...existingItem, selected: false },
-          stroke,
-          strokeBig,
-        );
+        applyVisualFeedback(existingItem.element, { ...existingItem, selected: false }, strokeBig);
       }
     });
 
@@ -133,7 +126,7 @@ export function GeometryList({
     }
 
     // Apply visual feedback to the clicked SVG element
-    applyVisualFeedback(item.element, { ...item, selected: true }, stroke, strokeBig);
+    applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
   };
 
   const getItemColor = (name: string) => {
@@ -209,5 +202,3 @@ export function GeometryList({
     </div>
   );
 }
-
-

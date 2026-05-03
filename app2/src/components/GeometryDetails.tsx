@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { JSX } from "react";
 import type { GeometryStore } from "../react-store";
 import type { GeometryItem } from "../react-store";
-import type { Step } from "../types/geometry";
+import type { StepReference } from "../types/geometry";
 import {
   applyVisualFeedback,
   restoreInitialState,
@@ -12,17 +12,14 @@ import {
 
 export interface GeometryDetailsProps {
   store: GeometryStore;
-  stroke?: number;
   strokeBig?: number;
-  steps?: readonly Step[];
+  steps?: readonly StepReference[];
 }
 
 interface GeometryDetailsItemProps {
   name: string;
   type?: string;
   store: GeometryStore;
-  stroke: number;
-  strokeBig: number;
   isHovered: boolean;
   onHoverStart: (name: string) => void;
   onHoverEnd: () => void;
@@ -33,8 +30,6 @@ function GeometryDetailsItem({
   name,
   type,
   store,
-  stroke,
-  strokeBig,
   isHovered,
   onHoverStart,
   onHoverEnd,
@@ -83,7 +78,11 @@ function getSelectedGeometry(store: GeometryStore): GeometryItem | null {
 }
 
 // Get outputs - geometries output by the same step that created the selected geometry
-function getOutputs(store: GeometryStore, stepId: string, steps?: readonly Step[]): GeometryItem[] {
+function getOutputs(
+  store: GeometryStore,
+  stepId: string,
+  steps?: readonly StepReference[],
+): GeometryItem[] {
   const outputs: GeometryItem[] = [];
 
   if (!steps) return outputs;
@@ -108,7 +107,11 @@ function getParameterType(paramName: string): string {
   return PARAMETER_TYPES[paramName] || "unknown";
 }
 
-export function GeometryDetails({ store, stroke = 0.5, strokeBig = 2, steps }: GeometryDetailsProps): JSX.Element {
+export function GeometryDetails({
+  store,
+  strokeBig = 2,
+  steps,
+}: GeometryDetailsProps): JSX.Element {
   const selectedGeometry = getSelectedGeometry(store);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
@@ -141,14 +144,14 @@ export function GeometryDetails({ store, stroke = 0.5, strokeBig = 2, steps }: G
       if (item?.element) {
         // Check if the item is selected
         if (item.selected) {
-          applyVisualFeedback(item.element, item, stroke, strokeBig);
+          applyVisualFeedback(item.element, item, strokeBig);
         } else {
           removeHoverHighlight(item.element, item);
         }
       }
     }
     setHoveredItem(null);
-  }, [hoveredItem, store.items, stroke, strokeBig]);
+  }, [hoveredItem, store.items, strokeBig]);
 
   const handleClick = useCallback(
     (name: string) => {
@@ -166,9 +169,9 @@ export function GeometryDetails({ store, stroke = 0.5, strokeBig = 2, steps }: G
 
       // Select the clicked one
       store.update(name, { selected: true });
-      applyVisualFeedback(item.element, { ...item, selected: true }, stroke, strokeBig);
+      applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
     },
-    [store, stroke, strokeBig],
+    [store, strokeBig],
   );
 
   if (!selectedGeometry) {
@@ -209,8 +212,6 @@ export function GeometryDetails({ store, stroke = 0.5, strokeBig = 2, steps }: G
                     name={depName}
                     type={depItem.type}
                     store={store}
-                    stroke={stroke}
-                    strokeBig={strokeBig}
                     isHovered={hoveredItem === depName}
                     onHoverStart={handleHoverStart}
                     onHoverEnd={handleHoverEnd}
@@ -259,8 +260,6 @@ export function GeometryDetails({ store, stroke = 0.5, strokeBig = 2, steps }: G
                   name={output.name}
                   type={output.type}
                   store={store}
-                  stroke={stroke}
-                  strokeBig={strokeBig}
                   isHovered={hoveredItem === output.name}
                   onHoverStart={handleHoverStart}
                   onHoverEnd={handleHoverEnd}

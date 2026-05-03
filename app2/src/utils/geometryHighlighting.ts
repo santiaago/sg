@@ -3,11 +3,7 @@ import type { GeometryItem } from "../react-store";
 /**
  * Apply orange visual feedback to SVG elements for highlighted input dependencies
  */
-export function applyInputVisualFeedback(
-  element: any,
-  shape: GeometryItem,
-  scale: number,
-): void {
+export function applyInputVisualFeedback(element: any, shape: GeometryItem, scale: number): void {
   if (!element) return;
 
   try {
@@ -59,12 +55,7 @@ export function restoreInitialState(element: any, shape: GeometryItem): void {
 /**
  * Apply visual feedback to SVG elements based on selection state
  */
-export function applyVisualFeedback(
-  element: any,
-  shape: GeometryItem,
-  stroke: number,
-  strokeBig: number,
-): void {
+export function applyVisualFeedback(element: any, shape: GeometryItem, strokeBig: number): void {
   if (!element) return;
 
   try {
@@ -119,7 +110,6 @@ export function applyVisualFeedback(
 export function highlightGeometry(
   store: { items: Record<string, GeometryItem> },
   geometryName: string,
-  stroke: number,
   strokeBig: number,
 ): void {
   const item = store.items[geometryName] as GeometryItem | undefined;
@@ -134,17 +124,13 @@ export function highlightGeometry(
   });
 
   // Apply visual feedback to the selected geometry
-  applyVisualFeedback(item.element, { ...item, selected: true }, stroke, strokeBig);
+  applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
 }
 
 /**
  * Apply hover-style highlighting to a geometry (orange, similar to input highlighting)
  */
-export function applyHoverHighlight(
-  element: any,
-  shape: GeometryItem,
-  scale: number,
-): void {
+export function applyHoverHighlight(element: any, shape: GeometryItem, scale: number): void {
   if (!element) return;
 
   try {
