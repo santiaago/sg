@@ -26,7 +26,7 @@ export interface SquareProps {
   // Key to trigger restart (e.g., when resetting the construction)
   restartTrigger?: number;
 
-  // Current step index (1-based) to execute up to
+  // Number of steps to execute (0 = none, 1 = first step, N = N steps)
   currentStep?: number;
 
   // Total number of steps
@@ -181,7 +181,7 @@ export const Square = forwardRef(function Square(
           <div className="w-full max-w-md">
             <input
               type="range"
-              min={1}
+              min={0}
               max={maxSteps}
               step={1}
               value={currentStep ?? 0}
@@ -194,7 +194,7 @@ export const Square = forwardRef(function Square(
               }}
             />
             <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>1</span>
+              <span>0</span>
               <span>{maxSteps}</span>
             </div>
           </div>

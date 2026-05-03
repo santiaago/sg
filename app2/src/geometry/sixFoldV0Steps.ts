@@ -254,7 +254,7 @@ const STEP_11: SixFoldV0Step = {
 /**
  * Step 12: Create line L13
  * Creates temporary connecting line from CP1 to P3.
- * Note: This is different from the crossing line LCP1CP3 in STEP_15 (CP1→CP3).
+ * Note: This is different from the crossing line LCP1CP3 in STEP_25 (CP1→CP3).
  */
 const STEP_12: SixFoldV0Step = {
   id: "step12",
@@ -275,7 +275,7 @@ const STEP_12: SixFoldV0Step = {
 /**
  * Step 13: Create line L24
  * Creates temporary connecting line from CP2 to P4.
- * Note: This is different from the crossing line LCP2CP4 in STEP_16 (CP2→CP4).
+ * Note: This is different from the crossing line LCP2CP4 in STEP_26 (CP2→CP4).
  */
 const STEP_13: SixFoldV0Step = {
   id: "step13",
@@ -322,7 +322,7 @@ const STEP_14: SixFoldV0Step = {
  * Finds CP3 as intersection of C2 with L24.
  */
 const STEP_15: SixFoldV0Step = {
-  id: "step55",
+  id: "step15",
   inputs: [GEOM.C2, GEOM.L24],
   outputs: [GEOM.CP3],
   parameters: [],
@@ -475,7 +475,7 @@ const STEP_22: SixFoldV0Step = {
 };
 
 /**
- * Step 5A: Line LPIC12
+ * Step 23: Line LPIC12
  * Draws line from circle center cp1 to intersection point pic12.
  */
 const STEP_23: SixFoldV0Step = {
@@ -494,11 +494,11 @@ const STEP_23: SixFoldV0Step = {
 };
 
 /**
- * Step 5B: Line LPIC14
+ * Step 24: Line LPIC14
  * Draws line from circle center cp1 to intersection point pic14.
  */
-const STEP_77: SixFoldV0Step = {
-  id: "step77",
+const STEP_24: SixFoldV0Step = {
+  id: "step24",
   inputs: [GEOM.CP1, GEOM.PIC14],
   outputs: [GEOM.LPIC14],
   parameters: [],
@@ -513,11 +513,11 @@ const STEP_77: SixFoldV0Step = {
 };
 
 /**
- * Step 6A: Line LCP1CP3
+ * Step 25: Line LCP1CP3
  * Draws diagonal line connecting opposite circle centers cp1 and cp3.
  */
-const STEP_78: SixFoldV0Step = {
-  id: "step78",
+const STEP_25: SixFoldV0Step = {
+  id: "step25",
   inputs: [GEOM.CP1, GEOM.CP3],
   outputs: [GEOM.LCP1CP3],
   parameters: [],
@@ -532,7 +532,7 @@ const STEP_78: SixFoldV0Step = {
 };
 
 /**
- * Step 6B: Line LCP2CP4
+ * Step 26: Line LCP2CP4
  * Draws diagonal line connecting opposite circle centers cp2 and cp4.
  */
 const STEP_26: SixFoldV0Step = {
@@ -551,7 +551,7 @@ const STEP_26: SixFoldV0Step = {
 };
 
 /**
- * Step 6C: Intersection point PI2
+ * Step 27: Intersection point PI2
  * Computes pi2 as the intersection point of lines lcp1cp3 and lcp2cp4.
  */
 const STEP_27: SixFoldV0Step = {
@@ -589,11 +589,11 @@ const STEP_27: SixFoldV0Step = {
 };
 
 /**
- * Step 7A: Circle C1_D1
+ * Step 28: Circle C1_D1
  * Creates circle centered at cp1 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_86: SixFoldV0Step = {
-  id: "step86",
+const STEP_28: SixFoldV0Step = {
+  id: "step28",
   inputs: [GEOM.CP1, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C1_D1],
   parameters: [],
@@ -610,11 +610,11 @@ const STEP_86: SixFoldV0Step = {
 };
 
 /**
- * Step 7B: Circle C2_D1
+ * Step 29: Circle C2_D1
  * Creates circle centered at cp2 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_87: SixFoldV0Step = {
-  id: "step87",
+const STEP_29: SixFoldV0Step = {
+  id: "step29",
   inputs: [GEOM.CP2, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C2_D1],
   parameters: [],
@@ -631,11 +631,11 @@ const STEP_87: SixFoldV0Step = {
 };
 
 /**
- * Step 7C: Circle C3_D1
+ * Step 30: Circle C3_D1
  * Creates circle centered at cp3 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_88: SixFoldV0Step = {
-  id: "step88",
+const STEP_30: SixFoldV0Step = {
+  id: "step30",
   inputs: [GEOM.CP3, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C3_D1],
   parameters: [],
@@ -652,11 +652,11 @@ const STEP_88: SixFoldV0Step = {
 };
 
 /**
- * Step 7D: Circle C4_D1
+ * Step 31: Circle C4_D1
  * Creates circle centered at cp4 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_89: SixFoldV0Step = {
-  id: "step89",
+const STEP_31: SixFoldV0Step = {
+  id: "step31",
   inputs: [GEOM.CP4, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C4_D1],
   parameters: [],
@@ -673,15 +673,15 @@ const STEP_89: SixFoldV0Step = {
 };
 
 /**
- * Step 8: Circles at pic14 and pic12 with radius d1
+ * Steps 32-33: Circles at pic14 and pic12 with radius d1
  * Creates circles centered at pic12 and pic14 with radius d1 (distance from pic14 to pi2).
  */
 /**
- * Step 8A: Circle C14_D1
+ * Step 32: Circle C14_D1
  * Creates circle centered at pic14 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_90: SixFoldV0Step = {
-  id: "step90",
+const STEP_32: SixFoldV0Step = {
+  id: "step32",
   inputs: [GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C14_D1],
   parameters: [],
@@ -697,11 +697,11 @@ const STEP_90: SixFoldV0Step = {
 };
 
 /**
- * Step 8B: Circle C12_D1
+ * Step 33: Circle C12_D1
  * Creates circle centered at pic12 with radius d1 (distance from pic14 to pi2).
  */
-const STEP_91: SixFoldV0Step = {
-  id: "step91",
+const STEP_33: SixFoldV0Step = {
+  id: "step33",
   inputs: [GEOM.PIC12, GEOM.PIC14, GEOM.PI2],
   outputs: [GEOM.C12_D1],
   parameters: [],
@@ -718,16 +718,16 @@ const STEP_91: SixFoldV0Step = {
 };
 
 /**
- * Step 9: pi3 and pi4 intersection points
+ * Steps 34-35: pi3 and pi4 intersection points
  * pi3 = circlesIntersectionPoint(c14_d1, c2_d1, directions.right)
  * pi4 = circlesIntersectionPoint(c12_d1, c4_d1, directions.right)
  */
 /**
- * Step 9A: Intersection point PI3
+ * Step 34: Intersection point PI3
  * pi3 = circlesIntersectionPoint(c14_d1, c2_d1, directions.right)
  */
 const STEP_34: SixFoldV0Step = {
-  id: "step92",
+  id: "step34",
   inputs: [GEOM.C14_D1, GEOM.C2_D1],
   outputs: [GEOM.PI3],
   parameters: [],
@@ -744,11 +744,11 @@ const STEP_34: SixFoldV0Step = {
 };
 
 /**
- * Step 9B: Intersection point PI4
+ * Step 35: Intersection point PI4
  * pi4 = circlesIntersectionPoint(c12_d1, c4_d1, directions.right)
  */
 const STEP_35: SixFoldV0Step = {
-  id: "step93",
+  id: "step35",
   inputs: [GEOM.C12_D1, GEOM.C4_D1],
   outputs: [GEOM.PI4],
   parameters: [],
@@ -765,11 +765,11 @@ const STEP_35: SixFoldV0Step = {
 };
 
 /**
- * Step 10: Lines from cp1 to pi3 and pi4
+ * Steps 36-37: Lines from cp1 to pi3 and pi4
  * Draws lines from circle center cp1 to intersection points pi3 and pi4.
  */
 /**
- * Step 10A: Line LCP1PI3
+ * Step 36: Line LCP1PI3
  * Draws line from circle center cp1 to intersection point pi3.
  */
 const STEP_36: SixFoldV0Step = {
@@ -788,7 +788,7 @@ const STEP_36: SixFoldV0Step = {
 };
 
 /**
- * Step 10B: Line LCP1PI4
+ * Step 37: Line LCP1PI4
  * Draws line from circle center cp1 to intersection point pi4.
  */
 const STEP_37: SixFoldV0Step = {
@@ -807,12 +807,12 @@ const STEP_37: SixFoldV0Step = {
 };
 
 /**
- * Step 11: prx5 and prx6 points
+ * Steps 38-39: prx5 and prx6 points
  * prx5 = interceptCircleLineSeg(c14_d1 center, lpic14 line)
  * prx6 = interceptCircleLineSeg(c12_d1 center, lpic12 line)
  */
 /**
- * Step 11A: Point PRX5
+ * Step 38: Point PRX5
  * prx5 = interceptCircleLineSeg(c14_d1, lpic14, 0)
  */
 const STEP_38: SixFoldV0Step = {
@@ -833,7 +833,7 @@ const STEP_38: SixFoldV0Step = {
 };
 
 /**
- * Step 11B: Point PRX6
+ * Step 39: Point PRX6
  * prx6 = interceptCircleLineSeg(c12_d1, lpic12, 0)
  */
 const STEP_39: SixFoldV0Step = {
@@ -854,7 +854,7 @@ const STEP_39: SixFoldV0Step = {
 };
 
 /**
- * Step 12A: c23w point
+ * Step 40: c23w point
  * c23w = bisectCircleAndPoint(c14_d1, prx5)
  */
 const STEP_40: SixFoldV0Step = {
@@ -874,7 +874,7 @@ const STEP_40: SixFoldV0Step = {
 };
 
 /**
- * Step 12B: l14p line
+ * Step 41: l14p line
  * l14p = line from pic14 to c23w
  */
 const STEP_41: SixFoldV0Step = {
@@ -894,7 +894,7 @@ const STEP_41: SixFoldV0Step = {
 };
 
 /**
- * Step 12C: pc23 point
+ * Step 42: pc23 point
  * pc23 = linesIntersection(l23, l14p)
  */
 const STEP_42: SixFoldV0Step = {
@@ -917,9 +917,7 @@ const STEP_42: SixFoldV0Step = {
       l14p.y2,
     );
     if (!pc23Result) {
-      throw new Error(
-        "STEP_42: lineIntersect returned null - lines l23 and l14p do not intersect",
-      );
+      throw new Error("STEP_42: lineIntersect returned null - lines l23 and l14p do not intersect");
     }
     const pc23Pt = validPoint(pc23Result[0], pc23Result[1]);
     if (!pc23Pt) {
@@ -933,7 +931,7 @@ const STEP_42: SixFoldV0Step = {
 };
 
 /**
- * Step 12D: c23s point
+ * Step 43: c23s point
  * line = line from pc23 to cp2
  * c23s = interceptCircleLine(c2_d1, line, 0)
  */
@@ -961,7 +959,7 @@ const STEP_43: SixFoldV0Step = {
 };
 
 /**
- * Step 12E: c23 circle
+ * Step 44: c23 circle
  * d2 = distance from pc23 to c23s
  * c23 = new Circle(pc23, d2)
  */
@@ -986,7 +984,7 @@ const STEP_44: SixFoldV0Step = {
 };
 
 /**
- * Step 13A: cpic12 circle
+ * Step 45: cpic12 circle
  * cpic12 = circle at pic12 with radius d1 (distance from pic14 to pi2)
  */
 const STEP_45: SixFoldV0Step = {
@@ -1009,7 +1007,7 @@ const STEP_45: SixFoldV0Step = {
 };
 
 /**
- * Step 13B: c34n point
+ * Step 46: c34n point
  * c34n = bisectCircleAndPoint(cpic12, prx6)
  */
 const STEP_46: SixFoldV0Step = {
@@ -1029,7 +1027,7 @@ const STEP_46: SixFoldV0Step = {
 };
 
 /**
- * Step 13C: lpic12c34n line
+ * Step 47: lpic12c34n line
  * lpic12c34n = line from pic12 to c34n
  */
 const STEP_47: SixFoldV0Step = {
@@ -1049,7 +1047,7 @@ const STEP_47: SixFoldV0Step = {
 };
 
 /**
- * Step 13D: pc34 point
+ * Step 48: pc34 point
  * pc34 = linesIntersection(l34, lpic12c34n)
  */
 const STEP_48: SixFoldV0Step = {
@@ -1088,7 +1086,7 @@ const STEP_48: SixFoldV0Step = {
 };
 
 /**
- * Step 13E: c34e point
+ * Step 49: c34e point
  * line = line from pc34 to cp4
  * c34e = interceptCircleLine(c4_d1, line, 0)
  */
@@ -1116,7 +1114,7 @@ const STEP_49: SixFoldV0Step = {
 };
 
 /**
- * Step 13F: c34 circle
+ * Step 50: c34 circle
  * d2 = distance from pc34 to c34e
  * c34 = circle at pc34 with radius d2
  */
@@ -1141,7 +1139,7 @@ const STEP_50: SixFoldV0Step = {
 };
 
 /**
- * Step 14A: pp point
+ * Step 51: pp point
  * pp = interceptCircleLineSeg(c1_d1, lpic14, 0)
  */
 const STEP_51: SixFoldV0Step = {
@@ -1163,7 +1161,7 @@ const STEP_51: SixFoldV0Step = {
 };
 
 /**
- * Step 14B: l1 line
+ * Step 52: l1 line
  * l1 = line from pi3 to pp
  */
 const STEP_52: SixFoldV0Step = {
@@ -1183,7 +1181,7 @@ const STEP_52: SixFoldV0Step = {
 };
 
 /**
- * Step 14C: pii1 point
+ * Step 53: pii1 point
  * pii1 = intersection of l1 with lcp1cp3
  */
 const STEP_53: SixFoldV0Step = {
@@ -1220,7 +1218,7 @@ const STEP_53: SixFoldV0Step = {
 };
 
 /**
- * Step 14D: pii2 point
+ * Step 54: pii2 point
  * pii2 = intersection of l1 with lcp2cp4
  */
 const STEP_54: SixFoldV0Step = {
@@ -1257,10 +1255,10 @@ const STEP_54: SixFoldV0Step = {
 };
 
 /**
- * Step 15: Line between pii1 and pii2
+ * Step 55: Line between pii1 and pii2
  * Draws a connecting line between the two intersection points pii1 and pii2.
  */
-const STEP_15: SixFoldV0Step = {
+const STEP_55: SixFoldV0Step = {
   id: "step55",
   inputs: [GEOM.PII1, GEOM.PII2],
   outputs: [GEOM.LPII1PII2],
@@ -1276,11 +1274,11 @@ const STEP_15: SixFoldV0Step = {
 };
 
 /**
- * Step 16: D3 circles at all 4 centers with radius = distance from pii1 to cp1
+ * Steps 56-57: D3 circles at all 4 centers with radius = distance from pii1 to cp1
  * Creates circles at cp1, cp2, cp3, cp4 with radius d3 (distance from pii1 to cp1).
  */
 /**
- * Step 16A: Circle C1_D3
+ * Step 56: Circle C1_D3
  * Creates circle centered at cp1 with radius d3 (distance from pii1 to cp1).
  */
 const STEP_56: SixFoldV0Step = {
@@ -1303,7 +1301,7 @@ const STEP_56: SixFoldV0Step = {
 };
 
 /**
- * Step 16B: Circle C3_D3
+ * Step 57: Circle C3_D3
  * Creates circle centered at cp3 with radius d3 (distance from pii1 to cp1).
  */
 const STEP_57: SixFoldV0Step = {
@@ -1327,11 +1325,11 @@ const STEP_57: SixFoldV0Step = {
 };
 
 /**
- * Step 17: Lines from cp2 to pic14 and cp4 to pic12
+ * Steps 58-59: Lines from cp2 to pic14 and cp4 to pic12
  * Draws lines connecting circle centers to intersection points.
  */
 /**
- * Step 17A: Line LCP2PIC14
+ * Step 58: Line LCP2PIC14
  * Draws line from cp2 to pic14.
  */
 const STEP_58: SixFoldV0Step = {
@@ -1350,7 +1348,7 @@ const STEP_58: SixFoldV0Step = {
 };
 
 /**
- * Step 17B: Line LCP4PIC12
+ * Step 59: Line LCP4PIC12
  * Draws line from cp4 to pic12.
  */
 const STEP_59: SixFoldV0Step = {
@@ -1369,13 +1367,13 @@ const STEP_59: SixFoldV0Step = {
 };
 
 /**
- * Step 18: lpii1pi4, pic4, outline1
+ * Steps 60-62: lpii1pi4, pic4, outline1
  * lpii1pi4 = line from pii1 to pi4
  * pic4 = intersection of lpii1pi4 and lcp4pic12
  * outline1 = line from pii1 to pic4
  */
 /**
- * Step 18A: Line LPII1PI4
+ * Step 60: Line LPII1PI4
  * lpii1pi4 = line from pii1 to pi4
  */
 const STEP_60: SixFoldV0Step = {
@@ -1395,7 +1393,7 @@ const STEP_60: SixFoldV0Step = {
 };
 
 /**
- * Step 18B: Point PIC4
+ * Step 61: Point PIC4
  * pic4 = intersection of lpii1pi4 and lcp4pic12
  */
 const STEP_61: SixFoldV0Step = {
@@ -1434,7 +1432,7 @@ const STEP_61: SixFoldV0Step = {
 };
 
 /**
- * Step 18C: Outline1
+ * Step 62: Outline1
  * outline1 = line from pii1 to pic4
  */
 const STEP_62: SixFoldV0Step = {
@@ -1454,13 +1452,13 @@ const STEP_62: SixFoldV0Step = {
 };
 
 /**
- * Step 19: pii1, pic2, outline2
+ * Steps 63-64: pii1, pic2, outline2
  * lpii1pii2 = line from pii1 to pii2
  * pic2 = intersection of lpii1pii2 and lcp2pic14
  * outline2 = line from pii1 to pic2
  */
 /**
- * Step 19A: Point PIC2
+ * Step 63: Point PIC2
  * pic2 = intersection of lpii1pii2 and lcp2pic14
  */
 const STEP_63: SixFoldV0Step = {
@@ -1499,7 +1497,7 @@ const STEP_63: SixFoldV0Step = {
 };
 
 /**
- * Step 19B: Outline2
+ * Step 64: Outline2
  * outline2 = line from pii1 to pic2
  */
 const STEP_64: SixFoldV0Step = {
@@ -1519,14 +1517,14 @@ const STEP_64: SixFoldV0Step = {
 };
 
 /**
- * Step 20: pic1w, pic34, outline3
+ * Steps 65-67: pic1w, pic34, outline3
  * lpii2pic4 = line from pii2 to pic4
  * pic1w = intersection of lpii2pic4 and l14p
  * pic34 = intersection of lpii2pic4 and lpic12c34n
  * outline3 = line from pic1w to pic34
  */
 /**
- * Step 20A: Point PIC1W
+ * Step 65: Point PIC1W
  * pic1w = interceptCircleLineSeg(c1_d3, lcp1pi3, 0)
  */
 const STEP_65: SixFoldV0Step = {
@@ -1547,7 +1545,7 @@ const STEP_65: SixFoldV0Step = {
 };
 
 /**
- * Step 20B: Point PIC34
+ * Step 66: Point PIC34
  * pic34 = interceptCircleLineSeg(c34, l34, 0)
  */
 const STEP_66: SixFoldV0Step = {
@@ -1568,7 +1566,7 @@ const STEP_66: SixFoldV0Step = {
 };
 
 /**
- * Step 20C: Outline3
+ * Step 67: Outline3
  * outline3 = line from pic1w to pic34
  */
 const STEP_67: SixFoldV0Step = {
@@ -1587,13 +1585,13 @@ const STEP_67: SixFoldV0Step = {
 };
 
 /**
- * Step 21: pic1n, pic23, outline4
+ * Steps 68-70: pic1n, pic23, outline4
  * pic1n = interceptCircleLine(c1_d3, lcp1pi4, 0)
  * pic23 = interceptCircleLine(c23, l23, 0)
  * outline4 = line from pic1n to pic23
  */
 /**
- * Step 21A: Point PIC1N
+ * Step 68: Point PIC1N
  * pic1n = interceptCircleLine(c1_d3, lcp1pi4, 0)
  */
 const STEP_68: SixFoldV0Step = {
@@ -1614,7 +1612,7 @@ const STEP_68: SixFoldV0Step = {
 };
 
 /**
- * Step 21B: Point PIC23
+ * Step 69: Point PIC23
  * pic23 = interceptCircleLine(c23, l23, 1) - using index 1
  */
 const STEP_69: SixFoldV0Step = {
@@ -1635,7 +1633,7 @@ const STEP_69: SixFoldV0Step = {
 };
 
 /**
- * Step 21C: Outline4
+ * Step 70: Outline4
  * outline4 = line from pic1n to pic23
  */
 const STEP_70: SixFoldV0Step = {
@@ -1654,13 +1652,13 @@ const STEP_70: SixFoldV0Step = {
 };
 
 /**
- * Step 22: pc1w, pc23s, outline5
+ * Steps 71-73: pc1w, pc23s, outline5
  * pc1w = interceptCircleLineSeg(c1_d1, l12, 0)
  * pc23s = interceptCircleLineSeg(c23, l23, 0)
  * outline5 = line from pc1w to pc23s
  */
 /**
- * Step 22A: Point PC1W
+ * Step 71: Point PC1W
  * pc1w = interceptCircleLineSeg(c1_d1, l12, 0)
  */
 const STEP_71: SixFoldV0Step = {
@@ -1681,7 +1679,7 @@ const STEP_71: SixFoldV0Step = {
 };
 
 /**
- * Step 22B: Point PC23S
+ * Step 72: Point PC23S
  * pc23s = interceptCircleLineSeg(c23, l23, 0)
  */
 const STEP_72: SixFoldV0Step = {
@@ -1702,7 +1700,7 @@ const STEP_72: SixFoldV0Step = {
 };
 
 /**
- * Step 22C: Outline5
+ * Step 73: Outline5
  * outline5 = line from pc1w to pc23s
  */
 const STEP_73: SixFoldV0Step = {
@@ -1721,13 +1719,13 @@ const STEP_73: SixFoldV0Step = {
 };
 
 /**
- * Step 23: pc1n, pc34e, outline6
+ * Steps 74-76: pc1n, pc34e, outline6
  * pc1n = interceptCircleLineSeg(c1_d1, l41, 0)
  * pc34e = interceptCircleLineSeg(c34, l34, 1)
  * outline6 = line from pc1n to pc34e
  */
 /**
- * Step 23A: Point PC1N
+ * Step 74: Point PC1N
  * pc1n = interceptCircleLineSeg(c1_d1, l41, 0)
  */
 const STEP_74: SixFoldV0Step = {
@@ -1748,7 +1746,7 @@ const STEP_74: SixFoldV0Step = {
 };
 
 /**
- * Step 23B: Point PC34E
+ * Step 75: Point PC34E
  * pc34e = interceptCircleLineSeg(c34, l34, 1)
  */
 const STEP_75: SixFoldV0Step = {
@@ -1769,7 +1767,7 @@ const STEP_75: SixFoldV0Step = {
 };
 
 /**
- * Step 23C: Outline6
+ * Step 76: Outline6
  * outline6 = line from pc1n to pc34e
  */
 const STEP_76: SixFoldV0Step = {
@@ -1788,7 +1786,7 @@ const STEP_76: SixFoldV0Step = {
 };
 
 /**
- * Step 24: outline7
+ * Step 77: outline7
  * Draws outline line from pc1n to pic1n.
  */
 const STEP_77: SixFoldV0Step = {
@@ -1807,7 +1805,7 @@ const STEP_77: SixFoldV0Step = {
 };
 
 /**
- * Step 25: outline8
+ * Step 78: outline8
  * Draws outline line from pc1w to pic1w.
  */
 const STEP_78: SixFoldV0Step = {
@@ -1826,14 +1824,14 @@ const STEP_78: SixFoldV0Step = {
 };
 
 /**
- * Step 26: pc3sw, pc23e, outline9
+ * Steps 79-82: pc3sw, pc23e, outline9
  * pc3sw = interceptCircleLineSeg(c3_d3, l13, 0)
  * lc23cp1 = line from c23 center to cp1
  * pc23e = interceptCircleLineSeg(c23, lc23cp1, 0)
  * outline9 = line from pc3sw to pc23e
  */
 /**
- * Step 26A: Point PC3SW
+ * Step 79: Point PC3SW
  * pc3sw = interceptCircleLineSeg(c3_d3, lcp1cp3, 0)
  */
 const STEP_79: SixFoldV0Step = {
@@ -1854,7 +1852,7 @@ const STEP_79: SixFoldV0Step = {
 };
 
 /**
- * Step 26B: Line LC23CP1
+ * Step 80: Line LC23CP1
  * lc23cp1 = line from c23 center to cp1
  */
 const STEP_80: SixFoldV0Step = {
@@ -1873,7 +1871,7 @@ const STEP_80: SixFoldV0Step = {
 };
 
 /**
- * Step 26C: Point PC23E and Outline9
+ * Step 81: Point PC23E and Outline9
  * pc23e = interceptCircleLineSeg(c23, lc23cp1, 0)
  * outline9 = line from pc3sw to pc23e
  */
@@ -1895,7 +1893,7 @@ const STEP_81: SixFoldV0Step = {
 };
 
 /**
- * Step 26D: Outline9
+ * Step 82: Outline9
  * outline9 = line from pc3sw to pc23e
  */
 const STEP_82: SixFoldV0Step = {
@@ -1914,13 +1912,13 @@ const STEP_82: SixFoldV0Step = {
 };
 
 /**
- * Step 27: pc34s, outline10
+ * Steps 83-85: pc34s, outline10
  * lc34cp1 = line from c34 center to cp1
  * pc34s = interceptCircleLineSeg(c34, lc34cp1, 0)
  * outline10 = line from pc34s to pc3sw
  */
 /**
- * Step 27A: Line LC34CP1
+ * Step 83: Line LC34CP1
  * lc34cp1 = line from c34 center to cp1
  */
 const STEP_83: SixFoldV0Step = {
@@ -1939,7 +1937,7 @@ const STEP_83: SixFoldV0Step = {
 };
 
 /**
- * Step 27B: Point PC34S
+ * Step 84: Point PC34S
  * pc34s = interceptCircleLineSeg(c34, lc34cp1, 0)
  */
 const STEP_84: SixFoldV0Step = {
@@ -1960,7 +1958,7 @@ const STEP_84: SixFoldV0Step = {
 };
 
 /**
- * Step 27C: Outline10
+ * Step 85: Outline10
  * outline10 = line from pc34s to pc3sw
  */
 const STEP_85: SixFoldV0Step = {
@@ -1979,7 +1977,7 @@ const STEP_85: SixFoldV0Step = {
 };
 
 /**
- * Step 28: outline11
+ * Step 86: outline11
  * Draws outline line from pc34e to pc34s.
  */
 const STEP_86: SixFoldV0Step = {
@@ -1998,7 +1996,7 @@ const STEP_86: SixFoldV0Step = {
 };
 
 /**
- * Step 29: outline12 (symmetric to outline11, closer to cp2)
+ * Step 87: outline12 (symmetric to outline11, closer to cp2)
  * Draws outline line from pc23s to pc23e.
  */
 const STEP_87: SixFoldV0Step = {
@@ -2017,7 +2015,7 @@ const STEP_87: SixFoldV0Step = {
 };
 
 /**
- * Step 30: outline13 (cp4 to pic4)
+ * Step 88: outline13 (cp4 to pic4)
  * Draws outline line from circle center cp4 to point pic4.
  */
 const STEP_88: SixFoldV0Step = {
@@ -2036,7 +2034,7 @@ const STEP_88: SixFoldV0Step = {
 };
 
 /**
- * Step 31: outline14 (cp2 to pic2)
+ * Step 89: outline14 (cp2 to pic2)
  * Draws outline line from circle center cp2 to point pic2.
  */
 const STEP_89: SixFoldV0Step = {
@@ -2055,7 +2053,7 @@ const STEP_89: SixFoldV0Step = {
 };
 
 /**
- * Step 32: Outline15 - line from cp2 to cp1
+ * Step 90: Outline15 - line from cp2 to cp1
  * Draws outline line connecting circle centers cp2 to cp1.
  */
 const STEP_90: SixFoldV0Step = {
@@ -2074,7 +2072,7 @@ const STEP_90: SixFoldV0Step = {
 };
 
 /**
- * Step 33: Outline16 - line from cp2 to cp3
+ * Step 91: Outline16 - line from cp2 to cp3
  * Draws outline line connecting circle centers cp2 to cp3.
  */
 const STEP_91: SixFoldV0Step = {
@@ -2093,10 +2091,10 @@ const STEP_91: SixFoldV0Step = {
 };
 
 /**
- * Step 34: Outline17 - line from cp3 to cp4
+ * Step 92: Outline17 - line from cp3 to cp4
  * Draws outline line connecting circle centers cp3 to cp4.
  */
-const STEP_34: SixFoldV0Step = {
+const STEP_92: SixFoldV0Step = {
   id: "step92",
   inputs: [GEOM.CP3, GEOM.CP4],
   outputs: [GEOM.OUTLINE17],
@@ -2112,10 +2110,10 @@ const STEP_34: SixFoldV0Step = {
 };
 
 /**
- * Step 35: Outline18 - line from cp4 to cp1
+ * Step 93: Outline18 - line from cp4 to cp1
  * Draws outline line connecting circle centers cp4 to cp1, completing the quadrilateral.
  */
-const STEP_35: SixFoldV0Step = {
+const STEP_93: SixFoldV0Step = {
   id: "step93",
   inputs: [GEOM.CP4, GEOM.CP1],
   outputs: [GEOM.OUTLINE18],
@@ -2186,7 +2184,7 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_52,
   STEP_53,
   STEP_54,
-  STEP_15,
+  STEP_55,
   STEP_56,
   STEP_57,
   STEP_58,
@@ -2223,8 +2221,8 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_89,
   STEP_90,
   STEP_91,
-  STEP_34,
-  STEP_35,
+  STEP_92,
+  STEP_93,
 ];
 
 /** Execute a single step */

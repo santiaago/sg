@@ -42,6 +42,11 @@ export interface SquareConfig {
   border: number;
   lineLength: number;
   circleRadius: number;
+  // P1 and P2 are the endpoints of MAIN_LINE
+  p1x: number;
+  p1y: number;
+  p2x: number;
+  p2y: number;
   // C1 and C2 are the circle centers that define the main line
   c1x: number;
   c1y: number;
@@ -67,6 +72,11 @@ export function computeSquareConfig(width: number, height: number): SquareConfig
   const C1_X_POSITION = BORDER + LINE_LENGTH * C1_POSITION_RATIO;
   const C2_X_POSITION = BORDER + LINE_LENGTH * C2_POSITION_RATIO;
   const ly2 = height - BORDER;
+  // P1 and P2 are the endpoints of MAIN_LINE
+  const p1x = BORDER;
+  const p1y = ly2;
+  const p2x = width - BORDER;
+  const p2y = ly2;
 
   return {
     width,
@@ -76,6 +86,12 @@ export function computeSquareConfig(width: number, height: number): SquareConfig
     border: BORDER,
     lineLength: LINE_LENGTH,
     circleRadius: CIRCLE_RADIUS,
+    // P1 and P2 define the main line
+    p1x,
+    p1y,
+    p2x,
+    p2y,
+    // C1 and C2 are circle centers on the main line
     c1x: C1_X_POSITION,
     c1y: ly2,
     c2x: C2_X_POSITION,
@@ -153,6 +169,10 @@ export function computeMultiple<TConfig>(
 export const GEOM = {
   // Base elements
   MAIN_LINE: "line_main",
+
+  // Main line endpoints
+  P1: "p1",
+  P2: "p2",
 
   // Circle centers (points)
   C1: "c1",
@@ -333,16 +353,16 @@ export function computeAllPoints(
 export function createInitialGeometries(config: SquareConfig): Map<string, GeometryValue> {
   const geometries = new Map<string, GeometryValue>();
 
-  // Main line
-  geometries.set(GEOM.MAIN_LINE, line(config.lx1, config.ly1, config.lx2, config.ly2));
+  // Circle centers (points) - now come directly from config
+  geometries.set(GEOM.C1, point(config.c1x, config.c1y));
+  geometries.set(GEOM.C2, point(config.c2x, config.c2y));
 
-  // Circle centers (points)
-  geometries.set(GEOM.C1, point(config.c1x, config.ly2));
-  geometries.set(GEOM.C2, point(config.c2x, config.ly2));
+  // Main line - computed from C1 and C2
+  geometries.set(GEOM.MAIN_LINE, line(config.c1x, config.c1y, config.c2x, config.c2y));
 
   // Circle outlines
-  geometries.set(GEOM.C1_CIRCLE, circle(config.c1x, config.ly2, config.circleRadius));
-  geometries.set(GEOM.C2_CIRCLE, circle(config.c2x, config.ly2, config.circleRadius));
+  geometries.set(GEOM.C1_CIRCLE, circle(config.c1x, config.c1y, config.circleRadius));
+  geometries.set(GEOM.C2_CIRCLE, circle(config.c2x, config.c2y, config.circleRadius));
 
   return geometries;
 }
