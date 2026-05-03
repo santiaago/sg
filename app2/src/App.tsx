@@ -17,7 +17,6 @@ import type { Theme, GeometryType } from "./types/geometry";
 const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = ["point", "line", "circle", "polygon"] as const;
 
 export default function App(): JSX.Element {
-  const stroke = 0.5;
   const strokeMid = 0.5;
   const strokeBig = 2;
   const strokeLine = 1.4;
@@ -260,13 +259,16 @@ export default function App(): JSX.Element {
             <p className="text-gray-300 mb-4">
               Current step {currentStepv0}/{SIX_FOLD_V0_STEPS.length}
             </p>
-            <GeometryDetails store={storeSixFoldV0} />
+            <GeometryDetails
+              store={storeSixFoldV0}
+              strokeBig={strokeBig}
+              steps={SIX_FOLD_V0_STEPS}
+            />
           </div>
           <div className="col-span-3">
             <div>
               <GeometryList
                 store={storeSixFoldV0}
-                stroke={stroke}
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
@@ -366,13 +368,12 @@ export default function App(): JSX.Element {
             <p className="text-gray-300 mb-4">
               Current step {currentStepSquare}/{SQUARE_STEPS.length}
             </p>
-            <GeometryDetails store={storeSquare} />
+            <GeometryDetails store={storeSquare} strokeBig={strokeBig} steps={SQUARE_STEPS} />
           </div>
           <div className="col-span-3">
             <div>
               <GeometryList
                 store={storeSquare}
-                stroke={stroke}
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}

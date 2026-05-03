@@ -1,10 +1,56 @@
+import { useState, useEffect, useCallback } from "react";
 import type { JSX } from "react";
 import type { GeometryStore } from "../react-store";
 import type { GeometryItem } from "../react-store";
-import { SQUARE_STEPS } from "../geometry/squareSteps";
+import type { StepRef } from "../types/geometry";
+import {
+  applyHoverHighlight,
+  removeHoverHighlight,
+  selectGeometry,
+} from "../utils/geometryHighlighting";
 
 export interface GeometryDetailsProps {
   store: GeometryStore;
+  strokeBig?: number;
+  steps?: readonly StepRef[];
+}
+
+interface GeometryDetailsItemProps {
+  name: string;
+  type?: string;
+  store: GeometryStore;
+  isHovered: boolean;
+  onHoverStart: (name: string) => void;
+  onHoverEnd: () => void;
+  onClick: (name: string) => void;
+}
+
+function GeometryDetailsItem({
+  name,
+  type,
+  store,
+  isHovered,
+  onHoverStart,
+  onHoverEnd,
+  onClick,
+}: GeometryDetailsItemProps): JSX.Element {
+  const item = store.items[name] as GeometryItem | undefined;
+  const itemName = item?.name || name;
+  const itemType = item?.type || type || "";
+
+  return (
+    <span
+      onClick={() => onClick(name)}
+      onMouseEnter={() => onHoverStart(name)}
+      onMouseLeave={onHoverEnd}
+      className={`cursor-pointer hover:underline ${
+        isHovered ? "text-orange-400" : "text-gray-300"
+      }`}
+    >
+      <span className={isHovered ? "text-orange-400" : "text-white"}>{itemName}</span>
+      {itemType && <span className="text-gray-400"> : {itemType}</span>}
+    </span>
+  );
 }
 
 // Parameter type mapping for Square construction
@@ -31,11 +77,17 @@ function getSelectedGeometry(store: GeometryStore): GeometryItem | null {
 }
 
 // Get outputs - geometries output by the same step that created the selected geometry
-function getOutputs(store: GeometryStore, stepId: string): GeometryItem[] {
+function getOutputs(
+  store: GeometryStore,
+  stepId: string,
+  steps?: readonly StepRef[],
+): GeometryItem[] {
   const outputs: GeometryItem[] = [];
 
+  if (!steps) return outputs;
+
   // Find the step that created this geometry
-  const step = SQUARE_STEPS.find((s) => s.id === stepId);
+  const step = steps.find((s) => s.id === stepId);
   if (!step || !step.outputs) return outputs;
 
   // For each output of that step, find the corresponding item in the store
@@ -54,14 +106,59 @@ function getParameterType(paramName: string): string {
   return PARAMETER_TYPES[paramName] || "unknown";
 }
 
-export function GeometryDetails({ store }: GeometryDetailsProps): JSX.Element {
+export function GeometryDetails({
+  store,
+  strokeBig = 2,
+  steps,
+}: GeometryDetailsProps): JSX.Element {
   const selectedGeometry = getSelectedGeometry(store);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+  // Clean up hover highlighting when component unmounts or hovered item changes
+  useEffect(() => {
+    return () => {
+      if (hoveredItem) {
+        const item = store.items[hoveredItem] as GeometryItem | undefined;
+        if (item?.element) {
+          removeHoverHighlight(item.element, item, strokeBig);
+        }
+      }
+    };
+  }, [hoveredItem, store.items, strokeBig]);
+
+  const handleHoverStart = useCallback(
+    (name: string) => {
+      setHoveredItem(name);
+      const item = store.items[name] as GeometryItem | undefined;
+      if (item?.element) {
+        applyHoverHighlight(item.element, item, strokeBig, "cyan");
+      }
+    },
+    [store.items, strokeBig],
+  );
+
+  const handleHoverEnd = useCallback(() => {
+    if (hoveredItem) {
+      const item = store.items[hoveredItem] as GeometryItem | undefined;
+      if (item?.element) {
+        removeHoverHighlight(item.element, item, strokeBig);
+      }
+    }
+    setHoveredItem(null);
+  }, [hoveredItem, store.items, strokeBig]);
+
+  const handleClick = useCallback(
+    (name: string) => {
+      selectGeometry(store, name, strokeBig);
+    },
+    [store, strokeBig],
+  );
 
   if (!selectedGeometry) {
     return <></>;
   }
 
-  const outputs = getOutputs(store, selectedGeometry.stepId);
+  const outputs = getOutputs(store, selectedGeometry.stepId, steps);
 
   return (
     <div className="mb-4 p-3 bg-slate-800 rounded border border-slate-700">
@@ -91,8 +188,15 @@ export function GeometryDetails({ store }: GeometryDetailsProps): JSX.Element {
               if (!depItem) return null;
               return (
                 <li key={depName} className="text-gray-300">
-                  <span className="text-white">{depName}</span>
-                  {depItem.type && <span className="text-gray-400"> : {depItem.type}</span>}
+                  <GeometryDetailsItem
+                    name={depName}
+                    type={depItem.type}
+                    store={store}
+                    isHovered={hoveredItem === depName}
+                    onHoverStart={handleHoverStart}
+                    onHoverEnd={handleHoverEnd}
+                    onClick={handleClick}
+                  />
                 </li>
               );
             })}
@@ -132,8 +236,15 @@ export function GeometryDetails({ store }: GeometryDetailsProps): JSX.Element {
           <ul className="text-xs space-y-0.5">
             {outputs.map((output) => (
               <li key={output.name} className="text-gray-300">
-                <span className="text-white">{output.name}</span>
-                {output.type && <span className="text-gray-400"> : {output.type}</span>}
+                <GeometryDetailsItem
+                  name={output.name}
+                  type={output.type}
+                  store={store}
+                  isHovered={hoveredItem === output.name}
+                  onHoverStart={handleHoverStart}
+                  onHoverEnd={handleHoverEnd}
+                  onClick={handleClick}
+                />
               </li>
             ))}
           </ul>

@@ -54,7 +54,7 @@ export type { SquareConfig };
  * Base line for the entire construction.
  * Uses SVG config coordinates to draw the initial horizontal reference line.
  */
-const STEP_MAIN_LINE: Step = {
+const STEP_MAIN_LINE: Step<SquareConfig> = {
   id: "step_main_line",
   inputs: [],
   outputs: [GEOM.MAIN_LINE],
@@ -74,7 +74,7 @@ const STEP_MAIN_LINE: Step = {
  * First circle center positioned at C1_POSITION_RATIO along the main line.
  * C1 must lie on the main line as it's the center of the first circle.
  */
-const STEP_C1: Step = {
+const STEP_C1: Step<SquareConfig> = {
   id: "step_c1",
   inputs: [GEOM.MAIN_LINE],
   outputs: [GEOM.C1],
@@ -97,7 +97,7 @@ const STEP_C1: Step = {
  * First circle centered at C1 with the configured radius.
  * This circle will intersect with the main line at C2.
  */
-const STEP_C1_CIRCLE: Step = {
+const STEP_C1_CIRCLE: Step<SquareConfig> = {
   id: "step_c1_circle",
   inputs: [GEOM.C1],
   outputs: [GEOM.C1_CIRCLE],
@@ -118,7 +118,7 @@ const STEP_C1_CIRCLE: Step = {
  * Second circle center at the left intersection of C1_CIRCLE with MAIN_LINE.
  * C2 lies on the main line, left of C1, at a distance of circleRadius.
  */
-const STEP_C2: Step = {
+const STEP_C2: Step<SquareConfig> = {
   id: "step_c2",
   inputs: [GEOM.MAIN_LINE, GEOM.C1_CIRCLE],
   outputs: [GEOM.C2],
@@ -145,7 +145,7 @@ const STEP_C2: Step = {
  * Second circle centered at C2 with the same radius as C1_C.
  * These two circles will intersect at point PI (north and south).
  */
-const STEP_C2_CIRCLE: Step = {
+const STEP_C2_CIRCLE: Step<SquareConfig> = {
   id: "step_c2_circle",
   inputs: [GEOM.C2],
   outputs: [GEOM.C2_CIRCLE],
@@ -167,7 +167,7 @@ const STEP_C2_CIRCLE: Step = {
  * Selects north (top) intersection point using selectMinY parameter.
  * This is the apex of the triangle formed by C1, C2, and PI.
  */
-const STEP_INTERSECTION_POINT: Step = {
+const STEP_INTERSECTION_POINT: Step<SquareConfig> = {
   id: "step_intersection_point",
   inputs: [GEOM.C1_CIRCLE, GEOM.C2_CIRCLE],
   outputs: [GEOM.INTERSECTION_POINT],
@@ -193,7 +193,7 @@ const STEP_INTERSECTION_POINT: Step = {
  * Circle centered at PI with the same radius as C1_C and C2_C.
  * Used as reference for finding points P3 and P4 in subsequent steps.
  */
-const STEP_INTERSECTION_CIRCLE: Step = {
+const STEP_INTERSECTION_CIRCLE: Step<SquareConfig> = {
   id: "step_intersection_circle",
   inputs: [GEOM.INTERSECTION_POINT],
   outputs: [GEOM.INTERSECTION_CIRCLE],
@@ -214,7 +214,7 @@ const STEP_INTERSECTION_CIRCLE: Step = {
  * Extended line from C2 through PI with length = 1.1 * diameter of CI (2.2 * radius).
  * Used to find P3 as the intersection with CI (other than C2).
  */
-const STEP_LINE_C2_PI: Step = {
+const STEP_LINE_C2_PI: Step<SquareConfig> = {
   id: "step_line_c2_pi",
   inputs: [GEOM.C2, GEOM.INTERSECTION_POINT],
   outputs: [GEOM.LINE_C2_PI],
@@ -238,7 +238,7 @@ const STEP_LINE_C2_PI: Step = {
  * C2 is derived from the start of LINE_C2_PI.
  * Forms one corner of the square construction.
  */
-const STEP_P3: Step = {
+const STEP_P3: Step<SquareConfig> = {
   id: "step_p3",
   inputs: [GEOM.LINE_C2_PI, GEOM.INTERSECTION_CIRCLE],
   outputs: [GEOM.P3],
@@ -267,7 +267,7 @@ const STEP_P3: Step = {
  * Extended line from C1 through PI with length = 1.1 * diameter of CI (2.2 * radius).
  * Used to find P4 as the intersection with CI (other than C1).
  */
-const STEP_LINE_C1_PI: Step = {
+const STEP_LINE_C1_PI: Step<SquareConfig> = {
   id: "step_line_c1_pi",
   inputs: [GEOM.C1, GEOM.INTERSECTION_POINT],
   outputs: [GEOM.LINE_C1_PI],
@@ -291,7 +291,7 @@ const STEP_LINE_C1_PI: Step = {
  * C1 is derived from the start of LINE_C1_PI.
  * Forms the opposite corner of the square from P3.
  */
-const STEP_P4: Step = {
+const STEP_P4: Step<SquareConfig> = {
   id: "step_p4",
   inputs: [GEOM.LINE_C1_PI, GEOM.INTERSECTION_CIRCLE],
   outputs: [GEOM.P4],
@@ -320,7 +320,7 @@ const STEP_P4: Step = {
  * Connecting line between circle center C2 and point P4.
  * Used to find tangent point PL in the next step.
  */
-const STEP_LINE_C2_P4: Step = {
+const STEP_LINE_C2_P4: Step<SquareConfig> = {
   id: "step_line_c2_p4",
   inputs: [GEOM.C2, GEOM.P4],
   outputs: [GEOM.LINE_C2_P4],
@@ -343,7 +343,7 @@ const STEP_LINE_C2_P4: Step = {
  * Uses the existing C2_CIRCLE instead of creating a new one.
  * This represents the tangent point on the left side of the square.
  */
-const STEP_PL: Step = {
+const STEP_PL: Step<SquareConfig> = {
   id: "step_pl",
   inputs: [GEOM.C2_CIRCLE, GEOM.LINE_C2_P4],
   outputs: [GEOM.PL],
@@ -368,7 +368,7 @@ const STEP_PL: Step = {
  * Connecting line between circle center C1 and point P3.
  * Used to find tangent point PR in the next step.
  */
-const STEP_LINE_C1_P3: Step = {
+const STEP_LINE_C1_P3: Step<SquareConfig> = {
   id: "step_line_c1_p3",
   inputs: [GEOM.C1, GEOM.P3],
   outputs: [GEOM.LINE_C1_P3],
@@ -391,7 +391,7 @@ const STEP_LINE_C1_P3: Step = {
  * Uses the existing C1_CIRCLE instead of creating a new one.
  * This represents the tangent point on the right side of the square.
  */
-const STEP_PR: Step = {
+const STEP_PR: Step<SquareConfig> = {
   id: "step_pr",
   inputs: [GEOM.C1_CIRCLE, GEOM.LINE_C1_P3],
   outputs: [GEOM.PR],
@@ -416,7 +416,7 @@ const STEP_PR: Step = {
  * Constructs the square polygon from the four corner points: PL, PR, C1, C2.
  * This is the final step that connects all computed points into the complete square geometry.
  */
-const STEP_FINAL_SQUARE: Step = {
+const STEP_FINAL_SQUARE: Step<SquareConfig> = {
   id: "step_final_square",
   inputs: [GEOM.C1, GEOM.C2, GEOM.PR, GEOM.PL],
   outputs: [GEOM.SQUARE],
@@ -462,7 +462,7 @@ const STEP_FINAL_SQUARE: Step = {
 };
 
 /** All steps in the square construction, in order */
-export const SQUARE_STEPS: readonly Step[] = [
+export const SQUARE_STEPS: readonly Step<SquareConfig>[] = [
   STEP_MAIN_LINE,
   STEP_C1,
   STEP_C1_CIRCLE,
@@ -492,7 +492,7 @@ export const SQUARE_STEPS: readonly Step[] = [
  * @returns Updated map of geometry values (with new outputs added)
  */
 export function executeStep(
-  step: Step,
+  step: Step<SquareConfig>,
   allValues: Map<string, GeometryValue>,
   ctx: StepExecutionContext,
   squareConfig: SquareConfig,
@@ -531,7 +531,7 @@ export function executeStep(
  * @returns Map of all computed geometry values
  */
 export function executeSteps(
-  steps: readonly Step[],
+  steps: readonly Step<SquareConfig>[],
   upToIndex: number,
   ctx: StepExecutionContext,
   squareConfig: SquareConfig,
