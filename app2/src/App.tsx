@@ -77,7 +77,7 @@ export default function App(): JSX.Element {
   const storeSixFoldV0 = useGeometryStoreSixFoldV0();
 
   // SixFoldV0 state
-  const [currentStepv0, setCurrentStepv0] = useState<number>(1);
+  const [currentStepv0, setCurrentStepv0] = useState<number>(0);
   const [restartKeyv0, setRestartKeyv0] = useState<number>(0);
   const sixFoldV0SvgRef = useRef<SVGSVGElement>(null);
 
@@ -88,13 +88,13 @@ export default function App(): JSX.Element {
   };
 
   const handlePrevClickv0 = (): void => {
-    if (currentStepv0 > 1) {
+    if (currentStepv0 > 0) {
       setCurrentStepv0(currentStepv0 - 1);
     }
   };
 
   const handleRestartv0 = (): void => {
-    setCurrentStepv0(1);
+    setCurrentStepv0(0);
     setRestartKeyv0(restartKeyv0 + 1);
   };
 
@@ -103,7 +103,7 @@ export default function App(): JSX.Element {
     setRestartKeyv0(restartKeyv0 + 1);
   };
 
-  const [currentStepSquare, setCurrentStepSquare] = useState<number>(1);
+  const [currentStepSquare, setCurrentStepSquare] = useState<number>(0);
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
   const [showInputHighlight, setShowInputHighlight] = useState(true);
 
@@ -139,14 +139,14 @@ export default function App(): JSX.Element {
 
   const handlePrevClickSquare = (): void => {
     console.log("prev step", currentStepSquare);
-    if (currentStepSquare > 1) {
+    if (currentStepSquare > 0) {
       setCurrentStepSquare(currentStepSquare - 1);
     }
   };
 
   const handleRestartSquare = (): void => {
     clearSquareStore();
-    setCurrentStepSquare(1);
+    setCurrentStepSquare(0);
     setRestartKeySquare(restartKeySquare + 1);
   };
 

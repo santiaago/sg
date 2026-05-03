@@ -5,18 +5,20 @@
  * using compass and straightedge techniques adapted for digital rendering.
  *
  * ALGORITHM OVERVIEW:
- * 1. Draw main horizontal line (base line)
- * 2. Place first circle center (C1) on the line
- * 3. Draw first circle (C1_C) with given radius
- * 4. Find second circle center (C2) at left intersection of C1_C with main line
- * 5. Draw second circle (C2_C) with same radius
- * 6. Compute intersection point (PI) of both circles (north/instep point)
- * 7. Draw intersection circle (CI) centered at PI with same radius
- * 8-9. Draw extended lines from C2 and C1 towards PI
- * 10-11. Find P4 and P3 as intersections of extended lines with CI
- * 12-13. Draw connecting lines between circle centers and these points
- * 14-15. Compute tangent points (PL, PR) on these lines
- * 16. Construct final square from the four corner points (C1, C2, PR, PL)
+ * 1. Define P1 as the first endpoint of the main line
+ * 2. Define P2 as the second endpoint of the main line
+ * 3. Draw main horizontal line (base line) connecting P1 and P2
+ * 4. Place first circle center (C1) on the line at C1_POSITION_RATIO
+ * 5. Draw first circle (C1_C) with given radius centered at C1
+ * 6. Find second circle center (C2) at left intersection of C1_C with main line
+ * 7. Draw second circle (C2_C) with same radius centered at C2
+ * 8. Compute intersection point (PI) of both circles (north/instep point)
+ * 9. Draw intersection circle (CI) centered at PI with same radius
+ * 10-11. Draw extended lines from C2 and C1 towards PI
+ * 12-13. Find P3 and P4 as intersections of extended lines with CI
+ * 14-15. Draw connecting lines between circle centers and these points
+ * 16-17. Compute tangent points (PL, PR) on these lines
+ * 18. Construct final square from the four corner points (C1, C2, PR, PL)
  *
  * ARCHITECTURE:
  * Each step declares its inputs, outputs, compute function, and draw function.
@@ -50,18 +52,57 @@ export { computeSquareConfig, GEOM, getGeometry, computeSingle };
 export type { SquareConfig };
 
 /**
- * Step 1: Draw the main horizontal line
- * Base line for the entire construction.
- * Uses SVG config coordinates to draw the initial horizontal reference line.
+ * Step 1: Point P1
+ * First endpoint of the main line.
+ */
+const STEP_P1: Step<SquareConfig> = {
+  id: "step_p1",
+  inputs: [],
+  outputs: [GEOM.P1],
+  parameters: ["p1x", "p1y"],
+
+  compute: computeSingle(GEOM.P1, (_inputs, params) => {
+    return point(params.p1x, params.p1y);
+  }),
+
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.P1, 2.0, store, theme);
+  },
+};
+
+/**
+ * Step 2: Point P2
+ * Second endpoint of the main line.
+ */
+const STEP_P2: Step<SquareConfig> = {
+  id: "step_p2",
+  inputs: [],
+  outputs: [GEOM.P2],
+  parameters: ["p2x", "p2y"],
+
+  compute: computeSingle(GEOM.P2, (_inputs, params) => {
+    return point(params.p2x, params.p2y);
+  }),
+
+  draw: (svg, values, store, theme) => {
+    drawPoint(svg, values, GEOM.P2, 2.0, store, theme);
+  },
+};
+
+/**
+ * Step 3: Main line
+ * Base line for the entire construction, connecting P1 and P2.
  */
 const STEP_MAIN_LINE: Step<SquareConfig> = {
   id: "step_main_line",
-  inputs: [],
+  inputs: [GEOM.P1, GEOM.P2],
   outputs: [GEOM.MAIN_LINE],
-  parameters: ["lx1", "ly1", "lx2", "ly2"],
+  parameters: [],
 
-  compute: computeSingle(GEOM.MAIN_LINE, (_inputs, params) => {
-    return line(params.lx1, params.ly1, params.lx2, params.ly2);
+  compute: computeSingle(GEOM.MAIN_LINE, (inputs, _params) => {
+    const p1 = getGeometry(inputs, GEOM.P1, isPoint, "Point");
+    const p2 = getGeometry(inputs, GEOM.P2, isPoint, "Point");
+    return line(p1.x, p1.y, p2.x, p2.y);
   }),
 
   draw: (svg, values, store, theme) => {
@@ -70,7 +111,7 @@ const STEP_MAIN_LINE: Step<SquareConfig> = {
 };
 
 /**
- * Step 2: Draw circle center C1
+ * Step 4: Circle center C1
  * First circle center positioned at C1_POSITION_RATIO along the main line.
  * C1 must lie on the main line as it's the center of the first circle.
  */
@@ -93,7 +134,7 @@ const STEP_C1: Step<SquareConfig> = {
 };
 
 /**
- * Step 3: Draw circle outline C1_C
+ * Step 5: Circle outline C1_C
  * First circle centered at C1 with the configured radius.
  * This circle will intersect with the main line at C2.
  */
@@ -114,7 +155,7 @@ const STEP_C1_CIRCLE: Step<SquareConfig> = {
 };
 
 /**
- * Step 4: Draw circle center C2
+ * Step 6: Circle center C2
  * Second circle center at the left intersection of C1_CIRCLE with MAIN_LINE.
  * C2 lies on the main line, left of C1, at a distance of circleRadius.
  */
@@ -141,7 +182,7 @@ const STEP_C2: Step<SquareConfig> = {
 };
 
 /**
- * Step 5: Draw circle outline C2_C
+ * Step 7: Draw circle outline C2_C
  * Second circle centered at C2 with the same radius as C1_C.
  * These two circles will intersect at point PI (north and south).
  */
@@ -162,7 +203,7 @@ const STEP_C2_CIRCLE: Step<SquareConfig> = {
 };
 
 /**
- * Step 6: Compute intersection point PI
+ * Step 8: Compute intersection point PI
  * Finds where the two circles (C1_C and C2_C) intersect.
  * Selects north (top) intersection point using selectMinY parameter.
  * This is the apex of the triangle formed by C1, C2, and PI.
@@ -189,7 +230,7 @@ const STEP_INTERSECTION_POINT: Step<SquareConfig> = {
 };
 
 /**
- * Step 7: Draw intersection circle CI
+ * Step 9: Draw intersection circle CI
  * Circle centered at PI with the same radius as C1_C and C2_C.
  * Used as reference for finding points P3 and P4 in subsequent steps.
  */
@@ -210,7 +251,7 @@ const STEP_INTERSECTION_CIRCLE: Step<SquareConfig> = {
 };
 
 /**
- * Step 8: Draw line from C2 towards PI
+ * Step 10: Draw line from C2 towards PI
  * Extended line from C2 through PI with length = 1.1 * diameter of CI (2.2 * radius).
  * Used to find P3 as the intersection with CI (other than C2).
  */
@@ -233,7 +274,7 @@ const STEP_LINE_C2_PI: Step<SquareConfig> = {
 };
 
 /**
- * Step 9: Compute P3 as intersection of line_c2_pi with CI
+ * Step 11: Compute P3 as intersection of line_c2_pi with CI
  * P3 is the second intersection point of LINE_C2_PI with CI (excluding C2).
  * C2 is derived from the start of LINE_C2_PI.
  * Forms one corner of the square construction.
@@ -263,7 +304,7 @@ const STEP_P3: Step<SquareConfig> = {
 };
 
 /**
- * Step 10: Draw line from C1 towards PI
+ * Step 12: Draw line from C1 towards PI
  * Extended line from C1 through PI with length = 1.1 * diameter of CI (2.2 * radius).
  * Used to find P4 as the intersection with CI (other than C1).
  */
@@ -286,7 +327,7 @@ const STEP_LINE_C1_PI: Step<SquareConfig> = {
 };
 
 /**
- * Step 11: Compute P4 as intersection of line_c1_pi with CI
+ * Step 13: Compute P4 as intersection of line_c1_pi with CI
  * P4 is the second intersection point of LINE_C1_PI with CI (excluding C1).
  * C1 is derived from the start of LINE_C1_PI.
  * Forms the opposite corner of the square from P3.
@@ -316,7 +357,7 @@ const STEP_P4: Step<SquareConfig> = {
 };
 
 /**
- * Step 12: Draw line from C2 to P4
+ * Step 14: Draw line from C2 to P4
  * Connecting line between circle center C2 and point P4.
  * Used to find tangent point PL in the next step.
  */
@@ -338,7 +379,7 @@ const STEP_LINE_C2_P4: Step<SquareConfig> = {
 };
 
 /**
- * Step 13: Compute PL (tangent point from C2 to P4 line)
+ * Step 15: Compute PL (tangent point from C2 to P4 line)
  * PL is the intersection of C2_CIRCLE with LINE_C2_P4.
  * Uses the existing C2_CIRCLE instead of creating a new one.
  * This represents the tangent point on the left side of the square.
@@ -364,7 +405,7 @@ const STEP_PL: Step<SquareConfig> = {
 };
 
 /**
- * Step 14: Draw line from C1 to P3
+ * Step 16: Draw line from C1 to P3
  * Connecting line between circle center C1 and point P3.
  * Used to find tangent point PR in the next step.
  */
@@ -386,7 +427,7 @@ const STEP_LINE_C1_P3: Step<SquareConfig> = {
 };
 
 /**
- * Step 15: Compute PR (tangent point from C1 to P3 line)
+ * Step 17: Compute PR (tangent point from C1 to P3 line)
  * PR is the intersection of C1_CIRCLE with LINE_C1_P3.
  * Uses the existing C1_CIRCLE instead of creating a new one.
  * This represents the tangent point on the right side of the square.
@@ -412,7 +453,7 @@ const STEP_PR: Step<SquareConfig> = {
 };
 
 /**
- * Step 16: Draw final square polygon
+ * Step 18: Draw final square polygon
  * Constructs the square polygon from the four corner points: PL, PR, C1, C2.
  * This is the final step that connects all computed points into the complete square geometry.
  */
@@ -463,6 +504,8 @@ const STEP_FINAL_SQUARE: Step<SquareConfig> = {
 
 /** All steps in the square construction, in order */
 export const SQUARE_STEPS: readonly Step<SquareConfig>[] = [
+  STEP_P1,
+  STEP_P2,
   STEP_MAIN_LINE,
   STEP_C1,
   STEP_C1_CIRCLE,

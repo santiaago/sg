@@ -17,6 +17,7 @@ export interface SixFoldV0Props {
   dotStrokeWidth?: number;
   svgConfig: SvgConfig;
   restartTrigger?: number;
+  // Number of steps to execute (0 = none, 1 = first step, N = N steps)
   currentStep?: number;
   totalSteps?: number;
   onStepChange?: (step: number) => void;
@@ -158,7 +159,7 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
           <div className="w-full max-w-md">
             <input
               type="range"
-              min={1}
+              min={0}
               max={maxSteps}
               step={1}
               value={currentStep ?? 0}
@@ -171,7 +172,7 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
               }}
             />
             <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>1</span>
+              <span>0</span>
               <span>{maxSteps}</span>
             </div>
           </div>
