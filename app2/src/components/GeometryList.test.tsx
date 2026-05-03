@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { applyInputVisualFeedback, restoreInitialState } from "./GeometryList";
+import { applyInputVisualFeedback, restoreInitialState } from "../utils/geometryHighlighting";
 import type { GeometryItem } from "../react-store";
 
 // Mock SVG element
