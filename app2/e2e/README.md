@@ -20,6 +20,14 @@ Each component has 4 tests:
 - Last button (>>) jumps to end
 - First button (<<) resets to start
 
+## Setup
+
+Install Playwright browsers (one-time):
+
+```bash
+pnpm exec playwright install --with-deps
+```
+
 ## Running Tests
 
 ```bash
