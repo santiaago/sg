@@ -56,9 +56,7 @@ export function useThemeAwareSteps({
 
   // Track whether we should clear geometry and store
   const shouldClear =
-    currentStep < prevStepRef.current ||
-    restartTrigger !== 0 ||
-    prevThemeRef.current !== theme;
+    currentStep < prevStepRef.current || restartTrigger !== 0 || prevThemeRef.current !== theme;
 
   // Update refs after computing shouldClear
   useEffect(() => {
