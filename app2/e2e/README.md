@@ -7,6 +7,7 @@ This directory contains Playwright end-to-end tests for the Square and SixFoldV0
 The tests verify navigation functionality for both components:
 
 ### Square Component (16 steps)
+
 - Can click next all the way to the end
 - Can click fast forward (»»)
 - Can click back (prev)
@@ -14,6 +15,7 @@ The tests verify navigation functionality for both components:
 - Multiple navigation cycles
 
 ### SixFoldV0 Component (93 steps)
+
 - Can click next all the way to the end
 - Can click fast forward (»»)
 - Can click back (prev)
@@ -39,6 +41,7 @@ npm run test:e2e:debug
 ## Configuration
 
 See `playwright.config.ts` for test configuration including:
+
 - Browser support (Chromium, Firefox, WebKit, Mobile Chrome, Edge)
 - Timeout settings
 - Test server configuration
@@ -47,6 +50,7 @@ See `playwright.config.ts` for test configuration including:
 ## Test Results
 
 Test results are stored in:
+
 - `test-results/` - Screenshots, videos, traces
 - `playwright-report/` - HTML test report
 
@@ -55,6 +59,7 @@ These directories are ignored by git (see `.gitignore`).
 ## Adding New Tests
 
 When adding new E2E tests:
+
 1. Create a new `.spec.ts` file in this directory
 2. Use the existing patterns for navigation and assertions
 3. Follow the same structure for component-specific selectors
