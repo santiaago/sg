@@ -4,23 +4,21 @@ This directory contains Playwright end-to-end tests for the Square and SixFoldV0
 
 ## Test Coverage
 
-The tests verify navigation functionality for both components:
+Each component has 4 tests:
 
 ### Square Component (16 steps)
 
-- Can click next all the way to the end
-- Can click fast forward (»»)
-- Can click back (prev)
-- Can click all the way to the beginning with backwards (<<)
-- Multiple navigation cycles
+- Starts at step 1
+- Can navigate to end with next button
+- Last button (>>) jumps to end
+- First button (<<) resets to start
 
 ### SixFoldV0 Component (93 steps)
 
-- Can click next all the way to the end
-- Can click fast forward (»»)
-- Can click back (prev)
-- Can click all the way to the beginning with backwards (<<)
-- Multiple navigation cycles
+- Starts at step 1
+- Can navigate to end with next button
+- Last button (>>) jumps to end
+- First button (<<) resets to start
 
 ## Running Tests
 
@@ -42,7 +40,7 @@ npm run test:e2e:debug
 
 See `playwright.config.ts` for test configuration including:
 
-- Browser support (Chromium, Firefox, WebKit, Mobile Chrome, Edge)
+- Browser: Chromium
 - Timeout settings
 - Test server configuration
 - Artifact output directories
