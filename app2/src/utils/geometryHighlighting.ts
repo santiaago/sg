@@ -1,10 +1,10 @@
 import type { GeometryItem } from "../react-store";
 import type { GeometryStore } from "../react-store";
 
-// Color constants for highlighting
-export const COLOR_INPUT_HIGHLIGHT = "orange";
-export const COLOR_HOVER_DETAILS = "cyan";
-export const COLOR_SELECTED = "red";
+// Color constants for highlighting - these match the Theme interface values
+const COLOR_INPUT_HIGHLIGHT = "orange";
+const COLOR_HOVER_DETAILS = "cyan";
+const COLOR_SELECTED = "red";
 
 /**
  * Apply orange visual feedback to SVG elements for highlighted input dependencies
@@ -160,7 +160,8 @@ export function highlightGeometry(
   applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
 }
 
-// Color for tooltip background when hovering in GeometryDetails (light cyan/blue for visibility)
+// Color for tooltip background when hovering in GeometryDetails
+// Matches Theme.COLOR_TOOLTIP_HOVER_BG
 const COLOR_TOOLTIP_HOVER_BG = "#00ffff";
 
 /**
@@ -215,11 +216,11 @@ export function removeHoverHighlight(element: any, shape: GeometryItem, strokeBi
     if (shape.selected) {
       applyVisualFeedback(element, shape, strokeBig);
       // Restore tooltipBg fill to original color
-      if (element.tooltipBg && element.tooltipBg.getAttribute("data-original-fill")) {
-        element.tooltipBg.setAttribute(
-          "fill",
-          element.tooltipBg.getAttribute("data-original-fill"),
-        );
+      if (element.tooltipBg && typeof element.tooltipBg.getAttribute === "function") {
+        const originalFill = element.tooltipBg.getAttribute("data-original-fill");
+        if (originalFill) {
+          element.tooltipBg.setAttribute("fill", originalFill);
+        }
       }
       return;
     }
@@ -229,11 +230,11 @@ export function removeHoverHighlight(element: any, shape: GeometryItem, strokeBi
     if (shape.isInputHighlighted) {
       applyInputVisualFeedback(element, shape, strokeBig);
       // Restore tooltipBg fill to original color
-      if (element.tooltipBg && element.tooltipBg.getAttribute("data-original-fill")) {
-        element.tooltipBg.setAttribute(
-          "fill",
-          element.tooltipBg.getAttribute("data-original-fill"),
-        );
+      if (element.tooltipBg && typeof element.tooltipBg.getAttribute === "function") {
+        const originalFill = element.tooltipBg.getAttribute("data-original-fill");
+        if (originalFill) {
+          element.tooltipBg.setAttribute("fill", originalFill);
+        }
       }
       return;
     }
@@ -251,9 +252,11 @@ export function removeHoverHighlight(element: any, shape: GeometryItem, strokeBi
     }
     if (element.tooltipBg) {
       element.tooltipBg.setAttribute("opacity", "0");
-      const originalFill = element.tooltipBg.getAttribute("data-original-fill");
-      if (originalFill) {
-        element.tooltipBg.setAttribute("fill", originalFill);
+      if (typeof element.tooltipBg.getAttribute === "function") {
+        const originalFill = element.tooltipBg.getAttribute("data-original-fill");
+        if (originalFill) {
+          element.tooltipBg.setAttribute("fill", originalFill);
+        }
       }
     }
   } catch (error) {

@@ -6,9 +6,6 @@ import {
   applyHoverHighlight,
   removeHoverHighlight,
   selectGeometry,
-  COLOR_INPUT_HIGHLIGHT,
-  COLOR_HOVER_DETAILS,
-  COLOR_SELECTED,
 } from "../src/utils/geometryHighlighting";
 import type { GeometryItem } from "../src/react-store";
 
@@ -18,7 +15,7 @@ function createMockSvgElement(): any {
     setAttribute: vi.fn(),
     getAttribute: vi.fn(),
     tooltip: { setAttribute: vi.fn() },
-    tooltipBg: { setAttribute: vi.fn() },
+    tooltipBg: { setAttribute: vi.fn(), getAttribute: vi.fn() },
   };
 }
 
@@ -48,20 +45,6 @@ function createMockStore(items: Record<string, GeometryItem> = {}): any {
     clear: vi.fn(),
   };
 }
-
-describe("Color Constants", () => {
-  it("exports COLOR_INPUT_HIGHLIGHT as orange", () => {
-    expect(COLOR_INPUT_HIGHLIGHT).toBe("orange");
-  });
-
-  it("exports COLOR_HOVER_DETAILS as cyan", () => {
-    expect(COLOR_HOVER_DETAILS).toBe("cyan");
-  });
-
-  it("exports COLOR_SELECTED as red", () => {
-    expect(COLOR_SELECTED).toBe("red");
-  });
-});
 
 describe("applyInputVisualFeedback", () => {
   it("applies orange fill to point elements", () => {
@@ -183,7 +166,7 @@ describe("applyHoverHighlight", () => {
     const element = createMockSvgElement();
     const item = createMockGeometryItem({ type: "point", element });
 
-    applyHoverHighlight(element, item, 2, COLOR_HOVER_DETAILS);
+    applyHoverHighlight(element, item, 2, "cyan");
 
     expect(element.setAttribute).toHaveBeenCalledWith("fill", "cyan");
     expect(element.setAttribute).toHaveBeenCalledWith("r", "2");
@@ -205,7 +188,7 @@ describe("applyHoverHighlight", () => {
     const element = createMockSvgElement();
     const item = createMockGeometryItem({ type: "line", element });
 
-    applyHoverHighlight(element, item, 2, COLOR_HOVER_DETAILS);
+    applyHoverHighlight(element, item, 2, "cyan");
 
     expect(element.setAttribute).toHaveBeenCalledWith("stroke", "cyan");
     expect(element.setAttribute).toHaveBeenCalledWith("stroke-width", "2");

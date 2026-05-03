@@ -3,7 +3,6 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { GeometryDetails } from "../src/components/GeometryDetails";
 import { SQUARE_STEPS } from "../src/geometry/squareSteps";
 import type { GeometryStore, GeometryItem } from "../src/react-store";
-import { COLOR_HOVER_DETAILS } from "../src/utils/geometryHighlighting";
 
 // Helper to create a mock SVG element
 function createMockSvgElement(type: string): SVGElement {
@@ -16,7 +15,7 @@ function createMockSvgElementWithTracking(_type: string): any {
     setAttribute: vi.fn(),
     getAttribute: vi.fn(),
     tooltip: { setAttribute: vi.fn() },
-    tooltipBg: { setAttribute: vi.fn() },
+    tooltipBg: { setAttribute: vi.fn(), getAttribute: vi.fn() },
   };
 }
 
@@ -388,7 +387,7 @@ describe("GeometryDetails", () => {
       fireEvent.mouseEnter(depItem);
 
       // Check that cyan hover was applied
-      expect(depElement.setAttribute).toHaveBeenCalledWith("fill", COLOR_HOVER_DETAILS);
+      expect(depElement.setAttribute).toHaveBeenCalledWith("fill", "cyan");
     });
 
     it("preserves selection state when hover ends on selected item", () => {
