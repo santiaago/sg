@@ -111,6 +111,9 @@ export interface StepReference {
   outputs?: string[];
 }
 
+// Shorter alias for StepReference
+export type StepRef = StepReference;
+
 // Dependency Graph Types
 
 export interface DependencyEdge {

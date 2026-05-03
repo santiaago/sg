@@ -2,18 +2,17 @@ import { useState, useEffect, useCallback } from "react";
 import type { JSX } from "react";
 import type { GeometryStore } from "../react-store";
 import type { GeometryItem } from "../react-store";
-import type { StepReference } from "../types/geometry";
+import type { StepRef } from "../types/geometry";
 import {
   applyHoverHighlight,
   removeHoverHighlight,
   selectGeometry,
-  COLOR_HOVER_DETAILS,
 } from "../utils/geometryHighlighting";
 
 export interface GeometryDetailsProps {
   store: GeometryStore;
   strokeBig?: number;
-  steps?: readonly StepReference[];
+  steps?: readonly StepRef[];
 }
 
 interface GeometryDetailsItemProps {
@@ -81,7 +80,7 @@ function getSelectedGeometry(store: GeometryStore): GeometryItem | null {
 function getOutputs(
   store: GeometryStore,
   stepId: string,
-  steps?: readonly StepReference[],
+  steps?: readonly StepRef[],
 ): GeometryItem[] {
   const outputs: GeometryItem[] = [];
 
@@ -132,7 +131,7 @@ export function GeometryDetails({
       setHoveredItem(name);
       const item = store.items[name] as GeometryItem | undefined;
       if (item?.element) {
-        applyHoverHighlight(item.element, item, strokeBig, COLOR_HOVER_DETAILS);
+        applyHoverHighlight(item.element, item, strokeBig, "cyan");
       }
     },
     [store.items, strokeBig],
