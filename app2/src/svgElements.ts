@@ -70,6 +70,7 @@ export function createTooltip(
   tooltipBg.setAttribute("width", textWidth.toString());
   tooltipBg.setAttribute("height", TOOLTIP_BG_HEIGHT.toString());
   tooltipBg.setAttribute("fill", theme.COLOR_TOOLTIP_BACKGROUND);
+  tooltipBg.setAttribute("data-original-fill", theme.COLOR_TOOLTIP_BACKGROUND);
   tooltipBg.setAttribute("opacity", "0");
   tooltipBg.setAttribute("rx", TOOLTIP_BG_ROUNDING.toString());
   svg.appendChild(tooltipBg);

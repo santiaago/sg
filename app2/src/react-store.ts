@@ -18,6 +18,8 @@ export interface GeometryItem {
   stepId: string;
   // Parameter values used in creation
   parameterValues: Record<string, unknown>;
+  // Whether this item is currently highlighted as an input
+  isInputHighlighted?: boolean;
 }
 
 /**

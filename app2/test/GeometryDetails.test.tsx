@@ -1,12 +1,23 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { GeometryDetails } from "../src/components/GeometryDetails";
 import { SQUARE_STEPS } from "../src/geometry/squareSteps";
 import type { GeometryStore, GeometryItem } from "../src/react-store";
+import { COLOR_HOVER_DETAILS } from "../src/utils/geometryHighlighting";
 
 // Helper to create a mock SVG element
 function createMockSvgElement(type: string): SVGElement {
   return document.createElementNS("http://www.w3.org/2000/svg", type);
+}
+
+// Helper to create a mock SVG element with tracking for testing
+function createMockSvgElementWithTracking(_type: string): any {
+  return {
+    setAttribute: vi.fn(),
+    getAttribute: vi.fn(),
+    tooltip: { setAttribute: vi.fn() },
+    tooltipBg: { setAttribute: vi.fn() },
+  };
 }
 
 // Helper to create a mock GeometryItem
@@ -31,6 +42,19 @@ function createMockStore(items: Record<string, GeometryItem> = {}): GeometryStor
     items,
     add: vi.fn(),
     update: vi.fn(),
+    clear: vi.fn(),
+  };
+}
+
+// Helper to create a mock store with tracked updates
+function createTrackedMockStore(items: Record<string, GeometryItem> = {}): any {
+  const storeItems: Record<string, GeometryItem> = { ...items };
+  return {
+    items: storeItems,
+    add: vi.fn(),
+    update: vi.fn((key: string, partial: Partial<GeometryItem>) => {
+      storeItems[key] = { ...storeItems[key], ...partial };
+    }),
     clear: vi.fn(),
   };
 }
@@ -329,5 +353,115 @@ describe("GeometryDetails", () => {
     expect(screen.getByText("Details")).toBeInTheDocument();
     expect(screen.getByText("No inputs")).toBeInTheDocument();
     expect(screen.getByText("No parameters")).toBeInTheDocument();
+  });
+
+  describe("Hover Behavior", () => {
+    let mockLineElement: any;
+
+    beforeEach(() => {
+      mockLineElement = createMockSvgElementWithTracking("line");
+      vi.clearAllMocks();
+    });
+
+    it("applies cyan hover highlight on mouse enter for inputs", () => {
+      const depElement = createMockSvgElementWithTracking("circle");
+      const store = createTrackedMockStore({
+        "main-line": createMockGeometryItem({
+          name: "main-line",
+          selected: true,
+          type: "line",
+          element: mockLineElement,
+        }),
+        "dep-point": createMockGeometryItem({
+          name: "dep-point",
+          type: "point",
+          element: depElement,
+          initialState: { fill: "white", r: "2" },
+        }),
+      });
+      store.items["main-line"].dependsOn = ["dep-point"];
+
+      render(<GeometryDetails store={store} strokeBig={3} />);
+
+      // Find the dependency item in the inputs list
+      const depItem = screen.getByText("dep-point");
+      fireEvent.mouseEnter(depItem);
+
+      // Check that cyan hover was applied
+      expect(depElement.setAttribute).toHaveBeenCalledWith("fill", COLOR_HOVER_DETAILS);
+    });
+
+    it("preserves selection state when hover ends on selected item", () => {
+      const selectedElement = createMockSvgElementWithTracking("circle");
+      const store = createTrackedMockStore({
+        "main-line": createMockGeometryItem({
+          name: "main-line",
+          selected: true,
+          type: "line",
+          element: mockLineElement,
+        }),
+        "dep-point": createMockGeometryItem({
+          name: "dep-point",
+          type: "point",
+          element: selectedElement,
+          selected: true,
+          initialState: { fill: "white", r: "2" },
+        }),
+      });
+      store.items["main-line"].dependsOn = ["dep-point"];
+
+      render(<GeometryDetails store={store} strokeBig={3} />);
+
+      const depItem = screen.getByText("dep-point");
+      // Mouse enter
+      fireEvent.mouseEnter(depItem);
+      // Mouse leave
+      fireEvent.mouseLeave(depItem);
+
+      // Check that selection feedback (red) was re-applied after hover ended
+      expect(selectedElement.setAttribute).toHaveBeenCalledWith("fill", "red");
+    });
+
+    it("selects geometry on click", () => {
+      const item1Element = createMockSvgElementWithTracking("circle");
+      const item2Element = createMockSvgElementWithTracking("circle");
+      const store = createTrackedMockStore({
+        "main-line": createMockGeometryItem({
+          name: "main-line",
+          selected: true,
+          type: "line",
+          element: mockLineElement,
+        }),
+        "item-1": createMockGeometryItem({
+          name: "item-1",
+          type: "point",
+          element: item1Element,
+          selected: false,
+          initialState: { fill: "white", r: "2" },
+        }),
+        "item-2": createMockGeometryItem({
+          name: "item-2",
+          type: "point",
+          element: item2Element,
+          selected: false,
+          initialState: { fill: "white", r: "2" },
+        }),
+      });
+      store.items["main-line"].dependsOn = ["item-1", "item-2"];
+
+      render(<GeometryDetails store={store} strokeBig={3} />);
+
+      // Click on item-1
+      fireEvent.click(screen.getByText("item-1"));
+
+      // item-1 should be selected
+      expect(store.items["item-1"].selected).toBe(true);
+      // item-2 should not be selected
+      expect(store.items["item-2"].selected).toBe(false);
+      // main-line should not be selected (deselected all first)
+      expect(store.items["main-line"].selected).toBe(false);
+      // Red feedback should be applied to item-1
+      expect(item1Element.setAttribute).toHaveBeenCalledWith("fill", "red");
+    });
   });
 });

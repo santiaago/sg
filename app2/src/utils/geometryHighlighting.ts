@@ -1,4 +1,10 @@
 import type { GeometryItem } from "../react-store";
+import type { GeometryStore } from "../react-store";
+
+// Color constants for highlighting
+export const COLOR_INPUT_HIGHLIGHT = "orange";
+export const COLOR_HOVER_DETAILS = "cyan";
+export const COLOR_SELECTED = "red";
 
 /**
  * Apply orange visual feedback to SVG elements for highlighted input dependencies
@@ -8,10 +14,10 @@ export function applyInputVisualFeedback(element: any, shape: GeometryItem, scal
 
   try {
     if (shape.type === "point") {
-      element.setAttribute("fill", "orange");
+      element.setAttribute("fill", COLOR_INPUT_HIGHLIGHT);
       element.setAttribute("r", scale.toString());
     } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
-      element.setAttribute("stroke", "orange");
+      element.setAttribute("stroke", COLOR_INPUT_HIGHLIGHT);
       element.setAttribute("stroke-width", scale.toString());
     }
 
@@ -53,6 +59,33 @@ export function restoreInitialState(element: any, shape: GeometryItem): void {
 }
 
 /**
+ * Select a geometry item and apply visual feedback.
+ * Deselects all other geometries first.
+ * Used by both GeometryList and GeometryDetails for consistent selection behavior.
+ */
+export function selectGeometry(
+  store: GeometryStore,
+  geometryName: string,
+  strokeBig: number,
+): void {
+  const item = store.items[geometryName] as GeometryItem | undefined;
+  if (!item || !item.element) return;
+
+  // Deselect all first
+  Object.keys(store.items).forEach((key) => {
+    const existingItem = store.items[key] as GeometryItem | undefined;
+    if (existingItem && existingItem.element) {
+      store.update(key, { selected: false });
+      applyVisualFeedback(existingItem.element, { ...existingItem, selected: false }, strokeBig);
+    }
+  });
+
+  // Select the clicked one
+  store.update(geometryName, { selected: true });
+  applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
+}
+
+/**
  * Apply visual feedback to SVG elements based on selection state
  */
 export function applyVisualFeedback(element: any, shape: GeometryItem, strokeBig: number): void {
@@ -62,7 +95,7 @@ export function applyVisualFeedback(element: any, shape: GeometryItem, strokeBig
     if (shape.selected) {
       // Apply selection styles (consistent red highlighting)
       if (shape.type === "point") {
-        element.setAttribute("fill", "red");
+        element.setAttribute("fill", COLOR_SELECTED);
         element.setAttribute("r", strokeBig.toString());
         // Show tooltip and background when selected
         if (element.tooltip) {
@@ -73,7 +106,7 @@ export function applyVisualFeedback(element: any, shape: GeometryItem, strokeBig
         }
       } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
         element.setAttribute("stroke-width", strokeBig.toString());
-        element.setAttribute("stroke", "red");
+        element.setAttribute("stroke", COLOR_SELECTED);
         // Show tooltip and background when selected
         if (element.tooltip) {
           element.tooltip.setAttribute("opacity", "1");
@@ -127,18 +160,29 @@ export function highlightGeometry(
   applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
 }
 
+// Color for tooltip background when hovering in GeometryDetails (light cyan/blue for visibility)
+const COLOR_TOOLTIP_HOVER_BG = "#00ffff";
+
 /**
- * Apply hover-style highlighting to a geometry (orange, similar to input highlighting)
+ * Apply hover-style highlighting to a geometry.
+ * Uses the specified color (defaults to orange for backward compatibility).
+ * GeometryDetails should pass COLOR_HOVER_DETAILS for distinct hover color.
+ * For GeometryDetails hover, the tooltip background color is changed for better visibility.
  */
-export function applyHoverHighlight(element: any, shape: GeometryItem, scale: number): void {
+export function applyHoverHighlight(
+  element: any,
+  shape: GeometryItem,
+  scale: number,
+  color: string = COLOR_INPUT_HIGHLIGHT,
+): void {
   if (!element) return;
 
   try {
     if (shape.type === "point") {
-      element.setAttribute("fill", "orange");
+      element.setAttribute("fill", color);
       element.setAttribute("r", scale.toString());
     } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
-      element.setAttribute("stroke", "orange");
+      element.setAttribute("stroke", color);
       element.setAttribute("stroke-width", scale.toString());
     }
 
@@ -148,6 +192,10 @@ export function applyHoverHighlight(element: any, shape: GeometryItem, scale: nu
     }
     if (element.tooltipBg) {
       element.tooltipBg.setAttribute("opacity", "1");
+      // Change tooltip background color for GeometryDetails hover to distinguish it
+      if (color === COLOR_HOVER_DETAILS) {
+        element.tooltipBg.setAttribute("fill", COLOR_TOOLTIP_HOVER_BG);
+      }
     }
   } catch (error) {
     console.error("Error applying hover highlight:", error);
@@ -155,24 +203,58 @@ export function applyHoverHighlight(element: any, shape: GeometryItem, scale: nu
 }
 
 /**
- * Remove hover highlighting from a geometry
+ * Remove hover highlighting from a geometry.
+ * If the item is selected, re-applies selection visual feedback instead of restoring to initial state.
+ * This ensures selection state persists even when hover ends.
  */
-export function removeHoverHighlight(element: any, shape: GeometryItem): void {
+export function removeHoverHighlight(element: any, shape: GeometryItem, strokeBig: number): void {
   if (!element) return;
 
   try {
+    // If the item is selected, re-apply selection feedback instead of clearing
+    if (shape.selected) {
+      applyVisualFeedback(element, shape, strokeBig);
+      // Restore tooltipBg fill to original color
+      if (element.tooltipBg && element.tooltipBg.getAttribute("data-original-fill")) {
+        element.tooltipBg.setAttribute(
+          "fill",
+          element.tooltipBg.getAttribute("data-original-fill"),
+        );
+      }
+      return;
+    }
+
+    // If the item is input-highlighted, re-apply input highlighting instead of clearing
+    // This preserves input labels when hovering in GeometryDetails
+    if (shape.isInputHighlighted) {
+      applyInputVisualFeedback(element, shape, strokeBig);
+      // Restore tooltipBg fill to original color
+      if (element.tooltipBg && element.tooltipBg.getAttribute("data-original-fill")) {
+        element.tooltipBg.setAttribute(
+          "fill",
+          element.tooltipBg.getAttribute("data-original-fill"),
+        );
+      }
+      return;
+    }
+
+    // Otherwise restore to initial state
     if (shape.initialState) {
       Object.entries(shape.initialState).forEach(([attr, value]) => {
         element.setAttribute(attr, value);
       });
     }
 
-    // Hide tooltips
+    // Hide tooltips and restore tooltipBg fill to original color
     if (element.tooltip) {
       element.tooltip.setAttribute("opacity", "0");
     }
     if (element.tooltipBg) {
       element.tooltipBg.setAttribute("opacity", "0");
+      const originalFill = element.tooltipBg.getAttribute("data-original-fill");
+      if (originalFill) {
+        element.tooltipBg.setAttribute("fill", originalFill);
+      }
     }
   } catch (error) {
     console.error("Error removing hover highlight:", error);

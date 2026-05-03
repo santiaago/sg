@@ -4,10 +4,10 @@ import type { GeometryStore } from "../react-store";
 import type { GeometryItem } from "../react-store";
 import type { StepReference } from "../types/geometry";
 import {
-  applyVisualFeedback,
-  restoreInitialState,
   applyHoverHighlight,
   removeHoverHighlight,
+  selectGeometry,
+  COLOR_HOVER_DETAILS,
 } from "../utils/geometryHighlighting";
 
 export interface GeometryDetailsProps {
@@ -121,18 +121,18 @@ export function GeometryDetails({
       if (hoveredItem) {
         const item = store.items[hoveredItem] as GeometryItem | undefined;
         if (item?.element) {
-          removeHoverHighlight(item.element, item);
+          removeHoverHighlight(item.element, item, strokeBig);
         }
       }
     };
-  }, [hoveredItem, store.items]);
+  }, [hoveredItem, store.items, strokeBig]);
 
   const handleHoverStart = useCallback(
     (name: string) => {
       setHoveredItem(name);
       const item = store.items[name] as GeometryItem | undefined;
       if (item?.element) {
-        applyHoverHighlight(item.element, item, strokeBig);
+        applyHoverHighlight(item.element, item, strokeBig, COLOR_HOVER_DETAILS);
       }
     },
     [store.items, strokeBig],
@@ -142,12 +142,7 @@ export function GeometryDetails({
     if (hoveredItem) {
       const item = store.items[hoveredItem] as GeometryItem | undefined;
       if (item?.element) {
-        // Check if the item is selected
-        if (item.selected) {
-          applyVisualFeedback(item.element, item, strokeBig);
-        } else {
-          removeHoverHighlight(item.element, item);
-        }
+        removeHoverHighlight(item.element, item, strokeBig);
       }
     }
     setHoveredItem(null);
@@ -155,21 +150,7 @@ export function GeometryDetails({
 
   const handleClick = useCallback(
     (name: string) => {
-      const item = store.items[name] as GeometryItem | undefined;
-      if (!item) return;
-
-      // Deselect all first
-      Object.keys(store.items).forEach((key) => {
-        const existingItem = store.items[key] as GeometryItem | undefined;
-        if (existingItem && existingItem.element) {
-          store.update(key, { selected: false });
-          restoreInitialState(existingItem.element, existingItem);
-        }
-      });
-
-      // Select the clicked one
-      store.update(name, { selected: true });
-      applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
+      selectGeometry(store, name, strokeBig);
     },
     [store, strokeBig],
   );

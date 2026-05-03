@@ -5,7 +5,7 @@ import type { GeometryType } from "../types/geometry";
 import {
   applyInputVisualFeedback,
   restoreInitialState,
-  applyVisualFeedback,
+  selectGeometry,
 } from "../utils/geometryHighlighting";
 
 interface GeometryListProps {
@@ -76,57 +76,36 @@ export function GeometryList({
     if (!showInputHighlight) return;
 
     const items = store.items || {};
-    Object.values(items).forEach((item: unknown) => {
+    Object.entries(items).forEach(([name, item]: [string, unknown]) => {
       const geometryItem = item as GeometryItem;
       if (!geometryItem.element) return;
 
-      if (highlightedInputs.has(geometryItem.name)) {
+      const isHighlighted = highlightedInputs.has(name);
+      // Update the input highlighted state on the item
+      if (geometryItem.isInputHighlighted !== isHighlighted) {
+        store.update(name, { isInputHighlighted: isHighlighted });
+      }
+
+      if (isHighlighted) {
         applyInputVisualFeedback(geometryItem.element, geometryItem, strokeBig);
       } else if (!geometryItem.selected) {
         restoreInitialState(geometryItem.element, geometryItem);
       }
     });
-  }, [highlightedInputs, showInputHighlight, store.items, strokeBig]);
+  }, [highlightedInputs, showInputHighlight, store.items, store.update, strokeBig]);
 
   const handleClick = (name: string) => {
     const item = store.items[name] as GeometryItem | undefined;
     if (!item) return;
 
-    const isCurrentlySelected = item.selected;
-
-    // If clicking the already selected item, unselect it
-    if (isCurrentlySelected) {
-      store.update(name, { selected: false });
-      applyVisualFeedback(item.element, { ...item, selected: false }, strokeBig);
-
-      // Clear highlighted inputs when unselecting
-      if (showInputHighlight) {
-        setHighlightedInputs(new Set());
-      }
-      return;
-    }
-
-    // Deselect all first for single selection mode
-    Object.keys(store.items).forEach((key) => {
-      const existingItem = store.items[key] as GeometryItem | undefined;
-      if (existingItem) {
-        store.update(key, { selected: false });
-        // Restore visual state for deselected items
-        applyVisualFeedback(existingItem.element, { ...existingItem, selected: false }, strokeBig);
-      }
-    });
-
-    // Select the clicked one
-    store.update(name, { selected: true });
+    // Use shared selection utility for consistent behavior
+    selectGeometry(store, name, strokeBig);
 
     // Update highlighted inputs based on selection
     if (showInputHighlight) {
       // Highlight this item's dependencies
       setHighlightedInputs(new Set(item.dependsOn || []));
     }
-
-    // Apply visual feedback to the clicked SVG element
-    applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
   };
 
   const getItemColor = (name: string) => {

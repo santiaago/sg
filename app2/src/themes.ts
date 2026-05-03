@@ -25,6 +25,10 @@ export interface Theme {
   // Tooltip colors
   COLOR_TOOLTIP_TEXT: string;
   COLOR_TOOLTIP_BACKGROUND: string;
+  // Highlight colors
+  COLOR_INPUT_HIGHLIGHT: string;
+  COLOR_HOVER_DETAILS: string;
+  COLOR_SELECTED: string;
 }
 
 // Light theme - EXACT original colors
@@ -39,6 +43,10 @@ export const lightTheme: Theme = {
   // Tooltip colors - white text on black background (original light theme)
   COLOR_TOOLTIP_TEXT: "white",
   COLOR_TOOLTIP_BACKGROUND: "black",
+  // Highlight colors
+  COLOR_INPUT_HIGHLIGHT: "orange",
+  COLOR_HOVER_DETAILS: "cyan",
+  COLOR_SELECTED: "red",
 };
 
 // Dark theme - slate-based colors
@@ -53,4 +61,8 @@ export const darkTheme: Theme = {
   // Tooltip colors - opposite of light theme: black text on white background
   COLOR_TOOLTIP_TEXT: "black",
   COLOR_TOOLTIP_BACKGROUND: "white",
+  // Highlight colors
+  COLOR_INPUT_HIGHLIGHT: "orange",
+  COLOR_HOVER_DETAILS: "cyan",
+  COLOR_SELECTED: "red",
 };
