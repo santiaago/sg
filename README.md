@@ -5,9 +5,9 @@ Geometry apps with shared TypeScript utilities.
 ## 🚀 Quick Start
 
 ```bash
-npm install
-npm run build
-npm run dev
+pnpm install
+pnpm build
+pnpm dev
 ```
 
 ## 📦 Packages
@@ -20,21 +20,21 @@ npm run dev
 
 ```bash
 # Build
-npm run build          # Build all
-npm run build:packages # Build packages only
-npm run build:apps     # Build apps only
+pnpm build          # Build all
+pnpm build:packages # Build packages only
+pnpm build:apps     # Build apps only
 
 # Test
-npm test               # Run all tests
-npm run test:watch     # Watch mode
-npm run test:coverage   # Coverage report
+pnpm test               # Run all tests
+pnpm test:watch         # Watch mode
+pnpm test:coverage      # Coverage report
 
 # Dev
-npm run dev            # Start Svelte app
-npm run dev:app2       # Start React app
+pnpm dev            # Start Svelte app
+pnpm dev:app2       # Start React app
 
 # Clean
-npm run clean          # Remove node_modules, dist, coverage
+pnpm clean          # Remove node_modules, dist, coverage
 ```
 
 ## 📈 Status

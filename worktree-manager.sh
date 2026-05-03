@@ -51,7 +51,7 @@ NC='\033[0m' # No Color
 # ============================================================================
 
 log_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
+    echo -e "${GREEN}[INFO]${NC} $1" >&2
     echo "[INFO] $1" >> "$LOG_FILE"
 }
 
@@ -118,10 +118,10 @@ create_worktree() {
     mkdir -p "$WORKTREE_DIR"
     
     # Create the worktree
-    if ! git worktree add "$path" "$branch" 2>&1; then
+    if ! git worktree add --detach "$path" "$branch" &>/dev/null; then
         # Try with fetch if local branch doesn't exist
-        if git fetch origin "$branch" 2>/dev/null; then
-            git worktree add "$path" "origin/$branch" 2>&1 || {
+        if git fetch origin "$branch" &>/dev/null; then
+            git worktree add --detach "$path" "origin/$branch" &>/dev/null || {
                 log_error "Failed to create worktree for branch '$branch'"
                 return 1
             }
@@ -147,7 +147,7 @@ remove_worktree() {
     log_info "Removing worktree '$name' at $path"
     
     # Remove worktree
-    if ! git worktree remove "$path" 2>/dev/null; then
+    if ! git worktree remove "$path" &>/dev/null; then
         log_warn "git worktree remove failed, force-removing directory"
     fi
     
@@ -174,8 +174,15 @@ install_deps() {
     
     log_info "Installing dependencies with $PM..."
     
+    # Copy updated package.json files to worktree (worktree has git versions without workspace:* references)
+    cp "$REPO_ROOT"/package.json "$path/"/
+    cp "$REPO_ROOT"/app/package.json "$path/app/"
+    cp "$REPO_ROOT"/app2/package.json "$path/app2/"
+    cp -r "$REPO_ROOT"/packages "$path/"
+    
     cd "$path"
-    if ! $PM install; then
+    export PNPM_CONFIG_STRICT_PEER_DEPENDENCIES=false
+    if ! $PM install --shamefully-hoist; then
         log_error "Failed to install dependencies"
         return 1
     fi

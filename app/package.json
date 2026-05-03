@@ -12,7 +12,7 @@
     "test:coverage": "nyc --extension=.js --reporter=text --reporter=html node test-math.js"
   },
   "dependencies": {
-    "@sg/geometry": "^1.0.0",
+    "@sg/geometry": "workspace:*",
     "@svgdotjs/svg.js": "^3.1.2",
     "d3": "^7.8.2"
   },
