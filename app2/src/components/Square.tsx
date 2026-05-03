@@ -5,6 +5,7 @@ import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
 import { pick, buildStepMaps, setupSvg } from "../svg";
 import { SQUARE_STEPS, executeSteps, computeSquareConfig } from "../geometry/squareSteps";
+import { useThemeAwareSteps } from "../hooks/useThemeAwareSteps";
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
 
@@ -57,7 +58,13 @@ export const Square = forwardRef(function Square(
   ref: Ref<SVGSVGElement | null>,
 ): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
-  const prevStepRef = useRef<number>(0);
+
+  // Use hook to track step and theme changes for clearing logic
+  const { shouldClear } = useThemeAwareSteps({
+    currentStep,
+    restartTrigger,
+    theme,
+  });
 
   // Forward the ref to the SVG element
   useEffect(() => {
@@ -102,23 +109,17 @@ export const Square = forwardRef(function Square(
     rect(svg, svgConfig.width, svgConfig.height, theme);
   }, [svgConfig.width, svgConfig.height, svgConfig.viewBox, theme]);
 
-  // Effect 2: Step execution - ONLY when step, restart, or config changes
+  // Effect 2: Step execution - ONLY when step, restart, config, or theme changes
   useEffect(() => {
     if (!svgRef.current) return;
 
     const svg = svgRef.current;
-    const prevStep = prevStepRef.current;
 
-    // Clear geometry ONLY when going backwards or restarting
-    if (currentStep < prevStep || restartTrigger !== 0) {
+    // Clear geometry and store when going backwards, restarting, or theme changes
+    if (shouldClear) {
       clearGeometryFromSvg(svg);
-    }
-
-    // Clear store only when going backwards or restarting
-    if (currentStep < prevStep || restartTrigger !== 0) {
       store.clear();
     }
-    prevStepRef.current = currentStep;
 
     // If no steps to draw, exit
     if (currentStep <= 0) return;
@@ -157,7 +158,7 @@ export const Square = forwardRef(function Square(
     } catch (error) {
       console.error("Square construction failed at step", currentStep, ":", error);
     }
-  }, [currentStep, restartTrigger, svgConfig, dotStrokeWidth, theme]);
+  }, [currentStep, restartTrigger, svgConfig, dotStrokeWidth, theme, shouldClear]);
 
   const handleSliderChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,7 +190,7 @@ export const Square = forwardRef(function Square(
               name="step-slider"
               className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
               style={{
-                background: `linear-gradient(to right, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} 0%, ${theme?.COLOR_PRIMARY ?? "#3b82f6"} ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
+                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
               }}
             />
             <div className="flex justify-between text-xs text-gray-400 mt-1">

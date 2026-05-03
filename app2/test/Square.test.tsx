@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { Square, SQUARE_STEPS } from "../src/components/Square";
 import { useGeometryStoreSquare } from "../src/react-store";
 import { standardSvgConfig } from "../src/config/svgConfig";
+import { darkTheme, lightTheme } from "../src/themes";
 import type { GeometryStore, GeometryItem } from "../src/react-store";
 
 /**
@@ -365,5 +366,74 @@ describe("Square Component - Metadata Population", () => {
       expect(call.data.stepId).not.toBe("");
       expect(call.data.parameterValues).toBeDefined();
     }
+  });
+});
+
+/**
+ * Tests for theme change behavior
+ */
+describe("Square Component - Theme Change Tests", () => {
+  const defaultProps = {
+    svgConfig: standardSvgConfig,
+    currentStep: 1,
+    restartTrigger: 0,
+  };
+
+  it("should clear store when theme changes from dark to light", () => {
+    const mockStore = createMockStore();
+
+    const { rerender } = render(<Square {...defaultProps} store={mockStore} theme={darkTheme} />);
+
+    mockStore.clear.mockClear();
+
+    rerender(<Square {...defaultProps} store={mockStore} theme={lightTheme} />);
+
+    expect(mockStore.clear).toHaveBeenCalledTimes(1);
+  });
+
+  it("should clear store when theme changes from light to dark", () => {
+    const mockStore = createMockStore();
+
+    const { rerender } = render(<Square {...defaultProps} store={mockStore} theme={lightTheme} />);
+
+    mockStore.clear.mockClear();
+
+    rerender(<Square {...defaultProps} store={mockStore} theme={darkTheme} />);
+
+    expect(mockStore.clear).toHaveBeenCalledTimes(1);
+  });
+
+  it("should NOT clear store when theme stays the same", () => {
+    const mockStore = createMockStore();
+
+    const { rerender } = render(<Square {...defaultProps} store={mockStore} theme={darkTheme} />);
+
+    mockStore.clear.mockClear();
+
+    rerender(<Square {...defaultProps} store={mockStore} theme={darkTheme} />);
+
+    expect(mockStore.clear).not.toHaveBeenCalled();
+  });
+
+  it("should clear store on theme change even at step 1", () => {
+    const mockStore = createMockStore();
+
+    const { rerender } = render(
+      <Square {...defaultProps} store={mockStore} theme={darkTheme} currentStep={1} />,
+    );
+
+    mockStore.clear.mockClear();
+
+    rerender(<Square {...defaultProps} store={mockStore} theme={lightTheme} currentStep={1} />);
+
+    expect(mockStore.clear).toHaveBeenCalledTimes(1);
+  });
+
+  it("should render with default darkTheme when theme prop is not provided", () => {
+    const mockStore = createMockStore();
+
+    render(<Square {...defaultProps} store={mockStore} />);
+
+    expect(screen.getByTestId("square-svg")).toBeInTheDocument();
   });
 });
