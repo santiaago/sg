@@ -16,23 +16,9 @@ import { SIX_FOLD_V0_STEPS } from "../src/geometry/sixFoldV0Steps";
 const SQUARE_TOTAL_STEPS = SQUARE_STEPS.length;
 const SIXFOLDV0_TOTAL_STEPS = SIX_FOLD_V0_STEPS.length;
 
-// Selectors for Square section
+// Selectors for sections
 const SQUARE_SECTION = "#square";
-const SQUARE_SVG = '[data-testid="square-svg"]';
-const SQUARE_STEP_INDICATOR = "text=Current step";
-const SQUARE_FIRST_BTN = 'button[title="Go to beginning"]';
-const SQUARE_PREV_BTN = 'button:has-text("prev")';
-const SQUARE_NEXT_BTN = 'button:has-text("next")';
-const SQUARE_LAST_BTN = 'button[title="Go to end"]';
-
-// Selectors for SixFoldV0 section
 const SIXFOLDV0_SECTION = "#sixfold-v0";
-const SIXFOLDV0_SVG = '[data-testid="sixfoldv0-svg"]';
-const SIXFOLDV0_STEP_INDICATOR = "text=Current step";
-const SIXFOLDV0_FIRST_BTN = 'button[title="Go to beginning"]';
-const SIXFOLDV0_PREV_BTN = 'button:has-text("prev")';
-const SIXFOLDV0_NEXT_BTN = 'button:has-text("next")';
-const SIXFOLDV0_LAST_BTN = 'button[title="Go to end"]';
 
 // Helper to extract current step from text
 function extractStepNumber(text: string): number {
@@ -51,12 +37,13 @@ async function navigateToSection(page: Page, section: "square" | "sixfold-v0"): 
   await page.getByRole("button", { name: section === "square" ? "Square" : "SixFold v0" }).click();
 
   // Wait for the section to be visible
-  const sectionSelector = section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION;
-  await expect(page.locator(sectionSelector)).toBeVisible();
+  const sectionLocator = page.locator(section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION);
+  await expect(sectionLocator).toBeVisible();
 
   // Wait for SVG to be visible
-  const svgSelector = section === "square" ? SQUARE_SVG : SIXFOLDV0_SVG;
-  await expect(page.locator(svgSelector)).toBeVisible();
+  await expect(
+    sectionLocator.getByTestId(section === "square" ? "square-svg" : "sixfoldv0-svg"),
+  ).toBeVisible();
 }
 
 /**
@@ -64,8 +51,8 @@ async function navigateToSection(page: Page, section: "square" | "sixfold-v0"): 
  */
 async function getCurrentStep(page: Page, section: "square" | "sixfold-v0"): Promise<number> {
   const sectionSelector = section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION;
-  const stepIndicator = section === "square" ? SQUARE_STEP_INDICATOR : SIXFOLDV0_STEP_INDICATOR;
-  const stepText = await page.locator(`${sectionSelector} ${stepIndicator}`).textContent();
+  const stepElement = page.locator(sectionSelector).getByText(/Current step \d+\/\d+/);
+  const stepText = await stepElement.textContent();
   return extractStepNumber(stepText || "");
 }
 
@@ -73,36 +60,32 @@ async function getCurrentStep(page: Page, section: "square" | "sixfold-v0"): Pro
  * Helper to click next button for a section
  */
 async function clickNext(page: Page, section: "square" | "sixfold-v0"): Promise<void> {
-  const sectionSelector = section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION;
-  const nextBtnSelector = section === "square" ? SQUARE_NEXT_BTN : SIXFOLDV0_NEXT_BTN;
-  await page.locator(`${sectionSelector} ${nextBtnSelector}`).click();
+  const sectionLocator = page.locator(section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION);
+  await sectionLocator.getByRole("button", { name: "next" }).click();
 }
 
 /**
  * Helper to click prev button for a section
  */
 async function clickPrev(page: Page, section: "square" | "sixfold-v0"): Promise<void> {
-  const sectionSelector = section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION;
-  const prevBtnSelector = section === "square" ? SQUARE_PREV_BTN : SIXFOLDV0_PREV_BTN;
-  await page.locator(`${sectionSelector} ${prevBtnSelector}`).click();
+  const sectionLocator = page.locator(section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION);
+  await sectionLocator.getByRole("button", { name: "prev" }).click();
 }
 
 /**
  * Helper to click first button (<<) for a section
  */
 async function clickFirst(page: Page, section: "square" | "sixfold-v0"): Promise<void> {
-  const sectionSelector = section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION;
-  const firstBtnSelector = section === "square" ? SQUARE_FIRST_BTN : SIXFOLDV0_FIRST_BTN;
-  await page.locator(`${sectionSelector} ${firstBtnSelector}`).click();
+  const sectionLocator = page.locator(section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION);
+  await sectionLocator.getByTitle("Go to beginning").click();
 }
 
 /**
  * Helper to click last button (>>) for a section
  */
 async function clickLast(page: Page, section: "square" | "sixfold-v0"): Promise<void> {
-  const sectionSelector = section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION;
-  const lastBtnSelector = section === "square" ? SQUARE_LAST_BTN : SIXFOLDV0_LAST_BTN;
-  await page.locator(`${sectionSelector} ${lastBtnSelector}`).click();
+  const sectionLocator = page.locator(section === "square" ? SQUARE_SECTION : SIXFOLDV0_SECTION);
+  await sectionLocator.getByTitle("Go to end").click();
 }
 
 /**
@@ -134,7 +117,7 @@ test.describe("Square Component Navigation", () => {
     expect(currentStep).toBe(SQUARE_TOTAL_STEPS);
 
     // Next button should be disabled at the end
-    await expect(page.locator(`${SQUARE_SECTION} ${SQUARE_NEXT_BTN}`)).toBeDisabled();
+    await expect(page.locator(SQUARE_SECTION).getByRole("button", { name: "next" })).toBeDisabled();
   });
 
   test("can click fast forward (>>) to the end", async ({ page }) => {
@@ -161,7 +144,7 @@ test.describe("Square Component Navigation", () => {
     expect(currentStep).toBe(1);
 
     // Prev button should be disabled at step 1
-    await expect(page.locator(`${SQUARE_SECTION} ${SQUARE_PREV_BTN}`)).toBeDisabled();
+    await expect(page.locator(SQUARE_SECTION).getByRole("button", { name: "prev" })).toBeDisabled();
   });
 
   test("can click all the way to the beginning with backwards (<<)", async ({ page }) => {
@@ -254,7 +237,9 @@ test.describe("SixFoldV0 Component Navigation", () => {
     expect(currentStep).toBe(SIXFOLDV0_TOTAL_STEPS);
 
     // Next button should be disabled at the end
-    await expect(page.locator(`${SIXFOLDV0_SECTION} ${SIXFOLDV0_NEXT_BTN}`)).toBeDisabled();
+    await expect(
+      page.locator(SIXFOLDV0_SECTION).getByRole("button", { name: "next" }),
+    ).toBeDisabled();
   });
 
   test("can click fast forward (>>) to the end", async ({ page }) => {
@@ -281,7 +266,9 @@ test.describe("SixFoldV0 Component Navigation", () => {
     expect(currentStep).toBe(1);
 
     // Prev button should be disabled at step 1
-    await expect(page.locator(`${SIXFOLDV0_SECTION} ${SIXFOLDV0_PREV_BTN}`)).toBeDisabled();
+    await expect(
+      page.locator(SIXFOLDV0_SECTION).getByRole("button", { name: "prev" }),
+    ).toBeDisabled();
   });
 
   test("can click all the way to the beginning with backwards (<<)", async ({ page }) => {
