@@ -70,7 +70,7 @@ export interface GeometryNode {
 // 5. Provides a draw function to render the geometries
 // This design enables lazy calculation, automatic dependency tracking,
 // and separation of calculation and rendering
-export interface Step {
+export interface Step<TConfig = unknown> {
   // Unique identifier for this step
   id: string;
 
@@ -81,15 +81,15 @@ export interface Step {
   outputs: string[];
 
   // Names of configuration properties (non-geometry values) this step requires.
-  // Declared for documentation; actual config passed as SquareConfig object.
-  parameters?: (keyof SquareConfig)[];
+  // Declared for documentation; actual config passed as TConfig object.
+  parameters?: (keyof TConfig)[];
 
   // Computes output geometries from input geometries and configuration.
   // Called only when this step becomes current.
   // inputs - Map of input geometry IDs to their values
-  // config - SquareConfig object with all configuration values
+  // config - TConfig object with all configuration values
   // returns Map of output geometry IDs to their computed values
-  compute: (inputs: Map<string, GeometryValue>, config: SquareConfig) => Map<string, GeometryValue>;
+  compute: (inputs: Map<string, GeometryValue>, config: TConfig) => Map<string, GeometryValue>;
 
   // Draws the geometries for this step.
   // Called after compute() to render the step's output.
@@ -103,6 +103,12 @@ export interface Step {
     store: GeometryStore,
     theme: Theme,
   ) => void;
+}
+
+// Minimal step reference for components that only need id and outputs
+export interface StepReference {
+  id: string;
+  outputs?: string[];
 }
 
 // Dependency Graph Types
