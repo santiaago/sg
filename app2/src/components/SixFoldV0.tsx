@@ -4,6 +4,7 @@ import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
 import { pick, setupSvg, buildStepMaps } from "../svg";
+import { useThemeAwareSteps } from "../hooks/useThemeAwareSteps";
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
 import type { SixFoldV0Step } from "../geometry/sixFold/operations";
@@ -55,7 +56,12 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
     }
   }, [ref]);
 
-  const prevStepRef = useRef<number>(0);
+  // Use hook to track step and theme changes for clearing logic
+  const { shouldClear } = useThemeAwareSteps({
+    currentStep,
+    restartTrigger,
+    theme,
+  });
 
   // Memoize the configuration (derived from SVG dimensions)
   const config = useMemo(() => {
@@ -90,24 +96,17 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
     rect(svg, svgConfig.width, svgConfig.height, theme);
   }, [svgConfig.width, svgConfig.height, svgConfig.viewBox, theme]);
 
-  // Effect 3: Step execution - ONLY when step, restart, or config changes
+  // Effect 3: Step execution - ONLY when step, restart, config, or theme changes
   useEffect(() => {
     if (!svgRef.current) return;
 
     const svg = svgRef.current;
-    const prevStep = prevStepRef.current;
 
-    // Clear geometry ONLY when going backwards or restarting
-    if (currentStep < prevStep || restartTrigger !== 0) {
+    // Clear geometry and store when going backwards, restarting, or theme changes
+    if (shouldClear) {
       clearGeometryFromSvg(svg);
-    }
-
-    // Clear store only when going backwards or restarting
-    if (currentStep < prevStep || restartTrigger !== 0) {
       store.clear();
     }
-
-    prevStepRef.current = currentStep;
 
     // If no steps to draw, exit
     if (currentStep <= 0) return;
@@ -136,7 +135,7 @@ export const SixFoldV0 = forwardRef(function SixFoldV0(
     } catch (error) {
       console.error("SixFoldV0 construction failed at step", currentStep, ":", error);
     }
-  }, [currentStep, restartTrigger, svgConfig, theme, config, dotStrokeWidth]);
+  }, [currentStep, restartTrigger, svgConfig, theme, config, dotStrokeWidth, shouldClear]);
 
   const handleSliderChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
