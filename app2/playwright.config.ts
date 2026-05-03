@@ -10,8 +10,8 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Use process.env.PORT by default and fallback to 5173
-const PORT = process.env.PORT || 5173;
+// Use process.env.PORT by default and fallback to 5174 (matches vite.config.ts)
+const PORT = process.env.PORT || 5174;
 
 // Set this to true if you want to test the production build
 const TEST_PROD = process.env.TEST_PROD === "true";

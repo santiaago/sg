@@ -1,6 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
-import { SQUARE_STEPS } from "../../src/geometry/squareSteps";
-import { SIX_FOLD_V0_STEPS } from "../../src/geometry/sixFoldV0Steps";
+import { SQUARE_STEPS } from "../src/geometry/squareSteps";
+import { SIX_FOLD_V0_STEPS } from "../src/geometry/sixFoldV0Steps";
 
 /**
  * E2E tests for Square and SixFoldV0 component navigation.
