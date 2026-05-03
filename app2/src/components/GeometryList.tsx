@@ -89,6 +89,20 @@ export function GeometryList({
     const item = store.items[name] as GeometryItem | undefined;
     if (!item) return;
 
+    const isCurrentlySelected = item.selected;
+
+    // If clicking the already selected item, unselect it
+    if (isCurrentlySelected) {
+      store.update(name, { selected: false });
+      applyVisualFeedback(item.element, { ...item, selected: false }, stroke, strokeBig);
+
+      // Clear highlighted inputs when unselecting
+      if (showInputHighlight) {
+        setHighlightedInputs(new Set());
+      }
+      return;
+    }
+
     // Deselect all first for single selection mode
     Object.keys(store.items).forEach((key) => {
       const existingItem = store.items[key] as GeometryItem | undefined;
