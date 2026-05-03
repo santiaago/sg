@@ -79,35 +79,100 @@ export default function App(): JSX.Element {
   // SixFoldV0 state
   const [currentStepv0, setCurrentStepv0] = useState<number>(0);
   const [restartKeyv0, setRestartKeyv0] = useState<number>(0);
+  const [isPlayingv0, setIsPlayingv0] = useState<boolean>(false);
   const sixFoldV0SvgRef = useRef<SVGSVGElement>(null);
+  const playIntervalv0 = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const handleNextClickv0 = (): void => {
+    // Stop playing if user manually clicks
+    if (isPlayingv0 && playIntervalv0.current) {
+      clearInterval(playIntervalv0.current);
+      playIntervalv0.current = null;
+      setIsPlayingv0(false);
+    }
     if (currentStepv0 < SIX_FOLD_V0_STEPS.length) {
       setCurrentStepv0(currentStepv0 + 1);
     }
   };
 
   const handlePrevClickv0 = (): void => {
+    // Stop playing if user manually clicks
+    if (isPlayingv0 && playIntervalv0.current) {
+      clearInterval(playIntervalv0.current);
+      playIntervalv0.current = null;
+      setIsPlayingv0(false);
+    }
     if (currentStepv0 > 0) {
       setCurrentStepv0(currentStepv0 - 1);
     }
   };
 
   const handleRestartv0 = (): void => {
+    // Stop playing when restarting
+    if (isPlayingv0 && playIntervalv0.current) {
+      clearInterval(playIntervalv0.current);
+      playIntervalv0.current = null;
+      setIsPlayingv0(false);
+    }
     setCurrentStepv0(0);
     setRestartKeyv0(restartKeyv0 + 1);
   };
 
   const handleLastStepv0 = (): void => {
+    // Stop playing when jumping to end
+    if (isPlayingv0 && playIntervalv0.current) {
+      clearInterval(playIntervalv0.current);
+      playIntervalv0.current = null;
+      setIsPlayingv0(false);
+    }
     setCurrentStepv0(SIX_FOLD_V0_STEPS.length);
     setRestartKeyv0(restartKeyv0 + 1);
   };
 
+  const handlePlayClickv0 = (): void => {
+    if (isPlayingv0) {
+      // Stop playing
+      if (playIntervalv0.current) {
+        clearInterval(playIntervalv0.current);
+        playIntervalv0.current = null;
+      }
+      setIsPlayingv0(false);
+    } else {
+      // Start playing
+      setIsPlayingv0(true);
+      playIntervalv0.current = setInterval(() => {
+        setCurrentStepv0((prev) => {
+          if (prev >= SIX_FOLD_V0_STEPS.length) {
+            // Stop when reaching the end
+            if (playIntervalv0.current) {
+              clearInterval(playIntervalv0.current);
+              playIntervalv0.current = null;
+            }
+            setIsPlayingv0(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 300); // 300ms delay between steps
+    }
+  };
+
+  // Clean up interval on unmount
+  useEffect(() => {
+    return () => {
+      if (playIntervalv0.current) {
+        clearInterval(playIntervalv0.current);
+      }
+    };
+  }, []);
+
   // Square state
   const [currentStepSquare, setCurrentStepSquare] = useState<number>(0);
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
+  const [isPlayingSquare, setIsPlayingSquare] = useState<boolean>(false);
   const [showInputHighlight, setShowInputHighlight] = useState(true);
   const squareSvgRef = useRef<SVGSVGElement>(null);
+  const playIntervalSquare = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Helper function to clear Square store and remove DOM elements.
   // Square store requires manual DOM cleanup because SVG elements and tooltips
@@ -133,6 +198,12 @@ export default function App(): JSX.Element {
 
   const handleNextClickSquare = (): void => {
     console.log("next step", currentStepSquare, SQUARE_STEPS.length);
+    // Stop playing if user manually clicks
+    if (isPlayingSquare && playIntervalSquare.current) {
+      clearInterval(playIntervalSquare.current);
+      playIntervalSquare.current = null;
+      setIsPlayingSquare(false);
+    }
     if (currentStepSquare < SQUARE_STEPS.length) {
       console.log("inside");
       setCurrentStepSquare(currentStepSquare + 1);
@@ -141,28 +212,89 @@ export default function App(): JSX.Element {
 
   const handlePrevClickSquare = (): void => {
     console.log("prev step", currentStepSquare);
+    // Stop playing if user manually clicks
+    if (isPlayingSquare && playIntervalSquare.current) {
+      clearInterval(playIntervalSquare.current);
+      playIntervalSquare.current = null;
+      setIsPlayingSquare(false);
+    }
     if (currentStepSquare > 0) {
       setCurrentStepSquare(currentStepSquare - 1);
     }
   };
 
   const handleRestartSquare = (): void => {
+    // Stop playing when restarting
+    if (isPlayingSquare && playIntervalSquare.current) {
+      clearInterval(playIntervalSquare.current);
+      playIntervalSquare.current = null;
+      setIsPlayingSquare(false);
+    }
     clearSquareStore();
     setCurrentStepSquare(0);
     setRestartKeySquare(restartKeySquare + 1);
   };
 
   const handleFirstStepSquare = (): void => {
+    // Stop playing when jumping to first step
+    if (isPlayingSquare && playIntervalSquare.current) {
+      clearInterval(playIntervalSquare.current);
+      playIntervalSquare.current = null;
+      setIsPlayingSquare(false);
+    }
     clearSquareStore();
     setCurrentStepSquare(0);
     setRestartKeySquare(restartKeySquare + 1);
   };
 
   const handleLastStepSquare = (): void => {
+    // Stop playing when jumping to end
+    if (isPlayingSquare && playIntervalSquare.current) {
+      clearInterval(playIntervalSquare.current);
+      playIntervalSquare.current = null;
+      setIsPlayingSquare(false);
+    }
     clearSquareStore();
     setCurrentStepSquare(SQUARE_STEPS.length);
     setRestartKeySquare(restartKeySquare + 1);
   };
+
+  const handlePlayClickSquare = (): void => {
+    if (isPlayingSquare) {
+      // Stop playing
+      if (playIntervalSquare.current) {
+        clearInterval(playIntervalSquare.current);
+        playIntervalSquare.current = null;
+      }
+      setIsPlayingSquare(false);
+    } else {
+      // Start playing
+      setIsPlayingSquare(true);
+      playIntervalSquare.current = setInterval(() => {
+        setCurrentStepSquare((prev) => {
+          if (prev >= SQUARE_STEPS.length) {
+            // Stop when reaching the end
+            if (playIntervalSquare.current) {
+              clearInterval(playIntervalSquare.current);
+              playIntervalSquare.current = null;
+            }
+            setIsPlayingSquare(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 300); // 300ms delay between steps
+    }
+  };
+
+  // Clean up interval on unmount
+  useEffect(() => {
+    return () => {
+      if (playIntervalSquare.current) {
+        clearInterval(playIntervalSquare.current);
+      }
+    };
+  }, []);
 
   const toggleInputs = (): void => {
     setShowInputHighlight(!showInputHighlight);
@@ -211,6 +343,9 @@ export default function App(): JSX.Element {
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
+              showPlayButton={true}
+              isPlaying={isPlayingv0}
+              onPlayClick={handlePlayClickv0}
             >
               <SixFoldV0Svg
                 ref={sixFoldV0SvgRef}
@@ -282,6 +417,9 @@ export default function App(): JSX.Element {
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
+              showPlayButton={true}
+              isPlaying={isPlayingSquare}
+              onPlayClick={handlePlayClickSquare}
             >
               <SquareSvg
                 ref={squareSvgRef}
