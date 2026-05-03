@@ -25,9 +25,13 @@ pnpm build:packages # Build packages only
 pnpm build:apps     # Build apps only
 
 # Test
-pnpm test               # Run all tests
-pnpm test:watch         # Watch mode
+pnpm test               # Run all tests (Vitest)
 pnpm test:coverage      # Coverage report
+pnpm test:watch         # Watch mode
+
+# E2E Tests (Playwright)
+cd app2 && pnpm test:e2e          # Run E2E tests
+cd app2 && pnpm test:e2e:headed  # Run with visible browser
 
 # Dev
 pnpm dev            # Start Svelte app
