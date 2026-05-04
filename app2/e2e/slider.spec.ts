@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
-import { goToSection, getCurrentStep, waitForPageLoad } from './utils';
+import { goToSection, getCurrentStep, waitForPageLoad } from './utils/navigation';
 
 /**
  * Slider Navigation Tests
@@ -57,7 +57,7 @@ test.describe('Slider Navigation', () => {
       });
 
       // Wait for step to update
-      await page.waitForTimeout(100);
+      await expect(page.locator('#square').getByText(/Current step 5\/\d+/)).toBeVisible();
 
       const currentStep = await getCurrentStep(page, SECTION_SQUARE);
       expect(currentStep).toBe(5);
@@ -103,7 +103,7 @@ test.describe('Slider Navigation', () => {
       await page.keyboard.press('ArrowRight');
 
       // Wait for value to update
-      await page.waitForTimeout(100);
+      await expect(slider).toHaveAttribute('value', /\d+/);
 
       const value = await slider.getAttribute('value');
       expect(parseInt(value || '0', 10)).toBeGreaterThan(1);
@@ -153,7 +153,7 @@ test.describe('Slider Navigation', () => {
       });
 
       // Wait for step to update
-      await page.waitForTimeout(100);
+      await expect(page.locator('#sixfold-v0').getByText(/Current step 45\/\d+/)).toBeVisible();
 
       const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
       expect(currentStep).toBe(45);

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
-import { goToSection, getCurrentStep, clickFirstButton, clickLastButton, clickNextButton, clickPrevButton, waitForPageLoad } from './utils';
+import { goToSection, goToStep, getCurrentStep, clickFirstButton, clickLastButton, clickNextButton, clickPrevButton, waitForPageLoad } from './utils/navigation';
 
 /**
  * Navigation & URL Hash Tests
@@ -230,9 +230,7 @@ test.describe('Navigation & URL Hash', () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // First, go to step 10
-      for (let i = 0; i < 9; i++) {
-        await clickNextButton(page, SECTION_SIXFOLD_V0);
-      }
+      await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
       let currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
       expect(currentStep).toBe(10);

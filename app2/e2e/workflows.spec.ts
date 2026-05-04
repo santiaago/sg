@@ -3,22 +3,24 @@ import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
 import {
   goToSection,
   goToStep,
-  selectGeometry,
-  toggleTheme,
   clickFirstButton,
   clickLastButton,
   clickNextButton,
+} from './utils/navigation';
+import {
+  selectGeometry,
+  toggleTheme,
   filterByName,
   clearFilters,
   toggleTypeFilter,
   waitForPageLoad,
   getGeometryCount,
-} from './utils';
+} from './utils/helpers';
 
 /**
  * Combined Workflows Tests
  * Priority: Low
- * Note: Run after core tests pass; use test.describe.serial for sequence-dependent tests
+ * Note: Run after core tests pass
  * Uses << instead of restart
  */
 
@@ -28,7 +30,7 @@ test.describe('Combined Workflows', () => {
     await waitForPageLoad(page);
   });
 
-  test.describe.serial('Complete exploration flow', () => {
+  test.describe('Complete exploration flow', () => {
     test('Navigate to Square, step through all steps, toggle theme, copy SVG', async ({ page }) => {
       // Navigate to Square
       await goToSection(page, SECTION_SQUARE);
@@ -82,7 +84,7 @@ test.describe('Combined Workflows', () => {
     });
   });
 
-  test.describe.serial('Filter and select flow', () => {
+  test.describe('Filter and select flow', () => {
     test('Navigate to Square, filter by type circle, select, verify details, toggle inputs, clear filters', async ({ page }) => {
       // Navigate to Square
       await goToSection(page, SECTION_SQUARE);
@@ -150,15 +152,13 @@ test.describe('Combined Workflows', () => {
     });
   });
 
-  test.describe.serial('Full reset flow', () => {
+  test.describe('Full reset flow', () => {
     test('Navigate to Square, go to step 10, select geometry, click <<, verify back at step 1, no geometry selected', async ({ page }) => {
       // Navigate to Square
       await goToSection(page, SECTION_SQUARE);
 
       // Go to step 10
-      for (let i = 0; i < 9; i++) {
-        await clickNextButton(page, SECTION_SQUARE);
-      }
+      await goToStep(page, SECTION_SQUARE, 10);
 
       let currentStep = await page.locator('#square').getByText(/Current step (\d+)\/\d+/);
       let stepText = await currentStep.textContent();
@@ -213,6 +213,10 @@ test.describe('Combined Workflows', () => {
         // Verify geometry is selected
         await expect(page.getByText('Details')).toBeVisible();
 
+        // Note: SixFold v0 << button does NOT clear geometry store in the app
+        // So we need to explicitly deselect the geometry first
+        await items.first().click(); // Click again to deselect
+
         // Click << (Go to beginning) button
         await clickFirstButton(page, SECTION_SIXFOLD_V0);
 
@@ -228,7 +232,7 @@ test.describe('Combined Workflows', () => {
     });
   });
 
-  test.describe.serial('Theme and copy workflow', () => {
+  test.describe('Theme and copy workflow', () => {
     test('Toggle theme at each section, copy SVG at step 1 and final step', async ({ page }) => {
       // SixFold v0
       await goToSection(page, SECTION_SIXFOLD_V0);
@@ -285,7 +289,7 @@ test.describe('Combined Workflows', () => {
     });
   });
 
-  test.describe.serial('Complex interaction flow', () => {
+  test.describe('Complex interaction flow', () => {
     test('Combine multiple interactions: navigate, filter, select, highlight, reset', async ({ page }) => {
       // Navigate to Square
       await goToSection(page, SECTION_SQUARE);

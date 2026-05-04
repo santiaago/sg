@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
-import { goToSection, assertClipboardContains, waitForPageLoad, getCurrentStep } from './utils';
+import { goToSection, getCurrentStep } from './utils/navigation';
+import { assertClipboardContains, waitForPageLoad } from './utils/helpers';
 
 /**
  * Copy URL Functionality Tests
@@ -43,8 +44,8 @@ test.describe('Copy URL Functionality', () => {
     // Click Copy URL button
     await page.getByTitle('Copy URL to clipboard').click();
 
-    // Wait for copy to complete
-    await page.waitForTimeout(100);
+    // Wait for copy to complete by checking for Copied! feedback
+    await expect(page.getByText('Copied!')).toBeVisible();
 
     // Get clipboard content
     const clipboardText = await page.evaluate(async () => {

@@ -8,10 +8,14 @@ import {
 import {
   goToSection,
   getCurrentStep,
+} from './utils/navigation';
+import {
   assertTheme,
-  getConsoleMessages,
   waitForPageLoad,
-} from './utils';
+} from './utils/helpers';
+import {
+  getConsoleMessages,
+} from './utils/console';
 
 /**
  * P0 - Initial Page Load Tests
@@ -44,7 +48,8 @@ test.describe('Initial Page Load', () => {
       errors.push(error.message);
     });
     
-    await page.waitForTimeout(1000); // Wait for any async errors
+    // Wait for any async errors by waiting for network idle
+    await page.waitForLoadState('networkidle');
     expect(errors).toHaveLength(0);
   });
 

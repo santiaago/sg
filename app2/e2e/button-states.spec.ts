@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
-import { goToSection, goToStep, clickFirstButton, clickLastButton, clickNextButton, clickPrevButton, getCurrentStep, waitForPageLoad } from './utils';
+import { goToSection, goToStep, clickFirstButton, clickLastButton, clickNextButton, clickPrevButton, getCurrentStep, waitForPageLoad } from './utils/navigation';
 
 /**
  * Button States Tests

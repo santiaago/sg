@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0, SVG_CONFIG } from './fixtures';
-import { goToSection, assertSVGValid, assertClipboardContains, waitForPageLoad, getSVGContent } from './utils';
+import { goToSection } from './utils/navigation';
+import { assertSVGValid, assertClipboardContains, waitForPageLoad } from './utils/helpers';
+import { getSVGContent } from './utils/clipboard';
 
 /**
  * Copy SVG Functionality Tests
