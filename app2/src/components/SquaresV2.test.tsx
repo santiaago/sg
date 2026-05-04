@@ -4,20 +4,19 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { SquaresV2 } from "./SquaresV2";
 import { standardSvgConfig } from "../config/svgConfig";
-import { darkTheme } from "../themes";
 import type { GeometryStore } from "../react-store";
 import { Construction } from "../geometry/construction";
-import { computeSquareConfig, LINE_EXTENSION_MULTIPLIER, C1_POSITION_RATIO } from "../geometry/operations";
+import {
+  computeSquareConfig,
+  LINE_EXTENSION_MULTIPLIER,
+  C1_POSITION_RATIO,
+} from "../geometry/operations";
 import type { Circle, Polygon } from "../types/geometry";
 
 /**
  * Mock GeometryStore for testing
  */
-const createMockStore = (): GeometryStore & {
-  add: ReturnType<typeof vi.fn>;
-  update: ReturnType<typeof vi.fn>;
-  clear: ReturnType<typeof vi.fn>;
-} => ({
+const createMockStore = (): GeometryStore => ({
   items: {},
   add: vi.fn(),
   update: vi.fn(),
@@ -29,7 +28,6 @@ describe("SquaresV2", () => {
     store: createMockStore(),
     svgConfig: standardSvgConfig,
     currentStep: 0,
-    theme: darkTheme,
   };
 
   beforeEach(() => {
@@ -57,27 +55,19 @@ describe("SquaresV2", () => {
   });
 
   it("should update rendering when currentStep changes", () => {
-    const { rerender } = render(
-      <SquaresV2 {...defaultProps} currentStep={0} />
-    );
+    const { rerender } = render(<SquaresV2 {...defaultProps} currentStep={0} />);
 
     // Change step
-    rerender(
-      <SquaresV2 {...defaultProps} currentStep={5} />
-    );
+    rerender(<SquaresV2 {...defaultProps} currentStep={5} />);
 
     expect(screen.getByTestId("squaresv2-svg")).toBeInTheDocument();
   });
 
   it("should update rendering when currentStep changes to final step", () => {
-    const { rerender } = render(
-      <SquaresV2 {...defaultProps} currentStep={0} />
-    );
+    const { rerender } = render(<SquaresV2 {...defaultProps} currentStep={0} />);
 
     // Change to final step
-    rerender(
-      <SquaresV2 {...defaultProps} currentStep={15} />
-    );
+    rerender(<SquaresV2 {...defaultProps} currentStep={15} />);
 
     expect(screen.getByTestId("squaresv2-svg")).toBeInTheDocument();
   });
@@ -91,15 +81,6 @@ describe("SquaresV2", () => {
   it("should handle currentStep beyond total steps", () => {
     // Construction.goTo clamps to max step, so this should render all steps
     render(<SquaresV2 {...defaultProps} currentStep={100} />);
-    expect(screen.getByTestId("squaresv2-svg")).toBeInTheDocument();
-  });
-
-  it("should work without theme prop", () => {
-    const props = {
-      ...defaultProps,
-      theme: undefined,
-    };
-    render(<SquaresV2 {...props} />);
     expect(screen.getByTestId("squaresv2-svg")).toBeInTheDocument();
   });
 
@@ -171,9 +152,6 @@ describe("SquaresV2 geometry", () => {
     const squareValue = c.get<Polygon>(square);
     expect(squareValue.type).toBe("polygon");
     expect(squareValue.points).toHaveLength(4);
-
-    // Verify the square has the expected structure (4 points)
-    expect(squareValue.points.length).toBe(4);
   });
 
   it("should navigate through steps correctly", () => {

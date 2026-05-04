@@ -14,7 +14,6 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
-import type { Theme } from "../themes";
 import { Construction } from "../geometry/construction";
 import { SvgRenderer } from "../geometry/renderers/svgRenderer";
 import {
@@ -36,9 +35,6 @@ export interface SquaresV2Props {
 
   // Current step index (0-based)
   currentStep: number;
-
-  // Theme for styling
-  theme?: Theme;
 }
 
 /**
@@ -47,12 +43,7 @@ export interface SquaresV2Props {
  * Creates a square using compass and straightedge techniques, rendering
  * step-by-step as the user navigates through the construction.
  */
-export function SquaresV2({
-  store,
-  svgConfig,
-  currentStep,
-  theme,
-}: SquaresV2Props): React.JSX.Element {
+export function SquaresV2({ store, svgConfig, currentStep }: SquaresV2Props): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Memoize the square configuration (derived from SVG dimensions)
@@ -65,13 +56,7 @@ export function SquaresV2({
     const c = new Construction();
 
     // Step 1: Main line (base line for the entire construction)
-    const ml = c.line(
-      config.p1x,
-      config.p1y,
-      config.p2x,
-      config.p2y,
-      "main_line",
-    );
+    const ml = c.line(config.p1x, config.p1y, config.p2x, config.p2y, "main_line");
 
     // Step 2: C1 - First circle center at C1_POSITION_RATIO along main line
     const c1 = c.pointAt(ml, C1_POSITION_RATIO, "c1");
@@ -95,18 +80,8 @@ export function SquaresV2({
 
     // Step 8-9: Extended lines from C2 and C1 towards PI
     // Length = LINE_EXTENSION_MULTIPLIER * radius (1.1 * diameter = 2.2 * radius)
-    const line_c2_pi = c.lineTowards(
-      c2,
-      pi,
-      LINE_EXTENSION_MULTIPLIER * c1_circle.r,
-      "line_c2_pi",
-    );
-    const line_c1_pi = c.lineTowards(
-      c1,
-      pi,
-      LINE_EXTENSION_MULTIPLIER * c1_circle.r,
-      "line_c1_pi",
-    );
+    const line_c2_pi = c.lineTowards(c2, pi, LINE_EXTENSION_MULTIPLIER * c1_circle.r, "line_c2_pi");
+    const line_c1_pi = c.lineTowards(c1, pi, LINE_EXTENSION_MULTIPLIER * c1_circle.r, "line_c1_pi");
 
     // Step 10-11: P3 and P4 - Intersections of extended lines with CI
     // Use { exclude } to get the "other" intersection point (not the circle center)
@@ -126,7 +101,7 @@ export function SquaresV2({
     // Step 16: Final square polygon
     // Connect the four corner points: C1, C2, PR, PL
     // Note: Order matters for polygon rendering
-    const square = c.polygon([c1, c2, pr, pl], "square");
+    c.polygon([c1, c2, pr, pl], "square");
 
     return c;
   }, [config]);
@@ -140,21 +115,23 @@ export function SquaresV2({
   useEffect(() => {
     if (!svgRef.current) return;
 
-    const svg = svgRef.current;
-    const renderer = new SvgRenderer(svg, store);
+    const renderer = new SvgRenderer(svgRef.current, store);
 
     // Clear previous rendering
     renderer.clear();
 
     // Draw all geometries up to the current step
     renderer.drawConstructionUpTo(construction, currentStep);
-  }, [currentStep, store, construction, theme]);
+  }, [currentStep, store, construction]);
 
   return (
     <div className={`${svgConfig.containerClass} flex justify-center`}>
       <svg
         ref={svgRef}
         className={`${svgConfig.svgClass} block`}
+        viewBox={svgConfig.viewBox}
+        width={svgConfig.width}
+        height={svgConfig.height}
         data-testid="squaresv2-svg"
       />
     </div>
