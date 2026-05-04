@@ -3,7 +3,7 @@
 **Status:** Draft - Pending Implementation  
 **Branch:** `vibe/playwright-improvements-acf463`  
 **Date:** 2026-05-04  
-**Related:** [`EXTRA_PLAYWRIGHT_IMPROVEMENTS.md`](EXTRA_PLAYWRIGHT_IMPROVEMENTS.md)  
+**Related:** [`EXTRA_PLAYWRIGHT_IMPROVEMENTS.md`](EXTRA_PLAYWRIGHT_IMPROVEMENTS.md)
 
 ---
 
@@ -12,6 +12,7 @@
 This document outlines **remaining fixes** needed after commits 5751202, f2f960c, and 3f5b96a.
 
 These three commits successfully addressed most P0 and P1 issues from `EXTRA_PLAYWRIGHT_IMPROVEMENTS.md`:
+
 - ✅ Replaced silent `test.skip()` calls with explicit expectations (5751202)
 - ✅ Split monolithic `utils.ts` into modular structure (f2f960c)
 - ✅ Added retries, removed `.serial`, replaced `waitForTimeout` (3f5b96a)
@@ -25,6 +26,7 @@ However, **code review identified several remaining issues** that must be fixed 
 ### The Core Problem
 
 The current test suite has **false reliability** — tests appear to pass, but use patterns that:
+
 1. **Don't actually wait** for conditions (using `expect` on primitive values)
 2. **Have duplicate code** (increasing maintenance burden)
 3. **Use `test.skip()` incorrectly** (inside test bodies instead of declarations)
@@ -33,22 +35,22 @@ This leads to **flaky tests** that may pass locally but fail in CI, or worse, **
 
 ### Test Quality Principles Violated
 
-| Principle | Current State | Why It Matters |
-|-----------|---------------|----------------|
-| **Proper async waits** | `await expect(value).toBeTruthy()` on primitives | Playwright `expect` only works on locators/elements; using it on strings/numbers is a synchronous check, not an async wait |
-| **Single source of truth** | `assertClipboardContains` defined twice | Code duplication increases maintenance burden and risk of divergence |
-| **Correct skip usage** | `test.skip()` inside test logic | Skips don't work correctly at runtime; they must be at test declaration level |
-| **Defensive timeouts** | `waitForLoadState('networkidle')` without timeout | Can hang indefinitely on pending network requests |
+| Principle                  | Current State                                     | Why It Matters                                                                                                             |
+| -------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Proper async waits**     | `await expect(value).toBeTruthy()` on primitives  | Playwright `expect` only works on locators/elements; using it on strings/numbers is a synchronous check, not an async wait |
+| **Single source of truth** | `assertClipboardContains` defined twice           | Code duplication increases maintenance burden and risk of divergence                                                       |
+| **Correct skip usage**     | `test.skip()` inside test logic                   | Skips don't work correctly at runtime; they must be at test declaration level                                              |
+| **Defensive timeouts**     | `waitForLoadState('networkidle')` without timeout | Can hang indefinitely on pending network requests                                                                          |
 
 ---
 
 ## Priority Legend
 
-| Level | Description | Target Completion |
-|-------|-------------|-------------------|
-| **P0** | Critical - Test may produce false passes or fail flakily | Before PR review |
-| **P1** | High - Code duplication or suboptimal patterns | Before merge |
-| **P2** | Medium - Improvements for long-term maintainability | Next sprint |
+| Level  | Description                                              | Target Completion |
+| ------ | -------------------------------------------------------- | ----------------- |
+| **P0** | Critical - Test may produce false passes or fail flakily | Before PR review  |
+| **P1** | High - Code duplication or suboptimal patterns           | Before merge      |
+| **P2** | Medium - Improvements for long-term maintainability      | Next sprint       |
 
 ---
 
@@ -57,7 +59,7 @@ This leads to **flaky tests** that may pass locally but fail in CI, or worse, **
 ### Issue 1: `await expect(primitive).toBeTruthy()` Does NOT Wait
 
 **Severity:** Critical - Tests may pass without actually waiting for elements  
-**Files affected:** 7 files, ~20 occurrences  
+**Files affected:** 7 files, ~20 occurrences
 
 #### What's Wrong
 
@@ -73,6 +75,7 @@ await expect(itemText).toBeTruthy(); // ❌ This is SYNC, not ASYNC
 ```
 
 **Why it's a problem:**
+
 - `expect(value).toBeTruthy()` is a **synchronous** assertion on a primitive (string/number)
 - It does NOT wait for Playwright to poll the DOM
 - If the element hasn't loaded yet, `textContent()` returns empty string, and the test fails immediately
@@ -94,6 +97,7 @@ await expect(items).toHaveCountGreaterThan(0);
 ```
 
 **Why this works:**
+
 - Playwright automatically **polls** the locator until the condition is met or timeout expires
 - Properly leverages Playwright's built-in retry/wait mechanism
 - Tests actually wait for the DOM to be in the expected state
@@ -101,17 +105,19 @@ await expect(items).toHaveCountGreaterThan(0);
 #### Implementation
 
 **Files to modify:**
+
 1. `app2/e2e/geometry-details.spec.ts` - 8 occurrences
 2. `app2/e2e/geometry-list.spec.ts` - 5 occurrences
 3. `app2/e2e/input-highlighting.spec.ts` - 8 occurrences
 
 **Pattern mapping:**
+
 ```typescript
 // Pattern 1: itemText check
 - BEFORE: const itemText = await firstItem.textContent(); await expect(itemText).toBeTruthy();
 - AFTER: await expect(firstItem).toHaveText(/.+/);
 
-// Pattern 2: count check  
+// Pattern 2: count check
 - BEFORE: const count = await items.count(); await expect(count).toBeGreaterThan(0);
 - AFTER: await expect(items).toHaveCountGreaterThan(0);
 
@@ -128,17 +134,19 @@ await expect(items).toHaveCountGreaterThan(0);
 ### Issue 2: Duplicate `assertClipboardContains` Function
 
 **Severity:** High - Code duplication  
-**Files affected:** `app2/e2e/utils/assertions.ts`, `app2/e2e/utils/clipboard.ts`  
+**Files affected:** `app2/e2e/utils/assertions.ts`, `app2/e2e/utils/clipboard.ts`
 
 #### What's Wrong
 
 The function `assertClipboardContains` exists in **both** files:
+
 - `utils/assertions.ts` (line 69)
 - `utils/clipboard.ts` (line 25)
 
 Both exports are re-exported from `utils/index.ts`, creating ambiguity about which version is used.
 
 **Why it's a problem:**
+
 - Violates DRY (Don't Repeat Yourself) principle
 - If one version is updated, the other becomes stale
 - Confusing for developers - which one should they use?
@@ -158,6 +166,7 @@ Keep only in `clipboard.ts` (more semantically appropriate), remove from `assert
 ```
 
 **Files to modify:**
+
 1. `app2/e2e/utils/assertions.ts` - Remove `assertClipboardContains`
 
 ---
@@ -165,16 +174,17 @@ Keep only in `clipboard.ts` (more semantically appropriate), remove from `assert
 ### Issue 3: `waitForLoadState('networkidle')` Without Timeout
 
 **Severity:** High - Potential for hanging tests  
-**Files affected:** `app2/e2e/initial-load.spec.ts` (line 52)  
+**Files affected:** `app2/e2e/initial-load.spec.ts` (line 52)
 
 #### What's Wrong
 
 ```typescript
 // CURRENT (RISKY)
-await page.waitForLoadState('networkidle');
+await page.waitForLoadState("networkidle");
 ```
 
 **Why it's a problem:**
+
 - `networkidle` waits for **no network connections for at least 500ms**
 - If the page has pending requests that never complete, the test hangs **indefinitely**
 - CI pipelines have timeout limits; hanging tests waste resources
@@ -186,15 +196,17 @@ Always specify a timeout:
 
 ```typescript
 // CORRECT (SAFE)
-await page.waitForLoadState('networkidle', { timeout: 5000 });
+await page.waitForLoadState("networkidle", { timeout: 5000 });
 ```
 
 **Why this works:**
+
 - Test fails fast (within 5 seconds) if network doesn't idle
 - Prevents indefinite hangs
 - Matches the default test timeout configuration
 
 **Files to modify:**
+
 1. `app2/e2e/initial-load.spec.ts` - Line 52
 
 ---
@@ -202,19 +214,20 @@ await page.waitForLoadState('networkidle', { timeout: 5000 });
 ### Issue 4: `test.skip()` Used Inside Test Body
 
 **Severity:** High - Incorrect Playwright usage  
-**Files affected:** `app2/e2e/accessibility.spec.ts` (3 occurrences)  
+**Files affected:** `app2/e2e/accessibility.spec.ts` (3 occurrences)
 
 #### What's Wrong
 
 ```typescript
 // CURRENT (INCORRECT)
-test('Skip to main content link exists', async ({ page }) => {
-  const skipLink = page.getByRole('link', { name: /skip|main content/i });
-  test.skip('Skip to main content link not implemented in app yet'); // ❌ WRONG LOCATION
+test("Skip to main content link exists", async ({ page }) => {
+  const skipLink = page.getByRole("link", { name: /skip|main content/i });
+  test.skip("Skip to main content link not implemented in app yet"); // ❌ WRONG LOCATION
 });
 ```
 
 **Why it's a problem:**
+
 - `test.skip()` **only works at test declaration time**, not inside test logic
 - When called inside a test, it doesn't actually skip the test - it throws an error
 - The test will appear as **failed**, not **skipped**
@@ -226,14 +239,15 @@ Move `test.skip()` to the test declaration level:
 
 ```typescript
 // CORRECT
-test.skip('Skip to main content link not implemented in app yet', async ({ page }) => {
+test.skip("Skip to main content link not implemented in app yet", async ({ page }) => {
   // Test logic here (never executed)
-  const skipLink = page.getByRole('link', { name: /skip|main content/i });
+  const skipLink = page.getByRole("link", { name: /skip|main content/i });
   await expect(skipLink).toBeVisible();
 });
 ```
 
 **Files to modify:**
+
 1. `app2/e2e/accessibility.spec.ts` - Lines 110, 143, 160
 
 ---
@@ -243,16 +257,17 @@ test.skip('Skip to main content link not implemented in app yet', async ({ page 
 ### Issue 5: Brittle Text-Based Feedback Detection
 
 **Severity:** Medium - Test coupled to UI strings  
-**Files affected:** `app2/e2e/copy-url.spec.ts` (line 47)  
+**Files affected:** `app2/e2e/copy-url.spec.ts` (line 47)
 
 #### What's Wrong
 
 ```typescript
 // CURRENT (BRITTLE)
-await expect(page.getByText('Copied!')).toBeVisible();
+await expect(page.getByText("Copied!")).toBeVisible();
 ```
 
 **Why it's a problem:**
+
 - Couples test to specific UI text that may change
 - If app changes "Copied!" to "Copied to clipboard!" or uses localization, test breaks
 - Text-based selectors are less reliable than test IDs
@@ -265,13 +280,14 @@ Use `data-testid` (requires app change) or more stable selector:
 // OPTION A (RECOMMENDED - requires app change)
 // App: <span data-testid="copy-feedback">Copied!</span>
 // Test:
-await expect(page.getByTestId('copy-feedback')).toBeVisible();
+await expect(page.getByTestId("copy-feedback")).toBeVisible();
 
 // OPTION B (if app change not possible)
-await expect(page.getByRole('status')).toHaveText(/copied/i);
+await expect(page.getByRole("status")).toHaveText(/copied/i);
 ```
 
 **Files to modify:**
+
 1. `app2/e2e/copy-url.spec.ts` - Line 47
 
 **Depends on:** App adding `data-testid` attributes (tracked separately)
@@ -280,14 +296,14 @@ await expect(page.getByRole('status')).toHaveText(/copied/i);
 
 ## Summary Table
 
-| # | Priority | Issue | Files | Effort | Status |
-|---|----------|-------|-------|--------|--------|
-| 1 | P0 | `expect(primitive)` doesn't wait | 3 spec files | 1-2 hrs | ⬜ |
-| 2 | P1 | Duplicate `assertClipboardContains` | 1 utils file | 15 min | ⬜ |
-| 3 | P1 | `networkidle` without timeout | 1 spec file | 5 min | ⬜ |
-| 4 | P1 | `test.skip()` inside test body | 1 spec file | 15 min | ⬜ |
-| 5 | P2 | Brittle text selector | 1 spec file | 15 min | ⬜ |
-| **Total** | | **5 issues** | **5 files** | **~2-3 hrs** | |
+| #         | Priority | Issue                               | Files        | Effort       | Status |
+| --------- | -------- | ----------------------------------- | ------------ | ------------ | ------ |
+| 1         | P0       | `expect(primitive)` doesn't wait    | 3 spec files | 1-2 hrs      | ⬜     |
+| 2         | P1       | Duplicate `assertClipboardContains` | 1 utils file | 15 min       | ⬜     |
+| 3         | P1       | `networkidle` without timeout       | 1 spec file  | 5 min        | ⬜     |
+| 4         | P1       | `test.skip()` inside test body      | 1 spec file  | 15 min       | ⬜     |
+| 5         | P2       | Brittle text selector               | 1 spec file  | 15 min       | ⬜     |
+| **Total** |          | **5 issues**                        | **5 files**  | **~2-3 hrs** |        |
 
 ---
 
@@ -322,6 +338,7 @@ await expect(page.getByRole('status')).toHaveText(/copied/i);
 ### Verification
 
 After all fixes:
+
 ```bash
 # Run all E2E tests
 cd app2 && pnpm test:e2e
@@ -355,6 +372,6 @@ grep -rn "assertClipboardContains" app2/e2e/utils/
 
 ## Changelog
 
-| Date | Author | Changes |
-|------|--------|---------|
+| Date       | Author      | Changes                    |
+| ---------- | ----------- | -------------------------- |
 | 2026-05-04 | Code Review | Initial fixes plan created |
