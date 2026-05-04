@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo, useCallback, forwardRef } from "react";
+import { useEffect, useRef, useMemo, forwardRef } from "react";
 import type { Ref } from "react";
 import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
@@ -12,8 +12,8 @@ import type { Theme } from "../themes";
 // Re-export SQUARE_STEPS for test accessibility
 export { SQUARE_STEPS };
 
-// Props for the Square component.
-export interface SquareProps {
+// Props for the SquareSvg component.
+export interface SquareSvgProps {
   // Store for managing SVG elements and tooltips
   store: GeometryStore;
 
@@ -29,32 +29,23 @@ export interface SquareProps {
   // Number of steps to execute (0 = none, 1 = first step, N = N steps)
   currentStep?: number;
 
-  // Total number of steps
-  totalSteps?: number;
-
-  // Callback when step changes via slider
-  onStepChange?: (step: number) => void;
-
   // Theme for SVG rendering (light or dark)
   theme?: Theme;
 }
 
-// Square component that performs geometric construction step-by-step.
-// Key features:
-// - Lazy calculation: geometries are computed only when their step becomes current
-// - Dependency tracking: each step declares its input/output geometries
-// - Separation of concerns: math (compute) vs rendering (draw)
-export const Square = forwardRef(function Square(
+/**
+ * SquareSvg component - Renders only the SVG canvas for Square geometry.
+ * This is the SVG-only version without player controls.
+ */
+export const SquareSvg = forwardRef(function SquareSvg(
   {
     store,
     dotStrokeWidth = 2.0,
     svgConfig,
     restartTrigger = 0,
     currentStep = 0,
-    totalSteps,
-    onStepChange,
     theme = darkTheme,
-  }: SquareProps,
+  }: SquareSvgProps,
   ref: Ref<SVGSVGElement | null>,
 ): React.JSX.Element {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -79,16 +70,16 @@ export const Square = forwardRef(function Square(
   // Input validation
   useEffect(() => {
     if (currentStep < 0) {
-      console.warn("Square: currentStep should not be negative, received:", currentStep);
+      console.warn("SquareSvg: currentStep should not be negative, received:", currentStep);
     }
     if (svgConfig.width <= 0) {
-      console.warn("Square: svgConfig.width should be positive, received:", svgConfig.width);
+      console.warn("SquareSvg: svgConfig.width should be positive, received:", svgConfig.width);
     }
     if (svgConfig.height <= 0) {
-      console.warn("Square: svgConfig.height should be positive, received:", svgConfig.height);
+      console.warn("SquareSvg: svgConfig.height should be positive, received:", svgConfig.height);
     }
     if (!theme || typeof theme !== "object") {
-      console.warn("Square: theme should be a valid Theme object, received:", theme);
+      console.warn("SquareSvg: theme should be a valid Theme object, received:", theme);
     }
   }, [currentStep, svgConfig.width, svgConfig.height, theme]);
 
@@ -156,50 +147,11 @@ export const Square = forwardRef(function Square(
         }
       }
     } catch (error) {
-      console.error("Square construction failed at step", currentStep, ":", error);
+      console.error("SquareSvg construction failed at step", currentStep, ":", error);
     }
   }, [currentStep, restartTrigger, svgConfig, dotStrokeWidth, theme, shouldClear]);
 
-  const handleSliderChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newStep = parseInt(e.target.value, 10);
-      if (!isNaN(newStep)) {
-        onStepChange?.(newStep);
-      }
-    },
-    [onStepChange],
-  );
-
-  const maxSteps = totalSteps ?? SQUARE_STEPS.length;
-  const progressPercent = ((currentStep ?? 0) / maxSteps) * 100;
-
   return (
-    <div className={`${svgConfig.containerClass} flex justify-center`}>
-      <div className="flex flex-col items-center gap-2">
-        <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="square-svg" />
-        {onStepChange && totalSteps && (
-          <div className="w-full max-w-md">
-            <input
-              type="range"
-              min={0}
-              max={maxSteps}
-              step={1}
-              value={currentStep ?? 0}
-              onChange={handleSliderChange}
-              aria-label="Step navigation"
-              name="step-slider"
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
-              }}
-            />
-            <div className="flex justify-between text-xs text-gray-400 mt-1">
-              <span>0</span>
-              <span>{maxSteps}</span>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+    <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="square-svg" />
   );
 });

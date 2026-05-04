@@ -1,14 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { JSX } from "react";
 import { useGeometryStoreSquare, useGeometryStoreSixFoldV0 } from "./react-store";
-import { SixFoldV0 } from "./components/SixFoldV0";
-import { Square } from "./components/Square";
+import { SixFoldV0Svg } from "./components/SixFoldV0Svg";
+import { SquareSvg } from "./components/SquareSvg";
+import { GeometryPlayer } from "./components/GeometryPlayer";
 import { standardSvgConfig } from "./config/svgConfig";
 import { GeometryList } from "./components/GeometryList";
 import { GeometryDetails } from "./components/GeometryDetails";
 import { Navigation } from "./components/Navigation";
 import { CopyUrlButton } from "./components/CopyUrlButton";
-import { CopySvgButton } from "./components/CopySvgButton";
 import { SQUARE_STEPS } from "./geometry/squareSteps";
 import { SIX_FOLD_V0_STEPS } from "./geometry/sixFoldV0Steps";
 import { lightTheme, darkTheme } from "./themes";
@@ -103,9 +103,11 @@ export default function App(): JSX.Element {
     setRestartKeyv0(restartKeyv0 + 1);
   };
 
+  // Square state
   const [currentStepSquare, setCurrentStepSquare] = useState<number>(0);
   const [restartKeySquare, setRestartKeySquare] = useState<number>(0);
   const [showInputHighlight, setShowInputHighlight] = useState(true);
+  const squareSvgRef = useRef<SVGSVGElement>(null);
 
   // Helper function to clear Square store and remove DOM elements.
   // Square store requires manual DOM cleanup because SVG elements and tooltips
@@ -152,7 +154,7 @@ export default function App(): JSX.Element {
 
   const handleFirstStepSquare = (): void => {
     clearSquareStore();
-    setCurrentStepSquare(1);
+    setCurrentStepSquare(0);
     setRestartKeySquare(restartKeySquare + 1);
   };
 
@@ -160,6 +162,10 @@ export default function App(): JSX.Element {
     clearSquareStore();
     setCurrentStepSquare(SQUARE_STEPS.length);
     setRestartKeySquare(restartKeySquare + 1);
+  };
+
+  const toggleInputs = (): void => {
+    setShowInputHighlight(!showInputHighlight);
   };
 
   return (
@@ -172,6 +178,7 @@ export default function App(): JSX.Element {
         onToggleTheme={toggleTheme}
         svgTheme={svgTheme}
       />
+
       {/* v0 Section */}
       <div
         ref={sectionRefs["sixfold-v0"]}
@@ -190,69 +197,30 @@ export default function App(): JSX.Element {
         </div>
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-7">
-            <SixFoldV0
-              ref={sixFoldV0SvgRef}
-              store={storeSixFoldV0}
+            <GeometryPlayer
+              svgRef={sixFoldV0SvgRef}
               svgConfig={standardSvgConfig}
-              restartTrigger={restartKeyv0}
               currentStep={currentStepv0}
               totalSteps={SIX_FOLD_V0_STEPS.length}
               onStepChange={setCurrentStepv0}
-              theme={svgTheme}
-            />
-            <div className="mt-1 flex gap-2">
-              <button
-                onClick={handleRestartv0}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-                title="Go to beginning"
-              >
-                ««
-              </button>
-              <button
-                onClick={handlePrevClickv0}
-                className={`px-4 py-2 text-white rounded ${
-                  currentStepv0 <= 1
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                disabled={currentStepv0 <= 1}
-              >
-                prev
-              </button>
-              <button
-                onClick={handleNextClickv0}
-                className={`px-4 py-2 text-white rounded ${
-                  currentStepv0 >= SIX_FOLD_V0_STEPS.length
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                disabled={currentStepv0 >= SIX_FOLD_V0_STEPS.length}
-              >
-                next
-              </button>
-              <button
-                onClick={handleLastStepv0}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-                title="Go to end"
-              >
-                »»
-              </button>
-              <button
-                onClick={handleRestartv0}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-              >
-                restart
-              </button>
-              <button
-                onClick={() => setShowInputHighlight(!showInputHighlight)}
-                className={`px-4 py-2 text-white rounded ${
-                  showInputHighlight ? "bg-blue-600" : "bg-gray-800 hover:bg-gray-700"
-                }`}
-              >
-                inputs
-              </button>
-              <CopySvgButton svgRef={sixFoldV0SvgRef} />
-            </div>
+              onFirstStep={handleRestartv0}
+              onPrevStep={handlePrevClickv0}
+              onNextStep={handleNextClickv0}
+              onLastStep={handleLastStepv0}
+              onRestart={handleRestartv0}
+              showInputsToggle={true}
+              showInputHighlight={showInputHighlight}
+              onToggleInputs={toggleInputs}
+            >
+              <SixFoldV0Svg
+                ref={sixFoldV0SvgRef}
+                store={storeSixFoldV0}
+                svgConfig={standardSvgConfig}
+                restartTrigger={restartKeyv0}
+                currentStep={currentStepv0}
+                theme={svgTheme}
+              />
+            </GeometryPlayer>
           </div>
           <div className="col-span-2">
             <h2 className="text-lg font-medium mb-4">Right pane</h2>
@@ -300,68 +268,31 @@ export default function App(): JSX.Element {
         </div>
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-7">
-            <Square
-              store={storeSquare}
-              dotStrokeWidth={strokeBig}
+            <GeometryPlayer
+              svgRef={squareSvgRef}
               svgConfig={standardSvgConfig}
-              restartTrigger={restartKeySquare}
               currentStep={currentStepSquare}
               totalSteps={SQUARE_STEPS.length}
               onStepChange={setCurrentStepSquare}
-              theme={svgTheme}
-            />
-            <div className="mt-1 flex gap-2">
-              <button
-                onClick={handleFirstStepSquare}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-                title="Go to beginning"
-              >
-                ««
-              </button>
-              <button
-                onClick={handlePrevClickSquare}
-                className={`px-4 py-2 text-white rounded ${
-                  currentStepSquare <= 1
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                disabled={currentStepSquare <= 1}
-              >
-                prev
-              </button>
-              <button
-                onClick={handleNextClickSquare}
-                className={`px-4 py-2 text-white rounded ${
-                  currentStepSquare >= SQUARE_STEPS.length
-                    ? "bg-gray-600 cursor-not-allowed"
-                    : "bg-gray-800 hover:bg-gray-700"
-                }`}
-                disabled={currentStepSquare >= SQUARE_STEPS.length}
-              >
-                next
-              </button>
-              <button
-                onClick={handleLastStepSquare}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-                title="Go to end"
-              >
-                »»
-              </button>
-              <button
-                onClick={handleRestartSquare}
-                className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-              >
-                restart
-              </button>
-              <button
-                onClick={() => setShowInputHighlight(!showInputHighlight)}
-                className={`px-4 py-2 text-white rounded ${
-                  showInputHighlight ? "bg-blue-600" : "bg-gray-800 hover:bg-gray-700"
-                }`}
-              >
-                inputs
-              </button>
-            </div>
+              onFirstStep={handleFirstStepSquare}
+              onPrevStep={handlePrevClickSquare}
+              onNextStep={handleNextClickSquare}
+              onLastStep={handleLastStepSquare}
+              onRestart={handleRestartSquare}
+              showInputsToggle={true}
+              showInputHighlight={showInputHighlight}
+              onToggleInputs={toggleInputs}
+            >
+              <SquareSvg
+                ref={squareSvgRef}
+                store={storeSquare}
+                dotStrokeWidth={strokeBig}
+                svgConfig={standardSvgConfig}
+                restartTrigger={restartKeySquare}
+                currentStep={currentStepSquare}
+                theme={svgTheme}
+              />
+            </GeometryPlayer>
           </div>
           <div className="col-span-2">
             <h2 className="text-lg font-medium mb-4">Right pane</h2>
