@@ -29,7 +29,16 @@
  */
 
 import type { Step, GeometryValue, StepExecutionContext } from "../types/geometry";
-import { point, line, isPoint, isCircle, isLine, isPolygon, coordinateSystem } from "../types/geometry";
+import {
+  point,
+  line,
+  isPoint,
+  isCircle,
+  isLine,
+  isPolygon,
+  isCoordinateSystem,
+  coordinateSystem,
+} from "../types/geometry";
 import {
   computeSquareConfig,
   GEOM,
@@ -46,7 +55,13 @@ import {
   square as makeSquare,
   lineTowards,
 } from "./constructors";
-import { createTooltip, drawPoint, drawLine, drawCircle, drawCoordinateSystem } from "../svgElements";
+import {
+  createTooltip,
+  drawPoint,
+  drawLine,
+  drawCircle,
+  drawCoordinateSystem,
+} from "../svgElements";
 
 export { computeSquareConfig, GEOM, getGeometry, computeSingle };
 export type { SquareConfig };
@@ -63,15 +78,21 @@ const STEP_COORDINATE_SYSTEM: Step<SquareConfig> = {
   parameters: ["border", "height"],
 
   compute: computeSingle(GEOM.COORDINATE_SYSTEM, (_inputs, params) => {
-    // Place coordinate system at the bottom-left corner of the drawing area
-    const originX = params.border;
-    const originY = params.height - params.border;
+    // Place coordinate system at origin (0, 0)
     const arrowLength = params.height / 6;
-    return coordinateSystem(originX, originY, originX, originY, arrowLength);
+    return coordinateSystem(0, 0, arrowLength);
   }),
 
   draw: (svg, values, store, theme) => {
-    drawCoordinateSystem(svg, values, GEOM.COORDINATE_SYSTEM, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawCoordinateSystem(
+      svg,
+      values,
+      GEOM.COORDINATE_SYSTEM,
+      0.5,
+      store,
+      theme,
+      theme.COLOR_PRIMARY,
+    );
   },
 };
 
@@ -85,8 +106,13 @@ const STEP_P1: Step<SquareConfig> = {
   outputs: [GEOM.P1],
   parameters: ["p1x", "p1y"],
 
-  compute: computeSingle(GEOM.P1, (_inputs, params) => {
-    return point(params.p1x, params.p1y);
+  compute: computeSingle(GEOM.P1, (inputs, params) => {
+    const cs = inputs.get(GEOM.COORDINATE_SYSTEM);
+    // Use CS origin as base, p1x/p1y are relative coordinates
+    // Since CS is at 0,0, this effectively uses config values directly
+    const x = cs && isCoordinateSystem(cs) ? cs.x + params.p1x : params.p1x;
+    const y = cs && isCoordinateSystem(cs) ? cs.y + params.p1y : params.p1y;
+    return point(x, y);
   }),
 
   draw: (svg, values, store, theme) => {
@@ -100,12 +126,16 @@ const STEP_P1: Step<SquareConfig> = {
  */
 const STEP_P2: Step<SquareConfig> = {
   id: "step_p2",
-  inputs: [],
+  inputs: [GEOM.COORDINATE_SYSTEM],
   outputs: [GEOM.P2],
   parameters: ["p2x", "p2y"],
 
-  compute: computeSingle(GEOM.P2, (_inputs, params) => {
-    return point(params.p2x, params.p2y);
+  compute: computeSingle(GEOM.P2, (inputs, params) => {
+    const cs = inputs.get(GEOM.COORDINATE_SYSTEM);
+    // Use CS origin as base, p2x/p2y are relative coordinates
+    const x = cs && isCoordinateSystem(cs) ? cs.x + params.p2x : params.p2x;
+    const y = cs && isCoordinateSystem(cs) ? cs.y + params.p2y : params.p2y;
+    return point(x, y);
   }),
 
   draw: (svg, values, store, theme) => {
