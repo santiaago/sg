@@ -3,6 +3,7 @@
 ## Current Coverage
 
 The existing `geometry-navigation.spec.ts` covers:
+
 - Navigation between Square and SixFold v0 sections
 - Step navigation (next, prev, first, last) for both components
 - URL hash-based section navigation
@@ -18,21 +19,24 @@ The existing `geometry-navigation.spec.ts` covers:
 ### App Code Clarifications
 
 #### 1. Remove Restart Button
+
 - **Decision:** Drop `restart.spec.ts` — use `<<` (Go to beginning) button for all reset-to-step-1 functionality
 - **Action:** Remove all "Restart button" references from the plan
-- **Impact:** 
+- **Impact:**
   - Delete `restart.spec.ts` from file structure
   - Merge restart-related test cases into `navigation.spec.ts` and `button-states.spec.ts` using `<<` button
   - Update `workflows.spec.ts` to use `<<` instead of restart
 
 #### 2. Clarify First (<<) Button Behavior
+
 - **Question:** Does `<<` (Go to beginning) clear geometry store and SVG content, or only reset the step?
 - **Required:** Verify in app2 codebase
-- **Test impact:** 
+- **Test impact:**
   - If `<<` clears geometry/SVG → use it for all reset tests
   - If `<<` only resets step → need alternative mechanism for clearing state in tests (e.g., direct store reset via test helper)
 
 #### 3. Verify Test Data Exists and is Stable
+
 - **Action:** Confirm these exist in the running app:
   | Section | Step | Geometry | Purpose |
   |---------|------|----------|---------|
@@ -48,6 +52,7 @@ The existing `geometry-navigation.spec.ts` covers:
   ```
 
 #### 4. Verify SVG Copy Format
+
 - **Check:** What does the app copy to clipboard?
 - **Expected format:** Full SVG element with:
   - `xmlns="http://www.w3.org/2000/svg"`
@@ -56,6 +61,7 @@ The existing `geometry-navigation.spec.ts` covers:
 - **If different:** Update `copy.spec.ts` assertions to match actual output
 
 #### 5. Verify Theme Storage Mechanism
+
 - **Check:** Where is theme stored?
 - **Expected:** `localStorage` with specific key name
 - **Action:** Update `theme.spec.ts` to use the actual key
@@ -63,6 +69,7 @@ The existing `geometry-navigation.spec.ts` covers:
 ### Test Plan Fixes
 
 #### 6. Fix SVG Validation to Use Browser Context
+
 - **Problem:** `DOMParser.parseFromString()` is a browser API; Playwright tests run in Node.js
 - **Fix:** All SVG validation must run inside `page.evaluate()`:
   ```typescript
@@ -70,34 +77,38 @@ The existing `geometry-navigation.spec.ts` covers:
   export async function assertSVGValid(page: Page, svg: string): Promise<void> {
     await page.evaluate((svgString) => {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(svgString, 'image/svg+xml');
-      if (doc.querySelector('parsererror')) {
-        throw new Error('Invalid SVG: parse error');
+      const doc = parser.parseFromString(svgString, "image/svg+xml");
+      if (doc.querySelector("parsererror")) {
+        throw new Error("Invalid SVG: parse error");
       }
     }, svg);
   }
   ```
 
 #### 7. Add Clipboard Permission Setup
+
 - **Problem:** Clipboard API requires explicit permission grant
 - **Fix:** Create `e2e/setup.ts`:
+
   ```typescript
-  import { test } from '@playwright/test';
+  import { test } from "@playwright/test";
 
   test.beforeEach(async ({ context }) => {
-    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   });
   ```
+
 - **Note:** This file is auto-loaded by Playwright when placed in the `e2e/` directory
 
 #### 8. Fix Performance Measurement to Use Browser Context
+
 - **Problem:** `performance.now()` is a browser API
 - **Fix:** Measure in browser context via helpers:
   ```typescript
   // In e2e/utils.ts
   export async function measureAction<T>(
     page: Page,
-    action: () => Promise<T>
+    action: () => Promise<T>,
   ): Promise<{ result: T; duration: number }> {
     const start = await page.evaluate(() => performance.now());
     const result = await action();
@@ -107,14 +118,13 @@ The existing `geometry-navigation.spec.ts` covers:
   ```
 
 #### 9. Add Error Handling to Helpers
+
 - **Problem:** Helper functions lack descriptive error messages
 - **Fix:** Wrap assertions with try/catch:
   ```typescript
-  export async function assertTheme(page: Page, expected: 'dark' | 'light'): Promise<void> {
-    const hasDark = await page.evaluate(() => 
-      document.documentElement.classList.contains('dark')
-    );
-    const actual = hasDark ? 'dark' : 'light';
+  export async function assertTheme(page: Page, expected: "dark" | "light"): Promise<void> {
+    const hasDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
+    const actual = hasDark ? "dark" : "light";
     if (actual !== expected) {
       throw new Error(`Expected theme to be ${expected}, but was ${actual}`);
     }
@@ -122,6 +132,7 @@ The existing `geometry-navigation.spec.ts` covers:
   ```
 
 ### File Structure Updates
+
 - **Delete:** `restart.spec.ts` (use `<<` button tests in other files)
 - **Update:** `navigation.spec.ts` to include tests for `<<` and `>>` buttons
 - **Update:** `button-states.spec.ts` to reference `<<` instead of restart
@@ -129,10 +140,12 @@ The existing `geometry-navigation.spec.ts` covers:
 - **Add:** `e2e/setup.ts` for global test setup (permissions)
 
 ### Priority Adjustments
+
 - Move **Accessibility** from Medium → **High Priority** (production-critical)
 - Add to **P0**: Console warning checks (not just errors)
 
 ### Before Implementation Checklist
+
 - [ ] App uses `<<` button for reset-to-step-1 (no separate Restart button)
 - [ ] `<<` button behavior confirmed and documented
 - [ ] All test data geometries verified in running app
@@ -153,45 +166,46 @@ Create `e2e/utils.ts` with reusable helper functions:
 
 ```typescript
 // Navigation
-export async function goToSection(page: Page, section: 'square' | 'sixfold-v0')
-export async function goToStep(page: Page, step: number)
+export async function goToSection(page: Page, section: "square" | "sixfold-v0");
+export async function goToStep(page: Page, step: number);
 
 // State
-export async function resetApp(page: Page) // Restart + clear all
-export async function selectGeometry(page: Page, name: string)
+export async function resetApp(page: Page); // Restart + clear all
+export async function selectGeometry(page: Page, name: string);
 
 // Assertions
-export async function assertTheme(page: Page, expected: 'dark' | 'light')
-export async function assertClipboardContains(page: Page, expected: string)
-export async function assertSVGValid(page: Page, svg: string)
-export async function assertGeometrySelected(page: Page, name: string)
+export async function assertTheme(page: Page, expected: "dark" | "light");
+export async function assertClipboardContains(page: Page, expected: string);
+export async function assertSVGValid(page: Page, svg: string);
+export async function assertGeometrySelected(page: Page, name: string);
 ```
 
 ### Test Data
 
 Use known, stable data points for reliable tests:
 
-| Purpose | Section | Step | Geometry |
-|---------|---------|------|----------|
-| Baseline (minimal geometries) | SixFold v0 | 1 | - |
-| Geometry selection | Square | 5 | `square-corner` |
-| Circle filtering | Square | 5 | `circle-0`, `circle-1` |
-| Multiple dependencies | SixFold v0 | 45 | `polygon-0` |
+| Purpose                       | Section    | Step | Geometry               |
+| ----------------------------- | ---------- | ---- | ---------------------- |
+| Baseline (minimal geometries) | SixFold v0 | 1    | -                      |
+| Geometry selection            | Square     | 5    | `square-corner`        |
+| Circle filtering              | Square     | 5    | `circle-0`, `circle-1` |
+| Multiple dependencies         | SixFold v0 | 45   | `polygon-0`            |
 
 **Requirements:**
+
 - Clipboard write permission required for copy tests
 - SVG validation uses `DOMParser.parseFromString()`
 - Theme detection via `document.documentElement.classList.contains('dark')`
 
 ### Performance Budgets
 
-| Action | Target (ms) | Test Method |
-|--------|-------------|--------------|
-| Section navigation | < 500 | `performance.now()` before/after |
-| Step navigation | < 200 | Same |
-| SVG copy | < 300 | Same |
-| Geometry selection | < 100 | Same |
-| Filter apply | < 150 | Same |
+| Action             | Target (ms) | Test Method                      |
+| ------------------ | ----------- | -------------------------------- |
+| Section navigation | < 500       | `performance.now()` before/after |
+| Step navigation    | < 200       | Same                             |
+| SVG copy           | < 300       | Same                             |
+| Geometry selection | < 100       | Same                             |
+| Filter apply       | < 150       | Same                             |
 
 ### Handling Flakiness
 

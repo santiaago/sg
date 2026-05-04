@@ -292,7 +292,8 @@ describe("SquareSvg Component - Metadata Population", () => {
   it("populates correct parameters for step_main_line", () => {
     const mockStore = createStoreWithTracking();
 
-    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
+    // step_main_line is now at index 3 (after coordinate_system, p1, p2)
+    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={3} />);
 
     const updateCalls = mockStore.getUpdateCalls();
 
@@ -336,7 +337,8 @@ describe("SquareSvg Component - Metadata Population", () => {
   it("handles steps with multiple parameters", () => {
     const mockStore = createStoreWithTracking();
 
-    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
+    // step_main_line is now at index 3 (after coordinate_system, p1, p2)
+    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={3} />);
 
     const updateCalls = mockStore.getUpdateCalls();
 
@@ -382,7 +384,9 @@ describe("SquareSvg Component - Theme Change Tests", () => {
   it("should clear store when theme changes from dark to light", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />);
+    const { rerender } = render(
+      <SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />,
+    );
 
     mockStore.clear.mockClear();
 
@@ -394,7 +398,9 @@ describe("SquareSvg Component - Theme Change Tests", () => {
   it("should clear store when theme changes from light to dark", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} theme={lightTheme} />);
+    const { rerender } = render(
+      <SquareSvg {...defaultProps} store={mockStore} theme={lightTheme} />,
+    );
 
     mockStore.clear.mockClear();
 
@@ -406,7 +412,9 @@ describe("SquareSvg Component - Theme Change Tests", () => {
   it("should NOT clear store when theme stays the same", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />);
+    const { rerender } = render(
+      <SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />,
+    );
 
     mockStore.clear.mockClear();
 

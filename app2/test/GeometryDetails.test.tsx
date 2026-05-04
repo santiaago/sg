@@ -203,7 +203,7 @@ describe("GeometryDetails", () => {
       }),
     });
 
-    render(<GeometryDetails store={store} />);
+    render(<GeometryDetails store={store} steps={SQUARE_STEPS} />);
 
     expect(screen.getByText("Outputs")).toBeInTheDocument();
     // Check in the Outputs section specifically

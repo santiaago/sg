@@ -151,7 +151,5 @@ export const SquareSvg = forwardRef(function SquareSvg(
     }
   }, [currentStep, restartTrigger, svgConfig, dotStrokeWidth, theme, shouldClear]);
 
-  return (
-    <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="square-svg" />
-  );
+  return <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="square-svg" />;
 });
