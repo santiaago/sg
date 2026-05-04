@@ -3,7 +3,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { SvgRenderer } from "./svgRenderer";
 import { point, line, circle, polygon } from "../../types/geometry";
-import type { GeometryStore } from "../../react-store";
 
 // Helper to create SVG element for testing
 function createSvg(): SVGSVGElement {
@@ -266,11 +265,7 @@ describe("SvgRenderer", () => {
   describe("drawConstructionUpTo", () => {
     it("should draw only up to specified step", () => {
       const mockConstruction = {
-        getSteps: () => [
-          { id: "p1" },
-          { id: "l1" },
-          { id: "c1" },
-        ],
+        getSteps: () => [{ id: "p1" }, { id: "l1" }, { id: "c1" }],
         getValues: () => {
           const values = new Map<string, any>();
           values.set("p1", point(0, 0));
@@ -287,10 +282,7 @@ describe("SvgRenderer", () => {
 
     it("should draw all steps when stepIndex exceeds count", () => {
       const mockConstruction = {
-        getSteps: () => [
-          { id: "p1" },
-          { id: "l1" },
-        ],
+        getSteps: () => [{ id: "p1" }, { id: "l1" }],
         getValues: () => {
           const values = new Map<string, any>();
           values.set("p1", point(0, 0));
