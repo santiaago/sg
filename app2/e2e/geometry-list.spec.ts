@@ -6,12 +6,14 @@ import {
 } from './utils/navigation';
 import {
   selectGeometry,
+  assertGeometrySelected,
+} from './utils/assertions';
+import {
   getGeometryCount,
   filterByName,
   clearFilters,
   toggleTypeFilter,
   getFilteredCountText,
-  assertGeometrySelected,
   waitForPageLoad,
 } from './utils/helpers';
 
@@ -34,11 +36,11 @@ test.describe('Geometry List', () => {
       // Get first geometry item name
       const geometryList = page.locator('.geometry-list');
       const firstItem = geometryList.locator('li').first();
-      const itemText = await firstItem.textContent();
-      
-      // Ensure item has text content
-      await expect(itemText).toBeTruthy();
 
+      // Ensure item has text content
+      await expect(firstItem).toHaveText(/.+/);
+
+      const itemText = await firstItem.textContent();
       // Extract the geometry name (before the |)
       const name = itemText.split('|')[0].trim();
 
@@ -54,11 +56,11 @@ test.describe('Geometry List', () => {
 
       const geometryList = page.locator('.geometry-list');
       const firstItem = geometryList.locator('li').first();
-      const itemText = await firstItem.textContent();
-      
-      // Ensure item has text content
-      await expect(itemText).toBeTruthy();
 
+      // Ensure item has text content
+      await expect(firstItem).toHaveText(/.+/);
+
+      const itemText = await firstItem.textContent();
       const name = itemText.split('|')[0].trim();
 
       // Select the item
@@ -77,21 +79,19 @@ test.describe('Geometry List', () => {
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have enough items for this test
-      await expect(count).toBeGreaterThanOrEqual(2);
+      await expect(items).toHaveCountGreaterThanOrEqual(2);
 
       const firstItem = items.first();
       const secondItem = items.nth(1);
 
+      // Ensure both items have text content
+      await expect(firstItem).toHaveText(/.+/);
+      await expect(secondItem).toHaveText(/.+/);
+
       const firstText = await firstItem.textContent();
       const secondText = await secondItem.textContent();
-
-      // Ensure both items have text content
-      await expect(firstText).toBeTruthy();
-      await expect(secondText).toBeTruthy();
-
       const firstName = firstText.split('|')[0].trim();
       const secondName = secondText.split('|')[0].trim();
 
@@ -112,11 +112,11 @@ test.describe('Geometry List', () => {
 
       const geometryList = page.locator('.geometry-list');
       const firstItem = geometryList.locator('li').first();
-      const itemText = await firstItem.textContent();
 
       // Ensure item has text content
-      await expect(itemText).toBeTruthy();
+      await expect(firstItem).toHaveText(/.+/);
 
+      const itemText = await firstItem.textContent();
       const name = itemText.split('|')[0].trim();
 
       // Select the item
@@ -124,8 +124,7 @@ test.describe('Geometry List', () => {
 
       // Check that exactly 1 item is selected
       const selectedItems = geometryList.locator('li').filter({ hasText: /text-(red|yellow)-400/ });
-      const selectedCount = await selectedItems.count();
-      expect(selectedCount).toBe(1);
+      await expect(selectedItems).toHaveCount(1);
     });
   });
 
@@ -270,9 +269,7 @@ test.describe('Geometry List', () => {
 
       // Check for "No items" or empty list
       const items = page.locator('.geometry-list li');
-      const count = await items.count();
-
-      expect(count).toBe(0);
+      await expect(items).toHaveCount(0);
     });
 
     test('Special characters in geometry names display correctly', async ({ page }) => {

@@ -84,18 +84,18 @@ test.describe('Input Highlighting', () => {
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have enough items for this test
-      await expect(count).toBeGreaterThanOrEqual(2);
+      await expect(items).toHaveCountGreaterThanOrEqual(2);
 
       // Select a geometry that has dependencies
-      const itemWithDeps = items.nth(Math.min(5, count - 1));
-      const itemText = await itemWithDeps.textContent();
+      const itemCount = await items.count();
+      const itemWithDeps = items.nth(Math.min(5, itemCount - 1));
 
       // Ensure item has text content
-      await expect(itemText).toBeTruthy();
+      await expect(itemWithDeps).toHaveText(/.+/);
 
+      const itemText = await itemWithDeps.textContent();
       const name = itemText.split('|')[0].trim();
 
       // Select the geometry
@@ -104,10 +104,9 @@ test.describe('Input Highlighting', () => {
       // Check that dependencies are highlighted in orange
       // The app highlights dependencies with text-orange-400
       const orangeItems = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
-      const orangeCount = await orangeItems.count();
 
       // Should have at least one orange dependency
-      expect(orangeCount).toBeGreaterThan(0);
+      await expect(orangeItems).toHaveCountGreaterThan(0);
     });
 
     test('Deselecting geometry clears orange highlights', async ({ page }) => {
@@ -118,30 +117,27 @@ test.describe('Input Highlighting', () => {
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have enough items for this test
-      await expect(count).toBeGreaterThanOrEqual(2);
+      await expect(items).toHaveCountGreaterThanOrEqual(2);
 
       // Select a geometry
-      const item = items.nth(Math.min(5, count - 1));
+      const itemCount = await items.count();
+      const item = items.nth(Math.min(5, itemCount - 1));
       await item.click();
 
       // Verify orange highlights exist
       const orangeItemsBefore = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
-      const orangeCountBefore = await orangeItemsBefore.count();
 
       // Ensure we have orange highlights to test clearing
-      await expect(orangeCountBefore).toBeGreaterThan(0);
+      await expect(orangeItemsBefore).toHaveCountGreaterThan(0);
 
       // Deselect the geometry
       await item.click();
 
       // Verify orange highlights are cleared
       const orangeItemsAfter = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
-      const orangeCountAfter = await orangeItemsAfter.count();
-
-      expect(orangeCountAfter).toBe(0);
+      await expect(orangeItemsAfter).toHaveCount(0);
     });
 
     test('Orange highlight applies to all dependency types (point, line, circle, polygon)', async ({ page }) => {
@@ -152,10 +148,9 @@ test.describe('Input Highlighting', () => {
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have enough items for this test
-      await expect(count).toBeGreaterThanOrEqual(5);
+      await expect(items).toHaveCountGreaterThanOrEqual(5);
 
       // Select a geometry with multiple dependency types
       const item = items.nth(5);
@@ -164,10 +159,9 @@ test.describe('Input Highlighting', () => {
       // Check that dependencies of different types are highlighted
       // The app should highlight all dependencies regardless of type
       const orangeItems = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
-      const orangeCount = await orangeItems.count();
 
       // Should have multiple orange dependencies
-      expect(orangeCount).toBeGreaterThan(0);
+      await expect(orangeItems).toHaveCountGreaterThan(0);
     });
 
     test('Toggle off clears all orange highlights', async ({ page }) => {
@@ -178,21 +172,20 @@ test.describe('Input Highlighting', () => {
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have enough items for this test
-      await expect(count).toBeGreaterThanOrEqual(2);
+      await expect(items).toHaveCountGreaterThanOrEqual(2);
 
       // Select a geometry
-      const item = items.nth(Math.min(5, count - 1));
+      const itemCount = await items.count();
+      const item = items.nth(Math.min(5, itemCount - 1));
       await item.click();
 
       // Verify orange highlights exist
       const orangeItemsBefore = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
-      const orangeCountBefore = await orangeItemsBefore.count();
 
       // Ensure we have orange highlights to test clearing
-      await expect(orangeCountBefore).toBeGreaterThan(0);
+      await expect(orangeItemsBefore).toHaveCountGreaterThan(0);
 
       // Toggle inputs off
       const inputsButton = page.getByRole('button', { name: 'inputs' });
@@ -200,9 +193,7 @@ test.describe('Input Highlighting', () => {
 
       // Verify orange highlights are cleared
       const orangeItemsAfter = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
-      const orangeCountAfter = await orangeItemsAfter.count();
-
-      expect(orangeCountAfter).toBe(0);
+      await expect(orangeItemsAfter).toHaveCount(0);
     });
 
     test('Highlighted elements have correct CSS class/attribute', async ({ page }) => {
@@ -213,20 +204,20 @@ test.describe('Input Highlighting', () => {
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have enough items for this test
-      await expect(count).toBeGreaterThanOrEqual(2);
+      await expect(items).toHaveCountGreaterThanOrEqual(2);
 
       // Select a geometry
-      const item = items.nth(Math.min(5, count - 1));
+      const itemCount = await items.count();
+      const item = items.nth(Math.min(5, itemCount - 1));
       await item.click();
 
       // Check that highlighted dependencies have the orange class
       const orangeItems = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
-      const orangeCount = await orangeItems.count();
 
       // Only check if we have orange items
+      const orangeCount = await orangeItems.count();
       if (orangeCount > 0) {
         const firstOrange = orangeItems.first();
         const classList = await firstOrange.getAttribute('class');
@@ -248,9 +239,8 @@ test.describe('Input Highlighting', () => {
       // Toggle inputs
       await inputsButton.click();
 
-      // Verify button state changed
-      const classList = await inputsButton.getAttribute('class');
-      expect(classList).toBeTruthy();
+      // Verify button state changed - it should have some class
+      await expect(inputsButton).toHaveAttribute('class', /./);
     });
   });
 });

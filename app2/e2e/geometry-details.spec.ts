@@ -19,52 +19,53 @@ test.describe('Geometry Details Panel', () => {
     test('Shows "Details" header', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const firstItem = geometryList.locator('li').first();
-      const itemText = await firstItem.textContent();
 
       // Ensure item has text content
-      await expect(itemText).toBeTruthy();
+      await expect(firstItem).toHaveText(/.+/);
 
+      const itemText = await firstItem.textContent();
       const name = itemText.split('|')[0].trim();
 
       // Select the geometry
       await firstItem.click();
 
       // Check for Details header
-      await expect(page.getByText('Details')).toBeVisible();
+      const detailsPanel = page.getByTestId('geometry-details');
+      await expect(detailsPanel).toBeVisible();
     });
 
     test('Displays selected geometry name', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const firstItem = geometryList.locator('li').first();
-      const itemText = await firstItem.textContent();
 
       // Ensure item has text content
-      await expect(itemText).toBeTruthy();
+      await expect(firstItem).toHaveText(/.+/);
 
+      const itemText = await firstItem.textContent();
       const name = itemText.split('|')[0].trim();
 
       // Select the geometry
       await firstItem.click();
 
       // Check that the name is displayed in details
-      const detailsPanel = page.locator('.geometry-list').locator('..').getByText(name);
-      await expect(detailsPanel).toBeVisible();
+      const detailsPanel = page.getByTestId('geometry-details');
+      await expect(detailsPanel.getByText(name)).toBeVisible();
     });
 
     test('Displays selected geometry type', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const firstItem = geometryList.locator('li').first();
-      const itemText = await firstItem.textContent();
 
       // Ensure item has text content
-      await expect(itemText).toBeTruthy();
+      await expect(firstItem).toHaveText(/.+/);
 
+      const itemText = await firstItem.textContent();
       // Extract name and type from "name | type" format
       const [name, type] = itemText.split('|').map(s => s.trim());
 
@@ -73,14 +74,14 @@ test.describe('Geometry Details Panel', () => {
 
       // Check that the type is displayed in details
       // The details panel shows "name : type"
-      const detailsText = await page.getByText('Details').locator('..').textContent();
-      expect(detailsText).toContain(type);
+      const detailsPanel = page.getByTestId('geometry-details');
+      await expect(detailsPanel).toContainText(type);
     });
 
     test('Displays step ID that created the geometry', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const firstItem = geometryList.locator('li').first();
 
       // Select the geometry
@@ -88,7 +89,8 @@ test.describe('Geometry Details Panel', () => {
 
       // Check for step ID in details
       // The details panel shows "Created by step: stepId"
-      const stepText = page.getByText(/Created by step: step_\w+/);
+      const detailsPanel = page.getByTestId('geometry-details');
+      const stepText = detailsPanel.getByText(/Created by step: step_\w+/);
       await expect(stepText).toBeVisible();
     });
 
@@ -99,19 +101,20 @@ test.describe('Geometry Details Panel', () => {
       // Go to a later step where dependencies exist
       await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have items to test
-      await expect(count).toBeGreaterThan(0);
+      await expect(items).toHaveCountGreaterThan(0);
 
       // Find an item that has dependencies (not the first ones)
-      const itemWithDeps = items.nth(Math.min(5, count - 1));
+      const itemCount = await items.count();
+      const itemWithDeps = items.nth(Math.min(5, itemCount - 1));
       await itemWithDeps.click();
 
-      // Check for Inputs section
-      const inputsHeader = page.getByText('Inputs');
+      // Check for Inputs section in details panel
+      const detailsPanel = page.getByTestId('geometry-details');
+      const inputsHeader = detailsPanel.getByText('Inputs');
       await expect(inputsHeader).toBeVisible();
     });
 
@@ -120,21 +123,21 @@ test.describe('Geometry Details Panel', () => {
 
       // Go to a step with parameters
       for (let i = 0; i < 4; i++) {
-        await page.locator('#square').getByRole('button', { name: 'next' }).click();
+        await page.locator('#square').getByTestId('step-next').click();
       }
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have items to test
-      await expect(count).toBeGreaterThan(0);
+      await expect(items).toHaveCountGreaterThan(0);
 
       // Select a geometry
       await items.first().click();
 
-      // Check for Parameters section
-      const paramsHeader = page.getByText('Parameters');
+      // Check for Parameters section in details panel
+      const detailsPanel = page.getByTestId('geometry-details');
+      const paramsHeader = detailsPanel.getByText('Parameters');
       await expect(paramsHeader).toBeVisible();
     });
 
@@ -144,18 +147,18 @@ test.describe('Geometry Details Panel', () => {
       // Go to a step where outputs exist
       await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have items to test
-      await expect(count).toBeGreaterThan(0);
+      await expect(items).toHaveCountGreaterThan(0);
 
       // Select a geometry
       await items.first().click();
 
-      // Check for Outputs section
-      const outputsHeader = page.getByText('Outputs');
+      // Check for Outputs section in details panel
+      const detailsPanel = page.getByTestId('geometry-details');
+      const outputsHeader = detailsPanel.getByText('Outputs');
       await expect(outputsHeader).toBeVisible();
     });
   });
@@ -164,42 +167,45 @@ test.describe('Geometry Details Panel', () => {
     test('Shows "No inputs" when geometry has no dependencies', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const firstItem = geometryList.locator('li').first();
 
       // Select the first geometry (likely has no dependencies)
       await firstItem.click();
 
-      // Check for "No inputs" message
-      const noInputs = page.getByText('No inputs');
+      // Check for "No inputs" message in details panel
+      const detailsPanel = page.getByTestId('geometry-details');
+      const noInputs = detailsPanel.getByText('No inputs');
       await expect(noInputs).toBeVisible();
     });
 
     test('Shows "No parameters" when geometry has no parameters', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const firstItem = geometryList.locator('li').first();
 
       // Select the first geometry
       await firstItem.click();
 
-      // Check for "No parameters" message
-      const noParams = page.getByText('No parameters');
+      // Check for "No parameters" message in details panel
+      const detailsPanel = page.getByTestId('geometry-details');
+      const noParams = detailsPanel.getByText('No parameters');
       await expect(noParams).toBeVisible();
     });
 
     test('Shows "No outputs" when geometry has no outputs', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const firstItem = geometryList.locator('li').first();
 
       // Select the first geometry
       await firstItem.click();
 
-      // Check for "No outputs" message
-      const noOutputs = page.getByText('No outputs');
+      // Check for "No outputs" message in details panel
+      const detailsPanel = page.getByTestId('geometry-details');
+      const noOutputs = detailsPanel.getByText('No outputs');
       await expect(noOutputs).toBeVisible();
     });
 
@@ -208,8 +214,8 @@ test.describe('Geometry Details Panel', () => {
 
       // Don't select any geometry
       // Details panel should not be visible
-      const detailsHeader = page.getByText('Details');
-      await expect(detailsHeader).not.toBeVisible();
+      const detailsPanel = page.getByTestId('geometry-details');
+      await expect(detailsPanel).not.toBeVisible();
     });
 
     test('Step ID is clickable and navigates to that step', async ({ page }) => {
@@ -218,24 +224,21 @@ test.describe('Geometry Details Panel', () => {
       // Go to a later step
       await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have items to test
-      await expect(count).toBeGreaterThan(0);
+      await expect(items).toHaveCountGreaterThan(0);
 
       // Select a geometry
       await items.first().click();
 
       // Find the step ID link
-      const stepLink = page.getByText(/Created by step: step_\w+/);
+      const detailsPanel = page.getByTestId('geometry-details');
+      const stepLink = detailsPanel.getByTestId('geometry-step-id');
       
-      // Note: The step ID is currently not clickable in the app
-      // This test documents the expected behavior
-      // The app shows the step ID but doesn't make it clickable yet
-      // Skip this test until step ID clickability is implemented
-      test.skip('Step ID is not clickable in the app yet');
+      // The step ID is now clickable with data-testid
+      await expect(stepLink).toBeVisible();
     });
   });
 
@@ -243,18 +246,18 @@ test.describe('Geometry Details Panel', () => {
     test('Details panel works in Square section', async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.getByTestId('geometry-list');
       const items = geometryList.locator('li');
-      const count = await items.count();
 
       // Ensure we have items to test
-      await expect(count).toBeGreaterThan(0);
+      await expect(items).toHaveCountGreaterThan(0);
 
       // Select a geometry
       await items.first().click();
 
       // Check that details panel is visible
-      await expect(page.getByText('Details')).toBeVisible();
+      const detailsPanel = page.getByTestId('geometry-details');
+      await expect(detailsPanel).toBeVisible();
     });
   });
 });
