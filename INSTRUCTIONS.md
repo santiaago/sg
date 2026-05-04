@@ -1,5 +1,22 @@
+# phase 4
+04/05/2026
 
+do @backlog/geometry-framework-PHASE4.md 
 
+I want to merge branch into `sas/002-geo-framework-v0`
+
+follow conventions in @AGENTS.md for atomic commit messages, take as much time as you need
+when done
+
+1. check app
+2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
+2. submit a PR (remember I want to merge into `sas/002-geo-framework-v0` NOT `main`)
+
+---
+
+# phase 3
+
+do @backlog/geometry-framework-PHASE3.md 
 --
 
 # add CICD steps
