@@ -154,7 +154,7 @@ export default function App(): JSX.Element {
 
   const handleFirstStepSquare = (): void => {
     clearSquareStore();
-    setCurrentStepSquare(1);
+    setCurrentStepSquare(0);
     setRestartKeySquare(restartKeySquare + 1);
   };
 
@@ -211,7 +211,6 @@ export default function App(): JSX.Element {
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
-              theme={svgTheme}
             >
               <SixFoldV0Svg
                 ref={sixFoldV0SvgRef}
@@ -283,7 +282,6 @@ export default function App(): JSX.Element {
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
-              theme={svgTheme}
             >
               <SquareSvg
                 ref={squareSvgRef}
