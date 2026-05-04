@@ -25,6 +25,12 @@ export const TOOLTIP_BG_ROUNDING = 2;
 /** Default stroke width for geometry elements */
 export const DEFAULT_STROKE_WIDTH = 5;
 
+// Arrowhead marker constants
+const ARROWHEAD_MARKER_WIDTH = 10;
+const ARROWHEAD_MARKER_HEIGHT = 7;
+const ARROWHEAD_REF_X = 9;
+const ARROWHEAD_REF_Y = 3.5;
+
 // Extend SVG element types to include custom tooltip properties
 declare global {
   interface SVGCircleElement {
@@ -33,6 +39,11 @@ declare global {
   }
 
   interface SVGLineElement {
+    tooltip?: SVGTextElement;
+    tooltipBg?: SVGRectElement;
+  }
+
+  interface SVGGElement {
     tooltip?: SVGTextElement;
     tooltipBg?: SVGRectElement;
   }
@@ -106,7 +117,10 @@ export function rect(
 export function clearGeometryFromSvg(svg: SVGSVGElement): void {
   const children = Array.from(svg.children);
   for (const child of children) {
-    if (child.getAttribute("data-background") !== "true" && child.getAttribute("data-coordinate-system") !== "true") {
+    if (
+      child.getAttribute("data-background") !== "true" &&
+      child.getAttribute("data-coordinate-system") !== "true"
+    ) {
       svg.removeChild(child);
     }
   }
@@ -188,10 +202,10 @@ function ensureArrowheadMarker(svg: SVGSVGElement, strokeColor: string): void {
     const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "marker");
     arrowhead.setAttribute("id", "arrowhead-cs");
-    arrowhead.setAttribute("markerWidth", "10");
-    arrowhead.setAttribute("markerHeight", "7");
-    arrowhead.setAttribute("refX", "9");
-    arrowhead.setAttribute("refY", "3.5");
+    arrowhead.setAttribute("markerWidth", ARROWHEAD_MARKER_WIDTH.toString());
+    arrowhead.setAttribute("markerHeight", ARROWHEAD_MARKER_HEIGHT.toString());
+    arrowhead.setAttribute("refX", ARROWHEAD_REF_X.toString());
+    arrowhead.setAttribute("refY", ARROWHEAD_REF_Y.toString());
     arrowhead.setAttribute("orient", "auto");
     const arrowPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
     arrowPolygon.setAttribute("points", "0 0, 10 3.5, 0 7");
@@ -199,28 +213,32 @@ function ensureArrowheadMarker(svg: SVGSVGElement, strokeColor: string): void {
     arrowhead.appendChild(arrowPolygon);
     defs.appendChild(arrowhead);
     svg.insertBefore(defs, svg.firstChild);
+  } else {
+    // Update existing marker's color to match current strokeColor
+    const arrowPolygon = arrowhead.querySelector("polygon");
+    if (arrowPolygon) {
+      arrowPolygon.setAttribute("fill", strokeColor);
+    }
   }
 }
 
 /**
  * Draw a coordinate system with X and Y arrows
  * @param svg - The SVG element to draw into
- * @param originX - X coordinate of the origin
- * @param originY - Y coordinate of the origin
+ * @param x - X coordinate of the origin
+ * @param y - Y coordinate of the origin
  * @param arrowLength - Length of the arrows
  * @param strokeWidth - Width of the arrow lines
  * @param strokeColor - Color of the arrow lines
- * @param theme - Theme for additional styling
  * @returns SVG group element containing the coordinate system
  */
 export function coordinateSystemArrows(
   svg: SVGSVGElement,
-  originX: number,
-  originY: number,
+  x: number,
+  y: number,
   arrowLength: number,
   strokeWidth: number,
   strokeColor: string,
-  theme: Theme,
 ): SVGGElement {
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("data-coordinate-system", "true");
@@ -230,24 +248,26 @@ export function coordinateSystemArrows(
 
   // Draw X axis arrow (pointing right)
   const xArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  xArrow.setAttribute("x1", originX.toString());
-  xArrow.setAttribute("y1", originY.toString());
-  xArrow.setAttribute("x2", (originX + arrowLength).toString());
-  xArrow.setAttribute("y2", originY.toString());
+  xArrow.setAttribute("x1", x.toString());
+  xArrow.setAttribute("y1", y.toString());
+  xArrow.setAttribute("x2", (x + arrowLength).toString());
+  xArrow.setAttribute("y2", y.toString());
   xArrow.setAttribute("stroke", strokeColor);
   xArrow.setAttribute("stroke-width", strokeWidth.toString());
   xArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
+  xArrow.setAttribute("data-cs-arrow", "true");
   group.appendChild(xArrow);
 
   // Draw Y axis arrow (pointing up - in SVG, this is negative Y direction)
   const yArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
-  yArrow.setAttribute("x1", originX.toString());
-  yArrow.setAttribute("y1", originY.toString());
-  yArrow.setAttribute("x2", originX.toString());
-  yArrow.setAttribute("y2", (originY - arrowLength).toString());
+  yArrow.setAttribute("x1", x.toString());
+  yArrow.setAttribute("y1", y.toString());
+  yArrow.setAttribute("x2", x.toString());
+  yArrow.setAttribute("y2", (y - arrowLength).toString());
   yArrow.setAttribute("stroke", strokeColor);
   yArrow.setAttribute("stroke-width", strokeWidth.toString());
   yArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
+  yArrow.setAttribute("data-cs-arrow", "true");
   group.appendChild(yArrow);
 
   svg.appendChild(group);
@@ -443,25 +463,23 @@ export function drawCoordinateSystem(
   const cs = values.get(geomId);
   if (!cs || !isCoordinateSystem(cs)) return;
 
-  const group = coordinateSystemArrows(
-    svg,
-    cs.originX,
-    cs.originY,
-    cs.arrowLength,
-    strokeWidth,
-    strokeColor,
-    theme,
-  );
+  // Remove existing coordinate system if present to prevent duplicates
+  const existingCs = svg.querySelector("[data-coordinate-system]");
+  if (existingCs) {
+    svg.removeChild(existingCs);
+  }
+
+  const group = coordinateSystemArrows(svg, cs.x, cs.y, cs.arrowLength, strokeWidth, strokeColor);
 
   // Add tooltip to the group
   group.style.cursor = "pointer";
-  const tooltipX = cs.originX + cs.arrowLength + TOOLTIP_OFFSET_X;
-  const tooltipY = cs.originY;
+  const tooltipX = cs.x + cs.arrowLength + TOOLTIP_OFFSET_X;
+  const tooltipY = cs.y;
   const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, geomId, 15, theme);
 
   // Store tooltip references on the group
-  (group as any).tooltip = tooltip;
-  (group as any).tooltipBg = tooltipBg;
+  group.tooltip = tooltip;
+  group.tooltipBg = tooltipBg;
 
   if (store) {
     store.add(geomId, group, "coordinate_system", []);
