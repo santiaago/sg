@@ -192,19 +192,19 @@ test.describe('Button States', () => {
       await goToSection(page, SECTION_SQUARE);
 
       // Check prev button
-      const prevButton = page.locator('#square').getByRole('button', { name: 'prev' });
-      await expect(prevButton).toHaveAttribute('aria-label', /prev/);
+      const prevButton = page.locator('#square').getByTestId('step-prev');
+      await expect(prevButton).toHaveAttribute('aria-label', 'Previous step');
 
       // Check next button
-      const nextButton = page.locator('#square').getByRole('button', { name: 'next' });
-      await expect(nextButton).toHaveAttribute('aria-label', /next/);
+      const nextButton = page.locator('#square').getByTestId('step-next');
+      await expect(nextButton).toHaveAttribute('aria-label', 'Next step');
 
       // Check first button
-      const firstButton = page.locator('#square').getByTitle('Go to beginning');
+      const firstButton = page.locator('#square').getByTestId('step-first');
       await expect(firstButton).toHaveAttribute('title', 'Go to beginning');
 
       // Check last button
-      const lastButton = page.locator('#square').getByTitle('Go to end');
+      const lastButton = page.locator('#square').getByTestId('step-last');
       await expect(lastButton).toHaveAttribute('title', 'Go to end');
     });
   });

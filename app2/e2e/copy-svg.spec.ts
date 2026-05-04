@@ -65,7 +65,7 @@ test.describe('Copy SVG Functionality', () => {
   test('Copied SVG contains xmlns attribute', async ({ page }) => {
     await goToSection(page, SECTION_SIXFOLD_V0);
 
-    await page.getByTitle('Copy SVG to clipboard').click();
+    await page.getByTestId('copy-svg-btn').first().click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
@@ -79,7 +79,7 @@ test.describe('Copy SVG Functionality', () => {
   test('Copied SVG contains viewBox attribute', async ({ page }) => {
     await goToSection(page, SECTION_SIXFOLD_V0);
 
-    await page.getByTitle('Copy SVG to clipboard').click();
+    await page.getByTestId('copy-svg-btn').first().click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
@@ -92,7 +92,7 @@ test.describe('Copy SVG Functionality', () => {
   test('Copied SVG passes validation without parse errors', async ({ page }) => {
     await goToSection(page, SECTION_SIXFOLD_V0);
 
-    await page.getByTitle('Copy SVG to clipboard').click();
+    await page.getByTestId('copy-svg-btn').first().click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
@@ -162,7 +162,7 @@ test.describe('Copy SVG Functionality', () => {
   test('Copied SVG has correct dimensions', async ({ page }) => {
     await goToSection(page, SECTION_SIXFOLD_V0);
 
-    await page.getByTitle('Copy SVG to clipboard').click();
+    await page.getByTestId('copy-svg-btn').first().click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();

@@ -130,7 +130,12 @@ export function GeometryPlayer({
           {onFirstStep && (
             <button
               onClick={onFirstStep}
-              className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              className={`px-4 py-2 text-white rounded ${
+                currentStep <= 0
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-gray-800 hover:bg-gray-700"
+              }`}
+              disabled={currentStep <= 0}
               title="Go to beginning"
               aria-label="First step"
               data-testid="step-first"
@@ -188,7 +193,12 @@ export function GeometryPlayer({
           {onLastStep && (
             <button
               onClick={onLastStep}
-              className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              className={`px-4 py-2 text-white rounded ${
+                currentStep >= totalSteps
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-gray-800 hover:bg-gray-700"
+              }`}
+              disabled={currentStep >= totalSteps}
               title="Go to end"
               aria-label="Last step"
               data-testid="step-last"
