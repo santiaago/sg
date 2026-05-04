@@ -29,7 +29,7 @@
  */
 
 import type { Step, GeometryValue, StepExecutionContext } from "../types/geometry";
-import { point, line, isPoint, isCircle, isLine, isPolygon } from "../types/geometry";
+import { point, line, isPoint, isCircle, isLine, isPolygon, coordinateSystem } from "../types/geometry";
 import {
   computeSquareConfig,
   GEOM,
@@ -46,10 +46,34 @@ import {
   square as makeSquare,
   lineTowards,
 } from "./constructors";
-import { createTooltip, drawPoint, drawLine, drawCircle } from "../svgElements";
+import { createTooltip, drawPoint, drawLine, drawCircle, drawCoordinateSystem } from "../svgElements";
 
 export { computeSquareConfig, GEOM, getGeometry, computeSingle };
 export type { SquareConfig };
+
+/**
+ * Step 0: Coordinate System
+ * Creates the coordinate system with X and Y arrows at the origin.
+ * This is the default coordinate system for the SVG.
+ */
+const STEP_COORDINATE_SYSTEM: Step<SquareConfig> = {
+  id: "step_coordinate_system",
+  inputs: [],
+  outputs: [GEOM.COORDINATE_SYSTEM],
+  parameters: ["border", "height"],
+
+  compute: computeSingle(GEOM.COORDINATE_SYSTEM, (_inputs, params) => {
+    // Place coordinate system at the bottom-left corner of the drawing area
+    const originX = params.border;
+    const originY = params.height - params.border;
+    const arrowLength = params.height / 6;
+    return coordinateSystem(originX, originY, originX, originY, arrowLength);
+  }),
+
+  draw: (svg, values, store, theme) => {
+    drawCoordinateSystem(svg, values, GEOM.COORDINATE_SYSTEM, 0.5, store, theme, theme.COLOR_PRIMARY);
+  },
+};
 
 /**
  * Step 1: Point P1
@@ -57,7 +81,7 @@ export type { SquareConfig };
  */
 const STEP_P1: Step<SquareConfig> = {
   id: "step_p1",
-  inputs: [],
+  inputs: [GEOM.COORDINATE_SYSTEM],
   outputs: [GEOM.P1],
   parameters: ["p1x", "p1y"],
 
@@ -504,6 +528,7 @@ const STEP_FINAL_SQUARE: Step<SquareConfig> = {
 
 /** All steps in the square construction, in order */
 export const SQUARE_STEPS: readonly Step<SquareConfig>[] = [
+  STEP_COORDINATE_SYSTEM,
   STEP_P1,
   STEP_P2,
   STEP_MAIN_LINE,

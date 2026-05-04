@@ -46,8 +46,19 @@ export interface Polygon {
   points: { x: number; y: number }[];
 }
 
+export interface CoordinateSystem {
+  type: "coordinate_system";
+  x: number;
+  y: number;
+  // Origin point
+  originX: number;
+  originY: number;
+  // Arrow lengths
+  arrowLength: number;
+}
+
 // Union type for all geometry values
-export type GeometryValue = Point | Line | Circle | Polygon;
+export type GeometryValue = Point | Line | Circle | Polygon | CoordinateSystem;
 
 // Geometry Node (for dependency tracking)
 
@@ -160,4 +171,18 @@ export function polygon(points: { x: number; y: number }[]): Polygon {
 
 export function isPolygon(value: GeometryValue): value is Polygon {
   return value.type === "polygon";
+}
+
+export function isCoordinateSystem(value: GeometryValue): value is CoordinateSystem {
+  return value.type === "coordinate_system";
+}
+
+export function coordinateSystem(
+  x: number,
+  y: number,
+  originX: number,
+  originY: number,
+  arrowLength: number,
+): CoordinateSystem {
+  return { type: "coordinate_system", x, y, originX, originY, arrowLength };
 }

@@ -16,7 +16,7 @@ export function applyInputVisualFeedback(element: any, shape: GeometryItem, scal
     if (shape.type === "point") {
       element.setAttribute("fill", COLOR_INPUT_HIGHLIGHT);
       element.setAttribute("r", scale.toString());
-    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
+    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon" || shape.type === "coordinate_system") {
       element.setAttribute("stroke", COLOR_INPUT_HIGHLIGHT);
       element.setAttribute("stroke-width", scale.toString());
     }
@@ -104,7 +104,7 @@ export function applyVisualFeedback(element: any, shape: GeometryItem, strokeBig
         if (element.tooltipBg) {
           element.tooltipBg.setAttribute("opacity", "1");
         }
-      } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
+      } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon" || shape.type === "coordinate_system") {
         element.setAttribute("stroke-width", strokeBig.toString());
         element.setAttribute("stroke", COLOR_SELECTED);
         // Show tooltip and background when selected
@@ -182,7 +182,7 @@ export function applyHoverHighlight(
     if (shape.type === "point") {
       element.setAttribute("fill", color);
       element.setAttribute("r", scale.toString());
-    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
+    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon" || shape.type === "coordinate_system") {
       element.setAttribute("stroke", color);
       element.setAttribute("stroke-width", scale.toString());
     }

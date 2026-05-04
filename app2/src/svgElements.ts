@@ -1,6 +1,6 @@
 import type { GeometryStore } from "./react-store";
 import type { GeometryValue } from "./types/geometry";
-import { isPoint, isLine, isCircle } from "./types/geometry";
+import { isPoint, isLine, isCircle, isCoordinateSystem } from "./types/geometry";
 import type { Theme } from "./themes";
 
 // Tooltip Positioning Strategy:
@@ -100,13 +100,13 @@ export function rect(
 }
 
 /**
- * Clears all geometry elements from SVG while preserving the background rectangle.
+ * Clears all geometry elements from SVG while preserving the background rectangle and coordinate system.
  * Used to avoid recreating the background on every step change.
  */
 export function clearGeometryFromSvg(svg: SVGSVGElement): void {
   const children = Array.from(svg.children);
   for (const child of children) {
-    if (child.getAttribute("data-background") !== "true") {
+    if (child.getAttribute("data-background") !== "true" && child.getAttribute("data-coordinate-system") !== "true") {
       svg.removeChild(child);
     }
   }
@@ -176,6 +176,74 @@ export function circle(
   circleEl.setAttribute("r", r.toString());
   svg.appendChild(circleEl);
   return circleEl;
+}
+
+/**
+ * Draw a coordinate system with X and Y arrows
+ * @param svg - The SVG element to draw into
+ * @param originX - X coordinate of the origin
+ * @param originY - Y coordinate of the origin
+ * @param arrowLength - Length of the arrows
+ * @param strokeWidth - Width of the arrow lines
+ * @param strokeColor - Color of the arrow lines
+ * @param theme - Theme for additional styling
+ * @returns SVG group element containing the coordinate system
+ */
+export function coordinateSystemArrows(
+  svg: SVGSVGElement,
+  originX: number,
+  originY: number,
+  arrowLength: number,
+  strokeWidth: number,
+  strokeColor: string,
+  theme: Theme,
+): SVGGElement {
+  const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  group.setAttribute("data-coordinate-system", "true");
+
+  // Draw X axis arrow (pointing right)
+  const xArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xArrow.setAttribute("x1", originX.toString());
+  xArrow.setAttribute("y1", originY.toString());
+  xArrow.setAttribute("x2", (originX + arrowLength).toString());
+  xArrow.setAttribute("y2", originY.toString());
+  xArrow.setAttribute("stroke", strokeColor);
+  xArrow.setAttribute("stroke-width", strokeWidth.toString());
+  xArrow.setAttribute("marker-end", "url(#arrowhead)");
+  group.appendChild(xArrow);
+
+  // Draw Y axis arrow (pointing up - in SVG, this is negative Y direction)
+  const yArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  yArrow.setAttribute("x1", originX.toString());
+  yArrow.setAttribute("y1", originY.toString());
+  yArrow.setAttribute("x2", originX.toString());
+  yArrow.setAttribute("y2", (originY - arrowLength).toString());
+  yArrow.setAttribute("stroke", strokeColor);
+  yArrow.setAttribute("stroke-width", strokeWidth.toString());
+  yArrow.setAttribute("marker-end", "url(#arrowhead)");
+  group.appendChild(yArrow);
+
+  // Add arrowhead marker definition if it doesn't exist
+  let arrowhead = svg.querySelector("#arrowhead");
+  if (!arrowhead) {
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+    arrowhead.setAttribute("id", "arrowhead");
+    arrowhead.setAttribute("markerWidth", "10");
+    arrowhead.setAttribute("markerHeight", "7");
+    arrowhead.setAttribute("refX", "9");
+    arrowhead.setAttribute("refY", "3.5");
+    arrowhead.setAttribute("orient", "auto");
+    const arrowPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    arrowPolygon.setAttribute("points", "0 0, 10 3.5, 0 7");
+    arrowPolygon.setAttribute("fill", strokeColor);
+    arrowhead.appendChild(arrowPolygon);
+    defs.appendChild(arrowhead);
+    svg.insertBefore(defs, svg.firstChild);
+  }
+
+  svg.appendChild(group);
+  return group;
 }
 
 // ========================================
@@ -350,4 +418,44 @@ export function circleWithTooltip(
   }
 
   return circleEl;
+}
+
+/**
+ * Draw a coordinate system with tooltip support
+ */
+export function drawCoordinateSystem(
+  svg: SVGSVGElement,
+  values: Map<string, GeometryValue>,
+  geomId: string,
+  strokeWidth: number,
+  store: GeometryStore,
+  theme: Theme,
+  strokeColor: string,
+): void {
+  const cs = values.get(geomId);
+  if (!cs || !isCoordinateSystem(cs)) return;
+
+  const group = coordinateSystemArrows(
+    svg,
+    cs.originX,
+    cs.originY,
+    cs.arrowLength,
+    strokeWidth,
+    strokeColor,
+    theme,
+  );
+
+  // Add tooltip to the group
+  group.style.cursor = "pointer";
+  const tooltipX = cs.originX + cs.arrowLength + TOOLTIP_OFFSET_X;
+  const tooltipY = cs.originY;
+  const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, geomId, 15, theme);
+
+  // Store tooltip references on the group
+  (group as any).tooltip = tooltip;
+  (group as any).tooltipBg = tooltipBg;
+
+  if (store) {
+    store.add(geomId, group, "coordinate_system", []);
+  }
 }

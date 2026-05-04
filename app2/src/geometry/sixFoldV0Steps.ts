@@ -4,10 +4,10 @@
  */
 
 import type { GeometryValue } from "../types/geometry";
-import { point, line, circle, isPoint, isLine, isCircle } from "../types/geometry";
+import { point, line, circle, isPoint, isLine, isCircle, coordinateSystem } from "../types/geometry";
 import { directions, lineIntersect } from "@sg/geometry";
 import type { StepExecutionContext } from "../types/geometry";
-import { drawPoint, drawLine, drawCircle } from "../svgElements";
+import { drawPoint, drawLine, drawCircle, drawCoordinateSystem } from "../svgElements";
 import { getGeometry, GEOM, computeSingle } from "./sixFold/operations";
 import type { SixFoldV0Config, SixFoldV0Step } from "./sixFold/operations";
 import {
@@ -21,12 +21,34 @@ import {
 } from "../geometry/constructors";
 
 /**
+ * Step 0: Coordinate System
+ * Creates the coordinate system with X and Y arrows at the origin.
+ * This is the default coordinate system for the SVG.
+ */
+const STEP_0: SixFoldV0Step = {
+  id: "step0",
+  inputs: [],
+  outputs: [GEOM.COORDINATE_SYSTEM],
+  parameters: ["border", "height"],
+  compute: computeSingle(GEOM.COORDINATE_SYSTEM, (_inputs, config) => {
+    // Place coordinate system at the bottom-left corner of the drawing area
+    const originX = config.border;
+    const originY = config.height - config.border;
+    const arrowLength = config.height / 6;
+    return coordinateSystem(originX, originY, originX, originY, arrowLength);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawCoordinateSystem(svg, values, GEOM.COORDINATE_SYSTEM, 0.5, store, theme, theme.COLOR_PRIMARY);
+  },
+};
+
+/**
  * Step 1: Point P1
  * Creates the first endpoint point of LINE1.
  */
 const STEP_1: SixFoldV0Step = {
   id: "step1",
-  inputs: [],
+  inputs: [GEOM.COORDINATE_SYSTEM],
   outputs: [GEOM.P1],
   parameters: ["p1x", "p1y"],
   compute: computeSingle(GEOM.P1, (_inputs, config) => {
@@ -2130,6 +2152,7 @@ const STEP_93: SixFoldV0Step = {
 
 /** All steps in order */
 export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
+  STEP_0,
   STEP_1,
   STEP_2,
   STEP_3,

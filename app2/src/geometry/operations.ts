@@ -167,6 +167,9 @@ export function computeMultiple<TConfig>(
 
 /** Geometry ID constants for referencing geometry elements in steps */
 export const GEOM = {
+  // Coordinate system (must be first)
+  COORDINATE_SYSTEM: "cs",
+
   // Base elements
   MAIN_LINE: "line_main",
 
