@@ -246,7 +246,7 @@ export function coordinateSystemArrows(
   // Ensure arrowhead marker exists
   ensureArrowheadMarker(svg, strokeColor);
 
-  // Draw X axis arrow (pointing right)
+  // Draw X axis arrow (pointing right/east - positive X direction)
   const xArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
   xArrow.setAttribute("x1", x.toString());
   xArrow.setAttribute("y1", y.toString());
@@ -258,12 +258,12 @@ export function coordinateSystemArrows(
   xArrow.setAttribute("data-cs-arrow", "true");
   group.appendChild(xArrow);
 
-  // Draw Y axis arrow (pointing up - in SVG, this is negative Y direction)
+  // Draw Y axis arrow (pointing down/south - positive Y direction in SVG)
   const yArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
   yArrow.setAttribute("x1", x.toString());
   yArrow.setAttribute("y1", y.toString());
   yArrow.setAttribute("x2", x.toString());
-  yArrow.setAttribute("y2", (y - arrowLength).toString());
+  yArrow.setAttribute("y2", (y + arrowLength).toString());
   yArrow.setAttribute("stroke", strokeColor);
   yArrow.setAttribute("stroke-width", strokeWidth.toString());
   yArrow.setAttribute("marker-end", "url(#arrowhead-cs)");

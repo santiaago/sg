@@ -2,13 +2,15 @@ import { describe, it, expect, vi } from "vitest";
 import { applyInputVisualFeedback, restoreInitialState } from "../utils/geometryHighlighting";
 import type { GeometryItem } from "../react-store";
 
-// Mock SVG element
-const createMockElement = (_type: string) => ({
-  setAttribute: vi.fn(),
-  getAttribute: vi.fn(),
-  tooltip: { setAttribute: vi.fn() },
-  tooltipBg: { setAttribute: vi.fn() },
-});
+// Mock SVG element - cast to proper type for type safety
+// Uses global SVG element types with custom tooltip extensions
+const createMockElement = (_type: string): SVGCircleElement | SVGLineElement | SVGGElement =>
+  ({
+    setAttribute: vi.fn(),
+    getAttribute: vi.fn(),
+    tooltip: { setAttribute: vi.fn() },
+    tooltipBg: { setAttribute: vi.fn() },
+  }) as unknown as SVGCircleElement | SVGLineElement | SVGGElement;
 
 // Helper to create a mock GeometryItem
 const createMockGeometryItem = (overrides: Partial<GeometryItem> = {}): GeometryItem => ({
@@ -71,8 +73,8 @@ describe("applyInputVisualFeedback", () => {
 
     applyInputVisualFeedback(element, item, 2.0);
 
-    expect(element.tooltip.setAttribute).toHaveBeenCalledWith("opacity", "1");
-    expect(element.tooltipBg.setAttribute).toHaveBeenCalledWith("opacity", "1");
+    expect(element.tooltip!.setAttribute).toHaveBeenCalledWith("opacity", "1");
+    expect(element.tooltipBg!.setAttribute).toHaveBeenCalledWith("opacity", "1");
   });
 
   it("does nothing when element is null", () => {
@@ -114,8 +116,8 @@ describe("restoreInitialState", () => {
 
     restoreInitialState(element, item);
 
-    expect(element.tooltip.setAttribute).toHaveBeenCalledWith("opacity", "0");
-    expect(element.tooltipBg.setAttribute).toHaveBeenCalledWith("opacity", "0");
+    expect(element.tooltip!.setAttribute).toHaveBeenCalledWith("opacity", "0");
+    expect(element.tooltipBg!.setAttribute).toHaveBeenCalledWith("opacity", "0");
   });
 
   it("does nothing when element is null", () => {
@@ -136,8 +138,8 @@ describe("restoreInitialState", () => {
 
     // Only tooltip calls expected, no attribute restorations
     expect(element.setAttribute).not.toHaveBeenCalled();
-    expect(element.tooltip.setAttribute).toHaveBeenCalledWith("opacity", "0");
-    expect(element.tooltipBg.setAttribute).toHaveBeenCalledWith("opacity", "0");
+    expect(element.tooltip!.setAttribute).toHaveBeenCalledWith("opacity", "0");
+    expect(element.tooltipBg!.setAttribute).toHaveBeenCalledWith("opacity", "0");
   });
 });
 

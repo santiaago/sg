@@ -10,13 +10,16 @@ function createMockSvgElement(type: string): SVGElement {
 }
 
 // Helper to create a mock SVG element with tracking for testing
-function createMockSvgElementWithTracking(_type: string): any {
+// Cast to global SVG element type with custom tooltip extensions
+function createMockSvgElementWithTracking(
+  _type: string,
+): SVGCircleElement | SVGLineElement | SVGGElement {
   return {
     setAttribute: vi.fn(),
     getAttribute: vi.fn(),
     tooltip: { setAttribute: vi.fn() },
     tooltipBg: { setAttribute: vi.fn(), getAttribute: vi.fn() },
-  };
+  } as unknown as SVGCircleElement | SVGLineElement | SVGGElement;
 }
 
 // Helper to create a mock GeometryItem

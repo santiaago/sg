@@ -7,21 +7,37 @@ const COLOR_HOVER_DETAILS = "cyan";
 const COLOR_SELECTED = "red";
 
 /**
+ * SVG element types that support tooltip properties.
+ * Extends standard SVG elements with custom tooltip and tooltipBg properties.
+ * Note: Only types with global type extensions in svgElements.ts are included.
+ */
+type SvgWithTooltips = SVGCircleElement | SVGLineElement | SVGGElement;
+
+/**
+ * Element type for highlighting functions - accepts SVG elements with tooltips or null.
+ */
+type HighlightElement = SvgWithTooltips | null;
+
+/**
  * Apply stroke styling to coordinate system arrow child elements
  */
-function applyToCsArrows(element: any, callback: (el: any) => void): void {
+function applyToCsArrows(element: HighlightElement, callback: (el: Element) => void): void {
   if (!element) return;
   // Apply to the group itself
   callback(element);
   // Also apply to child arrow lines with data-cs-arrow attribute
   const arrows = element.querySelectorAll ? element.querySelectorAll("[data-cs-arrow]") : [];
-  arrows.forEach((arrow: any) => callback(arrow));
+  arrows.forEach((arrow: Element) => callback(arrow));
 }
 
 /**
  * Apply orange visual feedback to SVG elements for highlighted input dependencies
  */
-export function applyInputVisualFeedback(element: any, shape: GeometryItem, scale: number): void {
+export function applyInputVisualFeedback(
+  element: HighlightElement,
+  shape: GeometryItem,
+  scale: number,
+): void {
   if (!element) return;
 
   try {
@@ -32,7 +48,7 @@ export function applyInputVisualFeedback(element: any, shape: GeometryItem, scal
       element.setAttribute("stroke", COLOR_INPUT_HIGHLIGHT);
       element.setAttribute("stroke-width", scale.toString());
     } else if (shape.type === "coordinate_system") {
-      applyToCsArrows(element, (el: any) => {
+      applyToCsArrows(element, (el: Element) => {
         el.setAttribute("stroke", COLOR_INPUT_HIGHLIGHT);
         el.setAttribute("stroke-width", scale.toString());
       });
@@ -53,7 +69,7 @@ export function applyInputVisualFeedback(element: any, shape: GeometryItem, scal
 /**
  * Restore an SVG element to its initial state
  */
-export function restoreInitialState(element: any, shape: GeometryItem): void {
+export function restoreInitialState(element: HighlightElement, shape: GeometryItem): void {
   if (!element) return;
 
   try {
@@ -66,7 +82,7 @@ export function restoreInitialState(element: any, shape: GeometryItem): void {
     // For coordinate system, also restore child arrow states
     if (shape.type === "coordinate_system") {
       const arrows = element.querySelectorAll ? element.querySelectorAll("[data-cs-arrow]") : [];
-      arrows.forEach((arrow: any) => {
+      arrows.forEach((arrow: Element) => {
         if (shape.initialState) {
           Object.entries(shape.initialState).forEach(([attr, value]) => {
             arrow.setAttribute(attr, value);
@@ -117,7 +133,11 @@ export function selectGeometry(
 /**
  * Apply visual feedback to SVG elements based on selection state
  */
-export function applyVisualFeedback(element: any, shape: GeometryItem, strokeBig: number): void {
+export function applyVisualFeedback(
+  element: HighlightElement,
+  shape: GeometryItem,
+  strokeBig: number,
+): void {
   if (!element) return;
 
   try {
@@ -144,7 +164,7 @@ export function applyVisualFeedback(element: any, shape: GeometryItem, strokeBig
           element.tooltipBg.setAttribute("opacity", "1");
         }
       } else if (shape.type === "coordinate_system") {
-        applyToCsArrows(element, (el: any) => {
+        applyToCsArrows(element, (el: Element) => {
           el.setAttribute("stroke-width", strokeBig.toString());
           el.setAttribute("stroke", COLOR_SELECTED);
         });
@@ -212,7 +232,7 @@ const COLOR_TOOLTIP_HOVER_BG = "#00ffff";
  * For GeometryDetails hover, the tooltip background color is changed for better visibility.
  */
 export function applyHoverHighlight(
-  element: any,
+  element: HighlightElement,
   shape: GeometryItem,
   scale: number,
   color: string = COLOR_INPUT_HIGHLIGHT,
@@ -227,7 +247,7 @@ export function applyHoverHighlight(
       element.setAttribute("stroke", color);
       element.setAttribute("stroke-width", scale.toString());
     } else if (shape.type === "coordinate_system") {
-      applyToCsArrows(element, (el: any) => {
+      applyToCsArrows(element, (el: Element) => {
         el.setAttribute("stroke", color);
         el.setAttribute("stroke-width", scale.toString());
       });
@@ -254,7 +274,11 @@ export function applyHoverHighlight(
  * If the item is selected, re-applies selection visual feedback instead of restoring to initial state.
  * This ensures selection state persists even when hover ends.
  */
-export function removeHoverHighlight(element: any, shape: GeometryItem, strokeBig: number): void {
+export function removeHoverHighlight(
+  element: HighlightElement,
+  shape: GeometryItem,
+  strokeBig: number,
+): void {
   if (!element) return;
 
   try {
