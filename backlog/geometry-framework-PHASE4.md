@@ -270,8 +270,7 @@ import type { Circle } from "../types/geometry";
 
 ### Step 6: Update Component Exports
 
-- [x] Update `app2/src/components/index.ts` or add direct export
-- [x] Ensure SquaresV2 can be imported from components
+- [x] SquaresV2 can be imported directly from `app2/src/components/SquaresV2`
 
 ### Step 7: Create Component Tests
 
