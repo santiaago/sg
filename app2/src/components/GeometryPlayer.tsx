@@ -41,6 +41,15 @@ export interface GeometryPlayerProps {
   // Callback to toggle inputs highlight
   onToggleInputs?: () => void;
 
+  // Whether to show the play/pause button
+  showPlayButton?: boolean;
+
+  // Current playing state
+  isPlaying?: boolean;
+
+  // Callback for play/pause toggle
+  onPlayClick?: () => void;
+
   // SVG configuration
   svgConfig: SvgConfig;
 
@@ -68,6 +77,9 @@ export function GeometryPlayer({
   showInputsToggle = false,
   showInputHighlight = false,
   onToggleInputs,
+  showPlayButton = false,
+  isPlaying = false,
+  onPlayClick,
   svgConfig,
   children,
   showCopyButton = true,
@@ -138,6 +150,21 @@ export function GeometryPlayer({
               aria-label="Previous step"
             >
               prev
+            </button>
+          )}
+
+          {showPlayButton && onPlayClick && (
+            <button
+              onClick={onPlayClick}
+              className={`px-4 py-2 text-white rounded ${
+                isPlaying
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-800 hover:bg-gray-700"
+              }`}
+              title={isPlaying ? "Pause animation" : "Play animation"}
+              aria-label={isPlaying ? "Pause animation" : "Play animation"}
+            >
+              {isPlaying ? "⏸" : "▶"}
             </button>
           )}
 
