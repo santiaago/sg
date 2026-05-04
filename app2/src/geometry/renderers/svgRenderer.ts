@@ -228,7 +228,10 @@ export class SvgRenderer {
    * @param stepIndex - The step index to render up to (0-based)
    */
   drawConstructionUpTo(
-    construction: { getSteps: () => Array<{ id: string }>; getValues: () => Map<string, GeometryValue> },
+    construction: {
+      getSteps: () => Array<{ id: string }>;
+      getValues: () => Map<string, GeometryValue>;
+    },
     stepIndex: number,
   ): void {
     const values = construction.getValues();
@@ -275,13 +278,3 @@ export class SvgRenderer {
     }
   }
 }
-
-// Export all public types and classes
-export { SvgRenderer };
-export type {
-  DrawPointOptions,
-  DrawLineOptions,
-  DrawCircleOptions,
-  DrawPolygonOptions,
-  DrawGeometryOptions,
-};
