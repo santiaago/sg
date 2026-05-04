@@ -48,13 +48,13 @@ test.describe("Combined Workflows", () => {
       // Toggle theme
       await toggleTheme(page);
 
-      // Copy SVG at final step
-      await page.getByTitle("Copy SVG to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      // Copy SVG at final step (use section-scoped locator)
+      await page.locator(`#${SECTION_SQUARE}`).getByTitle("Copy SVG to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
 
       // Copy URL
-      await page.getByTitle("Copy URL to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      await page.locator(`#${SECTION_SQUARE}`).getByTitle("Copy URL to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
     });
 
     test("Navigate to SixFold v0, step through steps, toggle theme, copy SVG", async ({ page }) => {
@@ -74,13 +74,13 @@ test.describe("Combined Workflows", () => {
       // Toggle theme back to dark
       await toggleTheme(page);
 
-      // Copy SVG at step 10
-      await page.getByTitle("Copy SVG to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      // Copy SVG at step 10 (use section-scoped locator)
+      await page.locator(`#${SECTION_SIXFOLD_V0}`).getByTitle("Copy SVG to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
 
       // Copy URL
-      await page.getByTitle("Copy URL to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      await page.locator(`#${SECTION_SIXFOLD_V0}`).getByTitle("Copy URL to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
     });
   });
 
@@ -91,14 +91,15 @@ test.describe("Combined Workflows", () => {
       // Navigate to Square
       await goToStep(page, SECTION_SQUARE, 5);
 
-      // Filter by type "circle"
-      await toggleTypeFilter(page, "circle");
+      // Filter by type "circle" in Square section
+      await toggleTypeFilter(page, "circle", `#${SECTION_SQUARE}`);
 
-      const initialCount = await getGeometryCount(page);
-      const filteredCount = await getGeometryCount(page);
+      const initialCount = await getGeometryCount(page, `#${SECTION_SQUARE}`);
+      const filteredCount = await getGeometryCount(page, `#${SECTION_SQUARE}`);
 
-      // Select a circle geometry
-      const geometryList = page.locator(".geometry-list");
+      // Select a circle geometry from Square section
+      const squareSection = page.locator(`#${SECTION_SQUARE}`);
+      const geometryList = squareSection.locator(".geometry-list").first();
       const items = geometryList.locator("li");
       const count = await items.count();
 
@@ -108,21 +109,21 @@ test.describe("Combined Workflows", () => {
         // Verify details show circle info
         await expect(page.getByText("Details")).toBeVisible();
 
-        // Toggle inputs highlight
-        const inputsButton = page.getByRole("button", { name: "inputs" });
+        // Toggle inputs highlight in Square section
+        const inputsButton = squareSection.getByTestId("inputs-toggle");
         await inputsButton.click();
 
         // Verify dependencies highlighted in orange (if any)
         // Note: This depends on the selected geometry having dependencies
-        const orangeItems = geometryList.locator("li").filter({ hasText: /text-orange-400/ });
+        const orangeItems = geometryList.locator("li[class*='text-orange-400']");
         const orangeCount = await orangeItems.count();
         // May or may not have orange highlights depending on the geometry
 
-        // Clear filters
-        await clearFilters(page);
+        // Clear filters in Square section
+        await clearFilters(page, `#${SECTION_SQUARE}`);
 
         // Verify all items visible again
-        const clearedCount = await getGeometryCount(page);
+        const clearedCount = await getGeometryCount(page, `#${SECTION_SQUARE}`);
         expect(clearedCount).toBeGreaterThanOrEqual(filteredCount);
       }
     });
@@ -130,10 +131,11 @@ test.describe("Combined Workflows", () => {
     test("Filter by name, select, verify details", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      // Filter by name "line"
-      await filterByName(page, "line");
+      // Filter by name "line" in SixFold v0 section
+      await filterByName(page, "line", `#${SECTION_SIXFOLD_V0}`);
 
-      const geometryList = page.locator(".geometry-list");
+      const sixFoldSection = page.locator(`#${SECTION_SIXFOLD_V0}`);
+      const geometryList = sixFoldSection.locator(".geometry-list").first();
       const items = geometryList.locator("li");
       const count = await items.count();
 
@@ -143,8 +145,8 @@ test.describe("Combined Workflows", () => {
         // Verify details show line info
         await expect(page.getByText("Details")).toBeVisible();
 
-        // Clear filters
-        await clearFilters(page);
+        // Clear filters in SixFold v0 section
+        await clearFilters(page, `#${SECTION_SIXFOLD_V0}`);
       }
     });
   });
@@ -156,12 +158,13 @@ test.describe("Combined Workflows", () => {
       // Navigate to Square and go to step 10 (which has geometry)
       await goToStep(page, SECTION_SQUARE, 10);
 
-      let currentStep = await page.locator("#square").getByText(/Current step (\d+)\/\d+/);
+      const squareSection = page.locator(`#${SECTION_SQUARE}`);
+      let currentStep = await squareSection.getByText(/Current step (\d+)\/\d+/);
       let stepText = await currentStep.textContent();
       expect(stepText).toContain("10");
 
-      // Select a geometry
-      const geometryList = page.locator(".geometry-list");
+      // Select a geometry from Square section
+      const geometryList = squareSection.locator(".geometry-list").first();
       const items = geometryList.locator("li");
       const count = await items.count();
 
@@ -175,7 +178,7 @@ test.describe("Combined Workflows", () => {
         await clickFirstButton(page, SECTION_SQUARE);
 
         // Verify back at step 0 (app starts at step 0)
-        currentStep = await page.locator("#square").getByText(/Current step (\d+)\/\d+/);
+        currentStep = await squareSection.getByText(/Current step (\d+)\/\d+/);
         stepText = await currentStep.textContent();
         expect(stepText).toContain("0");
 
@@ -191,12 +194,13 @@ test.describe("Combined Workflows", () => {
       // Navigate to SixFold v0 and go to step 10 (which has geometry)
       await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
-      let currentStep = await page.locator("#sixfold-v0").getByText(/Current step (\d+)\/\d+/);
+      const sixFoldSection = page.locator(`#${SECTION_SIXFOLD_V0}`);
+      let currentStep = await sixFoldSection.getByText(/Current step (\d+)\/\d+/);
       let stepText = await currentStep.textContent();
       expect(stepText).toContain("10");
 
-      // Select a geometry
-      const geometryList = page.locator(".geometry-list");
+      // Select a geometry from SixFold v0 section
+      const geometryList = sixFoldSection.locator(".geometry-list").first();
       const items = geometryList.locator("li");
       const count = await items.count();
 
@@ -210,7 +214,7 @@ test.describe("Combined Workflows", () => {
         await clickFirstButton(page, SECTION_SIXFOLD_V0);
 
         // Verify back at step 0 (app starts at step 0)
-        currentStep = await page.locator("#sixfold-v0").getByText(/Current step (\d+)\/\d+/);
+        currentStep = await sixFoldSection.getByText(/Current step (\d+)\/\d+/);
         stepText = await currentStep.textContent();
         expect(stepText).toContain("0");
 
@@ -226,9 +230,9 @@ test.describe("Combined Workflows", () => {
       // SixFold v0 - go to step 1 first (step 0 has no geometry)
       await goToStep(page, SECTION_SIXFOLD_V0, 1);
 
-      // Copy SVG at step 1
-      await page.getByTitle("Copy SVG to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      // Copy SVG at step 1 (use section-scoped locator)
+      await page.locator(`#${SECTION_SIXFOLD_V0}`).getByTitle("Copy SVG to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
 
       // Toggle theme
       await toggleTheme(page);
@@ -237,8 +241,8 @@ test.describe("Combined Workflows", () => {
       await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
       // Copy SVG at step 10
-      await page.getByTitle("Copy SVG to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      await page.locator(`#${SECTION_SIXFOLD_V0}`).getByTitle("Copy SVG to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
 
       // Navigate to Square
       await goToStep(page, SECTION_SQUARE, 1);
@@ -247,32 +251,32 @@ test.describe("Combined Workflows", () => {
       await toggleTheme(page);
 
       // Copy SVG at step 1
-      await page.getByTitle("Copy SVG to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      await page.locator(`#${SECTION_SQUARE}`).getByTitle("Copy SVG to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
 
       // Go to final step
       await clickLastButton(page, SECTION_SQUARE);
 
       // Copy SVG at final step
-      await page.getByTitle("Copy SVG to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      await page.locator(`#${SECTION_SQUARE}`).getByTitle("Copy SVG to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
     });
 
     test("Copy URL at different sections", async ({ page }) => {
       // SixFold v0
       await goToStep(page, SECTION_SIXFOLD_V0, 1);
-      await page.getByTitle("Copy URL to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      await page.locator(`#${SECTION_SIXFOLD_V0}`).getByTitle("Copy URL to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
 
       // Square
       await goToStep(page, SECTION_SQUARE, 1);
-      await page.getByTitle("Copy URL to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      await page.locator(`#${SECTION_SQUARE}`).getByTitle("Copy URL to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
 
       // Back to SixFold v0
       await goToStep(page, SECTION_SIXFOLD_V0, 1);
-      await page.getByTitle("Copy URL to clipboard").click();
-      await expect(page.getByText("Copied!")).toBeVisible();
+      await page.locator(`#${SECTION_SIXFOLD_V0}`).getByTitle("Copy URL to clipboard").click();
+      await expect(page.getByTestId("copy-feedback").first()).toBeVisible();
     });
   });
 
@@ -283,10 +287,11 @@ test.describe("Combined Workflows", () => {
       // Navigate to Square and go to step 8 (which has geometry)
       await goToStep(page, SECTION_SQUARE, 8);
 
-      // Filter by type "point"
-      await toggleTypeFilter(page, "point");
+      // Filter by type "point" in Square section
+      await toggleTypeFilter(page, "point", `#${SECTION_SQUARE}`);
 
-      const geometryList = page.locator(".geometry-list");
+      const squareSection = page.locator(`#${SECTION_SQUARE}`);
+      const geometryList = squareSection.locator(".geometry-list").first();
       const items = geometryList.locator("li");
       const count = await items.count();
 
@@ -294,18 +299,18 @@ test.describe("Combined Workflows", () => {
         // Select first point
         await items.first().click();
 
-        // Toggle inputs highlight
-        const inputsButton = page.getByRole("button", { name: "inputs" });
+        // Toggle inputs highlight in Square section
+        const inputsButton = squareSection.getByTestId("inputs-toggle");
         await inputsButton.click();
 
-        // Clear filters
-        await clearFilters(page);
+        // Clear filters in Square section
+        await clearFilters(page, `#${SECTION_SQUARE}`);
 
         // Click << to reset
         await clickFirstButton(page, SECTION_SQUARE);
 
         // Verify back at step 0 (app starts at step 0)
-        const currentStep = await page.locator("#square").getByText(/Current step (\d+)\/\d+/);
+        const currentStep = await squareSection.getByText(/Current step (\d+)\/\d+/);
         const stepText = await currentStep.textContent();
         expect(stepText).toContain("0");
       }

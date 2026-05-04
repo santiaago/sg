@@ -50,16 +50,17 @@ test.describe("Slider Navigation", () => {
       await goToSection(page, SECTION_SQUARE);
 
       const slider = page.locator('#square input[type="range"]');
+      const section = page.locator("#square");
 
-      // Drag slider to step 5
-      await slider.evaluate((el) => {
-        (el as HTMLInputElement).value = "5";
-        el.dispatchEvent(new Event("input", { bubbles: true }));
-        el.dispatchEvent(new Event("change", { bubbles: true }));
-      });
+      // Click at the 27.78% position (5/18) of the slider to go to step 5
+      const box = await slider.boundingBox();
+      if (!box) throw new Error("Slider not found");
+      const x = box.x + (box.width * (5 / 18));
+      const y = box.y + box.height / 2;
+      await page.mouse.click(x, y);
 
-      // Wait for step to update
-      await expect(page.locator("#square").getByText(/Current step 5\/\d+/)).toBeVisible();
+      // Wait for React state to update and step to change
+      await expect(section.getByText(/Current step 5\/\d+/)).toBeVisible({ timeout: 5000 });
 
       const currentStep = await getCurrentStep(page, SECTION_SQUARE);
       expect(currentStep).toBe(5);
@@ -99,16 +100,22 @@ test.describe("Slider Navigation", () => {
       await goToSection(page, SECTION_SQUARE);
 
       const slider = page.locator('#square input[type="range"]');
+      const section = page.locator("#square");
       await slider.focus();
+
+      // Get initial value
+      let initialValue = await slider.getAttribute("value");
+      const initialStep = parseInt(initialValue || "0", 10);
 
       // Press right arrow to increase
       await page.keyboard.press("ArrowRight");
 
-      // Wait for value to update
-      await expect(slider).toHaveAttribute("value", /\d+/);
+      // Wait for React state to update - the step should have increased
+      // After pressing ArrowRight, step should be initialStep + 1
+      await expect(section.getByText(new RegExp(`Current step ${initialStep + 1}\\/\\d+`))).toBeVisible({ timeout: 5000 });
 
       const value = await slider.getAttribute("value");
-      expect(parseInt(value || "0", 10)).toBeGreaterThan(1);
+      expect(parseInt(value || "0", 10)).toBeGreaterThan(initialStep);
     });
   });
 
@@ -148,16 +155,17 @@ test.describe("Slider Navigation", () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       const slider = page.locator('#sixfold-v0 input[type="range"]');
+      const section = page.locator("#sixfold-v0");
 
-      // Drag slider to step 45
-      await slider.evaluate((el) => {
-        (el as HTMLInputElement).value = "45";
-        el.dispatchEvent(new Event("input", { bubbles: true }));
-        el.dispatchEvent(new Event("change", { bubbles: true }));
-      });
+      // Click at the 48.39% position (45/93) of the slider to go to step 45
+      const box = await slider.boundingBox();
+      if (!box) throw new Error("Slider not found");
+      const x = box.x + (box.width * (45 / 93));
+      const y = box.y + box.height / 2;
+      await page.mouse.click(x, y);
 
-      // Wait for step to update
-      await expect(page.locator("#sixfold-v0").getByText(/Current step 45\/\d+/)).toBeVisible();
+      // Wait for React state to update and step to change
+      await expect(section.getByText(/Current step 45\/\d+/)).toBeVisible({ timeout: 5000 });
 
       const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
       expect(currentStep).toBe(45);

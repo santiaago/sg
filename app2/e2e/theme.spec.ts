@@ -169,8 +169,8 @@ test.describe("Theme Toggling", () => {
       const svgContainer = page.locator("#sixfold-v0");
       await expect(svgContainer).toBeVisible();
 
-      // Check that geometry list adapts
-      const geometryList = page.locator(".geometry-list");
+      // Check that geometry list adapts (use first to avoid multiple matches)
+      const geometryList = page.locator(".geometry-list").first();
       await expect(geometryList).toBeVisible();
     });
   });

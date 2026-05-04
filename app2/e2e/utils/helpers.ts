@@ -31,8 +31,9 @@ export async function isFocusable(locator: Locator): Promise<boolean> {
 /**
  * Get the number of geometry items in the list
  */
-export async function getGeometryCount(page: Page): Promise<number> {
-  const geometryList = page.locator(".geometry-list").first();
+export async function getGeometryCount(page: Page, section?: string): Promise<number> {
+  const selector = section ? `${section} .geometry-list` : ".geometry-list";
+  const geometryList = page.locator(selector).first();
   const items = geometryList.locator("li");
   return await items.count();
 }
@@ -40,8 +41,9 @@ export async function getGeometryCount(page: Page): Promise<number> {
 /**
  * Filter geometry list by name
  */
-export async function filterByName(page: Page, name: string): Promise<void> {
-  const geometryList = page.locator(".geometry-list").first();
+export async function filterByName(page: Page, name: string, section?: string): Promise<void> {
+  const selector = section ? `${section} .geometry-list` : ".geometry-list";
+  const geometryList = page.locator(selector).first();
   await geometryList.getByPlaceholder("Filter by name...").fill(name);
 
   // Wait for filter to apply by checking the filtered count updates
@@ -51,8 +53,9 @@ export async function filterByName(page: Page, name: string): Promise<void> {
 /**
  * Clear all filters
  */
-export async function clearFilters(page: Page): Promise<void> {
-  const geometryList = page.locator(".geometry-list").first();
+export async function clearFilters(page: Page, section?: string): Promise<void> {
+  const selector = section ? `${section} .geometry-list` : ".geometry-list";
+  const geometryList = page.locator(selector).first();
   const clearButton = geometryList.getByText("Clear filters");
   if (await clearButton.isVisible()) {
     await clearButton.click();
@@ -62,8 +65,9 @@ export async function clearFilters(page: Page): Promise<void> {
 /**
  * Toggle type filter
  */
-export async function toggleTypeFilter(page: Page, type: string): Promise<void> {
-  const geometryList = page.locator(".geometry-list").first();
+export async function toggleTypeFilter(page: Page, type: string, section?: string): Promise<void> {
+  const selector = section ? `${section} .geometry-list` : ".geometry-list";
+  const geometryList = page.locator(selector).first();
   await geometryList.getByRole("button", { name: type }).click();
 }
 
