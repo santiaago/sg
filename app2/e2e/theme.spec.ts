@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SIXFOLD_V0, SECTION_SQUARE, THEME } from './fixtures';
 import { goToSection } from './utils/navigation';
-import { assertTheme, toggleTheme, waitForPageLoad } from './utils/helpers';
+import { assertTheme, toggleTheme } from './utils/assertions';
+import { waitForPageLoad } from './utils/helpers';
 
 /**
  * Theme Toggling Tests
@@ -20,7 +21,7 @@ test.describe('Theme Toggling', () => {
       await assertTheme(page, THEME.DARK);
 
       // Toggle to light
-      await toggleTheme(page);
+      await page.getByTestId('theme-toggle').click();
 
       // Verify theme is now light
       await assertTheme(page, THEME.LIGHT);
@@ -28,32 +29,32 @@ test.describe('Theme Toggling', () => {
 
     test('Clicking theme toggle switches from light to dark', async ({ page }) => {
       // Start from light theme
-      await toggleTheme(page);
+      await page.getByTestId('theme-toggle').click();
       await assertTheme(page, THEME.LIGHT);
 
       // Toggle back to dark
-      await toggleTheme(page);
+      await page.getByTestId('theme-toggle').click();
 
       // Verify theme is now dark
       await assertTheme(page, THEME.DARK);
     });
 
     test('Theme toggle button icon changes (moon <-> sun)', async ({ page }) => {
-      const themeButton = page.getByTitle('Toggle SVG Theme');
+      const themeButton = page.getByTestId('theme-toggle');
 
       // Initial icon should be moon (dark theme)
       let icon = await themeButton.textContent();
       expect(icon).toContain('🌙');
 
       // Toggle to light
-      await toggleTheme(page);
+      await page.getByTestId('theme-toggle').click();
 
       // Icon should now be sun
       icon = await themeButton.textContent();
       expect(icon).toContain('☀️');
 
       // Toggle back to dark
-      await toggleTheme(page);
+      await page.getByTestId('theme-toggle').click();
 
       // Icon should be moon again
       icon = await themeButton.textContent();
@@ -80,7 +81,7 @@ test.describe('Theme Toggling', () => {
       await assertTheme(page, THEME.LIGHT);
     });
 
-    test('Theme toggle persists across page reload', async ({ page }) => {
+    test.skip('Theme toggle persists across page reload not implemented in app yet', async ({ page }) => {
       // Toggle to light theme
       await toggleTheme(page);
       await assertTheme(page, THEME.LIGHT);
@@ -92,18 +93,17 @@ test.describe('Theme Toggling', () => {
       // Theme should still be light
       // Note: This depends on the app's theme persistence implementation
       // The app currently stores theme in React state, not localStorage
-      // Skip this test until theme persistence is implemented
-      test.skip('Theme persistence across reload not implemented in app yet');
+      await assertTheme(page, THEME.LIGHT);
     });
 
-    test('Theme stored in localStorage', async ({ page }) => {
+    test.skip('Theme stored in localStorage not implemented in app yet', async ({ page }) => {
       // Toggle to light theme
       await toggleTheme(page);
 
       // Check localStorage
       // Note: The app currently does NOT use localStorage for theme
-      // Skip this test until theme persistence is implemented
-      test.skip('Theme persistence in localStorage not implemented in app yet');
+      const theme = await page.evaluate(() => localStorage.getItem('theme'));
+      expect(theme).toBe('light');
     });
   });
 
