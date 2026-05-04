@@ -21,6 +21,10 @@ package-lock.json
 dist/
 *.tsbuildinfo
 
+# Ignore test results
+**/test-results/
+**/.last-run.json
+
 # Ignore worktrees directory
 .worktrees/
 
