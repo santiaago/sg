@@ -162,7 +162,7 @@ export default function App(): JSX.Element {
           }
           return prev + 1;
         });
-      }, 300); // 300ms delay between steps
+      }, 200); // 200ms delay between steps
     }
   };
 
@@ -298,7 +298,7 @@ export default function App(): JSX.Element {
           }
           return prev + 1;
         });
-      }, 300); // 300ms delay between steps
+      }, 200); // 200ms delay between steps
     }
   };
 
