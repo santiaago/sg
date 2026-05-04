@@ -155,7 +155,12 @@ export function GeometryDetails({
   );
 
   if (!selectedGeometry) {
-    return <></>;
+    return (
+      <div
+        className="mb-4 p-3 bg-slate-800 rounded border border-slate-700 hidden"
+        data-testid="geometry-details"
+      />
+    );
   }
 
   const handleStepClick = (): void => {

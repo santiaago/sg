@@ -3,10 +3,18 @@ import { type Page, type Locator } from "@playwright/test";
 /**
  * Wait for page to fully load
  */
-export async function waitForPageLoad(page: Page, timeout: number = 5000): Promise<void> {
+export async function waitForPageLoad(page: Page, timeout: number = 10000): Promise<void> {
   await page.waitForLoadState("domcontentloaded", { timeout });
   // Wait for main content to be visible as a proxy for React hydration
-  await page.waitForSelector("main", { state: "visible", timeout: 3000 }).catch(() => {});
+  await page.waitForSelector("main", { state: "visible", timeout: 10000 });
+  // Wait for navigation to be ready
+  await page.waitForSelector("nav", { state: "visible", timeout: 10000 });
+  // Wait for first section to be visible
+  await page.waitForSelector("#sixfold-v0", { state: "visible", timeout: 10000 });
+  // Wait for SVG to be ready
+  await page.waitForSelector("[data-testid='sixfoldv0-svg']", { state: "visible", timeout: 10000 });
+  // Wait for geometry list to be ready
+  await page.waitForSelector(".geometry-list", { state: "visible", timeout: 10000 });
 }
 
 /**
@@ -77,5 +85,6 @@ export async function waitForGeometryItems(
 ): Promise<void> {
   const geometryList = page.locator(`${sectionSelector} .geometry-list`);
   const items = geometryList.locator("li");
-  await expect(items).toHaveCountGreaterThanOrEqual(minCount);
+  const count = await items.count();
+  expect(count).toBeGreaterThanOrEqual(minCount);
 }

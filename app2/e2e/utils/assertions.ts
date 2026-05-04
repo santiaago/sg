@@ -43,6 +43,9 @@ export async function selectGeometry(page: Page, name: string): Promise<void> {
   const geometryList = page.locator(".geometry-list").first();
   await geometryList.locator(`[data-testid="geometry-item-${name}"]`).first().click();
 
+  // Wait for React state update
+  await page.waitForTimeout(500);
+
   // Verify selection by checking the item has aria-selected="true"
   await assertGeometrySelected(page, name);
 }

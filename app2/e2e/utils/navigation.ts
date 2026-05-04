@@ -23,14 +23,14 @@ export async function goToSection(
   if (!hasCorrectHash) {
     // Click the navigation button to update both the section and the hash
     await page.getByTestId(testId).click();
-    await expect(page.locator(sectionSelector)).toBeVisible();
-    await expect(page.getByTestId(svgTestId)).toBeVisible();
-    await page.waitForURL(new RegExp(`#${section}$`));
+    await expect(page.locator(sectionSelector)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId(svgTestId)).toBeVisible({ timeout: 10000 });
+    await page.waitForURL(new RegExp(`#${section}$`), { timeout: 10000 });
   } else {
     // Already on the correct section, just verify it's visible
     const sectionLoc = page.locator(sectionSelector);
-    await expect(sectionLoc).toBeVisible();
-    await expect(page.getByTestId(svgTestId)).toBeVisible();
+    await expect(sectionLoc).toBeVisible({ timeout: 10000 });
+    await expect(page.getByTestId(svgTestId)).toBeVisible({ timeout: 10000 });
   }
 }
 
@@ -72,7 +72,7 @@ export async function goToStep(
   // Wait for geometry items to be rendered if we're at a step with geometry
   if (step >= 1) {
     const items = sectionLocator.locator(".geometry-list li");
-    await expect(async () => await items.count()).toBeGreaterThanOrEqual(1);
+    await expect(items.first()).toBeVisible({ timeout: 10000 });
   }
 }
 

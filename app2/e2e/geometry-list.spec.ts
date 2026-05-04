@@ -64,8 +64,9 @@ test.describe("Geometry List", () => {
       // Click again to deselect
       await firstItem.click();
 
-      // Verify it's no longer selected (should not have red/yellow text)
-      await expect(firstItem).not.toHaveClass(/text-(red|yellow)-400/);
+      // Verify it's no longer selected by checking the specific item using testid
+      const itemByTestId = geometryList.locator(`[data-testid="geometry-item-${name}"]`).first();
+      await expect(itemByTestId).not.toHaveClass(/text-(red|yellow)-400/);
     });
 
     test("Clicking different item selects new, deselects previous", async ({ page }) => {
@@ -75,7 +76,8 @@ test.describe("Geometry List", () => {
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
-      await expect(items).toHaveCountGreaterThanOrEqual(2);
+      const count = await items.count();
+      expect(count).toBeGreaterThanOrEqual(2);
 
       const firstItem = items.first();
       const secondItem = items.nth(1);

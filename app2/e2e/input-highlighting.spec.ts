@@ -84,10 +84,10 @@ test.describe("Input Highlighting", () => {
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
-      await expect(items).toHaveCountGreaterThanOrEqual(2);
+      const itemCount = await items.count();
+      expect(itemCount).toBeGreaterThanOrEqual(2);
 
       // Select a geometry that has dependencies
-      const itemCount = await items.count();
       const itemWithDeps = items.nth(Math.min(5, itemCount - 1));
 
       // Ensure item has text content
@@ -104,7 +104,8 @@ test.describe("Input Highlighting", () => {
       const orangeItems = geometryList.locator("li").filter({ hasText: /text-orange-400/ });
 
       // Should have at least one orange dependency
-      await expect(orangeItems).toHaveCountGreaterThan(0);
+      const orangeItemsCount = await orangeItems.count();
+      expect(orangeItemsCount).toBeGreaterThanOrEqual(0 + 1);
     });
 
     test("Deselecting geometry clears orange highlights", async ({ page }) => {
@@ -115,10 +116,10 @@ test.describe("Input Highlighting", () => {
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
-      await expect(items).toHaveCountGreaterThanOrEqual(2);
+      const itemCount = await items.count();
+      expect(itemCount).toBeGreaterThanOrEqual(2);
 
       // Select a geometry
-      const itemCount = await items.count();
       const item = items.nth(Math.min(5, itemCount - 1));
       await item.click();
 
@@ -126,7 +127,8 @@ test.describe("Input Highlighting", () => {
       const orangeItemsBefore = geometryList.locator("li").filter({ hasText: /text-orange-400/ });
 
       // Ensure we have orange highlights to test clearing
-      await expect(orangeItemsBefore).toHaveCountGreaterThan(0);
+      const orangeItemsBeforeCount = await orangeItemsBefore.count();
+      expect(orangeItemsBeforeCount).toBeGreaterThanOrEqual(0 + 1);
 
       // Deselect the geometry
       await item.click();
@@ -146,7 +148,8 @@ test.describe("Input Highlighting", () => {
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
-      await expect(items).toHaveCountGreaterThanOrEqual(5);
+      const itemsCount = await items.count();
+      expect(itemsCount).toBeGreaterThanOrEqual(5);
 
       // Select a geometry with multiple dependency types
       const item = items.nth(5);
@@ -157,7 +160,8 @@ test.describe("Input Highlighting", () => {
       const orangeItems = geometryList.locator("li").filter({ hasText: /text-orange-400/ });
 
       // Should have multiple orange dependencies
-      await expect(orangeItems).toHaveCountGreaterThan(0);
+      const orangeItemsCount = await orangeItems.count();
+      expect(orangeItemsCount).toBeGreaterThanOrEqual(0 + 1);
     });
 
     test("Toggle off clears all orange highlights", async ({ page }) => {
@@ -168,7 +172,8 @@ test.describe("Input Highlighting", () => {
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
-      await expect(items).toHaveCountGreaterThanOrEqual(2);
+      const itemsCount = await items.count();
+      expect(itemsCount).toBeGreaterThanOrEqual(2);
 
       // Select a geometry
       const itemCount = await items.count();
@@ -179,7 +184,8 @@ test.describe("Input Highlighting", () => {
       const orangeItemsBefore = geometryList.locator("li").filter({ hasText: /text-orange-400/ });
 
       // Ensure we have orange highlights to test clearing
-      await expect(orangeItemsBefore).toHaveCountGreaterThan(0);
+      const orangeItemsBeforeCount = await orangeItemsBefore.count();
+      expect(orangeItemsBeforeCount).toBeGreaterThanOrEqual(0 + 1);
 
       // Toggle inputs off
       const inputsButton = page.getByRole("button", { name: "inputs" });
@@ -198,7 +204,8 @@ test.describe("Input Highlighting", () => {
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
-      await expect(items).toHaveCountGreaterThanOrEqual(2);
+      const itemsCount = await items.count();
+      expect(itemsCount).toBeGreaterThanOrEqual(2);
 
       // Select a geometry
       const itemCount = await items.count();
