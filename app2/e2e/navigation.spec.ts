@@ -1,7 +1,15 @@
-import { test, expect } from '@playwright/test';
-import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
-import { goToSection, goToStep, getCurrentStep, clickFirstButton, clickLastButton, clickNextButton, clickPrevButton } from './utils/navigation';
-import { waitForPageLoad } from './utils/helpers';
+import { test, expect } from "@playwright/test";
+import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from "./fixtures";
+import {
+  goToSection,
+  goToStep,
+  getCurrentStep,
+  clickFirstButton,
+  clickLastButton,
+  clickNextButton,
+  clickPrevButton,
+} from "./utils/navigation";
+import { waitForPageLoad } from "./utils/helpers";
 
 /**
  * Navigation & URL Hash Tests
@@ -9,136 +17,140 @@ import { waitForPageLoad } from './utils/helpers';
  * Note: Merges existing hash tests with new edge cases. Includes << and >> button tests.
  */
 
-test.describe('Navigation & URL Hash', () => {
+test.describe("Navigation & URL Hash", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto("/");
     await waitForPageLoad(page);
   });
 
-  test.describe('Direct navigation', () => {
-    test('Loading /#square scrolls to Square section', async ({ page }) => {
-      await page.goto('/#square');
+  test.describe("Direct navigation", () => {
+    test("Loading /#square scrolls to Square section", async ({ page }) => {
+      await page.goto("/#square");
       await waitForPageLoad(page);
 
-      await expect(page.locator('#square')).toBeVisible();
+      await expect(page.locator("#square")).toBeVisible();
     });
 
-    test('Loading /#sixfold-v0 scrolls to SixFold v0 section', async ({ page }) => {
-      await page.goto('/#sixfold-v0');
+    test("Loading /#sixfold-v0 scrolls to SixFold v0 section", async ({ page }) => {
+      await page.goto("/#sixfold-v0");
       await waitForPageLoad(page);
 
-      await expect(page.locator('#sixfold-v0')).toBeVisible();
+      await expect(page.locator("#sixfold-v0")).toBeVisible();
     });
 
-    test('Loading /#square activates Square nav button', async ({ page }) => {
-      await page.goto('/#square');
+    test("Loading /#square activates Square nav button", async ({ page }) => {
+      await page.goto("/#square");
       await waitForPageLoad(page);
 
-      const squareButton = page.getByRole('button', { name: 'Square' });
-      const classList = await squareButton.getAttribute('class');
-      expect(classList).toContain('bg-blue-600');
+      const squareButton = page.getByRole("button", { name: "Square" });
+      const classList = await squareButton.getAttribute("class");
+      expect(classList).toContain("bg-blue-600");
     });
 
-    test('Loading /#sixfold-v0 activates SixFold v0 nav button', async ({ page }) => {
-      await page.goto('/#sixfold-v0');
+    test("Loading /#sixfold-v0 activates SixFold v0 nav button", async ({ page }) => {
+      await page.goto("/#sixfold-v0");
       await waitForPageLoad(page);
 
-      const sixfoldButton = page.getByRole('button', { name: 'SixFold v0' });
-      const classList = await sixfoldButton.getAttribute('class');
-      expect(classList).toContain('bg-blue-600');
+      const sixfoldButton = page.getByRole("button", { name: "SixFold v0" });
+      const classList = await sixfoldButton.getAttribute("class");
+      expect(classList).toContain("bg-blue-600");
     });
   });
 
-  test.describe('Manual hash change', () => {
-    test('Manually setting window.location.hash = "square" navigates to Square', async ({ page }) => {
-      await page.goto('/');
+  test.describe("Manual hash change", () => {
+    test('Manually setting window.location.hash = "square" navigates to Square', async ({
+      page,
+    }) => {
+      await page.goto("/");
       await waitForPageLoad(page);
 
       await page.evaluate(() => {
-        window.location.hash = 'square';
+        window.location.hash = "square";
       });
 
-      await expect(page.locator('#square')).toBeVisible();
+      await expect(page.locator("#square")).toBeVisible();
     });
 
-    test('Manually setting window.location.hash = "sixfold-v0" navigates to SixFold v0', async ({ page }) => {
-      await page.goto('/#square');
+    test('Manually setting window.location.hash = "sixfold-v0" navigates to SixFold v0', async ({
+      page,
+    }) => {
+      await page.goto("/#square");
       await waitForPageLoad(page);
 
       await page.evaluate(() => {
-        window.location.hash = 'sixfold-v0';
+        window.location.hash = "sixfold-v0";
       });
 
-      await expect(page.locator('#sixfold-v0')).toBeVisible();
+      await expect(page.locator("#sixfold-v0")).toBeVisible();
     });
 
-    test('Invalid hash does not break navigation', async ({ page }) => {
-      await page.goto('/#invalid-section');
+    test("Invalid hash does not break navigation", async ({ page }) => {
+      await page.goto("/#invalid-section");
       await waitForPageLoad(page);
 
       // Should still show the default section
-      await expect(page.locator('#sixfold-v0')).toBeVisible();
+      await expect(page.locator("#sixfold-v0")).toBeVisible();
     });
 
-    test('Hash with query parameters works correctly', async ({ page }) => {
-      await page.goto('/#square?test=1');
+    test("Hash with query parameters works correctly", async ({ page }) => {
+      await page.goto("/#square?test=1");
       await waitForPageLoad(page);
 
-      await expect(page.locator('#square')).toBeVisible();
+      await expect(page.locator("#square")).toBeVisible();
     });
 
-    test('Navigating back/forward in browser preserves hash state', async ({ page }) => {
-      await page.goto('/#square');
+    test("Navigating back/forward in browser preserves hash state", async ({ page }) => {
+      await page.goto("/#square");
       await waitForPageLoad(page);
 
-      await page.goto('/#sixfold-v0');
+      await page.goto("/#sixfold-v0");
       await waitForPageLoad(page);
 
       // Go back
       await page.goBack();
       await waitForPageLoad(page);
 
-      await expect(page.locator('#square')).toBeVisible();
+      await expect(page.locator("#square")).toBeVisible();
 
       // Go forward
       await page.goForward();
       await waitForPageLoad(page);
 
-      await expect(page.locator('#sixfold-v0')).toBeVisible();
+      await expect(page.locator("#sixfold-v0")).toBeVisible();
     });
   });
 
-  test.describe('Navigation buttons', () => {
-    test('Square: can click next all the way to the end', async ({ page }) => {
+  test.describe("Navigation buttons", () => {
+    test("Square: can click next all the way to the end", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      // Note: App starts at step 0, not step 1 (16 total steps, indexed 0-15)
+      // Note: App starts at step 0 (Square has 18 steps in array, steps 0-18 where 18 = all executed)
       let currentStep = await getCurrentStep(page, SECTION_SQUARE);
       expect(currentStep).toBe(0);
 
-      // Click next until we reach the end
-      for (let expectedStep = 1; expectedStep < 16; expectedStep++) {
+      // Click next until we reach the end (step 18 for Square where 18 = SQUARE_STEPS.length)
+      for (let expectedStep = 1; expectedStep <= 18; expectedStep++) {
         await clickNextButton(page, SECTION_SQUARE);
         currentStep = await getCurrentStep(page, SECTION_SQUARE);
         expect(currentStep).toBe(expectedStep);
       }
 
-      // Verify we're at the end (step 15 for Square which has 16 total steps)
-      expect(currentStep).toBe(15);
+      // Verify we're at the end (step 18 = SQUARE_STEPS.length, all steps executed)
+      expect(currentStep).toBe(18);
 
       // Next button should be disabled at the end
-      const nextButton = page.locator('#square').getByTestId('step-next');
+      const nextButton = page.locator("#square").getByTestId("step-next");
       await expect(nextButton).toBeDisabled();
     });
 
-    test('SixFold v0: can click next all the way to the end', async ({ page }) => {
+    test("SixFold v0: can click next all the way to the end", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      // Note: App starts at step 0, not step 1 (93 total steps, indexed 0-92)
+      // Note: App starts at step 0 (93 total steps, indexed 0-93)
       let currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
       expect(currentStep).toBe(0);
 
-      // Click next to step 9 (for performance, we don't go all the way to 92)
+      // Click next to step 9 (for performance, we don't go all the way to 93)
       for (let expectedStep = 1; expectedStep <= 9; expectedStep++) {
         await clickNextButton(page, SECTION_SIXFOLD_V0);
         currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
@@ -149,7 +161,7 @@ test.describe('Navigation & URL Hash', () => {
       expect(currentStep).toBe(9);
     });
 
-    test('Square: can click fast forward (>>) to the end', async ({ page }) => {
+    test("Square: can click fast forward (>>) to the end", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
       // Note: App starts at step 0
@@ -160,11 +172,11 @@ test.describe('Navigation & URL Hash', () => {
       await clickLastButton(page, SECTION_SQUARE);
 
       currentStep = await getCurrentStep(page, SECTION_SQUARE);
-      // Square has 16 steps, indexed 0-15, so the end is step 15
-      expect(currentStep).toBe(15);
+      // Square has 18 steps in array, fast forward goes to step 18 (= SQUARE_STEPS.length, all executed)
+      expect(currentStep).toBe(18);
     });
 
-    test('SixFold v0: can click fast forward (>>) to the end', async ({ page }) => {
+    test("SixFold v0: can click fast forward (>>) to the end", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Note: App starts at step 0
@@ -175,11 +187,11 @@ test.describe('Navigation & URL Hash', () => {
       await clickLastButton(page, SECTION_SIXFOLD_V0);
 
       currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
-      // SixFold v0 has 93 steps, indexed 0-92, so the end is step 92
-      expect(currentStep).toBe(92);
+      // SixFold v0 has 93 steps, indexed 0-92, end is step 93 (== SIX_FOLD_V0_STEPS.length)
+      expect(currentStep).toBe(93);
     });
 
-    test('Square: can click back from step 1 to step 0', async ({ page }) => {
+    test("Square: can click back from step 1 to step 0", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
       // Go to step 1 (one next from step 0)
@@ -194,11 +206,11 @@ test.describe('Navigation & URL Hash', () => {
       expect(currentStep).toBe(0);
 
       // Prev button should be disabled at step 0
-      const prevButton = page.locator('#square').getByTestId('step-prev');
+      const prevButton = page.locator("#square").getByTestId("step-prev");
       await expect(prevButton).toBeDisabled();
     });
 
-    test('SixFold v0: can click back from step 1 to step 0', async ({ page }) => {
+    test("SixFold v0: can click back from step 1 to step 0", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Go to step 1 (one next from step 0)
@@ -213,17 +225,17 @@ test.describe('Navigation & URL Hash', () => {
       expect(currentStep).toBe(0);
 
       // Prev button should be disabled at step 0
-      const prevButton = page.locator('#sixfold-v0').getByTestId('step-prev');
+      const prevButton = page.locator("#sixfold-v0").getByTestId("step-prev");
       await expect(prevButton).toBeDisabled();
     });
 
-    test('Square: can click all the way to the beginning with backwards (<<)', async ({ page }) => {
+    test("Square: can click all the way to the beginning with backwards (<<)", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      // First, go to the end (step 15 for Square which has 16 total steps)
+      // First, go to the end (step 18 for Square where 18 = SQUARE_STEPS.length, all executed)
       await clickLastButton(page, SECTION_SQUARE);
       let currentStep = await getCurrentStep(page, SECTION_SQUARE);
-      expect(currentStep).toBe(15);
+      expect(currentStep).toBe(18);
 
       // Click backwards to beginning
       await clickFirstButton(page, SECTION_SQUARE);
@@ -232,7 +244,9 @@ test.describe('Navigation & URL Hash', () => {
       expect(currentStep).toBe(0);
     });
 
-    test('SixFold v0: can click all the way to the beginning with backwards (<<)', async ({ page }) => {
+    test("SixFold v0: can click all the way to the beginning with backwards (<<)", async ({
+      page,
+    }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // First, go to step 9
@@ -248,7 +262,7 @@ test.describe('Navigation & URL Hash', () => {
       expect(currentStep).toBe(0);
     });
 
-    test('Square: can navigate forward and backward multiple times', async ({ page }) => {
+    test("Square: can navigate forward and backward multiple times", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
       // Note: App starts at step 0
@@ -277,7 +291,7 @@ test.describe('Navigation & URL Hash', () => {
       expect(currentStep).toBe(4);
     });
 
-    test('SixFold v0: can navigate forward and backward multiple times', async ({ page }) => {
+    test("SixFold v0: can navigate forward and backward multiple times", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Note: App starts at step 0
@@ -306,7 +320,7 @@ test.describe('Navigation & URL Hash', () => {
       expect(currentStep).toBe(4);
     });
 
-    test('Square: can click next, then prev, then next again', async ({ page }) => {
+    test("Square: can click next, then prev, then next again", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
       // Note: App starts at step 0
@@ -329,7 +343,7 @@ test.describe('Navigation & URL Hash', () => {
       expect(currentStep).toBe(1);
     });
 
-    test('SixFold v0: can click next, then prev, then next again', async ({ page }) => {
+    test("SixFold v0: can click next, then prev, then next again", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Note: App starts at step 0
@@ -353,18 +367,18 @@ test.describe('Navigation & URL Hash', () => {
     });
   });
 
-  test.describe('Complete navigation cycle', () => {
-    test('Square: complete navigation cycle', async ({ page }) => {
+  test.describe("Complete navigation cycle", () => {
+    test("Square: complete navigation cycle", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      // Start at step 0 (app starts at step 0, not step 1)
+      // Start at step 0 (app starts at step 0)
       let currentStep = await getCurrentStep(page, SECTION_SQUARE);
       expect(currentStep).toBe(0);
 
-      // Go to end (step 15 for Square which has 16 total steps)
+      // Go to end (step 18 for Square where 18 = SQUARE_STEPS.length, all executed)
       await clickLastButton(page, SECTION_SQUARE);
       currentStep = await getCurrentStep(page, SECTION_SQUARE);
-      expect(currentStep).toBe(15);
+      expect(currentStep).toBe(18);
 
       // Go back to beginning (step 0)
       await clickFirstButton(page, SECTION_SQUARE);
@@ -386,7 +400,7 @@ test.describe('Navigation & URL Hash', () => {
       expect(currentStep).toBe(1);
     });
 
-    test('SixFold v0: complete navigation cycle', async ({ page }) => {
+    test("SixFold v0: complete navigation cycle", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Start at step 0 (app starts at step 0, not step 1)

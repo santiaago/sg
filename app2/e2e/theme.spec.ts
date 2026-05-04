@@ -1,69 +1,69 @@
-import { test, expect } from '@playwright/test';
-import { SECTION_SIXFOLD_V0, SECTION_SQUARE, THEME } from './fixtures';
-import { goToSection } from './utils/navigation';
-import { assertTheme, toggleTheme } from './utils/assertions';
-import { waitForPageLoad } from './utils/helpers';
+import { test, expect } from "@playwright/test";
+import { SECTION_SIXFOLD_V0, SECTION_SQUARE, THEME } from "./fixtures";
+import { goToSection } from "./utils/navigation";
+import { assertTheme, toggleTheme } from "./utils/assertions";
+import { waitForPageLoad } from "./utils/helpers";
 
 /**
  * Theme Toggling Tests
  * Priority: High
  */
 
-test.describe('Theme Toggling', () => {
+test.describe("Theme Toggling", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto("/");
     await waitForPageLoad(page);
   });
 
-  test.describe('Toggle behavior', () => {
-    test('Clicking theme toggle switches from dark to light', async ({ page }) => {
+  test.describe("Toggle behavior", () => {
+    test("Clicking theme toggle switches from dark to light", async ({ page }) => {
       // Verify initial theme is dark
       await assertTheme(page, THEME.DARK);
 
       // Toggle to light
-      await page.getByTestId('theme-toggle').click();
+      await page.getByTestId("theme-toggle").click();
 
       // Verify theme is now light
       await assertTheme(page, THEME.LIGHT);
     });
 
-    test('Clicking theme toggle switches from light to dark', async ({ page }) => {
+    test("Clicking theme toggle switches from light to dark", async ({ page }) => {
       // Start from light theme
-      await page.getByTestId('theme-toggle').click();
+      await page.getByTestId("theme-toggle").click();
       await assertTheme(page, THEME.LIGHT);
 
       // Toggle back to dark
-      await page.getByTestId('theme-toggle').click();
+      await page.getByTestId("theme-toggle").click();
 
       // Verify theme is now dark
       await assertTheme(page, THEME.DARK);
     });
 
-    test('Theme toggle button icon changes (moon <-> sun)', async ({ page }) => {
-      const themeButton = page.getByTestId('theme-toggle');
+    test("Theme toggle button icon changes (moon <-> sun)", async ({ page }) => {
+      const themeButton = page.getByTestId("theme-toggle");
 
       // Initial icon should be moon (dark theme)
       let icon = await themeButton.textContent();
-      expect(icon).toContain('🌙');
+      expect(icon).toContain("🌙");
 
       // Toggle to light
-      await page.getByTestId('theme-toggle').click();
+      await page.getByTestId("theme-toggle").click();
 
       // Icon should now be sun
       icon = await themeButton.textContent();
-      expect(icon).toContain('☀️');
+      expect(icon).toContain("☀️");
 
       // Toggle back to dark
-      await page.getByTestId('theme-toggle').click();
+      await page.getByTestId("theme-toggle").click();
 
       // Icon should be moon again
       icon = await themeButton.textContent();
-      expect(icon).toContain('🌙');
+      expect(icon).toContain("🌙");
     });
   });
 
-  test.describe('Persistence', () => {
-    test('Theme toggle persists across page navigation', async ({ page }) => {
+  test.describe("Persistence", () => {
+    test("Theme toggle persists across page navigation", async ({ page }) => {
       // Toggle to light theme
       await toggleTheme(page);
       await assertTheme(page, THEME.LIGHT);
@@ -81,7 +81,9 @@ test.describe('Theme Toggling', () => {
       await assertTheme(page, THEME.LIGHT);
     });
 
-    test.skip('Theme toggle persists across page reload not implemented in app yet', async ({ page }) => {
+    test.skip("Theme toggle persists across page reload not implemented in app yet", async ({
+      page,
+    }) => {
       // Toggle to light theme
       await toggleTheme(page);
       await assertTheme(page, THEME.LIGHT);
@@ -96,25 +98,25 @@ test.describe('Theme Toggling', () => {
       await assertTheme(page, THEME.LIGHT);
     });
 
-    test.skip('Theme stored in localStorage not implemented in app yet', async ({ page }) => {
+    test.skip("Theme stored in localStorage not implemented in app yet", async ({ page }) => {
       // Toggle to light theme
       await toggleTheme(page);
 
       // Check localStorage
       // Note: The app currently does NOT use localStorage for theme
-      const theme = await page.evaluate(() => localStorage.getItem('theme'));
-      expect(theme).toBe('light');
+      const theme = await page.evaluate(() => localStorage.getItem("theme"));
+      expect(theme).toBe("light");
     });
   });
 
-  test.describe('Visual feedback', () => {
-    test('Theme toggle updates SVG background color', async ({ page }) => {
-      const svg = page.getByTestId('sixfoldv0-svg');
+  test.describe("Visual feedback", () => {
+    test("Theme toggle updates SVG background color", async ({ page }) => {
+      const svg = page.getByTestId("sixfoldv0-svg");
 
       // Get initial background color (dark theme)
       const initialBg = await svg.evaluate((el) => {
         const rect = el.querySelector('rect[data-background="true"]');
-        return rect?.getAttribute('fill') || '';
+        return rect?.getAttribute("fill") || "";
       });
 
       // Toggle to light theme
@@ -123,59 +125,58 @@ test.describe('Theme Toggling', () => {
       // Get new background color
       const newBg = await svg.evaluate((el) => {
         const rect = el.querySelector('rect[data-background="true"]');
-        return rect?.getAttribute('fill') || '';
+        return rect?.getAttribute("fill") || "";
       });
 
       // Background color should have changed
       expect(newBg).not.toBe(initialBg);
     });
 
-    test('Theme toggle updates body CSS class', async ({ page }) => {
+    test("Theme toggle updates body CSS class", async ({ page }) => {
       // Verify initial class
-      let hasDark = await page.evaluate(() => 
-        document.documentElement.classList.contains('dark')
-      );
+      let hasDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
       expect(hasDark).toBe(true);
 
       // Toggle to light
       await toggleTheme(page);
 
       // Verify class is removed
-      hasDark = await page.evaluate(() => 
-        document.documentElement.classList.contains('dark')
-      );
+      hasDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
       expect(hasDark).toBe(false);
 
       // Toggle back to dark
       await toggleTheme(page);
 
       // Verify class is added again
-      hasDark = await page.evaluate(() => 
-        document.documentElement.classList.contains('dark')
-      );
+      hasDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
       expect(hasDark).toBe(true);
     });
 
-    test('All UI elements adapt to theme change', async ({ page }) => {
+    test("All UI elements adapt to theme change", async ({ page }) => {
+      // Go to step 1 to ensure geometry list has items
+      await goToSection(page, SECTION_SIXFOLD_V0);
+      await page.locator("#sixfold-v0").getByTestId("step-next").click();
+      await page.waitForTimeout(500);
+
       // Toggle theme
       await toggleTheme(page);
 
       // Check that navigation bar adapts
-      const nav = page.locator('nav');
+      const nav = page.locator("nav");
       await expect(nav).toBeVisible();
 
       // Check that SVG container adapts
-      const svgContainer = page.locator('#sixfold-v0');
+      const svgContainer = page.locator("#sixfold-v0");
       await expect(svgContainer).toBeVisible();
 
       // Check that geometry list adapts
-      const geometryList = page.locator('.geometry-list');
+      const geometryList = page.locator(".geometry-list");
       await expect(geometryList).toBeVisible();
     });
   });
 
-  test.describe('Edge cases', () => {
-    test('Multiple theme toggles work correctly', async ({ page }) => {
+  test.describe("Edge cases", () => {
+    test("Multiple theme toggles work correctly", async ({ page }) => {
       // Toggle multiple times
       for (let i = 0; i < 5; i++) {
         await toggleTheme(page);
@@ -191,7 +192,7 @@ test.describe('Theme Toggling', () => {
       await assertTheme(page, THEME.DARK);
     });
 
-    test('Theme toggle works from Square section', async ({ page }) => {
+    test("Theme toggle works from Square section", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
       // Toggle theme
