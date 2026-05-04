@@ -153,6 +153,21 @@ export function GeometryPlayer({
             </button>
           )}
 
+          {showPlayButton && onPlayClick && (
+            <button
+              onClick={onPlayClick}
+              className={`px-4 py-2 text-white rounded ${
+                isPlaying
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-800 hover:bg-gray-700"
+              }`}
+              title={isPlaying ? "Pause animation" : "Play animation"}
+              aria-label={isPlaying ? "Pause animation" : "Play animation"}
+            >
+              {isPlaying ? "⏸" : "▶"}
+            </button>
+          )}
+
           {onNextStep && (
             <button
               onClick={onNextStep}
@@ -186,21 +201,6 @@ export function GeometryPlayer({
               aria-label="Restart animation"
             >
               restart
-            </button>
-          )}
-
-          {showPlayButton && onPlayClick && (
-            <button
-              onClick={onPlayClick}
-              className={`px-4 py-2 text-white rounded ${
-                isPlaying
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-gray-800 hover:bg-gray-700"
-              }`}
-              title={isPlaying ? "Pause animation" : "Play animation"}
-              aria-label={isPlaying ? "Pause animation" : "Play animation"}
-            >
-              {isPlaying ? "⏸" : "▶"}
             </button>
           )}
 
