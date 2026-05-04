@@ -179,6 +179,30 @@ export function circle(
 }
 
 /**
+ * Ensure arrowhead marker definition exists in SVG
+ * Creates a reusable arrowhead marker for coordinate system arrows
+ */
+function ensureArrowheadMarker(svg: SVGSVGElement, strokeColor: string): void {
+  let arrowhead = svg.querySelector("#arrowhead-cs");
+  if (!arrowhead) {
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+    arrowhead.setAttribute("id", "arrowhead-cs");
+    arrowhead.setAttribute("markerWidth", "10");
+    arrowhead.setAttribute("markerHeight", "7");
+    arrowhead.setAttribute("refX", "9");
+    arrowhead.setAttribute("refY", "3.5");
+    arrowhead.setAttribute("orient", "auto");
+    const arrowPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    arrowPolygon.setAttribute("points", "0 0, 10 3.5, 0 7");
+    arrowPolygon.setAttribute("fill", strokeColor);
+    arrowhead.appendChild(arrowPolygon);
+    defs.appendChild(arrowhead);
+    svg.insertBefore(defs, svg.firstChild);
+  }
+}
+
+/**
  * Draw a coordinate system with X and Y arrows
  * @param svg - The SVG element to draw into
  * @param originX - X coordinate of the origin
@@ -201,6 +225,9 @@ export function coordinateSystemArrows(
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("data-coordinate-system", "true");
 
+  // Ensure arrowhead marker exists
+  ensureArrowheadMarker(svg, strokeColor);
+
   // Draw X axis arrow (pointing right)
   const xArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
   xArrow.setAttribute("x1", originX.toString());
@@ -209,7 +236,7 @@ export function coordinateSystemArrows(
   xArrow.setAttribute("y2", originY.toString());
   xArrow.setAttribute("stroke", strokeColor);
   xArrow.setAttribute("stroke-width", strokeWidth.toString());
-  xArrow.setAttribute("marker-end", "url(#arrowhead)");
+  xArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
   group.appendChild(xArrow);
 
   // Draw Y axis arrow (pointing up - in SVG, this is negative Y direction)
@@ -220,27 +247,8 @@ export function coordinateSystemArrows(
   yArrow.setAttribute("y2", (originY - arrowLength).toString());
   yArrow.setAttribute("stroke", strokeColor);
   yArrow.setAttribute("stroke-width", strokeWidth.toString());
-  yArrow.setAttribute("marker-end", "url(#arrowhead)");
+  yArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
   group.appendChild(yArrow);
-
-  // Add arrowhead marker definition if it doesn't exist
-  let arrowhead = svg.querySelector("#arrowhead");
-  if (!arrowhead) {
-    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-    arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "marker");
-    arrowhead.setAttribute("id", "arrowhead");
-    arrowhead.setAttribute("markerWidth", "10");
-    arrowhead.setAttribute("markerHeight", "7");
-    arrowhead.setAttribute("refX", "9");
-    arrowhead.setAttribute("refY", "3.5");
-    arrowhead.setAttribute("orient", "auto");
-    const arrowPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-    arrowPolygon.setAttribute("points", "0 0, 10 3.5, 0 7");
-    arrowPolygon.setAttribute("fill", strokeColor);
-    arrowhead.appendChild(arrowPolygon);
-    defs.appendChild(arrowhead);
-    svg.insertBefore(defs, svg.firstChild);
-  }
 
   svg.appendChild(group);
   return group;
