@@ -29,6 +29,7 @@
 - Tests (geometry only): `cd packages/geometry && pnpm test`
 - Tests (app2 only): `cd app2 && pnpm test`
 - E2E tests (Playwright): `cd app2 && pnpm exec playwright install --with-deps` (setup), then `pnpm test:e2e`; headed: `pnpm test:e2e:headed`
+- CI workflows: `.github/workflows/`
 
 ## Agent Instructions
 

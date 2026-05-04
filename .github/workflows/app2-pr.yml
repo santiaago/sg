@@ -1,0 +1,43 @@
+name: app2 PR Checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app2/**'
+      - 'packages/geometry/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+
+jobs:
+  app2-checks:
+    name: app2 Lint, Format, Type-Check, and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm fmt:check
+
+      - name: Type-check app2
+        run: pnpm type-check:app2
+
+      - name: Test app2
+        run: cd app2 && pnpm test
