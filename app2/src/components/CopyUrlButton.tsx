@@ -27,9 +27,10 @@ export function CopyUrlButton(): JSX.Element {
       onClick={copyUrlToClipboard}
       className="ml-2 px-3 py-1 bg-gray-800 text-white text-sm rounded hover:bg-gray-700 transition-colors relative"
       title="Copy URL to clipboard"
+      data-testid="copy-url-btn"
     >
       {copied ? (
-        <span className="flex items-center">
+        <span className="flex items-center" data-testid="copy-feedback">
           <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
             <path
               fillRule="evenodd"
