@@ -15,11 +15,11 @@ This phase adds advanced features to the geometry framework that enhance its usa
 
 By the end of this phase, we will have:
 
-1. ✅ Undo/redo support in Construction
-2. ✅ Construction serialization and deserialization (JSON)
-3. ✅ Parameter slider integration
-4. ✅ Construction validation (pre-flight checks)
-5. ✅ Additional test constructions (triangle, hexagon, etc.)
+1. [ ] Undo/redo support in Construction
+2. [ ] Construction serialization and deserialization (JSON)
+3. [ ] Parameter slider integration
+4. [ ] Construction validation (pre-flight checks)
+5. [ ] Additional test constructions (triangle, hexagon, etc.)
 
 ---
 

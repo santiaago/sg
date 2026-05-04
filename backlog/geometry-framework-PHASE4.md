@@ -15,12 +15,12 @@ This phase creates the first component using the new geometry framework: **Squar
 
 By the end of this phase, we will have:
 
-1. ✅ SquaresV2 component that uses Construction and SvgRenderer
-2. ✅ All 16 square construction steps implemented using the new DSL
-3. ✅ Step navigation working
-4. ✅ Responsive sizing
-5. ✅ Error handling
-6. ✅ Tests for the component
+1. [ ] SquaresV2 component that uses Construction and SvgRenderer
+2. [ ] All 16 square construction steps implemented using the new DSL
+3. [ ] Step navigation working
+4. [ ] Responsive sizing
+5. [ ] Error handling
+6. [ ] Tests for the component
 
 ---
 
