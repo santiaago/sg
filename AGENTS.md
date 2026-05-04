@@ -31,18 +31,10 @@
 - E2E tests (Playwright): `cd app2 && pnpm exec playwright install --with-deps` (setup), then `pnpm test:e2e`; headed: `pnpm test:e2e:headed`
 - CI workflows: `.github/workflows/` (GitHub Actions; app2 PR workflow runs lint, format check, type-check, build, and tests on PR to main)
 
-- When user says "check app": run `pnpm lint && pnpm fmt:check && pnpm type-check && pnpm test` to verify lint, format, TypeScript, and tests. Verify exit code is 0 and no warnings are present.
-- For E2E test files, use scope `app2/e2e` in commit messages (e.g., `test(app2/e2e): add navigation tests`)
->>>>>>> 46a86b3 (docs(AGENTS.md): add E2E test scope guidance)
-=======
-## Agent Instructions
-
 - When user says "check app": run `pnpm lint && pnpm fmt:check && pnpm type-check && pnpm test && pnpm test:e2e` to verify lint, format, TypeScript, tests, and e2e. Verify exit code is 0 and no warnings are present.
 - For E2E test files, use scope `app2/e2e` in commit messages (e.g., `test(app2/e2e): add navigation tests`)
-=======
-- When user says "check app": run `pnpm lint && pnpm fmt:check && pnpm type-check && pnpm test` to verify lint, format, TypeScript, and tests. Verify exit code is 0 and no warnings are present.
-- For E2E test files, use scope `app2/e2e` in commit messages (e.g., `test(app2/e2e): add navigation tests`)
->>>>>>> 46a86b3 (docs(AGENTS.md): add E2E test scope guidance)
+
+## Agent Instructions
 
 ## Commit Guidelines
 
