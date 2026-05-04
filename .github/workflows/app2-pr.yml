@@ -1,4 +1,4 @@
-name: app2 PR Checks
+name: app2 PR
 
 on:
   pull_request:
@@ -10,16 +10,23 @@ on:
       - 'package.json'
       - 'pnpm-workspace.yaml'
 
+concurrency:
+  group: app2-pr-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   app2-checks:
-    name: app2 Lint, Format, Type-Check, and Test
+    name: checks
     runs-on: ubuntu-latest
+    fail-fast: true
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@06ddcef885368607f67598454508c82944308d2d # v4.1.0
         with:
           node-version: '20'
           cache: 'pnpm'
@@ -30,14 +37,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build
+        run: pnpm build:packages
+
       - name: Lint
         run: pnpm lint
 
       - name: Format check
         run: pnpm fmt:check
 
-      - name: Type-check app2
+      - name: Type-check
         run: pnpm type-check:app2
 
-      - name: Test app2
+      - name: Test
         run: cd app2 && pnpm test
