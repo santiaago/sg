@@ -29,11 +29,11 @@ export function constructionToSteps(construction: Construction): Step[] {
       outputs: [internalStep.id],
       parameters: [], // Construction doesn't have parameterized steps yet
 
-      compute: (inputs: Map<string, GeometryValue>, config: SquareConfig) => {
+      compute: (_inputs: Map<string, GeometryValue>, _config: SquareConfig) => {
         // NOTE: Construction uses EAGER evaluation
         // Values are pre-computed and stored in Construction._values Map
         // internalStep.compute() returns the already-computed value
-        // The `inputs` parameter is NOT used (values don't depend on step inputs)
+        // The parameters are NOT used (values don't depend on step inputs)
         // This is intentional: Construction is a builder, not a lazy DAG
 
         const value = internalStep.compute();
@@ -41,10 +41,10 @@ export function constructionToSteps(construction: Construction): Step[] {
       },
 
       draw: (
-        svg: SVGSVGElement,
-        values: Map<string, GeometryValue>,
-        store: GeometryStore,
-        theme: Theme,
+        _svg: SVGSVGElement,
+        _values: Map<string, GeometryValue>,
+        _store: GeometryStore,
+        _theme: Theme,
       ) => {
         // Drawing is handled by SvgRenderer, not here
         // This adapter bridges to Step[] for compatibility; use SvgRenderer.drawConstruction() instead
