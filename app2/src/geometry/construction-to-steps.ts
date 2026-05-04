@@ -5,7 +5,7 @@
  * Bridges the new Construction DSL to the existing step-based infrastructure.
  */
 
-import type { Step, GeometryValue, SquareConfig } from "../types/geometry";
+import type { Step, GeometryValue } from "../types/geometry";
 import type { GeometryStore } from "../react-store";
 import type { Theme } from "../themes";
 import { Construction } from "./construction";
@@ -29,7 +29,7 @@ export function constructionToSteps(construction: Construction): Step[] {
       outputs: [internalStep.id],
       parameters: [], // Construction doesn't have parameterized steps yet
 
-      compute: (_inputs: Map<string, GeometryValue>, _config: SquareConfig) => {
+      compute: (_inputs: Map<string, GeometryValue>, _config: unknown) => {
         // NOTE: Construction uses EAGER evaluation
         // Values are pre-computed and stored in Construction._values Map
         // internalStep.compute() returns the already-computed value
