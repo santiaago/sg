@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
-import { goToSection, goToStep, selectGeometry, waitForPageLoad, getGeometryCount } from './utils';
+import { goToSection, goToStep } from './utils/navigation';
+import { selectGeometry, waitForPageLoad, getGeometryCount } from './utils/helpers';
 
 /**
  * Input Highlighting Tests
@@ -79,27 +80,21 @@ test.describe('Input Highlighting', () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Go to a step where geometries have dependencies
-      for (let i = 0; i < 10; i++) {
-        await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
-      }
+      await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count < 2) {
-        test.skip();
-        return;
-      }
+      // Ensure we have enough items for this test
+      await expect(count).toBeGreaterThanOrEqual(2);
 
       // Select a geometry that has dependencies
       const itemWithDeps = items.nth(Math.min(5, count - 1));
       const itemText = await itemWithDeps.textContent();
 
-      if (!itemText) {
-        test.skip();
-        return;
-      }
+      // Ensure item has text content
+      await expect(itemText).toBeTruthy();
 
       const name = itemText.split('|')[0].trim();
 
@@ -119,18 +114,14 @@ test.describe('Input Highlighting', () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Go to a step where geometries have dependencies
-      for (let i = 0; i < 10; i++) {
-        await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
-      }
+      await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count < 2) {
-        test.skip();
-        return;
-      }
+      // Ensure we have enough items for this test
+      await expect(count).toBeGreaterThanOrEqual(2);
 
       // Select a geometry
       const item = items.nth(Math.min(5, count - 1));
@@ -140,10 +131,8 @@ test.describe('Input Highlighting', () => {
       const orangeItemsBefore = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
       const orangeCountBefore = await orangeItemsBefore.count();
 
-      if (orangeCountBefore === 0) {
-        test.skip();
-        return;
-      }
+      // Ensure we have orange highlights to test clearing
+      await expect(orangeCountBefore).toBeGreaterThan(0);
 
       // Deselect the geometry
       await item.click();
@@ -159,18 +148,14 @@ test.describe('Input Highlighting', () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Go to a step with various dependency types
-      for (let i = 0; i < 20; i++) {
-        await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
-      }
+      await goToStep(page, SECTION_SIXFOLD_V0, 20);
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count < 5) {
-        test.skip();
-        return;
-      }
+      // Ensure we have enough items for this test
+      await expect(count).toBeGreaterThanOrEqual(5);
 
       // Select a geometry with multiple dependency types
       const item = items.nth(5);
@@ -189,18 +174,14 @@ test.describe('Input Highlighting', () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Go to a step with dependencies
-      for (let i = 0; i < 10; i++) {
-        await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
-      }
+      await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count < 2) {
-        test.skip();
-        return;
-      }
+      // Ensure we have enough items for this test
+      await expect(count).toBeGreaterThanOrEqual(2);
 
       // Select a geometry
       const item = items.nth(Math.min(5, count - 1));
@@ -210,10 +191,8 @@ test.describe('Input Highlighting', () => {
       const orangeItemsBefore = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
       const orangeCountBefore = await orangeItemsBefore.count();
 
-      if (orangeCountBefore === 0) {
-        test.skip();
-        return;
-      }
+      // Ensure we have orange highlights to test clearing
+      await expect(orangeCountBefore).toBeGreaterThan(0);
 
       // Toggle inputs off
       const inputsButton = page.getByRole('button', { name: 'inputs' });
@@ -230,18 +209,14 @@ test.describe('Input Highlighting', () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Go to a step with dependencies
-      for (let i = 0; i < 10; i++) {
-        await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
-      }
+      await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count < 2) {
-        test.skip();
-        return;
-      }
+      // Ensure we have enough items for this test
+      await expect(count).toBeGreaterThanOrEqual(2);
 
       // Select a geometry
       const item = items.nth(Math.min(5, count - 1));
@@ -251,6 +226,7 @@ test.describe('Input Highlighting', () => {
       const orangeItems = geometryList.locator('li').filter({ hasText: /text-orange-400/ });
       const orangeCount = await orangeItems.count();
 
+      // Only check if we have orange items
       if (orangeCount > 0) {
         const firstOrange = orangeItems.first();
         const classList = await firstOrange.getAttribute('class');
@@ -264,9 +240,7 @@ test.describe('Input Highlighting', () => {
       await goToSection(page, SECTION_SQUARE);
 
       // Go to a step with dependencies
-      for (let i = 0; i < 10; i++) {
-        await page.locator('#square').getByRole('button', { name: 'next' }).click();
-      }
+      await goToStep(page, SECTION_SQUARE, 10);
 
       const inputsButton = page.getByRole('button', { name: 'inputs' });
       await expect(inputsButton).toBeVisible();

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0, SQUARE_GEOMETRY } from './fixtures';
-import { goToSection, goToStep, selectGeometry, waitForPageLoad, getGeometryCount } from './utils';
+import { goToSection, goToStep } from './utils/navigation';
+import { selectGeometry, waitForPageLoad, getGeometryCount } from './utils/helpers';
 
 /**
  * Geometry Details Panel Tests
@@ -22,10 +23,8 @@ test.describe('Geometry Details Panel', () => {
       const firstItem = geometryList.locator('li').first();
       const itemText = await firstItem.textContent();
 
-      if (!itemText) {
-        test.skip();
-        return;
-      }
+      // Ensure item has text content
+      await expect(itemText).toBeTruthy();
 
       const name = itemText.split('|')[0].trim();
 
@@ -43,10 +42,8 @@ test.describe('Geometry Details Panel', () => {
       const firstItem = geometryList.locator('li').first();
       const itemText = await firstItem.textContent();
 
-      if (!itemText) {
-        test.skip();
-        return;
-      }
+      // Ensure item has text content
+      await expect(itemText).toBeTruthy();
 
       const name = itemText.split('|')[0].trim();
 
@@ -65,10 +62,8 @@ test.describe('Geometry Details Panel', () => {
       const firstItem = geometryList.locator('li').first();
       const itemText = await firstItem.textContent();
 
-      if (!itemText) {
-        test.skip();
-        return;
-      }
+      // Ensure item has text content
+      await expect(itemText).toBeTruthy();
 
       // Extract name and type from "name | type" format
       const [name, type] = itemText.split('|').map(s => s.trim());
@@ -102,18 +97,14 @@ test.describe('Geometry Details Panel', () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Go to a later step where dependencies exist
-      for (let i = 0; i < 10; i++) {
-        await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
-      }
+      await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count === 0) {
-        test.skip();
-        return;
-      }
+      // Ensure we have items to test
+      await expect(count).toBeGreaterThan(0);
 
       // Find an item that has dependencies (not the first ones)
       const itemWithDeps = items.nth(Math.min(5, count - 1));
@@ -136,10 +127,8 @@ test.describe('Geometry Details Panel', () => {
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count === 0) {
-        test.skip();
-        return;
-      }
+      // Ensure we have items to test
+      await expect(count).toBeGreaterThan(0);
 
       // Select a geometry
       await items.first().click();
@@ -153,18 +142,14 @@ test.describe('Geometry Details Panel', () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Go to a step where outputs exist
-      for (let i = 0; i < 10; i++) {
-        await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
-      }
+      await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count === 0) {
-        test.skip();
-        return;
-      }
+      // Ensure we have items to test
+      await expect(count).toBeGreaterThan(0);
 
       // Select a geometry
       await items.first().click();
@@ -231,18 +216,14 @@ test.describe('Geometry Details Panel', () => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       // Go to a later step
-      for (let i = 0; i < 10; i++) {
-        await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
-      }
+      await goToStep(page, SECTION_SIXFOLD_V0, 10);
 
       const geometryList = page.locator('.geometry-list');
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count === 0) {
-        test.skip();
-        return;
-      }
+      // Ensure we have items to test
+      await expect(count).toBeGreaterThan(0);
 
       // Select a geometry
       await items.first().click();
@@ -250,12 +231,11 @@ test.describe('Geometry Details Panel', () => {
       // Find the step ID link
       const stepLink = page.getByText(/Created by step: step_\w+/);
       
-      if (await stepLink.isVisible()) {
-        // Note: The step ID is currently not clickable in the app
-        // This test documents the expected behavior
-        // The app shows the step ID but doesn't make it clickable yet
-        await expect(stepLink).toBeVisible();
-      }
+      // Note: The step ID is currently not clickable in the app
+      // This test documents the expected behavior
+      // The app shows the step ID but doesn't make it clickable yet
+      // Skip this test until step ID clickability is implemented
+      test.skip('Step ID is not clickable in the app yet');
     });
   });
 
@@ -267,10 +247,8 @@ test.describe('Geometry Details Panel', () => {
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count === 0) {
-        test.skip();
-        return;
-      }
+      // Ensure we have items to test
+      await expect(count).toBeGreaterThan(0);
 
       // Select a geometry
       await items.first().click();

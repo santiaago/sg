@@ -3,6 +3,8 @@ import { SECTION_SQUARE, SECTION_SIXFOLD_V0, SQUARE_GEOMETRY, GEOMETRY_TYPES } f
 import {
   goToSection,
   goToStep,
+} from './utils/navigation';
+import {
   selectGeometry,
   getGeometryCount,
   filterByName,
@@ -11,7 +13,7 @@ import {
   getFilteredCountText,
   assertGeometrySelected,
   waitForPageLoad,
-} from './utils';
+} from './utils/helpers';
 
 /**
  * Geometry List Tests
@@ -34,10 +36,8 @@ test.describe('Geometry List', () => {
       const firstItem = geometryList.locator('li').first();
       const itemText = await firstItem.textContent();
       
-      if (!itemText) {
-        test.skip();
-        return;
-      }
+      // Ensure item has text content
+      await expect(itemText).toBeTruthy();
 
       // Extract the geometry name (before the |)
       const name = itemText.split('|')[0].trim();
@@ -56,10 +56,8 @@ test.describe('Geometry List', () => {
       const firstItem = geometryList.locator('li').first();
       const itemText = await firstItem.textContent();
       
-      if (!itemText) {
-        test.skip();
-        return;
-      }
+      // Ensure item has text content
+      await expect(itemText).toBeTruthy();
 
       const name = itemText.split('|')[0].trim();
 
@@ -81,10 +79,8 @@ test.describe('Geometry List', () => {
       const items = geometryList.locator('li');
       const count = await items.count();
 
-      if (count < 2) {
-        test.skip();
-        return;
-      }
+      // Ensure we have enough items for this test
+      await expect(count).toBeGreaterThanOrEqual(2);
 
       const firstItem = items.first();
       const secondItem = items.nth(1);
@@ -92,10 +88,9 @@ test.describe('Geometry List', () => {
       const firstText = await firstItem.textContent();
       const secondText = await secondItem.textContent();
 
-      if (!firstText || !secondText) {
-        test.skip();
-        return;
-      }
+      // Ensure both items have text content
+      await expect(firstText).toBeTruthy();
+      await expect(secondText).toBeTruthy();
 
       const firstName = firstText.split('|')[0].trim();
       const secondName = secondText.split('|')[0].trim();
@@ -119,10 +114,8 @@ test.describe('Geometry List', () => {
       const firstItem = geometryList.locator('li').first();
       const itemText = await firstItem.textContent();
 
-      if (!itemText) {
-        test.skip();
-        return;
-      }
+      // Ensure item has text content
+      await expect(itemText).toBeTruthy();
 
       const name = itemText.split('|')[0].trim();
 

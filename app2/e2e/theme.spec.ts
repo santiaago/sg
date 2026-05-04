@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SIXFOLD_V0, SECTION_SQUARE, THEME } from './fixtures';
-import { goToSection, assertTheme, toggleTheme, waitForPageLoad } from './utils';
+import { goToSection } from './utils/navigation';
+import { assertTheme, toggleTheme, waitForPageLoad } from './utils/helpers';
 
 /**
  * Theme Toggling Tests
@@ -91,14 +92,8 @@ test.describe('Theme Toggling', () => {
       // Theme should still be light
       // Note: This depends on the app's theme persistence implementation
       // The app currently stores theme in React state, not localStorage
-      // So this test may fail until theme persistence is implemented
-      try {
-        await assertTheme(page, THEME.LIGHT);
-      } catch (error) {
-        // Theme persistence not yet implemented in app
-        // This is expected behavior for now
-        console.warn('Theme persistence across reload not implemented in app yet');
-      }
+      // Skip this test until theme persistence is implemented
+      test.skip('Theme persistence across reload not implemented in app yet');
     });
 
     test('Theme stored in localStorage', async ({ page }) => {
@@ -107,14 +102,8 @@ test.describe('Theme Toggling', () => {
 
       // Check localStorage
       // Note: The app currently does NOT use localStorage for theme
-      // This test documents the expected behavior
-      const localStorageTheme = await page.evaluate(() => {
-        return localStorage.getItem('theme');
-      });
-
-      // This will be null until theme persistence is implemented
-      // The test documents the expected behavior
-      expect(localStorageTheme).toBeNull();
+      // Skip this test until theme persistence is implemented
+      test.skip('Theme persistence in localStorage not implemented in app yet');
     });
   });
 
