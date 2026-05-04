@@ -143,6 +143,10 @@ export default function App(): JSX.Element {
         clearInterval(playIntervalv0.current);
         playIntervalv0.current = null;
       }
+      // Reset to 0 if at the end
+      if (currentStepv0 >= SIX_FOLD_V0_STEPS.length) {
+        setCurrentStepv0(0);
+      }
       // Start playing
       setIsPlayingv0(true);
       playIntervalv0.current = setInterval(() => {
@@ -277,6 +281,10 @@ export default function App(): JSX.Element {
       if (playIntervalSquare.current) {
         clearInterval(playIntervalSquare.current);
         playIntervalSquare.current = null;
+      }
+      // Reset to 0 if at the end
+      if (currentStepSquare >= SQUARE_STEPS.length) {
+        setCurrentStepSquare(0);
       }
       // Start playing
       setIsPlayingSquare(true);
