@@ -138,6 +138,11 @@ export default function App(): JSX.Element {
       }
       setIsPlayingv0(false);
     } else {
+      // Clear any existing interval first to prevent race condition
+      if (playIntervalv0.current) {
+        clearInterval(playIntervalv0.current);
+        playIntervalv0.current = null;
+      }
       // Start playing
       setIsPlayingv0(true);
       playIntervalv0.current = setInterval(() => {
@@ -268,6 +273,11 @@ export default function App(): JSX.Element {
       }
       setIsPlayingSquare(false);
     } else {
+      // Clear any existing interval first to prevent race condition
+      if (playIntervalSquare.current) {
+        clearInterval(playIntervalSquare.current);
+        playIntervalSquare.current = null;
+      }
       // Start playing
       setIsPlayingSquare(true);
       playIntervalSquare.current = setInterval(() => {
