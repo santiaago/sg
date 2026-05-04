@@ -80,7 +80,7 @@ const STEP_COORDINATE_SYSTEM: Step<SquareConfig> = {
   compute: computeSingle(GEOM.COORDINATE_SYSTEM, (_inputs, params) => {
     // Place coordinate system at SVG origin (0, 0) = top-left corner.
     // SVG coordinate system: X increases right (east), Y increases down (south).
-    const arrowLength = params.height / 3;
+    const arrowLength = params.height / 24;
     return coordinateSystem(0, 0, arrowLength);
   }),
 

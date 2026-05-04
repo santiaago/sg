@@ -42,7 +42,7 @@ const STEP_0: SixFoldV0Step = {
   compute: computeSingle(GEOM.COORDINATE_SYSTEM, (_inputs, config) => {
     // Place coordinate system at SVG origin (0, 0) = top-left corner.
     // SVG coordinate system: X increases right (east), Y increases down (south).
-    const arrowLength = config.height / 3;
+    const arrowLength = config.height / 24;
     return coordinateSystem(0, 0, arrowLength);
   }),
   draw: (svg, values, store, theme) => {
@@ -50,7 +50,7 @@ const STEP_0: SixFoldV0Step = {
       svg,
       values,
       GEOM.COORDINATE_SYSTEM,
-      0.5,
+      1.0,
       store,
       theme,
       theme.COLOR_PRIMARY,

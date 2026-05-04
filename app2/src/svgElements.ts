@@ -28,7 +28,7 @@ export const DEFAULT_STROKE_WIDTH = 5;
 // Arrowhead marker constants
 const ARROWHEAD_MARKER_WIDTH = 10;
 const ARROWHEAD_MARKER_HEIGHT = 7;
-const ARROWHEAD_REF_X = 9;
+const ARROWHEAD_REF_X = 10;
 const ARROWHEAD_REF_Y = 3.5;
 
 // Extend SVG element types to include custom tooltip properties
@@ -111,16 +111,14 @@ export function rect(
 }
 
 /**
- * Clears all geometry elements from SVG while preserving the background rectangle and coordinate system.
+ * Clears all geometry elements from SVG while preserving the background rectangle.
+ * Coordinate system is cleared along with other geometry to allow proper redrawing.
  * Used to avoid recreating the background on every step change.
  */
 export function clearGeometryFromSvg(svg: SVGSVGElement): void {
   const children = Array.from(svg.children);
   for (const child of children) {
-    if (
-      child.getAttribute("data-background") !== "true" &&
-      child.getAttribute("data-coordinate-system") !== "true"
-    ) {
+    if (child.getAttribute("data-background") !== "true") {
       svg.removeChild(child);
     }
   }
@@ -222,8 +220,12 @@ function ensureArrowheadMarker(svg: SVGSVGElement, strokeColor: string): void {
   }
 }
 
+// Offset for axis labels from arrow endpoints
+const AXIS_LABEL_OFFSET = 8;
+const AXIS_LABEL_FONT_SIZE = 8;
+
 /**
- * Draw a coordinate system with X and Y arrows
+ * Draw a coordinate system with X and Y arrows and axis labels
  * @param svg - The SVG element to draw into
  * @param x - X coordinate of the origin
  * @param y - Y coordinate of the origin
@@ -256,7 +258,20 @@ export function coordinateSystemArrows(
   xArrow.setAttribute("stroke-width", strokeWidth.toString());
   xArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
   xArrow.setAttribute("data-cs-arrow", "true");
+  xArrow.setAttribute("data-original-stroke", strokeColor);
   group.appendChild(xArrow);
+
+  // X axis label - positioned below the X arrow line
+  const xLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  xLabel.setAttribute("x", (x + arrowLength + AXIS_LABEL_OFFSET).toString());
+  xLabel.setAttribute("y", (y + AXIS_LABEL_FONT_SIZE * 1.5).toString());
+  xLabel.setAttribute("font-size", AXIS_LABEL_FONT_SIZE.toString());
+  xLabel.setAttribute("fill", strokeColor);
+  xLabel.setAttribute("text-anchor", "middle");
+  xLabel.setAttribute("dominant-baseline", "middle");
+  xLabel.setAttribute("data-cs-label", "true");
+  xLabel.textContent = "X";
+  group.appendChild(xLabel);
 
   // Draw Y axis arrow (pointing down/south - positive Y direction in SVG)
   const yArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -268,7 +283,20 @@ export function coordinateSystemArrows(
   yArrow.setAttribute("stroke-width", strokeWidth.toString());
   yArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
   yArrow.setAttribute("data-cs-arrow", "true");
+  yArrow.setAttribute("data-original-stroke", strokeColor);
   group.appendChild(yArrow);
+
+  // Y axis label - positioned to the right of the Y arrow line
+  const yLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  yLabel.setAttribute("x", (x + AXIS_LABEL_OFFSET).toString());
+  yLabel.setAttribute("y", (y + arrowLength + AXIS_LABEL_FONT_SIZE / 2).toString());
+  yLabel.setAttribute("font-size", AXIS_LABEL_FONT_SIZE.toString());
+  yLabel.setAttribute("fill", strokeColor);
+  yLabel.setAttribute("text-anchor", "middle");
+  yLabel.setAttribute("dominant-baseline", "middle");
+  yLabel.setAttribute("data-cs-label", "true");
+  yLabel.textContent = "Y";
+  group.appendChild(yLabel);
 
   svg.appendChild(group);
   return group;
@@ -471,10 +499,11 @@ export function drawCoordinateSystem(
 
   const group = coordinateSystemArrows(svg, cs.x, cs.y, cs.arrowLength, strokeWidth, strokeColor);
 
-  // Add tooltip to the group
+  // Add tooltip to the group - positioned diagonally from origin to stay within canvas
   group.style.cursor = "pointer";
-  const tooltipX = cs.x + cs.arrowLength + TOOLTIP_OFFSET_X;
-  const tooltipY = cs.y;
+  // Place tooltip at a visible position: offset diagonally from origin, lower to avoid being cut off
+  const tooltipX = cs.x + cs.arrowLength / 2 + TOOLTIP_OFFSET_X * 4;
+  const tooltipY = cs.y + cs.arrowLength + TOOLTIP_OFFSET_Y + AXIS_LABEL_FONT_SIZE;
   const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, geomId, 15, theme);
 
   // Store tooltip references on the group
