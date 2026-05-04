@@ -70,7 +70,10 @@ export const SixFoldV0Svg = forwardRef(function SixFoldV0Svg(
       console.warn("SixFoldV0Svg: svgConfig.width should be positive, received:", svgConfig.width);
     }
     if (svgConfig.height <= 0) {
-      console.warn("SixFoldV0Svg: svgConfig.height should be positive, received:", svgConfig.height);
+      console.warn(
+        "SixFoldV0Svg: svgConfig.height should be positive, received:",
+        svgConfig.height,
+      );
     }
     if (!theme || typeof theme !== "object") {
       console.warn("SixFoldV0Svg: theme should be a valid Theme object, received:", theme);
@@ -130,7 +133,5 @@ export const SixFoldV0Svg = forwardRef(function SixFoldV0Svg(
     }
   }, [currentStep, restartTrigger, svgConfig, theme, config, dotStrokeWidth, shouldClear]);
 
-  return (
-    <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="sixfoldv0-svg" />
-  );
+  return <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="sixfoldv0-svg" />;
 });

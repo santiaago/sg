@@ -19,7 +19,13 @@ interface GeometryListProps {
   availableTypes: ReadonlyArray<GeometryType>;
 }
 
-const DEFAULT_TYPES: ReadonlyArray<GeometryType> = ["point", "line", "circle", "polygon"] as const;
+const DEFAULT_TYPES: ReadonlyArray<GeometryType> = [
+  "point",
+  "line",
+  "circle",
+  "polygon",
+  "coordinate_system",
+] as const;
 
 export function GeometryList({
   store,

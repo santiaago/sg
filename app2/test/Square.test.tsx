@@ -4,6 +4,7 @@ import { SquareSvg, SQUARE_STEPS } from "../src/components/SquareSvg";
 import { useGeometryStoreSquare } from "../src/react-store";
 import { standardSvgConfig } from "../src/config/svgConfig";
 import { darkTheme, lightTheme } from "../src/themes";
+import { GEOM } from "../src/geometry/operations";
 import type { GeometryStore, GeometryItem } from "../src/react-store";
 
 /**
@@ -289,22 +290,21 @@ describe("SquareSvg Component - Metadata Population", () => {
     expect(hasParams).toBe(true);
   });
 
-  it("populates correct parameters for step_main_line", () => {
+  it("populates correct parameters for step_p1", () => {
     const mockStore = createStoreWithTracking();
 
-    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
+    // step_p1 is at index 1, so currentStep=2 executes steps 0 and 1
+    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={2} />);
 
     const updateCalls = mockStore.getUpdateCalls();
 
-    const mainLineUpdate = updateCalls.find(
-      (c) => c.data.stepId === "step_main_line" && c.key === "line_main",
-    );
+    const p1Update = updateCalls.find((c) => c.data.stepId === "step_p1" && c.key === GEOM.P1);
 
-    expect(mainLineUpdate).toBeDefined();
-    expect(mainLineUpdate!.data.parameterValues).toBeDefined();
+    expect(p1Update).toBeDefined();
+    expect(p1Update!.data.parameterValues).toBeDefined();
 
-    const expectedParams = ["lx1", "ly1", "lx2", "ly2"];
-    const paramKeys = Object.keys(mainLineUpdate!.data.parameterValues || {});
+    const expectedParams = ["p1x", "p1y"];
+    const paramKeys = Object.keys(p1Update!.data.parameterValues || {});
 
     for (const param of expectedParams) {
       expect(paramKeys).toContain(param);
@@ -336,16 +336,18 @@ describe("SquareSvg Component - Metadata Population", () => {
   it("handles steps with multiple parameters", () => {
     const mockStore = createStoreWithTracking();
 
-    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
+    // Execute up to step 1 (currentStep=2 executes steps 0 and 1)
+    // step_coordinate_system (index 0) has 2 parameters: border, height
+    render(<SquareSvg {...defaultProps} store={mockStore} currentStep={2} />);
 
     const updateCalls = mockStore.getUpdateCalls();
 
-    const mainLineUpdate = updateCalls.find(
-      (c) => c.data.stepId === "step_main_line" && c.key === "line_main",
+    const csUpdate = updateCalls.find(
+      (c) => c.data.stepId === "step_coordinate_system" && c.key === GEOM.COORDINATE_SYSTEM,
     );
 
-    expect(mainLineUpdate).toBeDefined();
-    const paramCount = Object.keys(mainLineUpdate!.data.parameterValues || {}).length;
+    expect(csUpdate).toBeDefined();
+    const paramCount = Object.keys(csUpdate!.data.parameterValues || {}).length;
     expect(paramCount).toBeGreaterThan(1);
   });
 
@@ -382,7 +384,9 @@ describe("SquareSvg Component - Theme Change Tests", () => {
   it("should clear store when theme changes from dark to light", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />);
+    const { rerender } = render(
+      <SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />,
+    );
 
     mockStore.clear.mockClear();
 
@@ -394,7 +398,9 @@ describe("SquareSvg Component - Theme Change Tests", () => {
   it("should clear store when theme changes from light to dark", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} theme={lightTheme} />);
+    const { rerender } = render(
+      <SquareSvg {...defaultProps} store={mockStore} theme={lightTheme} />,
+    );
 
     mockStore.clear.mockClear();
 
@@ -406,7 +412,9 @@ describe("SquareSvg Component - Theme Change Tests", () => {
   it("should NOT clear store when theme stays the same", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />);
+    const { rerender } = render(
+      <SquareSvg {...defaultProps} store={mockStore} theme={darkTheme} />,
+    );
 
     mockStore.clear.mockClear();
 

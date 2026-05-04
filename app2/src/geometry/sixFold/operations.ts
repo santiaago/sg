@@ -18,6 +18,7 @@ export const CUT_LINE_BY = 8;
 
 // Geometry ID constants
 export const GEOM = {
+  COORDINATE_SYSTEM: "cs",
   LINE1: "line1",
   P1: "p1",
   P2: "p2",

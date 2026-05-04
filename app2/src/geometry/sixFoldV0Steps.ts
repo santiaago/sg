@@ -4,10 +4,19 @@
  */
 
 import type { GeometryValue } from "../types/geometry";
-import { point, line, circle, isPoint, isLine, isCircle } from "../types/geometry";
+import {
+  point,
+  line,
+  circle,
+  isPoint,
+  isLine,
+  isCircle,
+  isCoordinateSystem,
+  coordinateSystem,
+} from "../types/geometry";
 import { directions, lineIntersect } from "@sg/geometry";
 import type { StepExecutionContext } from "../types/geometry";
-import { drawPoint, drawLine, drawCircle } from "../svgElements";
+import { drawPoint, drawLine, drawCircle, drawCoordinateSystem } from "../svgElements";
 import { getGeometry, GEOM, computeSingle } from "./sixFold/operations";
 import type { SixFoldV0Config, SixFoldV0Step } from "./sixFold/operations";
 import {
@@ -21,16 +30,50 @@ import {
 } from "../geometry/constructors";
 
 /**
+ * Step 0: Coordinate System
+ * Creates the coordinate system with X and Y arrows at the origin.
+ * This is the default coordinate system for the SVG.
+ */
+const STEP_0: SixFoldV0Step = {
+  id: "step0",
+  inputs: [],
+  outputs: [GEOM.COORDINATE_SYSTEM],
+  parameters: ["border", "height"],
+  compute: computeSingle(GEOM.COORDINATE_SYSTEM, (_inputs, config) => {
+    // Place coordinate system at SVG origin (0, 0) = top-left corner.
+    // SVG coordinate system: X increases right (east), Y increases down (south).
+    const arrowLength = config.height / 24;
+    return coordinateSystem(0, 0, arrowLength);
+  }),
+  draw: (svg, values, store, theme) => {
+    drawCoordinateSystem(
+      svg,
+      values,
+      GEOM.COORDINATE_SYSTEM,
+      1.0,
+      store,
+      theme,
+      theme.COLOR_PRIMARY,
+    );
+  },
+};
+
+/**
  * Step 1: Point P1
  * Creates the first endpoint point of LINE1.
  */
 const STEP_1: SixFoldV0Step = {
   id: "step1",
-  inputs: [],
+  inputs: [GEOM.COORDINATE_SYSTEM],
   outputs: [GEOM.P1],
   parameters: ["p1x", "p1y"],
-  compute: computeSingle(GEOM.P1, (_inputs, config) => {
-    return point(config.p1x, config.p1y);
+  compute: computeSingle(GEOM.P1, (inputs, config) => {
+    const cs = inputs.get(GEOM.COORDINATE_SYSTEM);
+    // Use CS origin as base, p1x/p1y are relative coordinates
+    // Since CS is at 0,0, this effectively uses config values directly
+    const x = cs && isCoordinateSystem(cs) ? cs.x + config.p1x : config.p1x;
+    const y = cs && isCoordinateSystem(cs) ? cs.y + config.p1y : config.p1y;
+    return point(x, y);
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.P1, 2.0, store, theme);
@@ -43,11 +86,15 @@ const STEP_1: SixFoldV0Step = {
  */
 const STEP_2: SixFoldV0Step = {
   id: "step2",
-  inputs: [],
+  inputs: [GEOM.COORDINATE_SYSTEM],
   outputs: [GEOM.P2],
   parameters: ["p2x", "p2y"],
-  compute: computeSingle(GEOM.P2, (_inputs, config) => {
-    return point(config.p2x, config.p2y);
+  compute: computeSingle(GEOM.P2, (inputs, config) => {
+    const cs = inputs.get(GEOM.COORDINATE_SYSTEM);
+    // Use CS origin as base, p2x/p2y are relative coordinates
+    const x = cs && isCoordinateSystem(cs) ? cs.x + config.p2x : config.p2x;
+    const y = cs && isCoordinateSystem(cs) ? cs.y + config.p2y : config.p2y;
+    return point(x, y);
   }),
   draw: (svg, values, store, theme) => {
     drawPoint(svg, values, GEOM.P2, 2.0, store, theme);
@@ -2130,6 +2177,7 @@ const STEP_93: SixFoldV0Step = {
 
 /** All steps in order */
 export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
+  STEP_0,
   STEP_1,
   STEP_2,
   STEP_3,

@@ -14,7 +14,13 @@ import { SIX_FOLD_V0_STEPS } from "./geometry/sixFoldV0Steps";
 import { lightTheme, darkTheme } from "./themes";
 import type { Theme, GeometryType } from "./types/geometry";
 
-const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = ["point", "line", "circle", "polygon"] as const;
+const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = [
+  "point",
+  "line",
+  "circle",
+  "polygon",
+  "coordinate_system",
+] as const;
 
 export default function App(): JSX.Element {
   const strokeMid = 0.5;
