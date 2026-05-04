@@ -7,6 +7,18 @@ const COLOR_HOVER_DETAILS = "cyan";
 const COLOR_SELECTED = "red";
 
 /**
+ * Apply stroke styling to coordinate system arrow child elements
+ */
+function applyToCsArrows(element: any, callback: (el: any) => void): void {
+  if (!element) return;
+  // Apply to the group itself
+  callback(element);
+  // Also apply to child arrow lines with data-cs-arrow attribute
+  const arrows = element.querySelectorAll ? element.querySelectorAll("[data-cs-arrow]") : [];
+  arrows.forEach((arrow: any) => callback(arrow));
+}
+
+/**
  * Apply orange visual feedback to SVG elements for highlighted input dependencies
  */
 export function applyInputVisualFeedback(element: any, shape: GeometryItem, scale: number): void {
@@ -16,9 +28,14 @@ export function applyInputVisualFeedback(element: any, shape: GeometryItem, scal
     if (shape.type === "point") {
       element.setAttribute("fill", COLOR_INPUT_HIGHLIGHT);
       element.setAttribute("r", scale.toString());
-    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon" || shape.type === "coordinate_system") {
+    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
       element.setAttribute("stroke", COLOR_INPUT_HIGHLIGHT);
       element.setAttribute("stroke-width", scale.toString());
+    } else if (shape.type === "coordinate_system") {
+      applyToCsArrows(element, (el: any) => {
+        el.setAttribute("stroke", COLOR_INPUT_HIGHLIGHT);
+        el.setAttribute("stroke-width", scale.toString());
+      });
     }
 
     // Show tooltip and background for highlighted inputs
@@ -43,6 +60,18 @@ export function restoreInitialState(element: any, shape: GeometryItem): void {
     if (shape.initialState) {
       Object.entries(shape.initialState).forEach(([attr, value]) => {
         element.setAttribute(attr, value);
+      });
+    }
+
+    // For coordinate system, also restore child arrow states
+    if (shape.type === "coordinate_system") {
+      const arrows = element.querySelectorAll ? element.querySelectorAll("[data-cs-arrow]") : [];
+      arrows.forEach((arrow: any) => {
+        if (shape.initialState) {
+          Object.entries(shape.initialState).forEach(([attr, value]) => {
+            arrow.setAttribute(attr, value);
+          });
+        }
       });
     }
 
@@ -104,9 +133,21 @@ export function applyVisualFeedback(element: any, shape: GeometryItem, strokeBig
         if (element.tooltipBg) {
           element.tooltipBg.setAttribute("opacity", "1");
         }
-      } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon" || shape.type === "coordinate_system") {
+      } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
         element.setAttribute("stroke-width", strokeBig.toString());
         element.setAttribute("stroke", COLOR_SELECTED);
+        // Show tooltip and background when selected
+        if (element.tooltip) {
+          element.tooltip.setAttribute("opacity", "1");
+        }
+        if (element.tooltipBg) {
+          element.tooltipBg.setAttribute("opacity", "1");
+        }
+      } else if (shape.type === "coordinate_system") {
+        applyToCsArrows(element, (el: any) => {
+          el.setAttribute("stroke-width", strokeBig.toString());
+          el.setAttribute("stroke", COLOR_SELECTED);
+        });
         // Show tooltip and background when selected
         if (element.tooltip) {
           element.tooltip.setAttribute("opacity", "1");
@@ -182,9 +223,14 @@ export function applyHoverHighlight(
     if (shape.type === "point") {
       element.setAttribute("fill", color);
       element.setAttribute("r", scale.toString());
-    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon" || shape.type === "coordinate_system") {
+    } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
       element.setAttribute("stroke", color);
       element.setAttribute("stroke-width", scale.toString());
+    } else if (shape.type === "coordinate_system") {
+      applyToCsArrows(element, (el: any) => {
+        el.setAttribute("stroke", color);
+        el.setAttribute("stroke-width", scale.toString());
+      });
     }
 
     // Show tooltip and background for hovered items
