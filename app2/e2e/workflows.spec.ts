@@ -9,13 +9,13 @@ import {
 } from './utils/navigation';
 import {
   selectGeometry,
-  toggleTheme,
   filterByName,
   clearFilters,
   toggleTypeFilter,
   waitForPageLoad,
   getGeometryCount,
 } from './utils/helpers';
+import { toggleTheme } from './utils/assertions';
 
 /**
  * Combined Workflows Tests
@@ -178,10 +178,10 @@ test.describe('Combined Workflows', () => {
         // Click << (Go to beginning) button
         await clickFirstButton(page, SECTION_SQUARE);
 
-        // Verify back at step 1
+        // Verify back at step 0 (app starts at step 0)
         currentStep = await page.locator('#square').getByText(/Current step (\d+)\/\d+/);
         stepText = await currentStep.textContent();
-        expect(stepText).toContain('1');
+        expect(stepText).toContain('0');
 
         // Verify no geometry selected
         const detailsHeader = page.getByText('Details');
@@ -213,17 +213,13 @@ test.describe('Combined Workflows', () => {
         // Verify geometry is selected
         await expect(page.getByText('Details')).toBeVisible();
 
-        // Note: SixFold v0 << button does NOT clear geometry store in the app
-        // So we need to explicitly deselect the geometry first
-        await items.first().click(); // Click again to deselect
-
-        // Click << (Go to beginning) button
+        // Click << (Go to beginning) button - clears geometry store
         await clickFirstButton(page, SECTION_SIXFOLD_V0);
 
-        // Verify back at step 1
+        // Verify back at step 0 (app starts at step 0)
         currentStep = await page.locator('#sixfold-v0').getByText(/Current step (\d+)\/\d+/);
         stepText = await currentStep.textContent();
-        expect(stepText).toContain('1');
+        expect(stepText).toContain('0');
 
         // Verify no geometry selected
         const detailsHeader = page.getByText('Details');
@@ -320,10 +316,10 @@ test.describe('Combined Workflows', () => {
         // Click << to reset
         await clickFirstButton(page, SECTION_SQUARE);
 
-        // Verify back at step 1
+        // Verify back at step 0 (app starts at step 0)
         const currentStep = await page.locator('#square').getByText(/Current step (\d+)\/\d+/);
         const stepText = await currentStep.textContent();
-        expect(stepText).toContain('1');
+        expect(stepText).toContain('0');
       }
     });
   });
