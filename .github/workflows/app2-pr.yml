@@ -1,0 +1,53 @@
+name: app2 PR
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app2/**'
+      - 'packages/geometry/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+
+concurrency:
+  group: app2-pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app2-checks:
+    name: checks
+    runs-on: ubuntu-latest
+    fail-fast: true
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build:packages
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Format check
+        run: pnpm fmt:check
+
+      - name: Type-check
+        run: pnpm type-check:app2
+
+      - name: Test
+        run: cd app2 && pnpm test
