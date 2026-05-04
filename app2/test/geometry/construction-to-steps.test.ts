@@ -8,7 +8,7 @@ describe("constructionToSteps", () => {
     const c = new Construction();
     const p1 = c.point(0, 0, "p1");
     const p2 = c.point(10, 10, "p2");
-    const _l = c.line(p1, p2, "line1");
+    c.line(p1, p2, "line1");
 
     const steps = constructionToSteps(c);
     expect(steps).toHaveLength(3);
@@ -21,7 +21,7 @@ describe("constructionToSteps", () => {
     const c = new Construction();
     const p1 = c.point(0, 0, "p1");
     const p2 = c.point(10, 10, "p2");
-    const _l = c.line(p1, p2, "line1");
+    c.line(p1, p2, "line1");
 
     const steps = constructionToSteps(c);
     const lineStep = steps.find((s) => s.id === "step_line1");
@@ -66,7 +66,7 @@ describe("constructionToSteps", () => {
     const c = new Construction();
     const p1 = c.point(0, 0, "p1");
     const p2 = c.point(10, 10, "p2");
-    const _mid = c.midpoint(p1, p2, "mid");
+    c.midpoint(p1, p2, "mid");
 
     const steps = constructionToSteps(c);
     const midStep = steps.find((s) => s.id === "step_mid");
@@ -150,7 +150,7 @@ describe("constructionToSteps with square", () => {
     const c = new Construction();
     const p1 = c.point(0, 0, "p1");
     const p2 = c.point(10, 10, "p2");
-    const _l = c.line(p1, p2, "line1");
+    c.line(p1, p2, "line1");
 
     const steps = constructionToSteps(c);
     const lineStep = steps.find((s) => s.id === "step_line1");
