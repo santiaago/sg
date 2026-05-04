@@ -50,10 +50,6 @@ export interface CoordinateSystem {
   type: "coordinate_system";
   x: number;
   y: number;
-  // Origin point
-  originX: number;
-  originY: number;
-  // Arrow lengths
   arrowLength: number;
 }
 
@@ -177,12 +173,6 @@ export function isCoordinateSystem(value: GeometryValue): value is CoordinateSys
   return value.type === "coordinate_system";
 }
 
-export function coordinateSystem(
-  x: number,
-  y: number,
-  originX: number,
-  originY: number,
-  arrowLength: number,
-): CoordinateSystem {
-  return { type: "coordinate_system", x, y, originX, originY, arrowLength };
+export function coordinateSystem(x: number, y: number, arrowLength: number): CoordinateSystem {
+  return { type: "coordinate_system", x, y, arrowLength };
 }
