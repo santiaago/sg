@@ -206,7 +206,6 @@ export default function App(): JSX.Element {
   };
 
   const handleNextClickSquare = (): void => {
-    console.log("next step", currentStepSquare, SQUARE_STEPS.length);
     // Stop playing if user manually clicks
     if (isPlayingSquare && playIntervalSquare.current) {
       clearInterval(playIntervalSquare.current);
@@ -214,13 +213,11 @@ export default function App(): JSX.Element {
       setIsPlayingSquare(false);
     }
     if (currentStepSquare < SQUARE_STEPS.length) {
-      console.log("inside");
       setCurrentStepSquare(currentStepSquare + 1);
     }
   };
 
   const handlePrevClickSquare = (): void => {
-    console.log("prev step", currentStepSquare);
     // Stop playing if user manually clicks
     if (isPlayingSquare && playIntervalSquare.current) {
       clearInterval(playIntervalSquare.current);
