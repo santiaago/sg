@@ -52,6 +52,9 @@ export default defineConfig({
 
     /* Capture video after each test failure. */
     video: "retain-on-failure",
+
+    /* Permissions needed for clipboard access in copy tests */
+    permissions: ["clipboard-read", "clipboard-write"],
   },
 
   /* Configure projects for major browsers */

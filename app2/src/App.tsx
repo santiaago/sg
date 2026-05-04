@@ -413,7 +413,12 @@ export default function App(): JSX.Element {
       </div>
 
       {/* Square Section */}
-      <div ref={sectionRefs["square"]} className="mb-8 p-8 bg-gray-900 rounded-lg" id="square" data-testid="section-square">
+      <div
+        ref={sectionRefs["square"]}
+        className="mb-8 p-8 bg-gray-900 rounded-lg"
+        id="square"
+        data-testid="section-square"
+      >
         <div className="mb-6 flex items-center">
           <h1 className="text-2xl font-semibold mb-1 text-left">Drawing a square</h1>
           <CopyUrlButton />

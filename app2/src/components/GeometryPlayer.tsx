@@ -113,6 +113,7 @@ export function GeometryPlayer({
               onChange={handleSliderChange}
               aria-label="Step navigation"
               name="step-slider"
+              data-testid="step-slider"
               className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
               style={{
                 background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,

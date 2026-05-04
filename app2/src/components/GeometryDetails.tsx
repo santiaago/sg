@@ -175,7 +175,10 @@ export function GeometryDetails({
   const outputs = getOutputs(store, selectedGeometry.stepId, steps);
 
   return (
-    <div className="mb-4 p-3 bg-slate-800 rounded border border-slate-700" data-testid="geometry-details">
+    <div
+      className="mb-4 p-3 bg-slate-800 rounded border border-slate-700"
+      data-testid="geometry-details"
+    >
       <h3 className="text-sm font-medium text-gray-200 mb-3">Details</h3>
 
       {/* Geometry Section */}

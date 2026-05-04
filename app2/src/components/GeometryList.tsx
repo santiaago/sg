@@ -131,7 +131,7 @@ export function GeometryList({
   };
 
   return (
-    <div className="geometry-list">
+    <div className="geometry-list" data-testid="geometry-list">
       <h3>Geometry Items</h3>
 
       {showNameFilter && (
