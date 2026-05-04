@@ -47,8 +47,8 @@ export function constructionToSteps(construction: Construction): Step[] {
         theme: Theme,
       ) => {
         // Drawing is handled by SvgRenderer, not here
-        // This is a placeholder to satisfy the Step interface
-        // In practice, SvgRenderer.drawConstruction() or similar should be used
+        // This adapter bridges to Step[] for compatibility; use SvgRenderer.drawConstruction() instead
+        throw new Error("Drawing not implemented: use SvgRenderer for Construction output");
       },
     };
   });
