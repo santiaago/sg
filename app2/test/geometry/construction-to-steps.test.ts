@@ -1,16 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { Construction } from "../../src/geometry/construction";
 import { constructionToSteps } from "../../src/geometry/construction-to-steps";
-import type { Point, Line, Circle, SquareConfig } from "../../src/types/geometry";
-import type { GeometryStore } from "../../src/react-store";
-import type { Theme } from "../../src/themes";
+import type { Point, Circle, SquareConfig } from "../../src/types/geometry";
 
 describe("constructionToSteps", () => {
   it("should convert Construction to Step array", () => {
     const c = new Construction();
     const p1 = c.point(0, 0, "p1");
     const p2 = c.point(10, 10, "p2");
-    const l = c.line(p1, p2, "line1");
+    const _l = c.line(p1, p2, "line1");
 
     const steps = constructionToSteps(c);
     expect(steps).toHaveLength(3);
@@ -23,7 +21,7 @@ describe("constructionToSteps", () => {
     const c = new Construction();
     const p1 = c.point(0, 0, "p1");
     const p2 = c.point(10, 10, "p2");
-    const l = c.line(p1, p2, "line1");
+    const _l = c.line(p1, p2, "line1");
 
     const steps = constructionToSteps(c);
     const lineStep = steps.find((s) => s.id === "step_line1");
@@ -35,7 +33,7 @@ describe("constructionToSteps", () => {
 
   it("should include all geometry in compute output", () => {
     const c = new Construction();
-    const p1 = c.point(0, 0, "p1");
+    c.point(0, 0, "p1");
 
     const steps = constructionToSteps(c);
     const inputMap = new Map<string, any>();
@@ -68,7 +66,7 @@ describe("constructionToSteps", () => {
     const c = new Construction();
     const p1 = c.point(0, 0, "p1");
     const p2 = c.point(10, 10, "p2");
-    const mid = c.midpoint(p1, p2, "mid");
+    const _mid = c.midpoint(p1, p2, "mid");
 
     const steps = constructionToSteps(c);
     const midStep = steps.find((s) => s.id === "step_mid");
@@ -124,7 +122,7 @@ describe("constructionToSteps with square", () => {
     const pr = c.intersection(line_c1_p3, c1_c, { exclude: p3 }, "pr");
 
     // Step 16: Final square
-    const square = c.polygon([c1, c2, pr, pl], "square");
+    c.polygon([c1, c2, pr, pl], "square");
 
     const steps = constructionToSteps(c);
     expect(steps).toHaveLength(16);
@@ -152,7 +150,7 @@ describe("constructionToSteps with square", () => {
     const c = new Construction();
     const p1 = c.point(0, 0, "p1");
     const p2 = c.point(10, 10, "p2");
-    const l = c.line(p1, p2, "line1");
+    const _l = c.line(p1, p2, "line1");
 
     const steps = constructionToSteps(c);
     const lineStep = steps.find((s) => s.id === "step_line1");
