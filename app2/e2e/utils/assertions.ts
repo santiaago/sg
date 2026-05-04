@@ -25,28 +25,26 @@ export async function assertTheme(page: Page, expected: typeof THEME.DARK | type
  * Toggle the theme
  */
 export async function toggleTheme(page: Page): Promise<void> {
-  await page.getByTitle('Toggle SVG Theme').click();
+  await page.getByTestId('theme-toggle').click();
 }
 
 /**
  * Assert geometry is selected in the store
  */
 export async function assertGeometrySelected(page: Page, name: string): Promise<void> {
-  // Check that the geometry item has the selected class (red or yellow)
-  const geometryList = page.locator('.geometry-list');
-  const item = geometryList.getByText(name, { exact: true }).first();
-  
-  await expect(item).toHaveClass(/text-(red|yellow)-400/);
+  // Check that the geometry item has aria-selected="true"
+  const item = page.locator(`[data-testid="geometry-item-${name}"]`).first();
+  await expect(item).toHaveAttribute('aria-selected', 'true');
 }
 
 /**
  * Select a geometry item from the list
  */
 export async function selectGeometry(page: Page, name: string): Promise<void> {
-  const geometryList = page.locator('.geometry-list');
-  await geometryList.getByText(name, { exact: true }).first().click();
+  const geometryList = page.locator('.geometry-list').first();
+  await geometryList.locator(`[data-testid="geometry-item-${name}"]`).first().click();
   
-  // Verify selection by checking the item has the selected class
+  // Verify selection by checking the item has aria-selected="true"
   await assertGeometrySelected(page, name);
 }
 
@@ -61,18 +59,5 @@ export async function assertSVGValid(page: Page, svg: string): Promise<void> {
       throw new Error('Invalid SVG: parse error');
     }
   }, svg);
-}
-
-/**
- * Assert clipboard contains expected text
- */
-export async function assertClipboardContains(page: Page, expected: string): Promise<void> {
-  const clipboardText = await page.evaluate(async () => {
-    return await navigator.clipboard.readText();
-  });
-  
-  if (!clipboardText.includes(expected)) {
-    throw new Error(`Expected clipboard to contain "${expected}", but got: ${clipboardText.substring(0, 100)}...`);
-  }
 }
 

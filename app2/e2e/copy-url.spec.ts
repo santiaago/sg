@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
 import { goToSection, getCurrentStep } from './utils/navigation';
-import { assertClipboardContains, waitForPageLoad } from './utils/helpers';
+import { assertClipboardContains } from './utils/clipboard';
+import { waitForPageLoad } from './utils/helpers';
 
 /**
  * Copy URL Functionality Tests
@@ -20,10 +21,10 @@ test.describe('Copy URL Functionality', () => {
     await goToSection(page, SECTION_SQUARE);
 
     // Click Copy URL button
-    await page.getByTitle('Copy URL to clipboard').click();
+    await page.getByTestId('copy-url-btn').click();
 
     // Wait for copy feedback
-    await expect(page.getByText('Copied!')).toBeVisible();
+    await expect(page.getByTestId('copy-feedback')).toBeVisible();
 
     // Get clipboard content
     const clipboardText = await page.evaluate(async () => {
@@ -42,10 +43,10 @@ test.describe('Copy URL Functionality', () => {
     const currentUrl = page.url();
 
     // Click Copy URL button
-    await page.getByTitle('Copy URL to clipboard').click();
+    await page.getByTestId('copy-url-btn').click();
 
-    // Wait for copy to complete by checking for Copied! feedback
-    await expect(page.getByText('Copied!')).toBeVisible();
+    // Wait for copy to complete by checking for feedback
+    await expect(page.getByTestId('copy-feedback')).toBeVisible();
 
     // Get clipboard content
     const clipboardText = await page.evaluate(async () => {
@@ -57,22 +58,22 @@ test.describe('Copy URL Functionality', () => {
   });
 
   test('Copy URL button shows "Copied!" feedback temporarily', async ({ page }) => {
-    const copyButton = page.getByTitle('Copy URL to clipboard');
+    const copyButton = page.getByTestId('copy-url-btn');
 
     // Click the button
     await copyButton.click();
 
-    // Verify "Copied!" feedback is visible
-    await expect(page.getByText('Copied!')).toBeVisible();
+    // Verify feedback is visible
+    await expect(page.getByTestId('copy-feedback')).toBeVisible();
 
     // Wait for feedback to disappear
-    await expect(page.getByText('Copied!')).not.toBeVisible({ timeout: 3000 });
+    await expect(page.getByTestId('copy-feedback')).not.toBeVisible({ timeout: 3000 });
   });
 
   test('Copy URL works from Square section', async ({ page }) => {
     await goToSection(page, SECTION_SQUARE);
 
-    await page.getByTitle('Copy URL to clipboard').click();
+    await page.getByTestId('copy-url-btn').click();
 
     await assertClipboardContains(page, 'square');
   });
@@ -80,7 +81,7 @@ test.describe('Copy URL Functionality', () => {
   test('Copy URL works from SixFold v0 section', async ({ page }) => {
     await goToSection(page, SECTION_SIXFOLD_V0);
 
-    await page.getByTitle('Copy URL to clipboard').click();
+    await page.getByTestId('copy-url-btn').click();
 
     await assertClipboardContains(page, 'sixfold-v0');
   });
@@ -88,7 +89,7 @@ test.describe('Copy URL Functionality', () => {
   test('Copied URL includes section hash', async ({ page }) => {
     await goToSection(page, SECTION_SQUARE);
 
-    await page.getByTitle('Copy URL to clipboard').click();
+    await page.getByTestId('copy-url-btn').click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
@@ -102,7 +103,7 @@ test.describe('Copy URL Functionality', () => {
     // This test documents the expected behavior
     await goToSection(page, SECTION_SQUARE);
 
-    await page.getByTitle('Copy URL to clipboard').click();
+    await page.getByTestId('copy-url-btn').click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
@@ -116,22 +117,22 @@ test.describe('Copy URL Functionality', () => {
   test('Copy URL button is visible in both sections', async ({ page }) => {
     // Check SixFold v0 section
     await goToSection(page, SECTION_SIXFOLD_V0);
-    await expect(page.getByTitle('Copy URL to clipboard')).toBeVisible();
+    await expect(page.getByTestId('copy-url-btn')).toBeVisible();
 
     // Check Square section
     await goToSection(page, SECTION_SQUARE);
-    await expect(page.getByTitle('Copy URL to clipboard')).toBeVisible();
+    await expect(page.getByTestId('copy-url-btn')).toBeVisible();
   });
 
   test('Copy URL works after navigating between sections', async ({ page }) => {
     // Start at SixFold v0
     await goToSection(page, SECTION_SIXFOLD_V0);
-    await page.getByTitle('Copy URL to clipboard').click();
+    await page.getByTestId('copy-url-btn').click();
     await assertClipboardContains(page, 'sixfold-v0');
 
     // Navigate to Square
     await goToSection(page, SECTION_SQUARE);
-    await page.getByTitle('Copy URL to clipboard').click();
+    await page.getByTestId('copy-url-btn').click();
     await assertClipboardContains(page, 'square');
   });
 });

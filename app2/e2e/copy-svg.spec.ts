@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0, SVG_CONFIG } from './fixtures';
 import { goToSection } from './utils/navigation';
-import { assertSVGValid, assertClipboardContains, waitForPageLoad } from './utils/helpers';
-import { getSVGContent } from './utils/clipboard';
+import { assertSVGValid } from './utils/assertions';
+import { assertClipboardContains, getSVGContent } from './utils/clipboard';
+import { waitForPageLoad } from './utils/helpers';
 
 /**
  * Copy SVG Functionality Tests
@@ -21,10 +22,10 @@ test.describe('Copy SVG Functionality', () => {
     await goToSection(page, SECTION_SIXFOLD_V0);
 
     // Click Copy SVG button
-    await page.getByTitle('Copy SVG to clipboard').click();
+    await page.getByTestId('copy-svg-btn').click();
 
     // Wait for copy feedback
-    await expect(page.getByText('Copied!')).toBeVisible();
+    await expect(page.getByTestId('copy-feedback')).toBeVisible();
 
     // Get clipboard content
     const clipboardText = await page.evaluate(async () => {
@@ -39,7 +40,7 @@ test.describe('Copy SVG Functionality', () => {
   test('Copy SVG button copies SVG element to clipboard (Square)', async ({ page }) => {
     await goToSection(page, SECTION_SQUARE);
 
-    await page.getByTitle('Copy SVG to clipboard').click();
+    await page.getByTestId('copy-svg-btn').click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
@@ -50,15 +51,15 @@ test.describe('Copy SVG Functionality', () => {
   });
 
   test('Copy SVG button shows "Copied!" feedback temporarily', async ({ page }) => {
-    const copyButton = page.getByTitle('Copy SVG to clipboard');
+    const copyButton = page.getByTestId('copy-svg-btn');
 
     await copyButton.click();
 
-    // Verify "Copied!" feedback is visible
-    await expect(page.getByText('Copied!')).toBeVisible();
+    // Verify feedback is visible
+    await expect(page.getByTestId('copy-feedback')).toBeVisible();
 
     // Wait for feedback to disappear
-    await expect(page.getByText('Copied!')).not.toBeVisible({ timeout: 3000 });
+    await expect(page.getByTestId('copy-feedback')).not.toBeVisible({ timeout: 3000 });
   });
 
   test('Copied SVG contains xmlns attribute', async ({ page }) => {
@@ -108,7 +109,7 @@ test.describe('Copy SVG Functionality', () => {
     const originalSvg = await getSVGContent(page, SECTION_SIXFOLD_V0);
 
     // Copy SVG
-    await page.getByTitle('Copy SVG to clipboard').click();
+    await page.getByTestId('copy-svg-btn').click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
@@ -129,7 +130,7 @@ test.describe('Copy SVG Functionality', () => {
     await goToSection(page, SECTION_SIXFOLD_V0);
 
     // Copy at step 1
-    await page.getByTitle('Copy SVG to clipboard').click();
+    await page.getByTestId('copy-svg-btn').click();
     let clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
     });
@@ -137,11 +138,11 @@ test.describe('Copy SVG Functionality', () => {
 
     // Navigate to step 5
     for (let i = 0; i < 4; i++) {
-      await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
+      await page.locator('#sixfold-v0').getByTestId('step-next').click();
     }
 
     // Copy at step 5
-    await page.getByTitle('Copy SVG to clipboard').click();
+    await page.getByTestId('copy-svg-btn').click();
     clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
     });
@@ -151,11 +152,11 @@ test.describe('Copy SVG Functionality', () => {
   test('Copy SVG button is visible in both sections', async ({ page }) => {
     // Check SixFold v0 section
     await goToSection(page, SECTION_SIXFOLD_V0);
-    await expect(page.getByTitle('Copy SVG to clipboard')).toBeVisible();
+    await expect(page.getByTestId('copy-svg-btn')).toBeVisible();
 
     // Check Square section
     await goToSection(page, SECTION_SQUARE);
-    await expect(page.getByTitle('Copy SVG to clipboard')).toBeVisible();
+    await expect(page.getByTestId('copy-svg-btn')).toBeVisible();
   });
 
   test('Copied SVG has correct dimensions', async ({ page }) => {
