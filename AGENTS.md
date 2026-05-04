@@ -32,7 +32,7 @@
 
 ## Agent Instructions
 
-- When user says "check app": run `pnpm lint && pnpm fmt:check && pnpm type-check && pnpm test` to verify lint, format, TypeScript, and tests. Verify exit code is 0 and no warnings are present.
+- When user says "check app": run `pnpm lint && pnpm fmt:check && pnpm type-check && pnpm test && pnpm test:e2e` to verify lint, format, TypeScript, tests, and e2e. Verify exit code is 0 and no warnings are present.
 
 ## Commit Guidelines
 
