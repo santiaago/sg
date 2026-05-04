@@ -12,8 +12,8 @@ import {
  * Navigate to a specific section
  */
 export async function goToSection(page: Page, section: typeof SECTION_SQUARE | typeof SECTION_SIXFOLD_V0): Promise<void> {
-  const buttonName = section === SECTION_SQUARE ? 'Square' : 'SixFold v0';
-  await page.getByRole('button', { name: buttonName }).click();
+  const testId = section === SECTION_SQUARE ? 'nav-square' : 'nav-sixfold-v0';
+  await page.getByTestId(testId).click();
   
   const sectionSelector = section === SECTION_SQUARE ? '#square' : '#sixfold-v0';
   await expect(page.locator(sectionSelector)).toBeVisible();
@@ -38,12 +38,12 @@ export async function goToStep(page: Page, section: typeof SECTION_SQUARE | type
   // Navigate to target step using next/prev buttons
   if (step > currentStep) {
     for (let i = currentStep; i < step; i++) {
-      await sectionLocator.getByRole('button', { name: 'next' }).click();
+      await sectionLocator.getByTestId('step-next').click();
       await expect(page.locator(`${sectionSelector} text=/Current step ${i + 1}/`)).toBeVisible();
     }
   } else if (step < currentStep) {
     for (let i = currentStep; i > step; i--) {
-      await sectionLocator.getByRole('button', { name: 'prev' }).click();
+      await sectionLocator.getByTestId('step-prev').click();
       await expect(page.locator(`${sectionSelector} text=/Current step ${i - 1}/`)).toBeVisible();
     }
   }
@@ -81,7 +81,7 @@ export async function getCurrentStep(page: Page, section: typeof SECTION_SQUARE 
 export async function clickFirstButton(page: Page, section: typeof SECTION_SQUARE | typeof SECTION_SIXFOLD_V0): Promise<void> {
   const sectionSelector = section === SECTION_SQUARE ? '#square' : '#sixfold-v0';
   const sectionLocator = page.locator(sectionSelector);
-  await sectionLocator.getByTitle('Go to beginning').click();
+  await sectionLocator.getByTestId('step-first').click();
 }
 
 /**
@@ -90,7 +90,7 @@ export async function clickFirstButton(page: Page, section: typeof SECTION_SQUAR
 export async function clickLastButton(page: Page, section: typeof SECTION_SQUARE | typeof SECTION_SIXFOLD_V0): Promise<void> {
   const sectionSelector = section === SECTION_SQUARE ? '#square' : '#sixfold-v0';
   const sectionLocator = page.locator(sectionSelector);
-  await sectionLocator.getByTitle('Go to end').click();
+  await sectionLocator.getByTestId('step-last').click();
 }
 
 /**
@@ -99,7 +99,7 @@ export async function clickLastButton(page: Page, section: typeof SECTION_SQUARE
 export async function clickNextButton(page: Page, section: typeof SECTION_SQUARE | typeof SECTION_SIXFOLD_V0): Promise<void> {
   const sectionSelector = section === SECTION_SQUARE ? '#square' : '#sixfold-v0';
   const sectionLocator = page.locator(sectionSelector);
-  await sectionLocator.getByRole('button', { name: 'next' }).click();
+  await sectionLocator.getByTestId('step-next').click();
 }
 
 /**
@@ -108,19 +108,20 @@ export async function clickNextButton(page: Page, section: typeof SECTION_SQUARE
 export async function clickPrevButton(page: Page, section: typeof SECTION_SQUARE | typeof SECTION_SIXFOLD_V0): Promise<void> {
   const sectionSelector = section === SECTION_SQUARE ? '#square' : '#sixfold-v0';
   const sectionLocator = page.locator(sectionSelector);
-  await sectionLocator.getByRole('button', { name: 'prev' }).click();
+  await sectionLocator.getByTestId('step-prev').click();
 }
 
 /**
  * Reset app to initial state by navigating to a section and clicking << button
+ * Note: App starts at step 0, not step 1
  */
 export async function resetApp(page: Page, section: typeof SECTION_SQUARE | typeof SECTION_SIXFOLD_V0 = SECTION_SIXFOLD_V0): Promise<void> {
   await goToSection(page, section);
   await clickFirstButton(page, section);
   
-  // Verify we're at step 1
+  // Verify we're at step 0 (app starts at step 0)
   const currentStep = await getCurrentStep(page, section);
-  if (currentStep !== 1) {
-    throw new Error(`Reset failed: expected step 1, got step ${currentStep}`);
+  if (currentStep !== 0) {
+    throw new Error(`Reset failed: expected step 0, got step ${currentStep}`);
   }
 }

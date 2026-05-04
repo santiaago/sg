@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
-import { goToSection, getCurrentStep, waitForPageLoad } from './utils/navigation';
+import { goToSection, getCurrentStep } from './utils/navigation';
+import { waitForPageLoad } from './utils/helpers';
 
 /**
  * Slider Navigation Tests
@@ -29,9 +30,10 @@ test.describe('Slider Navigation', () => {
       const min = await slider.getAttribute('min');
       const max = await slider.getAttribute('max');
 
-      expect(min).toBe('1');
-      // Square has 16 steps
-      expect(max).toBe('16');
+      // App uses 0-based indexing for steps
+      expect(min).toBe('0');
+      // Square has 18 steps (0-17)
+      expect(max).toBe('18');
     });
 
     test('Slider value matches current step', async ({ page }) => {
@@ -68,9 +70,9 @@ test.describe('Slider Navigation', () => {
 
       const slider = page.locator('#square input[type="range"]');
 
-      // Go to step 8 (50% of 16 steps)
-      for (let i = 0; i < 7; i++) {
-        await page.locator('#square').getByRole('button', { name: 'next' }).click();
+      // Go to step 8 (50% of 16 steps, starting from step 0)
+      for (let i = 0; i < 8; i++) {
+        await page.locator('#square').getByTestId('step-next').click();
       }
 
       // Check slider value
@@ -126,7 +128,9 @@ test.describe('Slider Navigation', () => {
       const min = await slider.getAttribute('min');
       const max = await slider.getAttribute('max');
 
-      expect(min).toBe('1');
+      // App uses 0-based indexing for steps
+      expect(min).toBe('0');
+      // SixFold v0 has 93 steps (0-92)
       expect(max).toBe('93');
     });
 
@@ -164,9 +168,9 @@ test.describe('Slider Navigation', () => {
 
       const slider = page.locator('#sixfold-v0 input[type="range"]');
 
-      // Go to step 46 (roughly 50% of 93 steps)
-      for (let i = 0; i < 45; i++) {
-        await page.locator('#sixfold-v0').getByRole('button', { name: 'next' }).click();
+      // Go to step 46 (roughly 50% of 93 steps, starting from step 0)
+      for (let i = 0; i < 46; i++) {
+        await page.locator('#sixfold-v0').getByTestId('step-next').click();
       }
 
       // Check slider value
@@ -174,7 +178,7 @@ test.describe('Slider Navigation', () => {
       expect(value).toBe('46');
     });
 
-    test('Slider step labels show 1 and max', async ({ page }) => {
+    test('Slider step labels show 0 and max', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
       const labels = page.locator('#sixfold-v0 .text-xs.text-gray-400 span');
@@ -185,7 +189,8 @@ test.describe('Slider Navigation', () => {
       const firstLabel = labels.first();
       const lastLabel = labels.last();
 
-      await expect(firstLabel).toHaveText('1');
+      // App uses 0-based indexing, so first label is 0
+      await expect(firstLabel).toHaveText('0');
       await expect(lastLabel).toHaveText('93');
     });
   });
@@ -196,18 +201,18 @@ test.describe('Slider Navigation', () => {
 
       const slider = page.locator('#square input[type="range"]');
 
-      // Click next
-      await page.locator('#square').getByRole('button', { name: 'next' }).click();
+      // Click next (from step 0 to step 1)
+      await page.locator('#square').getByTestId('step-next').click();
 
       // Check slider value updated
       const value = await slider.getAttribute('value');
-      expect(value).toBe('2');
+      expect(value).toBe('1');
 
-      // Click prev
-      await page.locator('#square').getByRole('button', { name: 'prev' }).click();
+      // Click prev (from step 1 to step 0)
+      await page.locator('#square').getByTestId('step-prev').click();
 
       const valueAfterPrev = await slider.getAttribute('value');
-      expect(valueAfterPrev).toBe('1');
+      expect(valueAfterPrev).toBe('0');
     });
 
     test('Slider updates when clicking first/last buttons', async ({ page }) => {
@@ -215,22 +220,22 @@ test.describe('Slider Navigation', () => {
 
       const slider = page.locator('#square input[type="range"]');
 
-      // Go to step 5
-      for (let i = 0; i < 4; i++) {
-        await page.locator('#square').getByRole('button', { name: 'next' }).click();
+      // Go to step 5 (from step 0, click next 5 times)
+      for (let i = 0; i < 5; i++) {
+        await page.locator('#square').getByTestId('step-next').click();
       }
 
-      // Click first (<<)
-      await page.locator('#square').getByTitle('Go to beginning').click();
+      // Click first (<<) - goes to step 0
+      await page.locator('#square').getByTestId('step-first').click();
 
       const valueAfterFirst = await slider.getAttribute('value');
-      expect(valueAfterFirst).toBe('1');
+      expect(valueAfterFirst).toBe('0');
 
-      // Click last (>>)
-      await page.locator('#square').getByTitle('Go to end').click();
+      // Click last (>>) - goes to step 18 (end of Square steps)
+      await page.locator('#square').getByTestId('step-last').click();
 
       const valueAfterLast = await slider.getAttribute('value');
-      expect(valueAfterLast).toBe('16');
+      expect(valueAfterLast).toBe('18');
     });
   });
 });

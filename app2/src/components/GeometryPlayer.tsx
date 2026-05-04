@@ -133,6 +133,7 @@ export function GeometryPlayer({
               className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
               title="Go to beginning"
               aria-label="First step"
+              data-testid="step-first"
             >
               ««
             </button>
@@ -148,6 +149,7 @@ export function GeometryPlayer({
               }`}
               disabled={currentStep <= 0}
               aria-label="Previous step"
+              data-testid="step-prev"
             >
               prev
             </button>
@@ -161,6 +163,7 @@ export function GeometryPlayer({
               }`}
               title={isPlaying ? "Pause animation" : "Play animation"}
               aria-label={isPlaying ? "Pause animation" : "Play animation"}
+              data-testid="step-play"
             >
               {isPlaying ? "⏸" : "▶"}
             </button>
@@ -176,6 +179,7 @@ export function GeometryPlayer({
               }`}
               disabled={currentStep >= totalSteps}
               aria-label="Next step"
+              data-testid="step-next"
             >
               next
             </button>
@@ -187,6 +191,7 @@ export function GeometryPlayer({
               className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
               title="Go to end"
               aria-label="Last step"
+              data-testid="step-last"
             >
               »»
             </button>
@@ -197,6 +202,7 @@ export function GeometryPlayer({
               onClick={onRestart}
               className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
               aria-label="Restart animation"
+              data-testid="step-restart"
             >
               restart
             </button>
@@ -209,6 +215,7 @@ export function GeometryPlayer({
                 showInputHighlight ? "bg-blue-600" : "bg-gray-800 hover:bg-gray-700"
               }`}
               aria-label="Toggle input highlights"
+              data-testid="inputs-toggle"
             >
               inputs
             </button>

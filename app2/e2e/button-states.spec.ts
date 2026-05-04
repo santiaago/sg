@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from './fixtures';
-import { goToSection, goToStep, clickFirstButton, clickLastButton, clickNextButton, clickPrevButton, getCurrentStep, waitForPageLoad } from './utils/navigation';
+import { goToSection, goToStep, clickFirstButton, clickLastButton, clickNextButton, clickPrevButton, getCurrentStep } from './utils/navigation';
+import { waitForPageLoad } from './utils/helpers';
 
 /**
  * Button States Tests
@@ -14,60 +15,60 @@ test.describe('Button States', () => {
     await waitForPageLoad(page);
   });
 
-  test.describe('At step 1', () => {
+  test.describe('At step 0 (initial state)', () => {
     test('Prev button is disabled for Square', async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      const prevButton = page.locator('#square').getByRole('button', { name: 'prev' });
+      const prevButton = page.locator('#square').getByTestId('step-prev');
       await expect(prevButton).toBeDisabled();
     });
 
     test('Prev button is disabled for SixFold v0', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const prevButton = page.locator('#sixfold-v0').getByRole('button', { name: 'prev' });
+      const prevButton = page.locator('#sixfold-v0').getByTestId('step-prev');
       await expect(prevButton).toBeDisabled();
     });
 
     test('First (<<) button is disabled for Square', async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      const firstButton = page.locator('#square').getByTitle('Go to beginning');
+      const firstButton = page.locator('#square').getByTestId('step-first');
       await expect(firstButton).toBeDisabled();
     });
 
     test('First (<<) button is disabled for SixFold v0', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const firstButton = page.locator('#sixfold-v0').getByTitle('Go to beginning');
+      const firstButton = page.locator('#sixfold-v0').getByTestId('step-first');
       await expect(firstButton).toBeDisabled();
     });
 
     test('Next button is enabled for Square', async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      const nextButton = page.locator('#square').getByRole('button', { name: 'next' });
+      const nextButton = page.locator('#square').getByTestId('step-next');
       await expect(nextButton).toBeEnabled();
     });
 
     test('Next button is enabled for SixFold v0', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const nextButton = page.locator('#sixfold-v0').getByRole('button', { name: 'next' });
+      const nextButton = page.locator('#sixfold-v0').getByTestId('step-next');
       await expect(nextButton).toBeEnabled();
     });
 
     test('Last (>>) button is enabled for Square', async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      const lastButton = page.locator('#square').getByTitle('Go to end');
+      const lastButton = page.locator('#square').getByTestId('step-last');
       await expect(lastButton).toBeEnabled();
     });
 
     test('Last (>>) button is enabled for SixFold v0', async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_V0);
 
-      const lastButton = page.locator('#sixfold-v0').getByTitle('Go to end');
+      const lastButton = page.locator('#sixfold-v0').getByTestId('step-last');
       await expect(lastButton).toBeEnabled();
     });
   });

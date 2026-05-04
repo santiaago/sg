@@ -179,6 +179,8 @@ export function GeometryList({
             key={key}
             onClick={() => handleClick(key)}
             className={`cursor-pointer hover:underline ${getItemColor(key)}`}
+            data-testid={`geometry-item-${key}`}
+            aria-selected={(item as GeometryItem).selected}
           >
             {(item as GeometryItem).name} | {(item as GeometryItem).type}
           </li>

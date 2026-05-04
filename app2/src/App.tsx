@@ -30,6 +30,11 @@ export default function App(): JSX.Element {
   // Theme state
   const [svgTheme, setSvgTheme] = useState<Theme>(darkTheme);
 
+  // Set initial theme class on document element
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", svgTheme === darkTheme);
+  }, []);
+
   const toggleTheme = useCallback(() => {
     const newTheme = svgTheme === darkTheme ? lightTheme : darkTheme;
     setSvgTheme(newTheme);
@@ -337,6 +342,7 @@ export default function App(): JSX.Element {
         ref={sectionRefs["sixfold-v0"]}
         className="mb-8 p-8 bg-dark-card rounded-lg"
         id="sixfold-v0"
+        data-testid="section-sixfold-v0"
       >
         <div className="mb-6 flex items-center">
           <h1 className="text-2xl font-semibold mb-1 text-left">1/4 Six fold pattern v0</h1>
@@ -407,7 +413,7 @@ export default function App(): JSX.Element {
       </div>
 
       {/* Square Section */}
-      <div ref={sectionRefs["square"]} className="mb-8 p-8 bg-gray-900 rounded-lg" id="square">
+      <div ref={sectionRefs["square"]} className="mb-8 p-8 bg-gray-900 rounded-lg" id="square" data-testid="section-square">
         <div className="mb-6 flex items-center">
           <h1 className="text-2xl font-semibold mb-1 text-left">Drawing a square</h1>
           <CopyUrlButton />
