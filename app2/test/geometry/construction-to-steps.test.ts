@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { Construction } from "../src/geometry/construction";
-import { constructionToSteps } from "../src/geometry/construction-to-steps";
-import type { Point, Line, Circle, SquareConfig } from "../src/types/geometry";
-import type { GeometryStore } from "../src/react-store";
-import type { Theme } from "../src/themes";
+import { Construction } from "../../src/geometry/construction";
+import { constructionToSteps } from "../../src/geometry/construction-to-steps";
+import type { Point, Line, Circle, SquareConfig } from "../../src/types/geometry";
+import type { GeometryStore } from "../../src/react-store";
+import type { Theme } from "../../src/themes";
 
 describe("constructionToSteps", () => {
   it("should convert Construction to Step array", () => {
