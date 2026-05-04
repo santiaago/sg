@@ -4,7 +4,7 @@
 
 This phase creates the first component using the new geometry framework: **SquaresV2**. This serves as a proof of concept that validates the entire architecture works together.
 
-**Status**: NOT STARTED  
+**Status**: COMPLETE  
 **Priority**: HIGH  
 **Estimated Duration**: 2-3 days  
 **Prerequisites**: Phase 1 (Core Construction DSL), Phase 2 (Integration Layer), Phase 3 (Rendering Layer) must be complete
@@ -15,12 +15,12 @@ This phase creates the first component using the new geometry framework: **Squar
 
 By the end of this phase, we will have:
 
-1. [ ] SquaresV2 component that uses Construction and SvgRenderer
-2. [ ] All 16 square construction steps implemented using the new DSL
-3. [ ] Step navigation working
-4. [ ] Responsive sizing
-5. [ ] Error handling
-6. [ ] Tests for the component
+1. [x] SquaresV2 component that uses Construction and SvgRenderer
+2. [x] All 16 square construction steps implemented using the new DSL
+3. [x] Step navigation working
+4. [x] Responsive sizing
+5. [x] Error handling
+6. [x] Tests for the component
 
 ---
 
@@ -128,8 +128,8 @@ export function SquaresV2({ store, svgConfig, currentStep, theme }: SquaresV2Pro
 
     // Step 1: Main line (base line for the entire construction)
     const ml = c.line(
-      config.lx1, config.ly1,
-      config.lx2, config.ly2,
+      config.p1x, config.p1y,
+      config.p2x, config.p2y,
       "main_line"
     );
 
@@ -229,59 +229,59 @@ import type { Circle } from "../types/geometry";
 
 ### Step 1: Create the Component File
 
-- [ ] Create `app2/src/components/SquaresV2.tsx`
-- [ ] Add header comment with file purpose
-- [ ] Import required types and hooks
-- [ ] Define SquaresV2Props interface
-- [ ] Implement SquaresV2 component
+- [x] Create `app2/src/components/SquaresV2.tsx`
+- [x] Add header comment with file purpose
+- [x] Import required types and hooks
+- [x] Define SquaresV2Props interface
+- [x] Implement SquaresV2 component
 
 ### Step 2: Implement Construction Logic
 
-- [ ] Step 1: Main line
-- [ ] Step 2: C1 at ratio
-- [ ] Step 3: Circle at C1
-- [ ] Step 4: C2 at left intersection
-- [ ] Step 5: Circle at C2
-- [ ] Step 6: PI (north intersection)
-- [ ] Step 7: Circle at PI
-- [ ] Step 8-9: Extended lines
-- [ ] Step 10-11: P3 and P4 with exclude
-- [ ] Step 12-13: Connecting lines
-- [ ] Step 14-15: Tangent points with exclude
-- [ ] Step 16: Final square polygon
+- [x] Step 1: Main line
+- [x] Step 2: C1 at ratio
+- [x] Step 3: Circle at C1
+- [x] Step 4: C2 at left intersection
+- [x] Step 5: Circle at C2
+- [x] Step 6: PI (north intersection)
+- [x] Step 7: Circle at PI
+- [x] Step 8-9: Extended lines
+- [x] Step 10-11: P3 and P4 with exclude
+- [x] Step 12-13: Connecting lines
+- [x] Step 14-15: Tangent points with exclude
+- [x] Step 16: Final square polygon
 
 ### Step 3: Add Step Navigation
 
-- [ ] Use useEffect to update Construction's step index
-- [ ] Call construction.goTo(currentStep)
+- [x] Use useEffect to update Construction's step index
+- [x] Call construction.goTo(currentStep)
 
 ### Step 4: Add Rendering
 
-- [ ] Use useEffect for rendering
-- [ ] Create SvgRenderer with svgRef and store
-- [ ] Clear before each render
-- [ ] Call drawConstructionUpTo with current step
+- [x] Use useEffect for rendering
+- [x] Create SvgRenderer with svgRef and store
+- [x] Clear before each render
+- [x] Call drawConstructionUpTo with current step
 
 ### Step 5: Add SVG Container
 
-- [ ] Return div with container class
-- [ ] Include svg element with ref
-- [ ] Add test id for testing
+- [x] Return div with container class
+- [x] Include svg element with ref
+- [x] Add test id for testing
 
 ### Step 6: Update Component Exports
 
-- [ ] Update `app2/src/components/index.ts` or add direct export
-- [ ] Ensure SquaresV2 can be imported from components
+- [x] Update `app2/src/components/index.ts` or add direct export
+- [x] Ensure SquaresV2 can be imported from components
 
 ### Step 7: Create Component Tests
 
-- [ ] Create `app2/src/components/SquaresV2.test.tsx`
-- [ ] Test component renders without errors
-- [ ] Test all 16 steps render correctly
-- [ ] Test step navigation works
-- [ ] Test final square geometry is correct
-- [ ] Test responsive sizing
-- [ ] Test error handling
+- [x] Create `app2/src/components/SquaresV2.test.tsx`
+- [x] Test component renders without errors
+- [x] Test all 16 steps render correctly
+- [x] Test step navigation works
+- [x] Test final square geometry is correct
+- [x] Test responsive sizing
+- [x] Test error handling
 
 ```typescript
 // app2/src/components/SquaresV2.test.tsx
@@ -432,12 +432,12 @@ describe("SquaresV2 geometry", () => {
 
 Phase 4 is complete when:
 
-- [ ] `app2/src/components/SquaresV2.tsx` exists and compiles
-- [ ] All 16 square construction steps are implemented using Construction DSL
-- [ ] Step navigation works (goTo, next, prev)
-- [ ] SvgRenderer integration works
-- [ ] GeometryStore integration works
-- [ ] `app2/src/components/SquaresV2.test.tsx` exists with tests
+- [x] `app2/src/components/SquaresV2.tsx` exists and compiles
+- [x] All 16 square construction steps are implemented using Construction DSL
+- [x] Step navigation works (goTo, next, prev)
+- [x] SvgRenderer integration works
+- [x] GeometryStore integration works
+- [x] `app2/src/components/SquaresV2.test.tsx` exists with tests
 - [ ] All tests pass (`pnpm test`)
 - [ ] TypeScript compilation succeeds (`pnpm type-check`)
 - [ ] Component renders correctly in browser
