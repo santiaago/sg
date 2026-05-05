@@ -1,3 +1,43 @@
+# code review
+
+Please identify a main pieces of the system for app2, create a CODE_REVIEW.md in @backlog/
+
+this document should have a section for each piece of the system, rank them by importance, I will later on follow up with specific code reviews for each of the sections and a global code review later on.
+
+follow conventions in @AGENTS.md for atomic commit messages, take as much time as you need
+when done
+
+1. check app
+2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
+2. submit a PR (print full URL of PR when done)
+
+
+# testing coordinate system
+05/05/2026
+
+In app2, I want to test that changing the coordinate system (cs) if it is the first input of a geometry changes the geometry. For that I want you do create a new component similar to @app2/src/components/SquareSvg.tsx where you rotate the first coordinate system by Pi/16, (the x axis should go down by Pi/16)
+
+There might be some extra logic to add whenever you need to pick between 2 intersections in the past that was done with north, south, that might not be possible anymore...
+
+follow conventions in @AGENTS.md for atomic commit messages, take as much time as you need
+when done
+
+1. check app
+2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
+2. submit a PR (print full URL of PR when done)
+
+
+# reducing playwright tests
+
+I suspect that there are too many playwright tests, can you look into that and see if there are test that are redundant? and if so remove them.
+
+follow conventions in @AGENTS.md for atomic commit messages, take as much time as you need
+when done
+
+1. check app
+2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
+2. submit a PR (print full URL of PR when done)
+
 # phase 4
 04/05/2026
 
