@@ -13,12 +13,12 @@ on:
 concurrency:
   group: app2-pr-${{ github.ref }}
   cancel-in-progress: true
+fail-fast: true
 
 jobs:
   app2-checks:
     name: checks
     runs-on: ubuntu-latest
-    fail-fast: true
     permissions:
       contents: read
     steps:
