@@ -32,8 +32,8 @@ test.describe("Slider Navigation", () => {
 
       // App uses 0-based indexing for steps
       expect(min).toBe("0");
-      // Square has 18 steps (0-18)
-      expect(max).toBe("18");
+      // Square has 19 steps (0-19)
+      expect(max).toBe("19");
     });
 
     test("Slider value matches current step", async ({ page }) => {
@@ -93,7 +93,7 @@ test.describe("Slider Navigation", () => {
       const lastLabel = labels.last();
 
       await expect(firstLabel).toHaveText("0");
-      await expect(lastLabel).toHaveText("18");
+      await expect(lastLabel).toHaveText("19");
     });
 
     test("Slider is keyboard accessible (arrow keys change value)", async ({ page }) => {
@@ -137,8 +137,8 @@ test.describe("Slider Navigation", () => {
 
       // App uses 0-based indexing for steps
       expect(min).toBe("0");
-      // SixFold v0 has 93 steps (0-92)
-      expect(max).toBe("93");
+      // SixFold v0 has 94 steps (0-93)
+      expect(max).toBe("94");
     });
 
     test("Slider value matches current step", async ({ page }) => {
@@ -199,7 +199,7 @@ test.describe("Slider Navigation", () => {
 
       // App uses 0-based indexing, so first label is 0
       await expect(firstLabel).toHaveText("0");
-      await expect(lastLabel).toHaveText("93");
+      await expect(lastLabel).toHaveText("94");
     });
   });
 
@@ -239,11 +239,11 @@ test.describe("Slider Navigation", () => {
       const valueAfterFirst = await slider.getAttribute("value");
       expect(valueAfterFirst).toBe("0");
 
-      // Click last (>>) - goes to step 18 (end of Square, = SQUARE_STEPS.length)
+      // Click last (>>) - goes to step 19 (end of Square, = SQUARE_STEPS.length)
       await page.locator("#square").getByTestId("step-last").click();
 
       const valueAfterLast = await slider.getAttribute("value");
-      expect(valueAfterLast).toBe("18");
+      expect(valueAfterLast).toBe("19");
     });
   });
 });

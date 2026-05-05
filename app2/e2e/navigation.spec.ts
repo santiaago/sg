@@ -124,19 +124,19 @@ test.describe("Navigation & URL Hash", () => {
     test("Square: can click next all the way to the end", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      // Note: App starts at step 0 (Square has 18 steps in array, steps 0-18 where 18 = all executed)
+      // Note: App starts at step 0 (Square has 19 steps in array, steps 0-19 where 19 = all executed)
       let currentStep = await getCurrentStep(page, SECTION_SQUARE);
       expect(currentStep).toBe(0);
 
-      // Click next until we reach the end (step 18 for Square where 18 = SQUARE_STEPS.length)
-      for (let expectedStep = 1; expectedStep <= 18; expectedStep++) {
+      // Click next until we reach the end (step 19 for Square where 19 = SQUARE_STEPS.length)
+      for (let expectedStep = 1; expectedStep <= 19; expectedStep++) {
         await clickNextButton(page, SECTION_SQUARE);
         currentStep = await getCurrentStep(page, SECTION_SQUARE);
         expect(currentStep).toBe(expectedStep);
       }
 
-      // Verify we're at the end (step 18 = SQUARE_STEPS.length, all steps executed)
-      expect(currentStep).toBe(18);
+      // Verify we're at the end (step 19 = SQUARE_STEPS.length, all steps executed)
+      expect(currentStep).toBe(19);
 
       // Next button should be disabled at the end
       const nextButton = page.locator("#square").getByTestId("step-next");
@@ -172,8 +172,8 @@ test.describe("Navigation & URL Hash", () => {
       await clickLastButton(page, SECTION_SQUARE);
 
       currentStep = await getCurrentStep(page, SECTION_SQUARE);
-      // Square has 18 steps in array, fast forward goes to step 18 (= SQUARE_STEPS.length, all executed)
-      expect(currentStep).toBe(18);
+      // Square has 19 steps in array, fast forward goes to step 19 (= SQUARE_STEPS.length, all executed)
+      expect(currentStep).toBe(19);
     });
 
     test("SixFold v0: can click fast forward (>>) to the end", async ({ page }) => {
@@ -187,8 +187,8 @@ test.describe("Navigation & URL Hash", () => {
       await clickLastButton(page, SECTION_SIXFOLD_V0);
 
       currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
-      // SixFold v0 has 93 steps, indexed 0-92, end is step 93 (== SIX_FOLD_V0_STEPS.length)
-      expect(currentStep).toBe(93);
+      // SixFold v0 has 94 steps, indexed 0-93, end is step 94 (== SIX_FOLD_V0_STEPS.length)
+      expect(currentStep).toBe(94);
     });
 
     test("Square: can click back from step 1 to step 0", async ({ page }) => {
@@ -232,10 +232,10 @@ test.describe("Navigation & URL Hash", () => {
     test("Square: can click all the way to the beginning with backwards (<<)", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
 
-      // First, go to the end (step 18 for Square where 18 = SQUARE_STEPS.length, all executed)
+      // First, go to the end (step 19 for Square where 19 = SQUARE_STEPS.length, all executed)
       await clickLastButton(page, SECTION_SQUARE);
       let currentStep = await getCurrentStep(page, SECTION_SQUARE);
-      expect(currentStep).toBe(18);
+      expect(currentStep).toBe(19);
 
       // Click backwards to beginning
       await clickFirstButton(page, SECTION_SQUARE);
@@ -375,10 +375,10 @@ test.describe("Navigation & URL Hash", () => {
       let currentStep = await getCurrentStep(page, SECTION_SQUARE);
       expect(currentStep).toBe(0);
 
-      // Go to end (step 18 for Square where 18 = SQUARE_STEPS.length, all executed)
+      // Go to end (step 19 for Square where 19 = SQUARE_STEPS.length, all executed)
       await clickLastButton(page, SECTION_SQUARE);
       currentStep = await getCurrentStep(page, SECTION_SQUARE);
-      expect(currentStep).toBe(18);
+      expect(currentStep).toBe(19);
 
       // Go back to beginning (step 0)
       await clickFirstButton(page, SECTION_SQUARE);

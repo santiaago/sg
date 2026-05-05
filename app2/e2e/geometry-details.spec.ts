@@ -173,12 +173,17 @@ test.describe("Geometry Details Panel", () => {
     });
 
     test('Shows "No parameters" when geometry has no parameters', async ({ page }) => {
-      // Go to step 3 where LINE1 is created (has no parameters)
-      await goToStep(page, SECTION_SIXFOLD_V0, 3);
+      // Go to step 4 where LINE1 is created (has no parameters)
+      // LINE1 is created at STEP_3 (index 3), which executes when currentStep >= 4
+      await goToStep(page, SECTION_SIXFOLD_V0, 4);
 
       const geometryList = page.locator("#sixfold-v0 .geometry-list");
       // LINE1 should be one of the items
       const items = geometryList.locator("li");
+
+      // Wait for items to be populated
+      await expect(items.first()).toBeVisible({ timeout: 10000 });
+      
       const itemCount = await items.count();
       
       // Find and select LINE1 (which has no parameters)
@@ -194,7 +199,7 @@ test.describe("Geometry Details Panel", () => {
       // Check for "No parameters" message in details panel
       const detailsPanel = page.locator("#sixfold-v0").getByTestId("geometry-details");
       const noParams = detailsPanel.getByText("No parameters");
-      await expect(noParams).toBeVisible();
+      await expect(noParams).toBeVisible({ timeout: 5000 });
     });
 
     test('Shows "No outputs" when geometry has no outputs', async ({ page }) => {
