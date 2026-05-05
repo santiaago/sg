@@ -56,7 +56,7 @@ git commit -m"<type>(<scope>): <description>" \
 
 ## Coding Style & Naming Conventions
 
-- Language: TypeScript (ESM). Prefer strict typing; avoid `any`.
+- Language: TypeScript (ESM). Prefer strict typing; **never use `any`** in core logic (react-store, geometry operations). Use `unknown` or proper types instead.
 - Formatting/linting via Oxlint and Oxfmt.
 - Never add `@ts-nocheck` and do not add inline lint suppressions by default. Fix root causes first; only keep a suppression when the code is intentionally correct, the rule cannot express that safely, and the comment explains why.
 - Do not disable `no-explicit-any`; prefer real types, `unknown`, or a narrow adapter/helper instead. Update Oxlint/Oxfmt config only when required.
