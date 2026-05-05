@@ -56,7 +56,6 @@ export interface ValidationWarning {
   severity: "warning";
 }
 
-// ===
 // =============================================================================
 // Layer 2: Typed References (Pure Identifiers)
 // =============================================================================
@@ -206,9 +205,23 @@ export interface ConstructionState {
   values: Map<string, GeometryValue>;
   steps: InternalStep[];
   stepIndex: number;
+  errors: ConstructionError[];
+  pointsOnGeom: Map<string, Set<string>>;
+  parameters: Map<string, number>;
+  nameCounter: number;
 }
 
-// ===
+/**
+ * Serialized representation of a Construction for JSON storage.
+ */
+export interface SerializedConstruction {
+  version: number;
+  values: Array<{ id: string; type: GeometryValue["type"]; data: unknown }>;
+  steps: Array<{ id: string; type: GeometryValue["type"]; dependencies: string[] }>;
+  stepIndex: number;
+  parameters: Record<string, number>;
+}
+
 // =============================================================================
 // Construction Class
 // =============================================================================
@@ -247,34 +260,23 @@ export class Construction {
   // Track which points lie on which geometries (for "other" intersection)
   private _pointsOnGeom = new Map<string, Set<string>>();
 
-  
-
-  // =======================================================================
-  // Undo/Redo Support
-  // =======================================================================
-  // Serialization Support
-  // =======================================================================
-  // Parameter Support
-  // =======================================================================
+  // Counter for auto-naming (avoids gaps from potential future undo/redo)
+  private _nameCounter = 0;
 
   // Parameter storage
   private _parameters = new Map<string, number>();
-
-  // ===  // =======================================================================
-
-  /**
-   * Current serialization version.
-   */
-  static readonly SERIALIZATION_VERSION = 1;
-
-  // ===  // =======================================================================
 
   // History stack for undo/redo
   private _history: ConstructionState[] = [];
   private _historyIndex = -1;
   private readonly _maxHistory = 100;
 
-  // ========================================
+  /**
+   * Current serialization version.
+   */
+  static readonly SERIALIZATION_VERSION = 1;
+
+  // =======================================================================
   // Base Geometry Creators
   // =======================================================================
 
@@ -979,72 +981,127 @@ export class Construction {
   }
 
   // =======================================================================
-  // Undo/Redo Support
+  // Validation Support
   // =======================================================================
 
   /**
-   * Save current state to history before making changes.
+   * Perform full validation of the construction.
+   * Checks for missing dependencies, zero-length lines, and zero-radius circles.
+   * @returns Validation result with errors and warnings
    */
-  private _saveToHistory(): void {
-    // Remove any redo history
-    this._history = this._history.slice(0, this._historyIndex + 1);
+  validateFull(): ValidationResult {
+    const errors: ValidationError[] = [];
+    const warnings: ValidationWarning[] = [];
 
-    // Save current state
+    for (const [id, value] of this._values) {
+      if (value.type === "line") {
+        const dx = value.x2 - value.x1;
+        const dy = value.y2 - value.y1;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        if (length === 0) {
+          errors.push({
+            type: "zero_length_line",
+            geometryId: id,
+            message: `Line ${id} has zero length`,
+            severity: "error",
+          });
+        }
+      } else if (value.type === "circle") {
+        if (value.r === 0) {
+          errors.push({
+            type: "zero_radius_circle",
+            geometryId: id,
+            message: `Circle ${id} has zero radius`,
+            severity: "error",
+          });
+        }
+      }
+    }
+
+    for (const step of this._steps) {
+      for (const depId of step.dependencies) {
+        if (!this._values.has(depId)) {
+          errors.push({
+            type: "missing_dependency",
+            stepId: step.id,
+            geometryId: depId,
+            message: `Step ${step.id} depends on missing geometry ${depId}`,
+            severity: "error",
+          });
+        }
+      }
+    }
+
+    const idSet = new Set<string>();
+    for (const id of this._values.keys()) {
+      if (idSet.has(id)) {
+        warnings.push({
+          type: "duplicate_id",
+          geometryId: id,
+          message: `Duplicate geometry ID: ${id}`,
+          severity: "warning",
+        });
+      }
+      idSet.add(id);
+    }
+
+    return { valid: errors.length === 0, errors, warnings };
+  }
+
+  // =======================================================================
+  // Undo/Redo Support
+  // =======================================================================
+
+  private _saveToHistory(): void {
+    this._history = this._history.slice(0, this._historyIndex + 1);
     const state: ConstructionState = {
       values: new Map(this._values),
       steps: [...this._steps],
       stepIndex: this._stepIndex,
+      errors: [...this._errors],
+      pointsOnGeom: new Map(this._pointsOnGeom),
+      parameters: new Map(this._parameters),
+      nameCounter: this._nameCounter,
     };
-
     this._history.push(state);
     this._historyIndex = this._history.length - 1;
-
-    // Limit history size
     if (this._history.length > this._maxHistory) {
       this._history.shift();
       this._historyIndex--;
     }
   }
 
-  /**
-   * Undo the last operation.
-   */
   undo(): void {
     if (this._historyIndex <= 0) return;
-
     this._historyIndex--;
-    const previousState = this._history[this._historyIndex];
-
-    this._values = new Map(previousState.values);
-    this._steps = [...previousState.steps];
-    this._stepIndex = previousState.stepIndex;
+    const s = this._history[this._historyIndex];
+    this._values = new Map(s.values);
+    this._steps = [...s.steps];
+    this._stepIndex = s.stepIndex;
+    this._errors = [...s.errors];
+    this._pointsOnGeom = new Map(s.pointsOnGeom);
+    this._parameters = new Map(s.parameters);
+    this._nameCounter = s.nameCounter;
   }
 
-  /**
-   * Redo the last undone operation.
-   */
   redo(): void {
     if (this._historyIndex >= this._history.length - 1) return;
-
     this._historyIndex++;
-    const nextState = this._history[this._historyIndex];
-
-    this._values = new Map(nextState.values);
-    this._steps = [...nextState.steps];
-    this._stepIndex = nextState.stepIndex;
+    const s = this._history[this._historyIndex];
+    this._values = new Map(s.values);
+    this._steps = [...s.steps];
+    this._stepIndex = s.stepIndex;
+    this._errors = [...s.errors];
+    this._pointsOnGeom = new Map(s.pointsOnGeom);
+    this._parameters = new Map(s.parameters);
+    this._nameCounter = s.nameCounter;
   }
 
-  /**
-   * Clear history.
-   */
   clearHistory(): void {
     this._history = [];
     this._historyIndex = -1;
   }
 
-  /**
-   * Get undo/redo state.
-   */
   getHistoryState(): { canUndo: boolean; canRedo: boolean } {
     return {
       canUndo: this._historyIndex > 0,
@@ -1052,8 +1109,65 @@ export class Construction {
     };
   }
 
-  // ===
-  // =================================================================
+  // =======================================================================
+  // Parameter Support
+  // =======================================================================
+
+  setParameter(name: string, value: number): void {
+    this._parameters.set(name, value);
+  }
+
+  getParameter(name: string): number | undefined {
+    return this._parameters.get(name);
+  }
+
+  getParameters(): Map<string, number> {
+    return new Map(this._parameters);
+  }
+
+  clearParameters(): void {
+    this._parameters.clear();
+  }
+
+  // =======================================================================
+  // Serialization Support
+  // =======================================================================
+
+  toJSON(): {
+    version: number;
+    values: any[];
+    steps: any[];
+    stepIndex: number;
+    parameters: Record<string, number>;
+  } {
+    return {
+      version: Construction.SERIALIZATION_VERSION,
+      values: Array.from(this._values.entries()).map(([id, v]) => ({ id, type: v.type, data: v })),
+      steps: this._steps.map((s) => ({ id: s.id, type: s.type, dependencies: s.dependencies })),
+      stepIndex: this._stepIndex,
+      parameters: Object.fromEntries(this._parameters),
+    };
+  }
+
+  static fromJSON(data: any): Construction {
+    const c = new Construction();
+    c._values.clear();
+    c._steps = [];
+    c._stepIndex = data.stepIndex;
+    c._parameters = new Map(Object.entries(data.parameters || {}));
+    for (const { id, data: geomData } of data.values || []) {
+      c._values.set(id, geomData);
+    }
+    for (const { id, type, dependencies } of data.steps || []) {
+      const v = c._values.get(id);
+      if (v) {
+        c._steps.push({ id, type, dependencies, compute: () => v });
+      }
+    }
+    return c;
+  }
+
+  // =======================================================================
   // Private Helpers
   // =======================================================================
 
@@ -1070,7 +1184,6 @@ export class Construction {
    * Store a geometry value and create a step for it.
    */
   private _storeGeom(id: string, value: GeometryValue, dependencies: string[]): void {
-    this._saveToHistory();
     this._values.set(id, value);
     this._steps.push({
       id,
@@ -1078,6 +1191,7 @@ export class Construction {
       dependencies,
       compute: () => value, // Eager: value is already computed
     });
+    this._saveToHistory();
   }
 
   /**
