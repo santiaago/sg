@@ -11,12 +11,14 @@ import type { PointRef, LineRef, CircleRef, PolygonRef } from "../construction";
  * @param c - The Construction instance
  * @param width - Width of the base
  * @param height - Height of the triangle
+ * @param offset - Vertical offset from height for base points (default: 50)
  * @returns Object containing all created geometry references
  */
 export function createTriangleConstruction(
   c: Construction,
   width: number,
   height: number,
+  offset: number = 50,
 ): {
   p1: PointRef;
   p2: PointRef;
@@ -29,8 +31,8 @@ export function createTriangleConstruction(
   triangle: PolygonRef;
 } {
   // Base points
-  const p1 = c.point(0, height - 50, "p1");
-  const p2 = c.point(width, height - 50, "p2");
+  const p1 = c.point(0, height - offset, "p1");
+  const p2 = c.point(width, height - offset, "p2");
 
   // Base line connecting p1 and p2
   const base = c.line(p1, p2, "base");
