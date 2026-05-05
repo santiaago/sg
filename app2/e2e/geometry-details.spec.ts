@@ -183,9 +183,9 @@ test.describe("Geometry Details Panel", () => {
 
       // Wait for items to be populated
       await expect(items.first()).toBeVisible({ timeout: 10000 });
-      
+
       const itemCount = await items.count();
-      
+
       // Find and select LINE1 (which has no parameters)
       for (let i = 0; i < itemCount; i++) {
         const item = items.nth(i);

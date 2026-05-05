@@ -55,7 +55,7 @@ test.describe("Slider Navigation", () => {
       // Click at the 27.78% position (5/18) of the slider to go to step 5
       const box = await slider.boundingBox();
       if (!box) throw new Error("Slider not found");
-      const x = box.x + (box.width * (5 / 18));
+      const x = box.x + box.width * (5 / 18);
       const y = box.y + box.height / 2;
       await page.mouse.click(x, y);
 
@@ -112,7 +112,9 @@ test.describe("Slider Navigation", () => {
 
       // Wait for React state to update - the step should have increased
       // After pressing ArrowRight, step should be initialStep + 1
-      await expect(section.getByText(new RegExp(`Current step ${initialStep + 1}\\/\\d+`))).toBeVisible({ timeout: 5000 });
+      await expect(
+        section.getByText(new RegExp(`Current step ${initialStep + 1}\\/\\d+`)),
+      ).toBeVisible({ timeout: 5000 });
 
       const value = await slider.getAttribute("value");
       expect(parseInt(value || "0", 10)).toBeGreaterThan(initialStep);
@@ -160,7 +162,7 @@ test.describe("Slider Navigation", () => {
       // Click at the 48.39% position (45/93) of the slider to go to step 45
       const box = await slider.boundingBox();
       if (!box) throw new Error("Slider not found");
-      const x = box.x + (box.width * (45 / 93));
+      const x = box.x + box.width * (45 / 93);
       const y = box.y + box.height / 2;
       await page.mouse.click(x, y);
 
