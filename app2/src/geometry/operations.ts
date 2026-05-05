@@ -13,7 +13,7 @@ import {
   inteceptCircleLineSeg as interceptCircleLineSeg,
 } from "@sg/geometry";
 import type { Point, Circle, GeometryValue } from "../types/geometry";
-import { point, line, circle } from "../types/geometry";
+import { point, line, circle, GeometryError } from "../types/geometry";
 
 // Constants
 
@@ -112,6 +112,7 @@ export function computeSquareConfig(width: number, height: number): SquareConfig
  * @param id - The geometry ID to retrieve
  * @param typeGuard - Type guard function (isPoint, isLine, isCircle, etc.)
  * @param typeName - Human-readable type name for error messages
+ * @param stepId - Optional step identifier for error context
  * @returns The validated geometry value
  * @throws Error if geometry is missing or has wrong type
  */
@@ -120,13 +121,37 @@ export function getGeometry<T extends GeometryValue>(
   id: string,
   typeGuard: (v: GeometryValue) => v is T,
   typeName: string,
+  stepId?: string,
 ): T {
   const value = values.get(id);
+  const context = stepId ? `[${stepId}] ` : "";
   if (!value) {
-    throw new Error(`Missing geometry: ${id}`);
+    throw new Error(`${context}Missing geometry: ${id}`);
   }
   if (!typeGuard(value)) {
-    throw new Error(`Expected ${typeName} for ${id}, got ${value.type}`);
+    throw new Error(`${context}Expected ${typeName} for ${id}, got ${value.type}`);
+  }
+  return value;
+}
+
+/**
+ * Assert that a geometry value exists and is of the expected type.
+ * Throws a GeometryError with structured context if validation fails.
+ * @param value - The geometry value to validate
+ * @param stepId - The step identifier for error context
+ * @param geomId - The geometry identifier for error context
+ * @param typeName - Human-readable type name for error messages
+ * @returns The validated geometry value (unchanged if valid)
+ * @throws GeometryError if value is null/undefined or has wrong type
+ */
+export function assertGeometry<T>(
+  value: T | null | undefined,
+  stepId: string,
+  geomId: string,
+  typeName: string,
+): T {
+  if (!value) {
+    throw new GeometryError(stepId, geomId, `${typeName} is null or undefined`);
   }
   return value;
 }
