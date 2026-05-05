@@ -1,15 +1,21 @@
 import { useState, useCallback, useMemo } from "react";
 
+/** SVG geometry element types that can be stored */
+export type SvgGeometryElement = SVGCircleElement | SVGLineElement | SVGPolygonElement | SVGGElement;
+
+/** Geometry type names - mirrors GeometryValue['type'] from types/geometry.ts */
+export type GeometryType = "point" | "line" | "circle" | "polygon" | "coordinate_system";
+
 /**
  * Represents a geometry item stored in the React store.
  * Contains the SVG element, its metadata, and dependency tracking information.
  */
 export interface GeometryItem {
   name: string;
-  element: any;
+  element: SvgGeometryElement;
   selected: boolean;
-  type: string;
-  context?: any;
+  type: GeometryType;
+  context?: unknown;
   // Store original attributes
   initialState?: Record<string, string>;
   // IDs of geometries this item depends on
@@ -27,14 +33,14 @@ export interface GeometryItem {
  * Provides methods for adding, updating, and clearing geometry items.
  */
 export interface GeometryStore {
-  items: Record<string, GeometryItem>;
-  add: (name: string, element: any, type: string, dependsOn: string[]) => void;
+  readonly items: Readonly<Record<string, GeometryItem>>;
+  add: (name: string, element: SvgGeometryElement, type: GeometryType, dependsOn: string[]) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
   clear: () => void;
 }
 
 // Attributes to preserve for each geometry type
-const ATTRIBUTES_TO_PRESERVE: Record<string, string[]> = {
+const ATTRIBUTES_TO_PRESERVE: Record<GeometryType, string[]> = {
   point: ["fill", "r", "cx", "cy"],
   line: ["stroke", "stroke-width", "x1", "y1", "x2", "y2"],
   circle: ["stroke", "stroke-width", "cx", "cy", "r"],
@@ -47,7 +53,11 @@ const ATTRIBUTES_TO_PRESERVE: Record<string, string[]> = {
 // type - The geometry type
 // name - The element name (for error reporting)
 // returns Record of attribute names and their original values
-function captureInitialState(element: any, type: string, name: string): Record<string, string> {
+function captureInitialState(
+  element: SvgGeometryElement,
+  type: GeometryType,
+  name: string,
+): Record<string, string> {
   const initialState: Record<string, string> = {};
   const attributes = ATTRIBUTES_TO_PRESERVE[type] || [];
 
@@ -72,27 +82,30 @@ function captureInitialState(element: any, type: string, name: string): Record<s
 function useGeometryStoreImpl(): GeometryStore {
   const [items, setItems] = useState<Record<string, GeometryItem>>({});
 
-  const add = useCallback((name: string, element: any, type: string, dependsOn: string[]) => {
-    setItems((old) => {
-      const newItems = { ...old };
-      const initialState = captureInitialState(element, type, name);
-      const existingItem = old[name];
+  const add = useCallback(
+    (name: string, element: SvgGeometryElement, type: GeometryType, dependsOn: string[]) => {
+      setItems((old) => {
+        const newItems = { ...old };
+        const initialState = captureInitialState(element, type, name);
+        const existingItem = old[name];
 
-      newItems[name] = {
-        name,
-        element,
-        // Preserve existing selected state if this item already exists
-        selected: existingItem?.selected ?? false,
-        type,
-        initialState:
-          Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
-        dependsOn: existingItem?.dependsOn ?? dependsOn,
-        stepId: "",
-        parameterValues: {},
-      };
-      return newItems;
-    });
-  }, []);
+        newItems[name] = {
+          name,
+          element,
+          // Preserve existing selected state if this item already exists
+          selected: existingItem?.selected ?? false,
+          type,
+          initialState:
+            Object.keys(initialState).length > 0 ? initialState : existingItem?.initialState,
+          dependsOn: existingItem?.dependsOn ?? dependsOn,
+          stepId: "",
+          parameterValues: {},
+        };
+        return newItems;
+      });
+    },
+    [],
+  );
 
   const update = useCallback((k: string, o: Partial<GeometryItem>) => {
     setItems((old) => {
