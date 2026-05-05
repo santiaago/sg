@@ -30,11 +30,12 @@ export function createHexagonConstruction(
   const circle = c.circle(center, radius, "hex_circle");
 
   // Create 6 points around the circle
+  const ANGLE_INCREMENT = (Math.PI * 2) / 6;
   const points: PointRef[] = [];
   const sides: LineRef[] = [];
 
   for (let i = 0; i < 6; i++) {
-    const angle = (i * Math.PI * 2) / 6;
+    const angle = i * ANGLE_INCREMENT;
     const x = centerX + radius * Math.cos(angle);
     const y = centerY + radius * Math.sin(angle);
     const p = c.point(x, y, `hex_p${i}`);
