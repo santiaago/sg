@@ -12,6 +12,7 @@
 
 - source code: (original svelte `app`, new react app `app2`, shared geometry package at `packages/geometry`)
 - docs: `README.md`
+- backlog: Code review documents and tracking (`backlog/`)
 
 ## Build, Test, and Development Commands
 
