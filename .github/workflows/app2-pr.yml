@@ -13,7 +13,6 @@ on:
 concurrency:
   group: app2-pr-${{ github.ref }}
   cancel-in-progress: true
-fail-fast: true
 
 jobs:
   app2-checks:
