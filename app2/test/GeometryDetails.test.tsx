@@ -106,7 +106,8 @@ describe("GeometryDetails", () => {
 
     render(<GeometryDetails store={store} />);
 
-    expect(screen.getByText("Created by step: step_c1")).toBeInTheDocument();
+    expect(screen.getByTestId("geometry-step-id")).toHaveTextContent("step_c1");
+    expect(screen.getByText("Created by step:")).toBeInTheDocument();
   });
 
   it("does not display stepId section when empty", () => {

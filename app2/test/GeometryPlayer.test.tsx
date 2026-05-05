@@ -140,7 +140,7 @@ describe("GeometryPlayer Component", () => {
     it("should call onFirstStep when first step button clicked", async () => {
       const onFirstStep = vi.fn();
       const user = userEvent.setup();
-      render(<GeometryPlayer {...defaultProps} onFirstStep={onFirstStep} />);
+      render(<GeometryPlayer {...defaultProps} currentStep={1} onFirstStep={onFirstStep} />);
 
       await user.click(screen.getByLabelText("First step"));
       expect(onFirstStep).toHaveBeenCalledTimes(1);

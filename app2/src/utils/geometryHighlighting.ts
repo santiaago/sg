@@ -148,8 +148,7 @@ export function restoreInitialState(element: HighlightElement, shape: GeometryIt
 
 /**
  * Select a geometry item and apply visual feedback.
- * If the item is already selected, deselects it (toggle behavior).
- * Otherwise, deselects all other geometries and selects the clicked one.
+ * Always deselects all other geometries and selects the clicked one.
  * Used by both GeometryList and GeometryDetails for consistent selection behavior.
  */
 export function selectGeometry(
@@ -160,26 +159,18 @@ export function selectGeometry(
   const item = store.items[geometryName] as GeometryItem | undefined;
   if (!item || !item.element) return;
 
-  const isAlreadySelected = item.selected;
+  // Deselect all first
+  Object.keys(store.items).forEach((key) => {
+    const existingItem = store.items[key] as GeometryItem | undefined;
+    if (existingItem && existingItem.element) {
+      store.update(key, { selected: false });
+      applyVisualFeedback(existingItem.element, { ...existingItem, selected: false }, strokeBig);
+    }
+  });
 
-  if (isAlreadySelected) {
-    // Deselect this item only (toggle off)
-    store.update(geometryName, { selected: false });
-    applyVisualFeedback(item.element, { ...item, selected: false }, strokeBig);
-  } else {
-    // Deselect all first
-    Object.keys(store.items).forEach((key) => {
-      const existingItem = store.items[key] as GeometryItem | undefined;
-      if (existingItem && existingItem.element) {
-        store.update(key, { selected: false });
-        applyVisualFeedback(existingItem.element, { ...existingItem, selected: false }, strokeBig);
-      }
-    });
-
-    // Select the clicked one
-    store.update(geometryName, { selected: true });
-    applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
-  }
+  // Select the clicked one
+  store.update(geometryName, { selected: true });
+  applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
 }
 
 /**
