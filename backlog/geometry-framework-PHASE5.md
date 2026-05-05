@@ -580,7 +580,6 @@ export * from "./pentagon";
 - [x] Implement hexagon construction
 - [ ] Implement pentagon construction (optional)
 - [x] Create index.ts exports
-- [ ] Create index.ts for exports
 - [ ] Add tests for test constructions
 
 ---
