@@ -367,6 +367,68 @@ test.describe("Navigation & URL Hash", () => {
     });
   });
 
+  test.describe("First and Last button states", () => {
+    test("Square: First (<<) button is disabled at step 0", async ({ page }) => {
+      await goToSection(page, SECTION_SQUARE);
+
+      const firstButton = page.locator("#square").getByTestId("step-first");
+      await expect(firstButton).toBeDisabled();
+    });
+
+    test("Square: Last (>>) button is enabled at step 0", async ({ page }) => {
+      await goToSection(page, SECTION_SQUARE);
+
+      const lastButton = page.locator("#square").getByTestId("step-last");
+      await expect(lastButton).toBeEnabled();
+    });
+
+    test("Square: First (<<) button is enabled at last step", async ({ page }) => {
+      await goToSection(page, SECTION_SQUARE);
+      await clickLastButton(page, SECTION_SQUARE);
+
+      const firstButton = page.locator("#square").getByTitle("Go to beginning");
+      await expect(firstButton).toBeEnabled();
+    });
+
+    test("Square: Last (>>) button is disabled at last step", async ({ page }) => {
+      await goToSection(page, SECTION_SQUARE);
+      await clickLastButton(page, SECTION_SQUARE);
+
+      const lastButton = page.locator("#square").getByTitle("Go to end");
+      await expect(lastButton).toBeDisabled();
+    });
+
+    test("SixFold v0: First (<<) button is disabled at step 0", async ({ page }) => {
+      await goToSection(page, SECTION_SIXFOLD_V0);
+
+      const firstButton = page.locator("#sixfold-v0").getByTestId("step-first");
+      await expect(firstButton).toBeDisabled();
+    });
+
+    test("SixFold v0: Last (>>) button is enabled at step 0", async ({ page }) => {
+      await goToSection(page, SECTION_SIXFOLD_V0);
+
+      const lastButton = page.locator("#sixfold-v0").getByTestId("step-last");
+      await expect(lastButton).toBeEnabled();
+    });
+
+    test("SixFold v0: First (<<) button is enabled at last step", async ({ page }) => {
+      await goToSection(page, SECTION_SIXFOLD_V0);
+      await clickLastButton(page, SECTION_SIXFOLD_V0);
+
+      const firstButton = page.locator("#sixfold-v0").getByTitle("Go to beginning");
+      await expect(firstButton).toBeEnabled();
+    });
+
+    test("SixFold v0: Last (>>) button is disabled at last step", async ({ page }) => {
+      await goToSection(page, SECTION_SIXFOLD_V0);
+      await clickLastButton(page, SECTION_SIXFOLD_V0);
+
+      const lastButton = page.locator("#sixfold-v0").getByTitle("Go to end");
+      await expect(lastButton).toBeDisabled();
+    });
+  });
+
   test.describe("Complete navigation cycle", () => {
     test("Square: complete navigation cycle", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE);
