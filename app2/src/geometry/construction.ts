@@ -22,6 +22,42 @@ import {
 } from "@sg/geometry";
 
 // =============================================================================
+// Validation Types
+// =============================================================================
+
+/**
+ * Result of construction validation.
+ */
+export interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
+}
+
+/**
+ * Validation error with severity level.
+ */
+export interface ValidationError {
+  type: string;
+  stepId?: string;
+  geometryId?: string;
+  message: string;
+  severity: "error";
+}
+
+/**
+ * Validation warning with severity level.
+ */
+export interface ValidationWarning {
+  type: string;
+  stepId?: string;
+  geometryId?: string;
+  message: string;
+  severity: "warning";
+}
+
+// ===
+// =============================================================================
 // Layer 2: Typed References (Pure Identifiers)
 // =============================================================================
 
@@ -160,6 +196,20 @@ export interface InternalStep {
 }
 
 // =============================================================================
+// Undo/Redo Types
+// =============================================================================
+
+/**
+ * State snapshot for undo/redo history.
+ */
+export interface ConstructionState {
+  values: Map<string, GeometryValue>;
+  steps: InternalStep[];
+  stepIndex: number;
+}
+
+// ===
+// =============================================================================
 // Construction Class
 // =============================================================================
 
@@ -197,10 +247,34 @@ export class Construction {
   // Track which points lie on which geometries (for "other" intersection)
   private _pointsOnGeom = new Map<string, Set<string>>();
 
-  // Counter for auto-naming (avoids gaps from potential future undo/redo)
-  private _nameCounter = 0;
+  
 
   // =======================================================================
+  // Undo/Redo Support
+  // =======================================================================
+  // Serialization Support
+  // =======================================================================
+  // Parameter Support
+  // =======================================================================
+
+  // Parameter storage
+  private _parameters = new Map<string, number>();
+
+  // ===  // =======================================================================
+
+  /**
+   * Current serialization version.
+   */
+  static readonly SERIALIZATION_VERSION = 1;
+
+  // ===  // =======================================================================
+
+  // History stack for undo/redo
+  private _history: ConstructionState[] = [];
+  private _historyIndex = -1;
+  private readonly _maxHistory = 100;
+
+  // ========================================
   // Base Geometry Creators
   // =======================================================================
 
@@ -905,6 +979,81 @@ export class Construction {
   }
 
   // =======================================================================
+  // Undo/Redo Support
+  // =======================================================================
+
+  /**
+   * Save current state to history before making changes.
+   */
+  private _saveToHistory(): void {
+    // Remove any redo history
+    this._history = this._history.slice(0, this._historyIndex + 1);
+
+    // Save current state
+    const state: ConstructionState = {
+      values: new Map(this._values),
+      steps: [...this._steps],
+      stepIndex: this._stepIndex,
+    };
+
+    this._history.push(state);
+    this._historyIndex = this._history.length - 1;
+
+    // Limit history size
+    if (this._history.length > this._maxHistory) {
+      this._history.shift();
+      this._historyIndex--;
+    }
+  }
+
+  /**
+   * Undo the last operation.
+   */
+  undo(): void {
+    if (this._historyIndex <= 0) return;
+
+    this._historyIndex--;
+    const previousState = this._history[this._historyIndex];
+
+    this._values = new Map(previousState.values);
+    this._steps = [...previousState.steps];
+    this._stepIndex = previousState.stepIndex;
+  }
+
+  /**
+   * Redo the last undone operation.
+   */
+  redo(): void {
+    if (this._historyIndex >= this._history.length - 1) return;
+
+    this._historyIndex++;
+    const nextState = this._history[this._historyIndex];
+
+    this._values = new Map(nextState.values);
+    this._steps = [...nextState.steps];
+    this._stepIndex = nextState.stepIndex;
+  }
+
+  /**
+   * Clear history.
+   */
+  clearHistory(): void {
+    this._history = [];
+    this._historyIndex = -1;
+  }
+
+  /**
+   * Get undo/redo state.
+   */
+  getHistoryState(): { canUndo: boolean; canRedo: boolean } {
+    return {
+      canUndo: this._historyIndex > 0,
+      canRedo: this._historyIndex < this._history.length - 1,
+    };
+  }
+
+  // ===
+  // =================================================================
   // Private Helpers
   // =======================================================================
 
@@ -921,6 +1070,7 @@ export class Construction {
    * Store a geometry value and create a step for it.
    */
   private _storeGeom(id: string, value: GeometryValue, dependencies: string[]): void {
+    this._saveToHistory();
     this._values.set(id, value);
     this._steps.push({
       id,
