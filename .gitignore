@@ -21,8 +21,15 @@ package-lock.json
 dist/
 *.tsbuildinfo
 
+# Ignore test results
+**/test-results/
+**/.last-run.json
+
 # Ignore worktrees directory
 .worktrees/
 
 # Ignore worktree manager log
 .worktrees.log
+
+# Ignore AI assistant tool directories
+.claude/

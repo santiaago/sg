@@ -104,13 +104,24 @@ export function GeometryList({
     const item = store.items[name] as GeometryItem | undefined;
     if (!item) return;
 
+    // Determine if we're selecting or deselecting based on current state
+    const isCurrentlySelected = item.selected;
+    const willBeSelected = !isCurrentlySelected;
+
     // Use shared selection utility for consistent behavior
     selectGeometry(store, name, strokeBig);
 
     // Update highlighted inputs based on selection
     if (showInputHighlight) {
-      // Highlight this item's dependencies
-      setHighlightedInputs(new Set(item.dependsOn || []));
+      // After the toggle, if the item will be selected, highlight its dependencies
+      // This is determined before the async store update to avoid race conditions
+      if (willBeSelected) {
+        // Highlight this item's dependencies
+        setHighlightedInputs(new Set(item.dependsOn || []));
+      } else {
+        // Clear highlighted inputs when deselecting
+        setHighlightedInputs(new Set());
+      }
     }
   };
 
@@ -131,7 +142,7 @@ export function GeometryList({
   };
 
   return (
-    <div className="geometry-list">
+    <div className="geometry-list" data-testid="geometry-list">
       <h3>Geometry Items</h3>
 
       {showNameFilter && (
@@ -179,6 +190,8 @@ export function GeometryList({
             key={key}
             onClick={() => handleClick(key)}
             className={`cursor-pointer hover:underline ${getItemColor(key)}`}
+            data-testid={`geometry-item-${key}`}
+            aria-selected={(item as GeometryItem).selected}
           >
             {(item as GeometryItem).name} | {(item as GeometryItem).type}
           </li>

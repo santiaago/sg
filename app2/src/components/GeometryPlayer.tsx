@@ -113,6 +113,7 @@ export function GeometryPlayer({
               onChange={handleSliderChange}
               aria-label="Step navigation"
               name="step-slider"
+              data-testid="step-slider"
               className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
               style={{
                 background: `linear-gradient(to right, #3b82f6 0%, #3b82f6 ${progressPercent}%, #4b5563 ${progressPercent}%, #4b5563 100%)`,
@@ -130,9 +131,15 @@ export function GeometryPlayer({
           {onFirstStep && (
             <button
               onClick={onFirstStep}
-              className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              className={`px-4 py-2 text-white rounded ${
+                currentStep <= 0
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-gray-800 hover:bg-gray-700"
+              }`}
+              disabled={currentStep <= 0}
               title="Go to beginning"
               aria-label="First step"
+              data-testid="step-first"
             >
               ««
             </button>
@@ -148,6 +155,7 @@ export function GeometryPlayer({
               }`}
               disabled={currentStep <= 0}
               aria-label="Previous step"
+              data-testid="step-prev"
             >
               prev
             </button>
@@ -161,6 +169,7 @@ export function GeometryPlayer({
               }`}
               title={isPlaying ? "Pause animation" : "Play animation"}
               aria-label={isPlaying ? "Pause animation" : "Play animation"}
+              data-testid="step-play"
             >
               {isPlaying ? "⏸" : "▶"}
             </button>
@@ -176,6 +185,7 @@ export function GeometryPlayer({
               }`}
               disabled={currentStep >= totalSteps}
               aria-label="Next step"
+              data-testid="step-next"
             >
               next
             </button>
@@ -184,9 +194,15 @@ export function GeometryPlayer({
           {onLastStep && (
             <button
               onClick={onLastStep}
-              className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+              className={`px-4 py-2 text-white rounded ${
+                currentStep >= totalSteps
+                  ? "bg-gray-600 cursor-not-allowed"
+                  : "bg-gray-800 hover:bg-gray-700"
+              }`}
+              disabled={currentStep >= totalSteps}
               title="Go to end"
               aria-label="Last step"
+              data-testid="step-last"
             >
               »»
             </button>
@@ -197,6 +213,7 @@ export function GeometryPlayer({
               onClick={onRestart}
               className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
               aria-label="Restart animation"
+              data-testid="step-restart"
             >
               restart
             </button>
@@ -209,6 +226,7 @@ export function GeometryPlayer({
                 showInputHighlight ? "bg-blue-600" : "bg-gray-800 hover:bg-gray-700"
               }`}
               aria-label="Toggle input highlights"
+              data-testid="inputs-toggle"
             >
               inputs
             </button>

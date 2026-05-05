@@ -155,13 +155,35 @@ export function GeometryDetails({
   );
 
   if (!selectedGeometry) {
-    return <></>;
+    return (
+      <div
+        className="mb-4 p-3 bg-slate-800 rounded border border-slate-700 hidden"
+        data-testid="geometry-details"
+      />
+    );
   }
+
+  const handleStepClick = (): void => {
+    // This would navigate to the step that created this geometry
+    // For now, we just make the step ID clickable
+    if (selectedGeometry.stepId && steps) {
+      // Find the step index
+      const stepIndex = steps.findIndex((s) => s.id === selectedGeometry.stepId);
+      if (stepIndex !== -1) {
+        // The onClick would be passed from parent
+        // For now, we just log to console
+        console.log(`Navigating to step ${stepIndex + 1} (${selectedGeometry.stepId})`);
+      }
+    }
+  };
 
   const outputs = getOutputs(store, selectedGeometry.stepId, steps);
 
   return (
-    <div className="mb-4 p-3 bg-slate-800 rounded border border-slate-700">
+    <div
+      className="mb-4 p-3 bg-slate-800 rounded border border-slate-700"
+      data-testid="geometry-details"
+    >
       <h3 className="text-sm font-medium text-gray-200 mb-3">Details</h3>
 
       {/* Geometry Section */}
@@ -173,7 +195,14 @@ export function GeometryDetails({
         </div>
         {selectedGeometry.stepId && (
           <div className="text-xs text-gray-500 mt-0.5">
-            Created by step: {selectedGeometry.stepId}
+            Created by step:{" "}
+            <span
+              onClick={handleStepClick}
+              className="cursor-pointer hover:underline text-gray-300"
+              data-testid="geometry-step-id"
+            >
+              {selectedGeometry.stepId}
+            </span>
           </div>
         )}
       </div>
