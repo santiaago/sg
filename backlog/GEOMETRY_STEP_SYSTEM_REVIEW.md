@@ -3,7 +3,7 @@
 **Priority**: CRITICAL - Priority 1  
 **Date**: 2024  
 **Reviewer**: Mistral Vibe Code  
-**Status**: Complete  
+**Status**: Complete
 
 ---
 
@@ -21,17 +21,17 @@ The Geometry Step System is the core domain logic of the application, implementi
 
 **File**: `app2/src/react-store.ts`  
 **Severity**: CRITICAL  
-**Impact**: Type safety compromised throughout the application  
+**Impact**: Type safety compromised throughout the application
 
-**Issue**: 
+**Issue**:
 The `GeometryStore` interface uses `any` for the `element` property in `GeometryItem`:
 
 ```typescript
 interface GeometryItem {
   name: string;
-  element: any;  // <-- CRITICAL: Should be typed
+  element: any; // <-- CRITICAL: Should be typed
   selected: boolean;
-  type: string;  // <-- Should be union type
+  type: string; // <-- Should be union type
   // ...
 }
 ```
@@ -39,25 +39,31 @@ interface GeometryItem {
 This cascades to all store operations, losing type information for SVG elements.
 
 **Solution**:
+
 ```typescript
 // In types/geometry.ts or react-store.ts
-export type SvgGeometryElement = SVGCircleElement | SVGLineElement | SVGPolygonElement | SVGGElement;
+export type SvgGeometryElement =
+  | SVGCircleElement
+  | SVGLineElement
+  | SVGPolygonElement
+  | SVGGElement;
 
 export interface GeometryItem {
   name: string;
   element: SvgGeometryElement;
   selected: boolean;
-  type: GeometryType;  // Use the existing GeometryType from types/geometry.ts
+  type: GeometryType; // Use the existing GeometryType from types/geometry.ts
   dependsOn: string[];
   stepId: string;
   parameterValues: Record<string, unknown>;
   isInputHighlighted?: boolean;
-  context?: unknown;  // If context is truly dynamic, use unknown
+  context?: unknown; // If context is truly dynamic, use unknown
   initialState?: Record<string, string>;
 }
 ```
 
 **Files to Update**:
+
 - `app2/src/react-store.ts` - Update `GeometryItem.element` type
 - `app2/src/svgElements.ts` - Update global type extensions to use proper types
 - All files importing `GeometryStore` - May need adjustments
@@ -67,12 +73,13 @@ export interface GeometryItem {
 ### 1.2 Missing Type for `GeometryStore.items`
 
 **File**: `app2/src/react-store.ts:14`  
-**Severity**: CRITICAL  
+**Severity**: CRITICAL
 
-**Issue**: 
+**Issue**:
+
 ```typescript
 export interface GeometryStore {
-  items: Record<string, GeometryItem>;  // Should be Readonly<Record<string, GeometryItem>>
+  items: Record<string, GeometryItem>; // Should be Readonly<Record<string, GeometryItem>>
   add: (name: string, element: any, type: string, dependsOn: string[]) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
   clear: () => void;
@@ -82,6 +89,7 @@ export interface GeometryStore {
 The `items` property should be readonly to prevent direct mutation outside the store methods.
 
 **Solution**:
+
 ```typescript
 export interface GeometryStore {
   readonly items: Readonly<Record<string, GeometryItem>>;
@@ -96,16 +104,18 @@ export interface GeometryStore {
 ### 1.3 Inconsistent Geometry Type Representation
 
 **Files**: Multiple files  
-**Severity**: HIGH  
+**Severity**: HIGH
 
-**Issue**: 
+**Issue**:
 There are multiple ways to represent geometry types:
+
 1. `GeometryValue` union type in `types/geometry.ts`
 2. String literals like `"point"`, `"line"`, `"circle"`
 3. `GeometryType` type alias
 4. Hardcoded strings in `react-store.ts` ATTRIBUTES_TO_PRESERVE
 
 **Solution**:
+
 - Use `GeometryType` consistently throughout
 - Update `ATTRIBUTES_TO_PRESERVE` to use `GeometryType` as keys
 - Ensure all type checks use the type guards from `types/geometry.ts`
@@ -116,15 +126,17 @@ There are multiple ways to represent geometry types:
 
 ### 2.1 Code Duplication Between Square and SixFoldV0 Steps
 
-**Files**: 
+**Files**:
+
 - `app2/src/geometry/squareSteps.ts`
 - `app2/src/geometry/sixFoldV0Steps.ts`
 
 **Severity**: HIGH  
-**Impact**: Maintenance burden, potential for inconsistencies  
+**Impact**: Maintenance burden, potential for inconsistencies
 
-**Issue**: 
+**Issue**:
 Both files define steps with identical patterns:
+
 - Each step has `id`, `inputs`, `outputs`, `parameters`, `compute`, `draw`
 - Both use `computeSingle` helper
 - Both have similar coordinate system, point, line, circle steps
@@ -175,7 +187,15 @@ export function createLineStep<TConfig>(
     draw: (svg, values, store, theme) => {
       const l = values.get(config.outputs[0]);
       if (!l || !isLine(l)) return;
-      drawLine(svg, values, config.outputs[0], 0.5, store, theme, strokeColor?.(theme) ?? theme.COLOR_PRIMARY);
+      drawLine(
+        svg,
+        values,
+        config.outputs[0],
+        0.5,
+        store,
+        theme,
+        strokeColor?.(theme) ?? theme.COLOR_PRIMARY,
+      );
     },
   };
 }
@@ -198,7 +218,8 @@ export function createCircleStep<TConfig>(
 
 This would reduce both files significantly and ensure consistency.
 
-**Estimated Impact**: 
+**Estimated Impact**:
+
 - Square steps: ~645 lines → ~300 lines (53% reduction)
 - SixFoldV0 steps: ~2308 lines → ~1200 lines (48% reduction)
 
@@ -207,15 +228,17 @@ This would reduce both files significantly and ensure consistency.
 ### 2.2 Inconsistent Error Handling
 
 **Files**: All step definition files  
-**Severity**: HIGH  
+**Severity**: HIGH
 
-**Issue**: 
+**Issue**:
 Error handling is inconsistent across steps:
+
 - Some steps throw errors with descriptive messages
 - Some steps return null/undefined and let it fail silently
 - Some steps have no error handling at all
 
 Examples:
+
 ```typescript
 // Good: squareSteps.ts STEP_C2
 if (!c2) throw new Error("C1_CIRCLE and MAIN_LINE do not intersect");
@@ -262,6 +285,7 @@ export function assertGeometry<T>(
 ```
 
 Then update all steps to use consistent error handling:
+
 ```typescript
 // Instead of:
 if (!c2) throw new Error("C1_CIRCLE and MAIN_LINE do not intersect");
@@ -271,7 +295,7 @@ const c2 = assertGeometry(
   pointFromCircleAndLine(c1_c, mainLine, { tolerance: params.tolerance }),
   step.id,
   GEOM.C2,
-  "Point"
+  "Point",
 );
 ```
 
@@ -280,9 +304,9 @@ const c2 = assertGeometry(
 ### 2.3 Missing Input Validation in `getGeometry`
 
 **File**: `app2/src/geometry/operations.ts:85-97`  
-**Severity**: HIGH  
+**Severity**: HIGH
 
-**Issue**: 
+**Issue**:
 The `getGeometry` function throws errors for missing or wrong-type geometry, but these errors don't include context about which step is failing:
 
 ```typescript
@@ -294,10 +318,10 @@ export function getGeometry<T extends GeometryValue>(
 ): T {
   const value = values.get(id);
   if (!value) {
-    throw new Error(`Missing geometry: ${id}`);  // No step context
+    throw new Error(`Missing geometry: ${id}`); // No step context
   }
   if (!typeGuard(value)) {
-    throw new Error(`Expected ${typeName} for ${id}, got ${value.type}`);  // No step context
+    throw new Error(`Expected ${typeName} for ${id}, got ${value.type}`); // No step context
   }
   return value;
 }
@@ -312,7 +336,7 @@ export function getGeometry<T extends GeometryValue>(
   id: string,
   typeGuard: (v: GeometryValue) => v is T,
   typeName: string,
-  stepId?: string,  // Optional step context
+  stepId?: string, // Optional step context
 ): T {
   const value = values.get(id);
   const context = stepId ? `[${stepId}] ` : "";
@@ -332,13 +356,14 @@ Update all step definitions to pass `step.id` as the last parameter.
 
 ### 2.4 Duplicate `executeStep` and `executeSteps` Functions
 
-**Files**: 
+**Files**:
+
 - `app2/src/geometry/squareSteps.ts:597-645`
 - `app2/src/geometry/sixFoldV0Steps.ts:2168-2208`
 
-**Severity**: HIGH  
+**Severity**: HIGH
 
-**Issue**: 
+**Issue**:
 Both files define identical `executeStep` and `executeSteps` functions:
 
 ```typescript
@@ -414,14 +439,16 @@ Then import and use in both step files.
 ### 2.5 Inconsistent Geometry ID Naming Convention
 
 **Files**: All geometry step files  
-**Severity**: MEDIUM  
+**Severity**: MEDIUM
 
-**Issue**: 
+**Issue**:
 Geometry IDs use inconsistent naming:
+
 - Square: `GEOM.C1`, `GEOM.C2`, `GEOM.P1`, `GEOM.P2`
 - SixFoldV0: `GEOM.CP1`, `GEOM.CP2`, `GEOM.PIC12`, `GEOM.L12`
 
 The naming is inconsistent even within SixFoldV0:
+
 - Some use prefixes: `CP1`, `CPIC12`
 - Some don't: `P1`, `P2`
 - Some use underscores: `L12`, `LPIC12`
@@ -431,11 +458,13 @@ The naming is inconsistent even within SixFoldV0:
 Adopt a consistent naming convention:
 
 **Recommended Convention**:
+
 - Use lowercase with underscores for readability
 - Include type prefix: `point_`, `line_`, `circle_`
 - Be descriptive: `point_c1`, `line_main`, `circle_center_1`
 
 Or keep the current convention but document it:
+
 ```typescript
 // Geometry ID Naming Convention:
 // - Points: P1, P2, P3, ... or CP1, CP2, ... (circle centers)
@@ -451,10 +480,11 @@ Or keep the current convention but document it:
 ### 3.1 Missing Dependency Tracking in Step Definitions
 
 **Files**: All step definition files  
-**Severity**: MEDIUM  
+**Severity**: MEDIUM
 
-**Issue**: 
+**Issue**:
 Steps declare `inputs` and `outputs`, but there's no automatic validation that:
+
 1. All inputs declared in `inputs` are actually used in `compute()`
 2. All outputs declared in `outputs` are actually produced by `compute()`
 3. The dependency graph is acyclic
@@ -505,19 +535,19 @@ export function validateStep<TConfig>(
 ### 3.2 Magic Numbers in Step Definitions
 
 **Files**: All step definition files  
-**Severity**: MEDIUM  
+**Severity**: MEDIUM
 
-**Issue**: 
+**Issue**:
 Hardcoded values appear throughout step definitions:
 
 ```typescript
 // squareSteps.ts
-strokeWidth: 0.5  // Magic number
-radius: 2.0       // Magic number
+strokeWidth: 0.5; // Magic number
+radius: 2.0; // Magic number
 
 // sixFoldV0Steps.ts
-drawPoint(svg, values, GEOM.P1, 2.0, store, theme);  // 2.0 appears 50+ times
-drawLine(svg, values, GEOM.LINE1, 0.5, store, theme, theme.COLOR_PRIMARY);  // 0.5 appears 100+ times
+drawPoint(svg, values, GEOM.P1, 2.0, store, theme); // 2.0 appears 50+ times
+drawLine(svg, values, GEOM.LINE1, 0.5, store, theme, theme.COLOR_PRIMARY); // 0.5 appears 100+ times
 ```
 
 **Solution**:
@@ -531,15 +561,15 @@ export const GEOMETRY_CONFIG = {
   STROKE_WIDTH_MEDIUM: 1.0,
   STROKE_WIDTH_THICK: 2.0,
   STROKE_WIDTH_OUTLINE: 2.0,
-  
+
   // Point sizes
   POINT_RADIUS_SMALL: 1.0,
   POINT_RADIUS_MEDIUM: 2.0,
   POINT_RADIUS_LARGE: 3.0,
-  
+
   // Line extension
   LINE_EXTENSION_MULTIPLIER: 2.2,
-  
+
   // Tolerance
   DEFAULT_TOLERANCE: 0.001,
 } as const;
@@ -552,10 +582,11 @@ Then use these constants in all step definitions.
 ### 3.3 Missing JSDoc for Step Parameters
 
 **Files**: All step definition files  
-**Severity**: MEDIUM  
+**Severity**: MEDIUM
 
-**Issue**: 
+**Issue**:
 Many steps lack JSDoc comments explaining:
+
 - What the step does
 - What each input represents
 - What each output represents
@@ -567,16 +598,16 @@ Add consistent JSDoc to all steps. Example:
 ```typescript
 /**
  * Step 6: Circle center C2
- * 
+ *
  * Computes the second circle center as the left intersection of C1_CIRCLE with MAIN_LINE.
- * 
+ *
  * @inputs
  * - GEOM.MAIN_LINE: The base horizontal line
  * - GEOM.C1_CIRCLE: The first circle centered at C1
- * 
+ *
  * @outputs
  * - GEOM.C2: The computed circle center point
- * 
+ *
  * @parameters
  * - tolerance: Numerical tolerance for intersection calculation
  */
@@ -590,9 +621,9 @@ const STEP_C2: Step<SquareConfig> = {
 ### 3.4 Inconsistent Import Patterns
 
 **Files**: All geometry files  
-**Severity**: MEDIUM  
+**Severity**: MEDIUM
 
-**Issue**: 
+**Issue**:
 Inconsistent imports between files:
 
 ```typescript
@@ -645,9 +676,9 @@ import {
 ### 3.5 Missing Index File for SixFold Module
 
 **File**: `app2/src/geometry/sixFold/`  
-**Severity**: MEDIUM  
+**Severity**: MEDIUM
 
-**Issue**: 
+**Issue**:
 The `sixFold` directory has `operations.ts` but no `index.ts` to re-export its contents. This leads to inconsistent import paths:
 
 ```typescript
@@ -670,9 +701,9 @@ export * from "./operations";
 ### 3.6 Unused Imports in sixFoldV0Steps.ts
 
 **File**: `app2/src/geometry/sixFoldV0Steps.ts:1-25`  
-**Severity**: LOW  
+**Severity**: LOW
 
-**Issue**: 
+**Issue**:
 Several imports are declared but not used:
 
 ```typescript
@@ -724,10 +755,11 @@ import type { SixFoldV0Config, SixFoldV0Step } from "./sixFold/operations";
 ### 4.1 Inconsistent Step ID Naming
 
 **Files**: All step definition files  
-**Severity**: LOW  
+**Severity**: LOW
 
-**Issue**: 
+**Issue**:
 Step IDs use different naming conventions:
+
 - Square: `step_coordinate_system`, `step_p1`, `step_p2`
 - SixFoldV0: `step0`, `step1`, `step2`, ..., `step93`
 
@@ -748,9 +780,9 @@ const STEP_1: Step<...> = { id: "step_01", ... };
 ### 4.2 Missing Type for Step Parameters Array
 
 **File**: `app2/src/types/geometry.ts:54`  
-**Severity**: LOW  
+**Severity**: LOW
 
-**Issue**: 
+**Issue**:
 The `parameters` field in `Step` interface is typed as `(keyof TConfig)[]`, but this doesn't enforce that the parameters actually exist in TConfig.
 
 **Solution**:
@@ -766,9 +798,9 @@ export type StepParameters<TConfig> = (keyof TConfig)[];
 ### 4.3 Inconsistent Use of `computeSingle` vs Direct Compute
 
 **Files**: All step definition files  
-**Severity**: LOW  
+**Severity**: LOW
 
-**Issue**: 
+**Issue**:
 Most steps use `computeSingle`, but some could potentially use `computeMultiple` for steps that produce multiple outputs. Currently all steps produce exactly one output.
 
 **Solution**:
@@ -779,9 +811,9 @@ This is fine. The `computeSingle` helper is appropriate for the current design w
 ### 4.4 Missing Export of Step Types from Index
 
 **File**: `app2/src/geometry/index.ts`  
-**Severity**: LOW  
+**Severity**: LOW
 
-**Issue**: 
+**Issue**:
 The index file doesn't export step arrays:
 
 ```typescript
@@ -811,16 +843,16 @@ export * from "./sixFold/operations";
 ### 5.1 Map Copying in executeStep
 
 **Files**: `executeStep` functions  
-**Severity**: LOW  
+**Severity**: LOW
 
-**Issue**: 
+**Issue**:
 Each `executeStep` call creates new Maps:
 
 ```typescript
 const inputValues = new Map<string, GeometryValue>();
 // ... populate
 const outputValues = step.compute(inputValues, config);
-const newAllValues = new Map(allValues);  // Full copy
+const newAllValues = new Map(allValues); // Full copy
 for (const [id, value] of outputValues) {
   newAllValues.set(id, value);
 }
@@ -850,7 +882,7 @@ export function executeSteps<TConfig>(
     }
     const outputValues = step.compute(inputValues, config);
     for (const [id, value] of outputValues) {
-      allValues.set(id, value);  // Mutate the shared map
+      allValues.set(id, value); // Mutate the shared map
     }
     step.draw(ctx.svg, allValues, ctx.store, ctx.theme);
   }
@@ -865,13 +897,14 @@ export function executeSteps<TConfig>(
 ### 5.2 SVG Element Creation Overhead
 
 **Files**: `app2/src/svgElements.ts`  
-**Severity**: LOW  
+**Severity**: LOW
 
-**Issue**: 
+**Issue**:
 Each draw function creates new SVG elements and appends them to the SVG. For complex patterns with many steps, this could cause performance issues.
 
 **Solution**:
 Consider:
+
 1. Using object pooling for SVG elements
 2. Batching DOM updates
 3. Using requestAnimationFrame for rendering
@@ -885,10 +918,11 @@ However, this is likely premature optimization. The current approach is clear an
 ### 6.1 Unit Tests for Geometry Operations
 
 **Files**: `app2/src/geometry/operations.ts`, `app2/src/geometry/constructors.ts`  
-**Severity**: MEDIUM  
+**Severity**: MEDIUM
 
-**Issue**: 
+**Issue**:
 No unit tests exist for core geometry operations like:
+
 - `computeCircleIntersection`
 - `pointFromCircles`
 - `pointFromCircleAndLine`
@@ -908,7 +942,7 @@ describe("computeCircleIntersection", () => {
     const c1 = circle(0, 0, 5);
     const c2 = circle(3, 0, 5);
     const result = computeCircleIntersection(c1, c2, true);
-    
+
     expect(result.pi).toBeDefined();
     expect(result.ci).toBeDefined();
     // North point should have y < 0 (in standard coords)
@@ -929,9 +963,9 @@ describe("computeCircleIntersection", () => {
 ### 6.2 Integration Tests for Step Execution
 
 **Files**: All step definition files  
-**Severity**: MEDIUM  
+**Severity**: MEDIUM
 
-**Issue**: 
+**Issue**:
 No tests verify that steps execute correctly in sequence.
 
 **Solution**:
@@ -978,10 +1012,11 @@ describe("Square Steps", () => {
 
 ### 7.1 Architecture Decision Records (ADRs)
 
-**Severity**: LOW  
+**Severity**: LOW
 
 **Recommendation**:
 Create ADRs for key architectural decisions:
+
 - Why lazy step-by-step execution?
 - Why separate compute and draw?
 - Why Map-based value storage?
@@ -989,7 +1024,7 @@ Create ADRs for key architectural decisions:
 
 ### 7.2 Step Dependency Graph Visualization
 
-**Severity**: LOW  
+**Severity**: LOW
 
 **Recommendation**:
 Create a script to generate a dependency graph visualization:
@@ -1001,7 +1036,7 @@ import { SQUARE_STEPS } from "../app2/src/geometry/squareSteps";
 function generateDependencyGraph(steps: Step[]) {
   const nodes = new Set<string>();
   const edges: [string, string][] = [];
-  
+
   for (const step of steps) {
     for (const input of step.inputs) {
       nodes.add(input);
@@ -1013,7 +1048,7 @@ function generateDependencyGraph(steps: Step[]) {
       }
     }
   }
-  
+
   return { nodes: Array.from(nodes), edges };
 }
 ```
@@ -1024,47 +1059,52 @@ Output could be in DOT format for Graphviz visualization.
 
 ## 8. RANKED ISSUE SUMMARY
 
-| Rank | Issue | Severity | File | Effort | Impact |
-|------|-------|----------|------|--------|--------|
-| 1 | Type safety: `any` in GeometryStore | CRITICAL | react-store.ts | Medium | High |
-| 2 | Missing type for GeometryStore.items | CRITICAL | react-store.ts | Low | High |
-| 3 | Code duplication between Square and SixFoldV0 | HIGH | squareSteps.ts, sixFoldV0Steps.ts | High | High |
-| 4 | Inconsistent error handling | HIGH | All step files | Medium | High |
-| 5 | Duplicate executeStep/executeSteps | HIGH | squareSteps.ts, sixFoldV0Steps.ts | Low | Medium |
-| 6 | Missing input validation context | HIGH | operations.ts | Low | Medium |
-| 7 | Magic numbers in steps | MEDIUM | All step files | Medium | Medium |
-| 8 | Missing JSDoc for steps | MEDIUM | All step files | High | Low |
-| 9 | Inconsistent import patterns | MEDIUM | All geometry files | Low | Low |
-| 10 | Missing sixFold index.ts | MEDIUM | sixFold/index.ts | Low | Low |
-| 11 | Unused imports | LOW | sixFoldV0Steps.ts | Low | Low |
-| 12 | Inconsistent step ID naming | LOW | All step files | Low | Low |
-| 13 | Missing step exports from index | LOW | geometry/index.ts | Low | Low |
+| Rank | Issue                                         | Severity | File                              | Effort | Impact |
+| ---- | --------------------------------------------- | -------- | --------------------------------- | ------ | ------ |
+| 1    | Type safety: `any` in GeometryStore           | CRITICAL | react-store.ts                    | Medium | High   |
+| 2    | Missing type for GeometryStore.items          | CRITICAL | react-store.ts                    | Low    | High   |
+| 3    | Code duplication between Square and SixFoldV0 | HIGH     | squareSteps.ts, sixFoldV0Steps.ts | High   | High   |
+| 4    | Inconsistent error handling                   | HIGH     | All step files                    | Medium | High   |
+| 5    | Duplicate executeStep/executeSteps            | HIGH     | squareSteps.ts, sixFoldV0Steps.ts | Low    | Medium |
+| 6    | Missing input validation context              | HIGH     | operations.ts                     | Low    | Medium |
+| 7    | Magic numbers in steps                        | MEDIUM   | All step files                    | Medium | Medium |
+| 8    | Missing JSDoc for steps                       | MEDIUM   | All step files                    | High   | Low    |
+| 9    | Inconsistent import patterns                  | MEDIUM   | All geometry files                | Low    | Low    |
+| 10   | Missing sixFold index.ts                      | MEDIUM   | sixFold/index.ts                  | Low    | Low    |
+| 11   | Unused imports                                | LOW      | sixFoldV0Steps.ts                 | Low    | Low    |
+| 12   | Inconsistent step ID naming                   | LOW      | All step files                    | Low    | Low    |
+| 13   | Missing step exports from index               | LOW      | geometry/index.ts                 | Low    | Low    |
 
 ---
 
 ## 9. RECOMMENDED ACTION PLAN
 
 ### Phase 1: Critical Fixes (Week 1)
+
 1. Fix `any` usage in GeometryStore (Issue 1.1)
 2. Make GeometryStore.items readonly (Issue 1.2)
 3. Add step context to getGeometry errors (Issue 2.3)
 
 ### Phase 2: High Priority (Week 2)
+
 4. Create step builder pattern to reduce duplication (Issue 2.1)
 5. Standardize error handling with GeometryError class (Issue 2.2)
 6. Move executeStep/executeSteps to shared location (Issue 2.4)
 
 ### Phase 3: Medium Priority (Week 3)
+
 7. Add constants for magic numbers (Issue 3.2)
 8. Add JSDoc to all steps (Issue 3.3)
 9. Create sixFold/index.ts (Issue 3.5)
 10. Update geometry/index.ts exports (Issue 4.4)
 
 ### Phase 4: Testing (Week 4)
+
 11. Add unit tests for geometry operations (Issue 6.1)
 12. Add integration tests for step execution (Issue 6.2)
 
 ### Phase 5: Nice-to-Have (Ongoing)
+
 13. Standardize geometry ID naming (Issue 2.5)
 14. Standardize step ID naming (Issue 4.1)
 15. Add ADRs (Issue 7.1)
@@ -1075,15 +1115,18 @@ Output could be in DOT format for Graphviz visualization.
 ## 10. FILES TO MODIFY
 
 ### Critical (Must Change)
+
 - `app2/src/react-store.ts` - Type safety fixes
 - `app2/src/types/geometry.ts` - May need additions
 
 ### High Priority
+
 - `app2/src/geometry/squareSteps.ts` - Use shared executeStep, add JSDoc
 - `app2/src/geometry/sixFoldV0Steps.ts` - Use shared executeStep, add JSDoc
 - `app2/src/geometry/operations.ts` - Add step context to getGeometry
 
 ### Medium Priority
+
 - `app2/src/geometry/constructors.ts` - Add JSDoc
 - `app2/src/geometry/sixFold/operations.ts` - Add JSDoc
 - `app2/src/geometry/stepExecution.ts` - NEW FILE
@@ -1092,6 +1135,7 @@ Output could be in DOT format for Graphviz visualization.
 - `app2/src/geometry/index.ts` - Update exports
 
 ### Low Priority
+
 - `app2/src/geometry/sixFoldV0Steps.ts` - Remove unused imports
 - All step files - Standardize naming
 
@@ -1100,6 +1144,7 @@ Output could be in DOT format for Graphviz visualization.
 ## 11. SUCCESS METRICS
 
 After implementing these changes:
+
 - ✅ No `any` types in GeometryStore
 - ✅ All steps have JSDoc comments
 - ✅ Code duplication reduced by >40%
@@ -1110,4 +1155,4 @@ After implementing these changes:
 
 ---
 
-*End of Report*
+_End of Report_
