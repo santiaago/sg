@@ -10,6 +10,21 @@ export interface StepExecutionContext {
   theme: Theme;
 }
 
+/**
+ * Custom error class for geometry computation errors.
+ * Provides structured error information including step and geometry IDs.
+ */
+export class GeometryError extends Error {
+  constructor(
+    public readonly stepId: string,
+    public readonly geometryId: string,
+    message: string,
+  ) {
+    super(`[${stepId}] ${geometryId}: ${message}`);
+    this.name = "GeometryError";
+  }
+}
+
 // These types enable:
 // - Explicit declaration of geometry inputs and outputs
 // - Lazy step-by-step calculation
