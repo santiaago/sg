@@ -3,7 +3,6 @@
  * Replicates "1/4 Six fold pattern v3" from Svelte app.
  */
 
-import type { GeometryValue } from "../types/geometry";
 import {
   point,
   line,
@@ -2273,36 +2272,5 @@ export const SIX_FOLD_V0_STEPS: readonly SixFoldV0Step[] = [
   STEP_93,
 ];
 
-/** Execute a single step */
-export function executeStep(
-  step: SixFoldV0Step,
-  allValues: Map<string, GeometryValue>,
-  ctx: StepExecutionContext,
-  config: SixFoldV0Config,
-): Map<string, GeometryValue> {
-  const inputValues = new Map<string, GeometryValue>();
-  for (const id of step.inputs) {
-    const v = allValues.get(id);
-    if (!v) throw new Error(`Missing input: ${id}`);
-    inputValues.set(id, v);
-  }
-  const outputs = step.compute(inputValues, config);
-  const result = new Map(allValues);
-  for (const [id, val] of outputs) result.set(id, val);
-  step.draw(ctx.svg, result, ctx.store, ctx.theme);
-  return result;
-}
-
-/** Execute all steps up to a given index */
-export function executeSteps(
-  steps: readonly SixFoldV0Step[],
-  upToIndex: number,
-  ctx: StepExecutionContext,
-  config: SixFoldV0Config,
-): Map<string, GeometryValue> {
-  let allValues = new Map<string, GeometryValue>();
-  for (let i = 0; i < Math.min(upToIndex, steps.length); i++) {
-    allValues = executeStep(steps[i], allValues, ctx, config);
-  }
-  return allValues;
-}
+// Re-export executeStep and executeSteps from shared module
+export { executeStep, executeSteps } from "./stepExecution";
