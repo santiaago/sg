@@ -588,12 +588,12 @@ export * from "./pentagon";
 
 Phase 5 is complete when:
 
-- [ ] All 5 advanced features are implemented
+- [x] All 5 advanced features are implemented
 - [ ] All new code compiles without errors
 - [ ] All new tests pass (`pnpm test`)
 - [ ] TypeScript compilation succeeds (`pnpm type-check`)
-- [ ] No circular dependencies introduced
-- [ ] Code follows project conventions (Oxlint/Oxfmt pass)
+- [x] No circular dependencies introduced
+- [x] Code follows project conventions (Oxlint/Oxfmt pass)
 
 ---
 
