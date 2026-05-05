@@ -30,3 +30,6 @@ dist/
 
 # Ignore worktree manager log
 .worktrees.log
+
+# Ignore AI assistant tool directories
+.claude/
