@@ -22,6 +22,41 @@ import {
 } from "@sg/geometry";
 
 // =============================================================================
+// Validation Types
+// =============================================================================
+
+/**
+ * Result of construction validation.
+ */
+export interface ValidationResult {
+  valid: boolean;
+  errors: ValidationError[];
+  warnings: ValidationWarning[];
+}
+
+/**
+ * Validation error with severity level.
+ */
+export interface ValidationError {
+  type: string;
+  stepId?: string;
+  geometryId?: string;
+  message: string;
+  severity: "error";
+}
+
+/**
+ * Validation warning with severity level.
+ */
+export interface ValidationWarning {
+  type: string;
+  stepId?: string;
+  geometryId?: string;
+  message: string;
+  severity: "warning";
+}
+
+// =============================================================================
 // Layer 2: Typed References (Pure Identifiers)
 // =============================================================================
 
@@ -160,6 +195,34 @@ export interface InternalStep {
 }
 
 // =============================================================================
+// Undo/Redo Types
+// =============================================================================
+
+/**
+ * State snapshot for undo/redo history.
+ */
+export interface ConstructionState {
+  values: Map<string, GeometryValue>;
+  steps: InternalStep[];
+  stepIndex: number;
+  errors: ConstructionError[];
+  pointsOnGeom: Map<string, Set<string>>;
+  parameters: Map<string, number>;
+  nameCounter: number;
+}
+
+/**
+ * Serialized representation of a Construction for JSON storage.
+ */
+export interface SerializedConstruction {
+  version: number;
+  values: Array<{ id: string; type: GeometryValue["type"]; data: unknown }>;
+  steps: Array<{ id: string; type: GeometryValue["type"]; dependencies: string[] }>;
+  stepIndex: number;
+  parameters: Record<string, number>;
+}
+
+// =============================================================================
 // Construction Class
 // =============================================================================
 
@@ -199,6 +262,19 @@ export class Construction {
 
   // Counter for auto-naming (avoids gaps from potential future undo/redo)
   private _nameCounter = 0;
+
+  // Parameter storage
+  private _parameters = new Map<string, number>();
+
+  // History stack for undo/redo
+  private _history: ConstructionState[] = [];
+  private _historyIndex = -1;
+  private readonly _maxHistory = 100;
+
+  /**
+   * Current serialization version.
+   */
+  static readonly SERIALIZATION_VERSION = 1;
 
   // =======================================================================
   // Base Geometry Creators
@@ -905,6 +981,193 @@ export class Construction {
   }
 
   // =======================================================================
+  // Validation Support
+  // =======================================================================
+
+  /**
+   * Perform full validation of the construction.
+   * Checks for missing dependencies, zero-length lines, and zero-radius circles.
+   * @returns Validation result with errors and warnings
+   */
+  validateFull(): ValidationResult {
+    const errors: ValidationError[] = [];
+    const warnings: ValidationWarning[] = [];
+
+    for (const [id, value] of this._values) {
+      if (value.type === "line") {
+        const dx = value.x2 - value.x1;
+        const dy = value.y2 - value.y1;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        if (length === 0) {
+          errors.push({
+            type: "zero_length_line",
+            geometryId: id,
+            message: `Line ${id} has zero length`,
+            severity: "error",
+          });
+        }
+      } else if (value.type === "circle") {
+        if (value.r === 0) {
+          errors.push({
+            type: "zero_radius_circle",
+            geometryId: id,
+            message: `Circle ${id} has zero radius`,
+            severity: "error",
+          });
+        }
+      }
+    }
+
+    for (const step of this._steps) {
+      for (const depId of step.dependencies) {
+        if (!this._values.has(depId)) {
+          errors.push({
+            type: "missing_dependency",
+            stepId: step.id,
+            geometryId: depId,
+            message: `Step ${step.id} depends on missing geometry ${depId}`,
+            severity: "error",
+          });
+        }
+      }
+    }
+
+    const idSet = new Set<string>();
+    for (const id of this._values.keys()) {
+      if (idSet.has(id)) {
+        warnings.push({
+          type: "duplicate_id",
+          geometryId: id,
+          message: `Duplicate geometry ID: ${id}`,
+          severity: "warning",
+        });
+      }
+      idSet.add(id);
+    }
+
+    return { valid: errors.length === 0, errors, warnings };
+  }
+
+  // =======================================================================
+  // Undo/Redo Support
+  // =======================================================================
+
+  private _saveToHistory(): void {
+    this._history = this._history.slice(0, this._historyIndex + 1);
+    const state: ConstructionState = {
+      values: new Map(this._values),
+      steps: [...this._steps],
+      stepIndex: this._stepIndex,
+      errors: [...this._errors],
+      pointsOnGeom: new Map(this._pointsOnGeom),
+      parameters: new Map(this._parameters),
+      nameCounter: this._nameCounter,
+    };
+    this._history.push(state);
+    this._historyIndex = this._history.length - 1;
+    if (this._history.length > this._maxHistory) {
+      this._history.shift();
+      this._historyIndex--;
+    }
+  }
+
+  undo(): void {
+    if (this._historyIndex <= 0) return;
+    this._historyIndex--;
+    const s = this._history[this._historyIndex];
+    this._values = new Map(s.values);
+    this._steps = [...s.steps];
+    this._stepIndex = s.stepIndex;
+    this._errors = [...s.errors];
+    this._pointsOnGeom = new Map(s.pointsOnGeom);
+    this._parameters = new Map(s.parameters);
+    this._nameCounter = s.nameCounter;
+  }
+
+  redo(): void {
+    if (this._historyIndex >= this._history.length - 1) return;
+    this._historyIndex++;
+    const s = this._history[this._historyIndex];
+    this._values = new Map(s.values);
+    this._steps = [...s.steps];
+    this._stepIndex = s.stepIndex;
+    this._errors = [...s.errors];
+    this._pointsOnGeom = new Map(s.pointsOnGeom);
+    this._parameters = new Map(s.parameters);
+    this._nameCounter = s.nameCounter;
+  }
+
+  clearHistory(): void {
+    this._history = [];
+    this._historyIndex = -1;
+  }
+
+  getHistoryState(): { canUndo: boolean; canRedo: boolean } {
+    return {
+      canUndo: this._historyIndex > 0,
+      canRedo: this._historyIndex < this._history.length - 1,
+    };
+  }
+
+  // =======================================================================
+  // Parameter Support
+  // =======================================================================
+
+  setParameter(name: string, value: number): void {
+    this._parameters.set(name, value);
+  }
+
+  getParameter(name: string): number | undefined {
+    return this._parameters.get(name);
+  }
+
+  getParameters(): Map<string, number> {
+    return new Map(this._parameters);
+  }
+
+  clearParameters(): void {
+    this._parameters.clear();
+  }
+
+  // =======================================================================
+  // Serialization Support
+  // =======================================================================
+
+  toJSON(): {
+    version: number;
+    values: any[];
+    steps: any[];
+    stepIndex: number;
+    parameters: Record<string, number>;
+  } {
+    return {
+      version: Construction.SERIALIZATION_VERSION,
+      values: Array.from(this._values.entries()).map(([id, v]) => ({ id, type: v.type, data: v })),
+      steps: this._steps.map((s) => ({ id: s.id, type: s.type, dependencies: s.dependencies })),
+      stepIndex: this._stepIndex,
+      parameters: Object.fromEntries(this._parameters),
+    };
+  }
+
+  static fromJSON(data: any): Construction {
+    const c = new Construction();
+    c._values.clear();
+    c._steps = [];
+    c._stepIndex = data.stepIndex;
+    c._parameters = new Map(Object.entries(data.parameters || {}));
+    for (const { id, data: geomData } of data.values || []) {
+      c._values.set(id, geomData);
+    }
+    for (const { id, type, dependencies } of data.steps || []) {
+      const v = c._values.get(id);
+      if (v) {
+        c._steps.push({ id, type, dependencies, compute: () => v });
+      }
+    }
+    return c;
+  }
+
+  // =======================================================================
   // Private Helpers
   // =======================================================================
 
@@ -928,6 +1191,7 @@ export class Construction {
       dependencies,
       compute: () => value, // Eager: value is already computed
     });
+    this._saveToHistory();
   }
 
   /**

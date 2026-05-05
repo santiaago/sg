@@ -7,3 +7,6 @@ export * from "./constructors";
 export * from "./construction";
 export * from "./construction-to-steps";
 export * from "./renderers";
+
+// Test constructions
+export * from "./test-constructions";
