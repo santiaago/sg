@@ -4,8 +4,7 @@ import { RotatedSquareSvg, ROTATED_SQUARE_STEPS } from "../src/components/Rotate
 import { useGeometryStoreSquare } from "../src/react-store";
 import { standardSvgConfig } from "../src/config/svgConfig";
 import { darkTheme, lightTheme } from "../src/themes";
-import { GEOM } from "../src/geometry/operations";
-import type { GeometryStore, GeometryItem } from "../src/react-store";
+import type { GeometryStore, GeometryItem, GeometryType } from "../src/react-store";
 
 /**
  * Tests for RotatedSquareSvg component with rotated coordinate system.
@@ -154,7 +153,7 @@ describe("RotatedSquareSvg Component - Metadata Population", () => {
 
     const mockStore: GeometryStore & { getUpdateCalls: () => typeof updateCalls } = {
       items,
-      add: vi.fn((name: string, element: any, type: string, dependsOn: string[]) => {
+      add: vi.fn((name: string, element: any, type: GeometryType, dependsOn: string[]) => {
         items[name] = {
           name,
           element,
