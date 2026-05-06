@@ -58,7 +58,7 @@ const STEP_COORDINATE_SYSTEM: Step<SquareConfig> = {
   id: "step_coordinate_system",
   inputs: [],
   outputs: [GEOM.COORDINATE_SYSTEM],
-  parameters: ["border", "height"],
+  parameters: ["height"],
 
   compute: computeSingle(GEOM.COORDINATE_SYSTEM, (_inputs, params) => {
     // Place coordinate system at SVG origin (0, 0) = top-left corner.
