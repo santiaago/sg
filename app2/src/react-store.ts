@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from "react";
+import type { GeometryValue } from "./types/geometry";
 
 /** SVG geometry element types that can be stored */
 export type SvgGeometryElement =
@@ -157,14 +158,14 @@ export function useGeometryStore(): GeometryStore {
 export interface DependencyNode {
   id: string;
   type: string;
-  value?: any;
+  value?: GeometryValue;
   dependsOn: string[];
 }
 
 export interface GeometryValueStore {
-  geometryValues: Map<string, any>;
-  addGeometry: (id: string, value: any, type: string, dependsOn: string[]) => void;
-  getGeometry: (id: string) => any | undefined;
+  geometryValues: Map<string, GeometryValue>;
+  addGeometry: (id: string, value: GeometryValue, type: string, dependsOn: string[]) => void;
+  getGeometry: (id: string) => GeometryValue | undefined;
   getNode: (id: string) => DependencyNode | undefined;
   getAllNodes: () => DependencyNode[];
   getDependencyGraph: () => Map<string, DependencyNode>;
@@ -176,26 +177,29 @@ export interface GeometryValueStore {
  * Provides a more sophisticated API for geometry value management.
  */
 export function useGeometryValueStore(): GeometryValueStore {
-  const [geometryValues, setGeometryValues] = useState<Map<string, any>>(new Map());
+  const [geometryValues, setGeometryValues] = useState<Map<string, GeometryValue>>(new Map());
   const [nodes, setNodes] = useState<Map<string, DependencyNode>>(new Map());
 
-  const addGeometry = useCallback((id: string, value: any, type: string, dependsOn: string[]) => {
-    setGeometryValues((prev) => {
-      const newMap = new Map(prev);
-      newMap.set(id, value);
-      return newMap;
-    });
-    setNodes((prev) => {
-      const newNodes = new Map(prev);
-      newNodes.set(id, {
-        id,
-        type,
-        value,
-        dependsOn,
+  const addGeometry = useCallback(
+    (id: string, value: GeometryValue, type: string, dependsOn: string[]) => {
+      setGeometryValues((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(id, value);
+        return newMap;
       });
-      return newNodes;
-    });
-  }, []);
+      setNodes((prev) => {
+        const newNodes = new Map(prev);
+        newNodes.set(id, {
+          id,
+          type,
+          value,
+          dependsOn,
+        });
+        return newNodes;
+      });
+    },
+    [],
+  );
 
   const getGeometry = useCallback(
     (id: string) => {
@@ -240,8 +244,8 @@ export function useGeometryValueStore(): GeometryValueStore {
 
 // Enhanced store types
 export interface EnhancedGeometryStore {
-  geometryValues: Map<string, any>;
-  add: (name: string, element: any, type: string, dependsOn: string[]) => void;
+  geometryValues: Map<string, GeometryValue>;
+  add: (name: string, element: GeometryValue, type: string, dependsOn: string[]) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
   clear: () => void;
 }
@@ -250,16 +254,19 @@ export interface EnhancedGeometryStore {
  * Enhanced geometry store with direct access to geometry values.
  */
 export function useGeometryStoreEnhanced(): EnhancedGeometryStore {
-  const [geometryValues, setGeometryValues] = useState<Map<string, any>>(new Map());
+  const [geometryValues, setGeometryValues] = useState<Map<string, GeometryValue>>(new Map());
 
-  const add = useCallback((name: string, element: any, _type: string, _dependsOn: string[]) => {
-    // Store in geometryValues Map
-    setGeometryValues((prev) => {
-      const newMap = new Map(prev);
-      newMap.set(name, element);
-      return newMap;
-    });
-  }, []);
+  const add = useCallback(
+    (name: string, element: GeometryValue, _type: string, _dependsOn: string[]) => {
+      // Store in geometryValues Map
+      setGeometryValues((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(name, element);
+        return newMap;
+      });
+    },
+    [],
+  );
 
   const update = useCallback((_k: string, _o: Partial<GeometryItem>) => {
     // Update not needed for geometryValues-only store
