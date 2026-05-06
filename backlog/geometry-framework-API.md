@@ -81,6 +81,7 @@ type Direction = "north" | "south" | "left" | "right";
 ```
 
 Direction for selecting intersection points.
+
 - "north"/"south": For circle-circle intersections (pick by y-coordinate). In SVG coordinate system, y increases downward, so "north" = smaller y.
 - "left"/"right": For circle-line intersections (pick by x-coordinate). "left" = smaller x, "right" = larger x.
 
@@ -183,6 +184,7 @@ Creates a new, empty Construction.
 Creates a point at specific coordinates.
 
 **Parameters:**
+
 - `x` - The x-coordinate of the point
 - `y` - The y-coordinate of the point
 - `name` - Optional name/ID for the point. If not provided, an auto-generated name will be used
@@ -190,6 +192,7 @@ Creates a point at specific coordinates.
 **Returns:** A PointRef that can be used to reference this point in subsequent operations
 
 **Example:**
+
 ```typescript
 const c = new Construction();
 const p1 = c.point(100, 200, "my_point");
@@ -201,6 +204,7 @@ const p2 = c.point(0, 0); // auto-named
 Creates a point by copying an existing point reference.
 
 **Parameters:**
+
 - `p` - Point reference to copy
 - `name` - Optional name for the new point
 
@@ -211,6 +215,7 @@ Creates a point by copying an existing point reference.
 Creates a line from coordinates.
 
 **Parameters:**
+
 - `x1` - Start x coordinate
 - `y1` - Start y coordinate
 - `x2` - End x coordinate
@@ -224,6 +229,7 @@ Creates a line from coordinates.
 Creates a line from two point references.
 
 **Parameters:**
+
 - `p1` - First point reference
 - `p2` - Second point reference
 - `name` - Optional name for the line
@@ -235,6 +241,7 @@ Creates a line from two point references.
 Creates a circle from center coordinates and radius.
 
 **Parameters:**
+
 - `cx` - Center x coordinate
 - `cy` - Center y coordinate
 - `r` - Radius
@@ -247,6 +254,7 @@ Creates a circle from center coordinates and radius.
 Creates a circle from center point and radius.
 
 **Parameters:**
+
 - `center` - Center point reference
 - `radius` - Radius
 - `name` - Optional name for the circle
@@ -258,6 +266,7 @@ Creates a circle from center point and radius.
 Creates a polygon from an array of point references.
 
 **Parameters:**
+
 - `points` - Array of point references (order matters for rendering)
 - `name` - Optional name for the polygon
 
@@ -270,6 +279,7 @@ Creates a polygon from an array of point references.
 Creates a point at a specific ratio along a line.
 
 **Parameters:**
+
 - `line` - The line reference
 - `ratio` - Ratio from start to end (0 = start, 1 = end, 0.5 = middle)
 - `name` - Optional name for the point
@@ -281,6 +291,7 @@ Creates a point at a specific ratio along a line.
 Creates a point at a specific distance from a starting point along a line.
 
 **Parameters:**
+
 - `line` - The line reference
 - `distance` - Distance from the starting point
 - `from` - The starting point reference (used for dependency tracking)
@@ -293,6 +304,7 @@ Creates a point at a specific distance from a starting point along a line.
 Creates the midpoint between two points.
 
 **Parameters:**
+
 - `p1` - First point reference
 - `p2` - Second point reference
 - `name` - Optional name for the midpoint
@@ -304,6 +316,7 @@ Creates the midpoint between two points.
 Extends a line by a specific length from its end point.
 
 **Parameters:**
+
 - `line` - The line reference
 - `length` - Length to extend from the end point
 - `name` - Optional name for the extended line
@@ -315,6 +328,7 @@ Extends a line by a specific length from its end point.
 Creates a line from a starting point towards another point with a specific length.
 
 **Parameters:**
+
 - `from` - Starting point reference
 - `towards` - Point reference indicating direction
 - `length` - Length of the line
@@ -327,6 +341,7 @@ Creates a line from a starting point towards another point with a specific lengt
 Creates a line perpendicular to another line at a specific point.
 
 **Parameters:**
+
 - `line` - The line reference
 - `at` - The point reference where the perpendicular should be created
 - `name` - Optional name for the perpendicular line
@@ -340,6 +355,7 @@ Creates a line perpendicular to another line at a specific point.
 Finds intersection point between two geometries.
 
 **Parameters:**
+
 - `a` - First geometry (CircleRef or LineRef)
 - `b` - Second geometry (CircleRef or LineRef)
 - `directionOrOptions` - Optional: Direction or exclude option for selecting intersection
@@ -350,6 +366,7 @@ Finds intersection point between two geometries.
 **Throws:** NoIntersectionError if geometries don't intersect
 
 **Supported combinations:**
+
 - Circle-Circle: Use direction ("north"/"south") to select which intersection
 - Circle-Line: Use direction ("left"/"right") or {exclude} to select which intersection
 - Line-Circle: Same as Circle-Line (order doesn't matter)
@@ -366,6 +383,7 @@ Get the current step index (0-based, read-only).
 Navigate to a specific step index.
 
 **Parameters:**
+
 - `index` - The step index to navigate to (0-based)
 
 #### next(): void
@@ -395,6 +413,7 @@ Get all steps (not just current ones).
 Get the geometry value for a reference.
 
 **Parameters:**
+
 - `ref` - The geometry reference
 
 **Returns:** The geometry value
@@ -464,6 +483,7 @@ Get the current undo/redo state.
 Set a parameter value.
 
 **Parameters:**
+
 - `name` - Parameter name
 - `value` - Parameter value
 
@@ -472,6 +492,7 @@ Set a parameter value.
 Get a parameter value.
 
 **Parameters:**
+
 - `name` - Parameter name
 
 **Returns:** The parameter value or undefined if not set
@@ -499,6 +520,7 @@ Export construction as JSON string.
 Load construction from JSON string.
 
 **Parameters:**
+
 - `json` - JSON string representation of a construction
 
 **Returns:** A new Construction instance loaded from the JSON
@@ -518,6 +540,7 @@ new SvgRenderer(svg: SVGSVGElement, store?: GeometryStore)
 Creates a new SvgRenderer.
 
 **Parameters:**
+
 - `svg` - The SVG element to render into
 - `store` - Optional GeometryStore for managing elements and tooltips
 
@@ -528,6 +551,7 @@ Creates a new SvgRenderer.
 Draw a point as a small circle.
 
 **Parameters:**
+
 - `point` - The Point geometry to draw
 - `options` - Optional drawing options
 
@@ -538,6 +562,7 @@ Draw a point as a small circle.
 Draw a line segment.
 
 **Parameters:**
+
 - `line` - The Line geometry to draw
 - `options` - Optional drawing options
 
@@ -548,6 +573,7 @@ Draw a line segment.
 Draw a circle outline.
 
 **Parameters:**
+
 - `circle` - The Circle geometry to draw
 - `options` - Optional drawing options
 
@@ -558,6 +584,7 @@ Draw a circle outline.
 Draw a polygon.
 
 **Parameters:**
+
 - `polygon` - The Polygon geometry to draw
 - `options` - Optional drawing options
 
@@ -570,6 +597,7 @@ Draw a polygon.
 Draw all geometries from a Construction.
 
 **Parameters:**
+
 - `construction` - The Construction to render (must have getValues() method)
 
 #### drawConstructionUpTo(construction: { getSteps: () => Array<{ id: string }>; getValues: () => Map<string, GeometryValue> }, stepIndex: number): void
@@ -577,6 +605,7 @@ Draw all geometries from a Construction.
 Draw geometries from a Construction up to a specific step index.
 
 **Parameters:**
+
 - `construction` - The Construction to render (must have getSteps() and getValues() methods)
 - `stepIndex` - The step index to render up to (0-based)
 
@@ -593,6 +622,7 @@ Clear all elements from the SVG.
 Convert a Construction to an array of Step objects for compatibility with existing infrastructure.
 
 **Parameters:**
+
 - `construction` - The Construction to convert
 
 **Returns:** Array of Step objects compatible with existing step system
@@ -608,6 +638,7 @@ Convert a Construction to an array of Step objects for compatibility with existi
 Base error class for Construction operations. Contains contextual information about where the error occurred.
 
 **Properties:**
+
 - `stepIndex` - The step index where the error occurred
 - `stepId` - The step ID where the error occurred
 - `message` - The error message
@@ -618,6 +649,7 @@ Base error class for Construction operations. Contains contextual information ab
 Thrown when two geometries do not intersect.
 
 **Properties:**
+
 - Inherits all properties from ConstructionError
 - Includes information about which geometries failed to intersect
 
@@ -626,6 +658,7 @@ Thrown when two geometries do not intersect.
 Thrown when a geometry reference is not found.
 
 **Properties:**
+
 - Inherits all properties from ConstructionError
 - Includes the geometry ID that was not found
 
@@ -634,6 +667,7 @@ Thrown when a geometry reference is not found.
 Thrown when a geometry type mismatch occurs.
 
 **Properties:**
+
 - Inherits all properties from ConstructionError
 - Includes expected and actual type information
 

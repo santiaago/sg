@@ -149,6 +149,7 @@ The Construction class uses **eager evaluation** - values are computed immediate
 ### Reference Types
 
 All geometry objects are referenced by pure identifiers (Ref types) that contain only an `id` string. The actual geometry data is stored in the Construction instance. This allows:
+
 - Lightweight references that can be passed around
 - Centralized data management
 - Easy serialization
@@ -156,11 +157,13 @@ All geometry objects are referenced by pure identifiers (Ref types) that contain
 ### Coordinate System
 
 All coordinates use the **SVG coordinate system** where:
+
 - (0, 0) is the top-left corner
 - x increases to the right
 - y increases downward
 
 This affects direction semantics:
+
 - "north" = smaller y value
 - "south" = larger y value
 - "left" = smaller x value
@@ -180,16 +183,19 @@ This affects direction semantics:
 ## Testing
 
 Run all tests:
+
 ```bash
 pnpm test
 ```
 
 Run TypeScript checks:
+
 ```bash
 pnpm type-check
 ```
 
 Run lint and format checks:
+
 ```bash
 pnpm check
 ```
