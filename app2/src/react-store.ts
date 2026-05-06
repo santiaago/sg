@@ -245,7 +245,7 @@ export function useGeometryValueStore(): GeometryValueStore {
 // Enhanced store types
 export interface EnhancedGeometryStore {
   geometryValues: Map<string, GeometryValue>;
-  add: (name: string, element: GeometryValue, type: string, dependsOn: string[]) => void;
+  add: (name: string, value: GeometryValue, type: string, dependsOn: string[]) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
   clear: () => void;
 }
@@ -257,11 +257,11 @@ export function useGeometryStoreEnhanced(): EnhancedGeometryStore {
   const [geometryValues, setGeometryValues] = useState<Map<string, GeometryValue>>(new Map());
 
   const add = useCallback(
-    (name: string, element: GeometryValue, _type: string, _dependsOn: string[]) => {
+    (name: string, value: GeometryValue, _type: string, _dependsOn: string[]) => {
       // Store in geometryValues Map
       setGeometryValues((prev) => {
         const newMap = new Map(prev);
-        newMap.set(name, element);
+        newMap.set(name, value);
         return newMap;
       });
     },
