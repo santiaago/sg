@@ -33,3 +33,7 @@ dist/
 
 # Ignore AI assistant tool directories
 .claude/
+
+# Ignore agent-skills symlink
+agent-skills/
+agent-skills
