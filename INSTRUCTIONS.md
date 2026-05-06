@@ -1,7 +1,8 @@
 # phase 4
+
 04/05/2026
 
-do @backlog/geometry-framework-PHASE4.md 
+do @backlog/geometry-framework-PHASE4.md
 
 I want to merge branch into `sas/002-geo-framework-v0`
 
@@ -10,14 +11,13 @@ when done
 
 1. check app
 2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
-2. submit a PR (remember I want to merge into `sas/002-geo-framework-v0` NOT `main`)
+3. submit a PR (remember I want to merge into `sas/002-geo-framework-v0` NOT `main`)
 
 ---
 
 # phase 3
 
-do @backlog/geometry-framework-PHASE3.md 
---
+## do @backlog/geometry-framework-PHASE3.md
 
 # add CICD steps
 
@@ -30,8 +30,7 @@ when done
 
 1. check app
 2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
-2. submit a PR
-
+3. submit a PR
 
 ---
 
@@ -49,14 +48,12 @@ in app2, I want you to add a coordinate system before adding any geometry in Squ
 6. name of coordinate system should start with `cs`
 7. cs should be hoverable in geometry details pane
 
-
 follow conventions in @AGENTS.md for atomic commit messages, take as much time as you need
 when done
 
 1. check app
 2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
-2. submit a PR
-
+3. submit a PR
 
 ---
 
@@ -66,21 +63,24 @@ in app2, I want to extract a Geometry player component, this component should ha
 
 follow conventions in @AGENTS.md for commit messages, take as much time as you need
 when done
+
 1. check app
 2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
-2. submit a PR
+3. submit a PR
 
 ---
 
 # extra playwright
+
 in app2, there are playwright tests, but they only cover a small part, I want you to create a md file under backlog with name EXTRA_PLAYWRIGHT.md
 go through the full functionality of the app2 and list what should we add as e2e tests. I want minimal tests not too verbose but I want to cover all main cases please
 take as much time as you need,
 follow conventions in @AGENTS.md for commit messages, take as much time as you need
 when done
+
 1. check app
 2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
-2. submit a PR
+3. submit a PR
 
 ---
 
@@ -89,6 +89,7 @@ when done
 in app2 I want to be able to unselect geometries when clicking again in a geometry twice in the right side pane called geometry list
 follow conventions in @AGENTS.md for commit messages, take as much time as you need
 when done check app then submit a PR,
+
 ---
 
 # reactive change theme on svg canvas
@@ -97,25 +98,25 @@ in app2, I want that when I change the theme the svg canvases change right away,
 follow conventions in @AGENTS.md for commit messages, take as much time as you need
 when done check app then submit a PR,
 
-
 in app2, I want to be able to hover or click on an input or output in the geometry detail component and this should highlight the said geometry in the svg canvas in the same way clicking on a geometry on the geometry list highlights a geometry
-
 
 ---
 
 # Play button to draw geometrys
+
 in app2, I want to be able to click a play button, it should live between prev and next, it should start drawing the current geometry step by step, there should be a small delay between step so geometries are not drawn too quickly.
 
 follow conventions in @AGENTS.md for commit messages, take as much time as you need
 when done
+
 1. check app
 2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
-2. submit a PR
-
+3. submit a PR
 
 # playwright tests for player
 
 in app2, I want you to add playwright tests that test the sixfoldv0 and square components and test that you
+
 - can click next, next all the way up until the end
 - can click fast forward
 - can click back
