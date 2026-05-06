@@ -14,10 +14,9 @@ import {
   coordinateSystem,
 } from "../types/geometry";
 import { directions, lineIntersect } from "@sg/geometry";
-import type { StepExecutionContext } from "../types/geometry";
 import { drawPoint, drawLine, drawCircle, drawCoordinateSystem } from "../svgElements";
-import { getGeometry, GEOM, computeSingle } from "./sixFold/operations";
-import type { SixFoldV0Config, SixFoldV0Step } from "./sixFold/operations";
+import { GEOM, computeSingle, getGeometry } from "./sixFold/operations";
+import type { SixFoldV0Step } from "./sixFold/operations";
 import {
   distance,
   isValidNumber,

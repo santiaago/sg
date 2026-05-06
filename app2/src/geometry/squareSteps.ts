@@ -28,11 +28,10 @@
  * - Separation of math (compute) and rendering (draw)
  */
 
-import type { Step, GeometryValue, StepExecutionContext } from "../types/geometry";
+import type { Step } from "../types/geometry";
 import {
   point,
   line,
-  circle,
   isPoint,
   isLine,
   isCircle,

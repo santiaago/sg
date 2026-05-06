@@ -5,4 +5,3 @@ export * from "./sixFoldV0Steps";
 export * from "./stepExecution";
 export * from "./stepBuilders";
 export * from "./constructors";
-export * from "./sixFold/operations";
