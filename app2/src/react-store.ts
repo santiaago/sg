@@ -1,7 +1,11 @@
 import { useState, useCallback, useMemo } from "react";
 
 /** SVG geometry element types that can be stored */
-export type SvgGeometryElement = SVGCircleElement | SVGLineElement | SVGPolygonElement | SVGGElement;
+export type SvgGeometryElement =
+  | SVGCircleElement
+  | SVGLineElement
+  | SVGPolygonElement
+  | SVGGElement;
 
 /** Geometry type names - mirrors GeometryValue['type'] from types/geometry.ts */
 export type GeometryType = "point" | "line" | "circle" | "polygon" | "coordinate_system";
