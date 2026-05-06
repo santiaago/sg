@@ -104,13 +104,26 @@ export function GeometryList({
     const item = store.items[name] as GeometryItem | undefined;
     if (!item) return;
 
-    // Use shared selection utility for consistent behavior
-    selectGeometry(store, name, strokeBig);
+    // If the item is already selected, deselect it and clear input highlights
+    if (item.selected) {
+      // Deselect the item
+      store.update(name, { selected: false });
+      if (item.element) {
+        restoreInitialState(item.element, item);
+      }
+      // Clear input highlights
+      if (showInputHighlight) {
+        setHighlightedInputs(new Set());
+      }
+    } else {
+      // Use shared selection utility for consistent behavior
+      selectGeometry(store, name, strokeBig);
 
-    // Update highlighted inputs based on selection
-    if (showInputHighlight) {
-      // Always highlight dependencies of the clicked (now selected) item
-      setHighlightedInputs(new Set(item.dependsOn || []));
+      // Update highlighted inputs based on selection
+      if (showInputHighlight) {
+        // Highlight dependencies of the selected item
+        setHighlightedInputs(new Set(item.dependsOn || []));
+      }
     }
   };
 
