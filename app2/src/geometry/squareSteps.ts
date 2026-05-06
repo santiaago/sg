@@ -49,6 +49,11 @@ import {
   type SquareConfig,
 } from "./operations";
 import {
+  POINT_RADIUS_MEDIUM,
+  STROKE_WIDTH_THIN,
+  COORDINATE_SYSTEM_ARROW_LENGTH_RATIO,
+} from "../config/geometryConfig";
+import {
   circleFromPoint,
   pointFromCircles,
   pointFromCircleAndLine,
@@ -80,7 +85,7 @@ const STEP_COORDINATE_SYSTEM: Step<SquareConfig> = {
   compute: computeSingle(GEOM.COORDINATE_SYSTEM, (_inputs, params) => {
     // Place coordinate system at SVG origin (0, 0) = top-left corner.
     // SVG coordinate system: X increases right (east), Y increases down (south).
-    const arrowLength = params.height / 24;
+    const arrowLength = params.height * COORDINATE_SYSTEM_ARROW_LENGTH_RATIO;
     return coordinateSystem(0, 0, arrowLength);
   }),
 
@@ -89,7 +94,7 @@ const STEP_COORDINATE_SYSTEM: Step<SquareConfig> = {
       svg,
       values,
       GEOM.COORDINATE_SYSTEM,
-      0.5,
+      STROKE_WIDTH_THIN,
       store,
       theme,
       theme.COLOR_PRIMARY,
@@ -117,7 +122,7 @@ const STEP_P1: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.P1, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.P1, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -140,7 +145,7 @@ const STEP_P2: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.P2, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.P2, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -161,7 +166,7 @@ const STEP_MAIN_LINE: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.MAIN_LINE, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -184,7 +189,7 @@ const STEP_C1: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.C1, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.C1, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -205,7 +210,7 @@ const STEP_C1_CIRCLE: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store, theme);
+    drawCircle(svg, values, GEOM.C1_CIRCLE, STROKE_WIDTH_THIN, store, theme);
   },
 };
 
@@ -232,7 +237,7 @@ const STEP_C2: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.C2, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.C2, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -253,7 +258,7 @@ const STEP_C2_CIRCLE: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawCircle(svg, values, GEOM.C2_CIRCLE, 0.5, store, theme);
+    drawCircle(svg, values, GEOM.C2_CIRCLE, STROKE_WIDTH_THIN, store, theme);
   },
 };
 
@@ -280,7 +285,7 @@ const STEP_INTERSECTION_POINT: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.INTERSECTION_POINT, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.INTERSECTION_POINT, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -301,7 +306,7 @@ const STEP_INTERSECTION_CIRCLE: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, 0.5, store, theme);
+    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, STROKE_WIDTH_THIN, store, theme);
   },
 };
 
@@ -324,7 +329,7 @@ const STEP_LINE_C2_PI: Step<SquareConfig> = {
 
   draw: (svg, values, store, theme) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LINE_C2_PI, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -354,7 +359,7 @@ const STEP_P3: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.P3, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.P3, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -377,7 +382,7 @@ const STEP_LINE_C1_PI: Step<SquareConfig> = {
 
   draw: (svg, values, store, theme) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LINE_C1_PI, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -407,7 +412,7 @@ const STEP_P4: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.P4, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.P4, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -429,7 +434,7 @@ const STEP_LINE_C2_P4: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LINE_C2_P4, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -455,7 +460,7 @@ const STEP_PL: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.PL, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.PL, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -477,7 +482,7 @@ const STEP_LINE_C1_P3: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LINE_C1_P3, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -503,7 +508,7 @@ const STEP_PR: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.PR, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.PR, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
