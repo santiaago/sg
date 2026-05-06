@@ -1,5 +1,7 @@
 # Geometry Framework API Documentation
 
+**Part of**: [Geometry Framework](../geometry-framework-README.md)
+
 ## Overview
 
 The Geometry Framework provides a higher-level declarative language for geometric constructions. It offers a fluid, chainable API while preserving the existing step-based architecture.
@@ -11,6 +13,8 @@ The Geometry Framework provides a higher-level declarative language for geometri
 3. [SvgRenderer Class](#svgrenderer-class)
 4. [Utility Functions](#utility-functions)
 5. [Error Classes](#error-classes)
+
+**See also**: [Examples](geometry-framework-EXAMPLES.md) | [README](geometry-framework-README.md)
 
 ---
 
