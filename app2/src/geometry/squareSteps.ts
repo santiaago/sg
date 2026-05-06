@@ -28,13 +28,13 @@
  * - Separation of math (compute) and rendering (draw)
  */
 
-import type { Step, GeometryValue, StepExecutionContext } from "../types/geometry";
+import type { Step } from "../types/geometry";
 import {
   point,
   line,
   isPoint,
-  isCircle,
   isLine,
+  isCircle,
   isPolygon,
   isCoordinateSystem,
   coordinateSystem,
@@ -531,7 +531,13 @@ const STEP_FINAL_SQUARE: Step<SquareConfig> = {
 
     if (!square || !isPolygon(square)) return;
 
-    const svgPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    const svgPolygon = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "polygon",
+    ) as SVGPolygonElement & {
+      tooltip?: SVGTextElement;
+      tooltipBg?: SVGRectElement;
+    };
     const points = square.points.map((p) => `${p.x},${p.y}`).join(" ");
     svgPolygon.setAttribute("points", points);
     // Stroke uses theme.COLOR_PRIMARY with GOLDEN_RATIO width
@@ -548,8 +554,8 @@ const STEP_FINAL_SQUARE: Step<SquareConfig> = {
     const tooltipY = square.points[0].y;
     const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, GEOM.SQUARE, 15, theme);
     // Store tooltip references on the element
-    (svgPolygon as any).tooltip = tooltip;
-    (svgPolygon as any).tooltipBg = tooltipBg;
+    svgPolygon.tooltip = tooltip;
+    svgPolygon.tooltipBg = tooltipBg;
 
     if (store) {
       store.add(GEOM.SQUARE, svgPolygon, "polygon", []);
@@ -581,65 +587,5 @@ export const SQUARE_STEPS: readonly Step<SquareConfig>[] = [
 ];
 
 // Step Execution Utility
-
-/**
- * Executes a single step: computes outputs and draws them.
- * @param step - The step to execute
- * @param allValues - Map of ALL geometry values computed so far (including previous steps)
- * @param ctx - Execution context (SVG, config, store)
- * @param squareConfig - Square geometry configuration
- * @returns Updated map of geometry values (with new outputs added)
- */
-export function executeStep(
-  step: Step<SquareConfig>,
-  allValues: Map<string, GeometryValue>,
-  ctx: StepExecutionContext,
-  squareConfig: SquareConfig,
-): Map<string, GeometryValue> {
-  // Collect input values for this step
-  const inputValues = new Map<string, GeometryValue>();
-  for (const inputId of step.inputs) {
-    const value = allValues.get(inputId);
-    if (!value) {
-      throw new Error(`Step ${step.id}: missing input geometry ${inputId}`);
-    }
-    inputValues.set(inputId, value);
-  }
-
-  // Use squareConfig directly (it now contains all required parameters)
-  const outputValues = step.compute(inputValues, squareConfig);
-
-  // Add outputs to allValues
-  const newAllValues = new Map(allValues);
-  for (const [id, value] of outputValues) {
-    newAllValues.set(id, value);
-  }
-
-  // Draw the step
-  step.draw(ctx.svg, newAllValues, ctx.store, ctx.theme);
-
-  return newAllValues;
-}
-
-/**
- * Executes all steps up to a given index.
- * @param steps - Array of steps to execute
- * @param upToIndex - Execute steps[0] through steps[upToIndex-1]
- * @param ctx - Execution context containing svg, store, and theme
- * @param squareConfig - Square geometry configuration
- * @returns Map of all computed geometry values
- */
-export function executeSteps(
-  steps: readonly Step<SquareConfig>[],
-  upToIndex: number,
-  ctx: StepExecutionContext,
-  squareConfig: SquareConfig,
-): Map<string, GeometryValue> {
-  let allValues = new Map<string, GeometryValue>();
-
-  for (let i = 0; i < Math.min(upToIndex, steps.length); i++) {
-    allValues = executeStep(steps[i], allValues, ctx, squareConfig);
-  }
-
-  return allValues;
-}
+// Re-export executeStep and executeSteps from shared module
+export { executeStep, executeSteps } from "./stepExecution";

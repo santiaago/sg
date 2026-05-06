@@ -2,24 +2,25 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { GeometryDetails } from "../src/components/GeometryDetails";
 import { SQUARE_STEPS } from "../src/geometry/squareSteps";
-import type { GeometryStore, GeometryItem } from "../src/react-store";
+import type { GeometryStore, GeometryItem, SvgGeometryElement } from "../src/react-store";
 
-// Helper to create a mock SVG element
-function createMockSvgElement(type: string): SVGElement {
-  return document.createElementNS("http://www.w3.org/2000/svg", type);
+// Helper to create a mock SVG circle element
+function createMockSvgElement(type: string): SVGCircleElement {
+  return document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    type,
+  ) as unknown as SVGCircleElement;
 }
 
 // Helper to create a mock SVG element with tracking for testing
 // Cast to global SVG element type with custom tooltip extensions
-function createMockSvgElementWithTracking(
-  _type: string,
-): SVGCircleElement | SVGLineElement | SVGGElement {
+function createMockSvgElementWithTracking(_type: string): SvgGeometryElement {
   return {
     setAttribute: vi.fn(),
     getAttribute: vi.fn(),
     tooltip: { setAttribute: vi.fn() },
     tooltipBg: { setAttribute: vi.fn(), getAttribute: vi.fn() },
-  } as unknown as SVGCircleElement | SVGLineElement | SVGGElement;
+  } as unknown as SvgGeometryElement;
 }
 
 // Helper to create a mock GeometryItem

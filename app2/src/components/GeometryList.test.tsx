@@ -1,16 +1,16 @@
 import { describe, it, expect, vi } from "vitest";
 import { applyInputVisualFeedback, restoreInitialState } from "../utils/geometryHighlighting";
-import type { GeometryItem } from "../react-store";
+import type { GeometryItem, SvgGeometryElement } from "../react-store";
 
 // Mock SVG element - cast to proper type for type safety
 // Uses global SVG element types with custom tooltip extensions
-const createMockElement = (_type: string): SVGCircleElement | SVGLineElement | SVGGElement =>
+const createMockElement = (_type: string): SvgGeometryElement =>
   ({
     setAttribute: vi.fn(),
     getAttribute: vi.fn(),
     tooltip: { setAttribute: vi.fn() },
     tooltipBg: { setAttribute: vi.fn() },
-  }) as unknown as SVGCircleElement | SVGLineElement | SVGGElement;
+  }) as unknown as SvgGeometryElement;
 
 // Helper to create a mock GeometryItem
 const createMockGeometryItem = (overrides: Partial<GeometryItem> = {}): GeometryItem => ({

@@ -6,6 +6,7 @@ import { standardSvgConfig } from "../src/config/svgConfig";
 import { darkTheme, lightTheme } from "../src/themes";
 import { GEOM } from "../src/geometry/operations";
 import type { GeometryStore, GeometryItem } from "../src/react-store";
+import type { GeometryType, SvgGeometryElement } from "../src/react-store";
 
 /**
  * Tests to prevent infinite render loops in SquareSvg component.
@@ -221,17 +222,24 @@ describe("SquareSvg Component - Metadata Population", () => {
 
     const mockStore: GeometryStore & { getUpdateCalls: () => typeof updateCalls } = {
       items,
-      add: vi.fn((name: string, element: any, type: string, dependsOn: string[]) => {
-        items[name] = {
-          name,
-          element,
-          selected: false,
-          type,
-          dependsOn,
-          stepId: "",
-          parameterValues: {},
-        };
-      }),
+      add: vi.fn(
+        (
+          name: string,
+          element: SvgGeometryElement | null,
+          type: GeometryType,
+          dependsOn: string[],
+        ) => {
+          items[name] = {
+            name,
+            element,
+            selected: false,
+            type,
+            dependsOn,
+            stepId: "",
+            parameterValues: {},
+          };
+        },
+      ),
       update: vi.fn((key: string, data: Partial<GeometryItem>) => {
         updateCalls.push({ key, data });
         items[key] = { ...items[key], ...data };
