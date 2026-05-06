@@ -2,20 +2,20 @@
 
 **Reviewer**: Mistral Vibe  
 **Date**: 2025-01-06  
-**Scope**: app2/src/types/geometry.ts, app2/src/geometry/*  
+**Scope**: app2/src/types/geometry.ts, app2/src/geometry/\*  
 **Priority**: Priority 1 - Core domain logic
 
 ---
 
 ## Review Checklist
 
-| Axis | Status | Summary |
-|------|--------|---------|
-| Correctness | **PASS with issues** | Tests pass, but dead code and potential edge cases found |
-| Readability | **PASS** | Well-structured, good naming, comprehensive documentation |
-| Architecture | **PASS with issues** | Clean separation, but some duplication and dead code |
-| Security | **PASS** | No user input, no external data, pure functions |
-| Performance | **PASS** | Lazy evaluation, no N+1 patterns |
+| Axis         | Status               | Summary                                                   |
+| ------------ | -------------------- | --------------------------------------------------------- |
+| Correctness  | **PASS with issues** | Tests pass, but dead code and potential edge cases found  |
+| Readability  | **PASS**             | Well-structured, good naming, comprehensive documentation |
+| Architecture | **PASS with issues** | Clean separation, but some duplication and dead code      |
+| Security     | **PASS**             | No user input, no external data, pure functions           |
+| Performance  | **PASS**             | Lazy evaluation, no N+1 patterns                          |
 
 **Verdict**: **Request changes** - Dead code and minor issues must be addressed
 
@@ -24,6 +24,7 @@
 ## Executive Summary
 
 The geometry step system is **well-architected** with clean separation between:
+
 - Type definitions (`types/geometry.ts`)
 - Pure computation (`operations.ts`, `constructors.ts`)
 - Step definitions (`squareSteps.ts`, `sixFoldV0Steps.ts`)
@@ -46,6 +47,7 @@ None found. The system is functionally correct and all tests pass.
 **File**: `app2/src/geometry/operations.ts`
 
 The following functions are **defined but never used** in the codebase:
+
 - `computeCircleIntersection` (line 249)
 - `computeBisectedPoints` (line 282)
 - `computeTangentPoints` (line 309)
@@ -53,12 +55,14 @@ The following functions are **defined but never used** in the codebase:
 - `createInitialGeometries` (line 385)
 
 **Evidence**:
+
 ```bash
 $ grep -r "computeAllPoints\|computeCircleIntersection\|computeBisectedPoints\|computeTangentPoints\|createInitialGeometries" app2/src --include="*.ts"
 # Only returns definitions in operations.ts, no usages
 ```
 
-**Impact**: 
+**Impact**:
+
 - ~130 lines of unmaintained code
 - Confuses future developers about which functions are active
 - Potential for bit rot as API evolves
@@ -70,6 +74,7 @@ $ grep -r "computeAllPoints\|computeCircleIntersection\|computeBisectedPoints\|c
 **File**: `app2/src/geometry/constructors.ts`
 
 Several helper functions exist that duplicate functionality:
+
 - `pointFromCircles` (line 23) vs `circlesIntersectionPointHelper` (line 147)
 - `pointFromCircleAndLine` (line 47) vs `interceptCircleLineSegHelper` (line 218)
 - `interceptCircleLineDirHelper` (line 240) - thin wrapper around `interceptCircleLineSegHelper`
@@ -86,6 +91,7 @@ Several helper functions exist that duplicate functionality:
 This file exports factory functions (`createPointStep`, `createLineStep`, `createCircleStep`, etc.) but is **only imported by `index.ts`** and not used anywhere in the actual step definitions.
 
 **Evidence**:
+
 ```bash
 $ grep -r "createPointStep\|createLineStep\|createCircleStep\|createPolygonStep\|createCoordinateSystemStep" app2/src --include="*.ts" | grep -v stepBuilders.ts | grep -v "export"
 # No results - not used anywhere
@@ -127,13 +133,14 @@ $ grep -r "createPointStep\|createLineStep\|createCircleStep\|createPolygonStep\
 **Files**: `squareSteps.ts`, `sixFoldV0Steps.ts`
 
 Hardcoded values scattered throughout:
+
 ```typescript
 // squareSteps.ts
 POINTS_RADIUS_MEDIUM (2.0) - used in draw functions
 STROKE_WIDTH_THIN (0.5) - used in draw functions
 GOLDEN_RATIO (1.618...) - used for square stroke
 
-// sixFoldV0Steps.ts  
+// sixFoldV0Steps.ts
 Hardcoded point radii: 2.0
 Hardcoded stroke widths: 0.5, 2.0
 ```
@@ -145,6 +152,7 @@ Hardcoded stroke widths: 0.5, 2.0
 **File**: `sixFoldV0Steps.ts`
 
 Many steps call `getGeometry` without passing the `stepId` parameter for error context:
+
 ```typescript
 // Example from STEP_6
 const c1 = getGeometry(inputs, GEOM.C1, isCircle, "Circle");
@@ -180,45 +188,50 @@ The `computeSixFoldV0Config` function has a `safe()` helper that returns 0 for N
 
 ## Files Summary
 
-| File | Lines | Issues | Verdict |
-|------|-------|--------|---------|
-| `types/geometry.ts` | 193 | 1 minor | **Approve** |
-| `operations.ts` | 400 | 2 important (dead code) | **Request changes** |
-| `constructors.ts` | 317 | 2 important (duplication) | **Request changes** |
-| `squareSteps.ts` | 596 | 1 minor (magic numbers) | **Approve** |
-| `sixFoldV0Steps.ts` | 2275 | 3 minor (naming, error context) | **Approve** |
-| `stepExecution.ts` | 67 | None | **Approve** |
-| `stepBuilders.ts` | 164 | 1 important (unused) | **Request changes** |
-| `sixFold/operations.ts` | 170 | 1 minor (silent errors) | **Approve** |
+| File                    | Lines | Issues                          | Verdict             |
+| ----------------------- | ----- | ------------------------------- | ------------------- |
+| `types/geometry.ts`     | 193   | 1 minor                         | **Approve**         |
+| `operations.ts`         | 400   | 2 important (dead code)         | **Request changes** |
+| `constructors.ts`       | 317   | 2 important (duplication)       | **Request changes** |
+| `squareSteps.ts`        | 596   | 1 minor (magic numbers)         | **Approve**         |
+| `sixFoldV0Steps.ts`     | 2275  | 3 minor (naming, error context) | **Approve**         |
+| `stepExecution.ts`      | 67    | None                            | **Approve**         |
+| `stepBuilders.ts`       | 164   | 1 important (unused)            | **Request changes** |
+| `sixFold/operations.ts` | 170   | 1 minor (silent errors)         | **Approve**         |
 
 ---
 
 ## Strengths
 
 ### 1. Excellent Architecture
+
 - **Clear separation of concerns**: Types, operations, constructors, steps, execution
 - **Pure functions**: All compute functions are side-effect free
 - **Lazy evaluation**: Steps only compute when needed
 - **Dependency tracking**: Each step explicitly declares inputs and outputs
 
 ### 2. Comprehensive Documentation
+
 - Every step has JSDoc comments explaining its purpose
 - Algorithm overviews in module headers (e.g., squareSteps.ts line 1-20)
 - Inline comments for non-obvious logic
 
 ### 3. Type Safety
+
 - Discriminated union types for `GeometryValue`
 - Type guards for runtime validation
 - Factory functions for ergonomic creation
 - Generic `Step<TConfig>` interface
 
 ### 4. Test Coverage
+
 - 215 tests passing
 - Dependency tracking tests verify step relationships
 - Constructor unit tests cover edge cases
 - Integration tests for full step execution
 
 ### 5. Error Handling
+
 - `GeometryError` class with structured context
 - `getGeometry` and `assertGeometry` provide type-safe access with good error messages
 - Most steps validate inputs before computation
@@ -268,13 +281,13 @@ The `computeSixFoldV0Config` function has a `safe()` helper that returns 0 for N
 
 ## Verification
 
-| Check | Result |
-|-------|--------|
-| All tests pass | ✅ 215/215 |
-| TypeScript compiles | ✅ No errors |
-| Lint passes | ✅ (warnings in other modules only) |
-| Format check passes | ✅ |
-| Build succeeds | ✅ |
+| Check               | Result                              |
+| ------------------- | ----------------------------------- |
+| All tests pass      | ✅ 215/215                          |
+| TypeScript compiles | ✅ No errors                        |
+| Lint passes         | ✅ (warnings in other modules only) |
+| Format check passes | ✅                                  |
+| Build succeeds      | ✅                                  |
 
 ---
 
