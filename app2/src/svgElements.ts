@@ -1,6 +1,6 @@
 import type { GeometryStore } from "./react-store";
 import type { GeometryValue } from "./types/geometry";
-import { isPoint, isLine, isCircle, isCoordinateSystem } from "./types/geometry";
+import { isPoint, isLine, isCircle, isCoordinateSystem, isPolygon } from "./types/geometry";
 import type { Theme } from "./themes";
 
 // Tooltip Positioning Strategy:
@@ -44,6 +44,11 @@ declare global {
   }
 
   interface SVGGElement {
+    tooltip?: SVGTextElement;
+    tooltipBg?: SVGRectElement;
+  }
+
+  interface SVGPolygonElement {
     tooltip?: SVGTextElement;
     tooltipBg?: SVGRectElement;
   }
@@ -376,6 +381,74 @@ export function drawCircle(
   const c = values.get(geomId);
   if (!c || !isCircle(c)) return;
   circleWithTooltip(svg, c.cx, c.cy, c.r, geomId, strokeWidth, store, theme);
+}
+
+/**
+ * Draw a polygon with tooltip support
+ */
+export function drawPolygon(
+  svg: SVGSVGElement,
+  values: Map<string, GeometryValue>,
+  geomId: string,
+  strokeWidth: number,
+  store: GeometryStore,
+  theme: Theme,
+  strokeColor: string,
+): void {
+  const p = values.get(geomId);
+  if (!p || !isPolygon(p)) return;
+  polygonWithTooltip(svg, p.points, geomId, strokeWidth, store, theme, strokeColor);
+}
+
+/**
+ * Draw a polygon element
+ */
+function polygon(
+  svg: SVGSVGElement,
+  points: { x: number; y: number }[],
+  strokeWidth: number,
+  strokeColor: string,
+  theme: Theme,
+): SVGPolygonElement {
+  const polygonEl = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+  polygonEl.setAttribute("stroke", strokeColor);
+  polygonEl.setAttribute("stroke-width", strokeWidth.toString());
+  polygonEl.setAttribute("fill", theme.COLOR_SECONDARY);
+  const pointsStr = points.map((p) => `${p.x},${p.y}`).join(" ");
+  polygonEl.setAttribute("points", pointsStr);
+  svg.appendChild(polygonEl);
+  return polygonEl;
+}
+
+/**
+ * Draw a polygon with tooltip support
+ */
+function polygonWithTooltip(
+  svg: SVGSVGElement,
+  points: { x: number; y: number }[],
+  name: string,
+  strokeWidth: number,
+  store: GeometryStore,
+  theme: Theme,
+  strokeColor: string,
+): SVGPolygonElement {
+  const polygonEl = polygon(svg, points, strokeWidth, strokeColor, theme);
+  polygonEl.style.cursor = "pointer";
+
+  // Create tooltip element (positioned near first vertex)
+  const tooltipX = points[0]?.x + TOOLTIP_OFFSET_X * 2 || 0;
+  const tooltipY = points[0]?.y || 0;
+  const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, name, 15, theme);
+
+  // Store tooltip references on the polygon
+  polygonEl.tooltip = tooltip;
+  polygonEl.tooltipBg = tooltipBg;
+
+  if (store) {
+    store.add(name, polygonEl, "polygon", []);
+  }
+
+  return polygonEl;
 }
 
 /**
