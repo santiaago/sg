@@ -28,8 +28,6 @@ git clone https://github.com/addyosmani/agent-skills.git
 
 This directory is ignored by git and will be automatically copied to new worktrees.
 
-
-
 ## 🔧 Scripts
 
 ```bash
