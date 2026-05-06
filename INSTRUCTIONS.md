@@ -1,3 +1,15 @@
+# code review 
+
+/code-review-and-quality based on @backlog/CODE_REVIEW.md section 'React Store & State Management '
+
+follow conventions in @AGENTS.md for atomic commit messages, take as much time as you need
+when done
+
+1. check app
+2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
+3. submit a PR (print full URL of PR when done)
+
+
 # code review
 
 Please identify a main pieces of the system for app2, create a CODE_REVIEW.md in @backlog/
