@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import type { JSX } from "react";
-import type { GeometryItem } from "../react-store";
+import type { GeometryItem, GeometryStore } from "../react-store";
 import type { GeometryType } from "../types/geometry";
 import {
   applyInputVisualFeedback,
@@ -9,7 +9,7 @@ import {
 } from "../utils/geometryHighlighting";
 
 interface GeometryListProps {
-  store: any;
+  store: GeometryStore;
   strokeMid?: number;
   strokeBig?: number;
   strokeLine?: number;

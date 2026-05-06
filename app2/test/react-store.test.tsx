@@ -4,7 +4,6 @@ import {
   useGeometryStoreSquare,
   useGeometryStore,
   useGeometryValueStore,
-  useGeometryStoreEnhanced,
 } from "../src/react-store";
 
 /**
@@ -42,17 +41,6 @@ describe("Geometry Store Hooks - Reference Stability", () => {
     expect(result.current.getAllNodes).toBe(firstStore.getAllNodes);
     expect(result.current.getDependencyGraph).toBe(firstStore.getDependencyGraph);
     expect(result.current.clear).toBe(firstStore.clear);
-  });
-
-  it("useGeometryStoreEnhanced should return stable reference across renders", () => {
-    const { result, rerender } = renderHook(() => useGeometryStoreEnhanced());
-
-    const firstStore = result.current;
-    rerender();
-
-    expect(result.current).toBe(firstStore);
-    // Check that geometryValues is also stable
-    expect(result.current.geometryValues).toBe(firstStore.geometryValues);
   });
 
   /**

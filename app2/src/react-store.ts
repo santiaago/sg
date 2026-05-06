@@ -87,6 +87,40 @@ function captureInitialState(
 }
 
 /**
+ * Remove an SVG element and its associated tooltip elements from the DOM.
+ * This prevents memory leaks when elements are replaced.
+ * Safely handles cases where elements have already been removed.
+ */
+function removeElementAndTooltips(element: SvgGeometryElement | null): void {
+  if (!element || !element.parentNode) return;
+
+  // Remove tooltip background if it exists and is still in DOM
+  if (element.tooltipBg && element.tooltipBg.parentNode) {
+    try {
+      element.tooltipBg.parentNode.removeChild(element.tooltipBg);
+    } catch {
+      // Element may have already been removed
+    }
+  }
+
+  // Remove tooltip if it exists and is still in DOM
+  if (element.tooltip && element.tooltip.parentNode) {
+    try {
+      element.tooltip.parentNode.removeChild(element.tooltip);
+    } catch {
+      // Element may have already been removed
+    }
+  }
+
+  // Remove the element itself if it's still in DOM
+  try {
+    element.parentNode.removeChild(element);
+  } catch {
+    // Element may have already been removed
+  }
+}
+
+/**
  * Internal implementation of geometry store.
  * Used by both useGeometryStoreSquare and useGeometryStoreSixFoldV0.
  */
@@ -99,6 +133,11 @@ function useGeometryStoreImpl(): GeometryStore {
         const newItems = { ...old };
         const initialState = element ? captureInitialState(element, type, name) : {};
         const existingItem = old[name];
+
+        // Clean up old element and its tooltips if replacing
+        if (existingItem?.element) {
+          removeElementAndTooltips(existingItem.element);
+        }
 
         newItems[name] = {
           name,
@@ -130,35 +169,31 @@ function useGeometryStoreImpl(): GeometryStore {
   }, []);
 
   const clear = useCallback(() => {
-    setItems({});
+    setItems((old) => {
+      // Clean up all elements and their tooltips before clearing
+      Object.values(old).forEach((item) => {
+        if (item?.element) {
+          removeElementAndTooltips(item.element);
+        }
+      });
+      return {};
+    });
   }, []);
 
   return useMemo(() => ({ items, add, update, clear }), [items, add, update, clear]);
 }
 
 /**
- * React hook for Square component geometry store.
- * Similar to useGeometryStore but tailored for Square component usage.
- */
-export function useGeometryStoreSquare(): GeometryStore {
-  return useGeometryStoreImpl();
-}
-
-/**
- * React hook for SixFoldV0 geometry store.
- * Uses the same implementation as Square for consistency.
- */
-export function useGeometryStoreSixFoldV0(): GeometryStore {
-  return useGeometryStoreImpl();
-}
-
-/**
- * React hook for generic geometry store.
- * Main store hook used throughout the application.
+ * React hook for geometry store.
+ * Main store hook used throughout the application for managing SVG geometry elements.
  */
 export function useGeometryStore(): GeometryStore {
   return useGeometryStoreImpl();
 }
+
+// Backwards compatibility exports - prefer useGeometryStore for new code
+export const useGeometryStoreSquare = useGeometryStore;
+export const useGeometryStoreSixFoldV0 = useGeometryStore;
 
 // Dependency Graph Types for useGeometryValueStore
 export interface DependencyNode {
@@ -245,45 +280,5 @@ export function useGeometryValueStore(): GeometryValueStore {
       clear,
     }),
     [geometryValues, addGeometry, getGeometry, getNode, getAllNodes, getDependencyGraph, clear],
-  );
-}
-
-// Enhanced store types
-export interface EnhancedGeometryStore {
-  geometryValues: Map<string, GeometryValue>;
-  add: (name: string, value: GeometryValue, type: string, dependsOn: string[]) => void;
-  update: (key: string, object: Partial<GeometryItem>) => void;
-  clear: () => void;
-}
-
-/**
- * Enhanced geometry store with direct access to geometry values.
- */
-export function useGeometryStoreEnhanced(): EnhancedGeometryStore {
-  const [geometryValues, setGeometryValues] = useState<Map<string, GeometryValue>>(new Map());
-
-  const add = useCallback(
-    (name: string, value: GeometryValue, _type: string, _dependsOn: string[]) => {
-      // Store in geometryValues Map
-      setGeometryValues((prev) => {
-        const newMap = new Map(prev);
-        newMap.set(name, value);
-        return newMap;
-      });
-    },
-    [],
-  );
-
-  const update = useCallback((_k: string, _o: Partial<GeometryItem>) => {
-    // Update not needed for geometryValues-only store
-  }, []);
-
-  const clear = useCallback(() => {
-    setGeometryValues(new Map());
-  }, []);
-
-  return useMemo(
-    () => ({ geometryValues, add, update, clear }),
-    [geometryValues, add, update, clear],
   );
 }
