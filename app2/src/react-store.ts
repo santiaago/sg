@@ -17,7 +17,7 @@ export type GeometryType = "point" | "line" | "circle" | "polygon" | "coordinate
  */
 export interface GeometryItem {
   name: string;
-  element: SvgGeometryElement;
+  element: SvgGeometryElement | null;
   selected: boolean;
   type: GeometryType;
   context?: unknown;
@@ -39,7 +39,12 @@ export interface GeometryItem {
  */
 export interface GeometryStore {
   readonly items: Readonly<Record<string, GeometryItem>>;
-  add: (name: string, element: SvgGeometryElement, type: GeometryType, dependsOn: string[]) => void;
+  add: (
+    name: string,
+    element: SvgGeometryElement | null,
+    type: GeometryType,
+    dependsOn: string[],
+  ) => void;
   update: (key: string, object: Partial<GeometryItem>) => void;
   clear: () => void;
 }
@@ -54,15 +59,16 @@ const ATTRIBUTES_TO_PRESERVE: Record<GeometryType, string[]> = {
 };
 
 // Capture the initial state of an SVG element by preserving relevant attributes
-// element - The SVG element
+// element - The SVG element (may be null)
 // type - The geometry type
 // name - The element name (for error reporting)
 // returns Record of attribute names and their original values
 function captureInitialState(
-  element: SvgGeometryElement,
+  element: SvgGeometryElement | null,
   type: GeometryType,
   name: string,
 ): Record<string, string> {
+  if (!element) return {};
   const initialState: Record<string, string> = {};
   const attributes = ATTRIBUTES_TO_PRESERVE[type] || [];
 
@@ -88,10 +94,10 @@ function useGeometryStoreImpl(): GeometryStore {
   const [items, setItems] = useState<Record<string, GeometryItem>>({});
 
   const add = useCallback(
-    (name: string, element: SvgGeometryElement, type: GeometryType, dependsOn: string[]) => {
+    (name: string, element: SvgGeometryElement | null, type: GeometryType, dependsOn: string[]) => {
       setItems((old) => {
         const newItems = { ...old };
-        const initialState = captureInitialState(element, type, name);
+        const initialState = element ? captureInitialState(element, type, name) : {};
         const existingItem = old[name];
 
         newItems[name] = {

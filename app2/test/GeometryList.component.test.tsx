@@ -1,18 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { GeometryList } from "../src/components/GeometryList";
-import type { GeometryItem } from "../src/react-store";
+import type { GeometryItem, SvgGeometryElement } from "../src/react-store";
 import type { GeometryType } from "../src/types/geometry";
 
 const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = ["point", "line", "circle", "polygon"] as const;
 
-// Mock SVG elements
-const createMockElement = () => ({
-  setAttribute: vi.fn(),
-  getAttribute: vi.fn(),
-  tooltip: { setAttribute: vi.fn() },
-  tooltipBg: { setAttribute: vi.fn() },
-});
+// Mock SVG elements - typed as SvgGeometryElement for type safety
+const createMockElement = (): SvgGeometryElement =>
+  ({
+    setAttribute: vi.fn(),
+    getAttribute: vi.fn(),
+    tooltip: { setAttribute: vi.fn() },
+    tooltipBg: { setAttribute: vi.fn() },
+  }) as unknown as SvgGeometryElement;
 
 // Create a proper mock store that actually updates its items
 const createMockStore = (initialItems: Record<string, GeometryItem> = {}) => {
@@ -27,18 +28,25 @@ const createMockStore = (initialItems: Record<string, GeometryItem> = {}) => {
     update: vi.fn((key: string, partial: Partial<GeometryItem>) => {
       items[key] = { ...items[key], ...partial };
     }),
-    add: vi.fn((name: string, element: any, type: string, dependsOn: string[] = []) => {
-      items[name] = {
-        name,
-        element,
-        selected: false,
-        type,
-        dependsOn,
-        context: undefined,
-        stepId: "",
-        parameterValues: {},
-      };
-    }),
+    add: vi.fn(
+      (
+        name: string,
+        element: SvgGeometryElement | null,
+        type: GeometryType,
+        dependsOn: string[] = [],
+      ) => {
+        items[name] = {
+          name,
+          element,
+          selected: false,
+          type,
+          dependsOn,
+          context: undefined,
+          stepId: "",
+          parameterValues: {},
+        };
+      },
+    ),
     clear: vi.fn(() => {
       items = {};
     }),
