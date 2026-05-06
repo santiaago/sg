@@ -179,6 +179,8 @@ install_deps() {
     cp "$REPO_ROOT"/app/package.json "$path/app/"
     cp "$REPO_ROOT"/app2/package.json "$path/app2/"
     cp -r "$REPO_ROOT"/packages "$path/"
+    # Copy agent-skills directory if it exists (cloned from https://github.com/addyosmani/agent-skills.git)
+    [[ -d "$REPO_ROOT/agent-skills" ]] && cp -r "$REPO_ROOT"/agent-skills "$path/"
     
     cd "$path"
     export PNPM_CONFIG_STRICT_PEER_DEPENDENCIES=false
@@ -299,9 +301,7 @@ cmd_create() {
     install_deps "$path" "$no_install" || exit 1
     build_project "$path" "$no_build" || log_warn "Build skipped or failed"
 
-    # Create agent-skills symlink
-    log_info "Creating agent-skills symlink..."
-    ln -sf /Users/sas/dev/agent-skills "$path/agent-skills" || log_warn "Failed to create agent-skills symlink"
+
     
     log_info "Worktree '$name' is ready!"
     echo ""

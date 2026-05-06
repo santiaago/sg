@@ -18,12 +18,17 @@ pnpm dev
 
 ## 🤖 Agent Skills
 
-The `agent-skills` directory is a symlink to [agent-skills](https://github.com/addyosmani/agent-skills) repository:
+The `agent-skills` directory contains skills cloned from [agent-skills](https://github.com/addyosmani/agent-skills) repository.
+
+To set it up:
 
 ```bash
 git clone https://github.com/addyosmani/agent-skills.git
-ln -s /path/to/agent-skills agent-skills
 ```
+
+This directory is ignored by git and will be automatically copied to new worktrees.
+
+
 
 ## 🔧 Scripts
 

@@ -34,6 +34,7 @@ dist/
 # Ignore AI assistant tool directories
 .claude/
 
-# Ignore agent-skills symlink
+# Ignore agent-skills directory (cloned from https://github.com/addyosmani/agent-skills.git)
 agent-skills/
-agent-skills
+
+
