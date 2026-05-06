@@ -298,6 +298,10 @@ cmd_create() {
     # Setup
     install_deps "$path" "$no_install" || exit 1
     build_project "$path" "$no_build" || log_warn "Build skipped or failed"
+
+    # Create agent-skills symlink
+    log_info "Creating agent-skills symlink..."
+    ln -sf /Users/sas/dev/agent-skills "$path/agent-skills" || log_warn "Failed to create agent-skills symlink"
     
     log_info "Worktree '$name' is ready!"
     echo ""
