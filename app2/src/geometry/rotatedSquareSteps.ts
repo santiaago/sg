@@ -1,10 +1,10 @@
 /**
  * Rotated Square geometric construction - Step definitions
- * 
+ *
  * This module implements a square construction with a rotated coordinate system.
  * The first coordinate system is rotated by Pi/16 radians (X axis goes down by Pi/16).
  * This is used to test that changing the coordinate system changes the geometry.
- * 
+ *
  * The steps are identical to squareSteps.ts except for the coordinate system rotation.
  */
 
@@ -98,18 +98,18 @@ const STEP_P1: Step<SquareConfig> = {
       // Fallback to unrotated if CS is missing
       return point(params.p1x, params.p1y);
     }
-    
+
     // Apply rotation transformation
     const rotation = cs.rotation ?? 0;
     const cosRot = Math.cos(rotation);
     const sinRot = Math.sin(rotation);
-    
+
     // Transform local coordinates (p1x, p1y) to global SVG coordinates
     // In a rotated CS: x' = cs.x + x * cos(rotation) - y * sin(rotation)
     //                   y' = cs.y + x * sin(rotation) + y * cos(rotation)
     const x = cs.x + params.p1x * cosRot - params.p1y * sinRot;
     const y = cs.y + params.p1x * sinRot + params.p1y * cosRot;
-    
+
     return point(x, y);
   }),
 
@@ -135,16 +135,16 @@ const STEP_P2: Step<SquareConfig> = {
       // Fallback to unrotated if CS is missing
       return point(params.p2x, params.p2y);
     }
-    
+
     // Apply rotation transformation
     const rotation = cs.rotation ?? 0;
     const cosRot = Math.cos(rotation);
     const sinRot = Math.sin(rotation);
-    
+
     // Transform local coordinates (p2x, p2y) to global SVG coordinates
     const x = cs.x + params.p2x * cosRot - params.p2y * sinRot;
     const y = cs.y + params.p2x * sinRot + params.p2y * cosRot;
-    
+
     return point(x, y);
   }),
 

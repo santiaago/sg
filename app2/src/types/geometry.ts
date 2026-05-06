@@ -189,6 +189,11 @@ export function isCoordinateSystem(value: GeometryValue): value is CoordinateSys
   return value.type === "coordinate_system";
 }
 
-export function coordinateSystem(x: number, y: number, arrowLength: number, rotation: number = 0): CoordinateSystem {
+export function coordinateSystem(
+  x: number,
+  y: number,
+  arrowLength: number,
+  rotation: number = 0,
+): CoordinateSystem {
   return { type: "coordinate_system", x, y, arrowLength, rotation };
 }

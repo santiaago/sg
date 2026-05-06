@@ -40,7 +40,7 @@ describe("RotatedSquareSvg Component - Basic Rendering", () => {
   it("should render with rotated coordinate system at step 1", () => {
     const mockStore = createMockStore();
     render(<RotatedSquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
-    
+
     // At step 1, only the coordinate system should be drawn
     // The CS should have rotation = Pi/16
     expect(screen.getByTestId("rotated-square-svg")).toBeInTheDocument();
@@ -50,7 +50,12 @@ describe("RotatedSquareSvg Component - Basic Rendering", () => {
     const TestComponent = () => {
       const store = useGeometryStoreSquare();
       return (
-        <RotatedSquareSvg store={store} svgConfig={standardSvgConfig} currentStep={1} restartTrigger={0} />
+        <RotatedSquareSvg
+          store={store}
+          svgConfig={standardSvgConfig}
+          currentStep={1}
+          restartTrigger={0}
+        />
       );
     };
 
@@ -70,7 +75,9 @@ describe("RotatedSquareSvg Component - Store Clear Behavior", () => {
   it("should NOT clear store on forward step navigation (1->2)", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<RotatedSquareSvg {...defaultProps} store={mockStore} currentStep={1} />);
+    const { rerender } = render(
+      <RotatedSquareSvg {...defaultProps} store={mockStore} currentStep={1} />,
+    );
 
     mockStore.clear.mockClear();
 
@@ -82,7 +89,9 @@ describe("RotatedSquareSvg Component - Store Clear Behavior", () => {
   it("should clear store on backward step navigation (2->1)", () => {
     const mockStore = createMockStore();
 
-    const { rerender } = render(<RotatedSquareSvg {...defaultProps} store={mockStore} currentStep={2} />);
+    const { rerender } = render(
+      <RotatedSquareSvg {...defaultProps} store={mockStore} currentStep={2} />,
+    );
 
     mockStore.clear.mockClear();
 
@@ -100,7 +109,9 @@ describe("RotatedSquareSvg Component - Store Clear Behavior", () => {
 
     mockStore.clear.mockClear();
 
-    rerender(<RotatedSquareSvg {...defaultProps} store={mockStore} currentStep={3} restartTrigger={1} />);
+    rerender(
+      <RotatedSquareSvg {...defaultProps} store={mockStore} currentStep={3} restartTrigger={1} />,
+    );
 
     expect(mockStore.clear).toHaveBeenCalledTimes(1);
   });

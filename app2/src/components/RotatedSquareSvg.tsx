@@ -4,7 +4,11 @@ import type { SvgConfig } from "../config/svgConfig";
 import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
 import { pick, buildStepMaps, setupSvg } from "../svg";
-import { ROTATED_SQUARE_STEPS, executeSteps, computeSquareConfig } from "../geometry/rotatedSquareSteps";
+import {
+  ROTATED_SQUARE_STEPS,
+  executeSteps,
+  computeSquareConfig,
+} from "../geometry/rotatedSquareSteps";
 import { useThemeAwareSteps } from "../hooks/useThemeAwareSteps";
 import { darkTheme } from "../themes";
 import type { Theme } from "../themes";
@@ -75,10 +79,16 @@ export const RotatedSquareSvg = forwardRef(function RotatedSquareSvg(
       console.warn("RotatedSquareSvg: currentStep should not be negative, received:", currentStep);
     }
     if (svgConfig.width <= 0) {
-      console.warn("RotatedSquareSvg: svgConfig.width should be positive, received:", svgConfig.width);
+      console.warn(
+        "RotatedSquareSvg: svgConfig.width should be positive, received:",
+        svgConfig.width,
+      );
     }
     if (svgConfig.height <= 0) {
-      console.warn("RotatedSquareSvg: svgConfig.height should be positive, received:", svgConfig.height);
+      console.warn(
+        "RotatedSquareSvg: svgConfig.height should be positive, received:",
+        svgConfig.height,
+      );
     }
     if (!theme || typeof theme !== "object") {
       console.warn("RotatedSquareSvg: theme should be a valid Theme object, received:", theme);
@@ -153,5 +163,7 @@ export const RotatedSquareSvg = forwardRef(function RotatedSquareSvg(
     }
   }, [currentStep, restartTrigger, svgConfig, dotStrokeWidth, theme, shouldClear]);
 
-  return <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="rotated-square-svg" />;
+  return (
+    <svg ref={svgRef} className={`${svgConfig.svgClass} block`} data-testid="rotated-square-svg" />
+  );
 });

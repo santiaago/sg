@@ -239,7 +239,7 @@ export function coordinateSystemArrows(
   // With rotation: X arrow points at angle `rotation` from horizontal
   const x2 = x + arrowLength * Math.cos(rotation);
   const y2 = y + arrowLength * Math.sin(rotation);
-  
+
   const xArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
   xArrow.setAttribute("x1", x.toString());
   xArrow.setAttribute("y1", y.toString());
@@ -272,7 +272,7 @@ export function coordinateSystemArrows(
   const yRotation = rotation + Math.PI / 2;
   const y2_x = x + arrowLength * Math.cos(yRotation);
   const y2_y = y + arrowLength * Math.sin(yRotation);
-  
+
   const yArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
   yArrow.setAttribute("x1", x.toString());
   yArrow.setAttribute("y1", y.toString());
@@ -568,7 +568,15 @@ export function drawCoordinateSystem(
   }
 
   const rotation = cs.rotation ?? 0;
-  const group = coordinateSystemArrows(svg, cs.x, cs.y, cs.arrowLength, strokeWidth, strokeColor, rotation);
+  const group = coordinateSystemArrows(
+    svg,
+    cs.x,
+    cs.y,
+    cs.arrowLength,
+    strokeWidth,
+    strokeColor,
+    rotation,
+  );
 
   // Add tooltip to the group - positioned diagonally from origin to stay within canvas
   group.style.cursor = "pointer";
