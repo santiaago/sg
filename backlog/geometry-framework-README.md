@@ -34,8 +34,8 @@ The framework is part of the sg monorepo. No additional installation is required
 ## Quick Start
 
 ```typescript
-import { Construction } from "app2/src/geometry/construction";
-import { SvgRenderer } from "app2/src/geometry/renderers/svgRenderer";
+import { Construction } from "./geometry/construction";
+import { SvgRenderer } from "./geometry/renderers/svgRenderer";
 
 // Create construction
 const c = new Construction();
@@ -110,18 +110,28 @@ See the individual phase documents for details:
 app2/
 ├── src/
 │   ├── geometry/
-│   │   ├── construction.ts          # Core Construction DSL
-│   │   ├── construction-to-steps.ts # Step adapter
-│   │   ├── operations.ts             # Geometry operations helpers
-│   │   └── renderers/
-│   │       └── svgRenderer.ts        # SVG rendering layer
+│   │   ├── construction.ts            # Core Construction DSL
+│   │   ├── construction-to-steps.ts  # Step adapter
+│   │   ├── constructors.ts             # Legacy constructor helpers
+│   │   ├── operations.ts               # Geometry operations helpers
+│   │   ├── renderers/
+│   │   │   └── svgRenderer.ts          # SVG rendering layer
+│   │   ├── sixFold/
+│   │   │   └── operations.ts           # Six-fold symmetry operations
+│   │   ├── test-constructions/
+│   │   │   ├── hexagon.ts              # Hexagon construction example
+│   │   │   ├── triangle.ts             # Triangle construction example
+│   │   │   └── index.ts
+│   │   ├── index.ts
+│   │   ├── squareSteps.ts
+│   │   └── sixFoldV0Steps.ts
 │   ├── components/
-│   │   └── SquaresV2.tsx             # Proof-of-concept component
+│   │   └── SquaresV2.tsx               # Proof-of-concept component
 │   ├── types/
-│   │   └── geometry.ts               # GeometryValue types
-│   └── react-store.ts                # GeometryStore for tooltips
+│   │   └── geometry.ts                 # GeometryValue types
+│   └── react-store.ts                  # GeometryStore for tooltips
 └── tests/
-    └── geometry/                     # Test files
+    └── geometry/                       # Test files
 ```
 
 ## Key Design Decisions
