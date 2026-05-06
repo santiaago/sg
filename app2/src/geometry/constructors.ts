@@ -8,7 +8,13 @@
 // - Is pure (no side effects, same input -> same output)
 // - Uses utilities from @sg/geometry package
 
-import { intersection as rawIntersection, inteceptCircleLineSeg } from "@sg/geometry";
+import {
+  intersection as rawIntersection,
+  inteceptCircleLineSeg,
+  Point as SgPointClass,
+  Circle as SgCircleClass,
+} from "@sg/geometry";
+import type { Point as SgPoint } from "@sg/geometry";
 import type { Point, Line, Circle, Polygon } from "../types/geometry";
 import { point, line, circle, polygon } from "../types/geometry";
 
@@ -196,15 +202,15 @@ export function circlesIntersectionPointHelper(
     | typeof directions.right,
 ): Point | null {
   // circlesIntersectionPoint expects Circle objects from @sg/geometry
-  // We create compatible objects using type assertions
-  const sgC1 = { p: { x: c1.cx, y: c1.cy }, r: c1.r } as any;
-  const sgC2 = { p: { x: c2.cx, y: c2.cy }, r: c2.r } as any;
-  const result = circlesIntersectionPoint(sgC1, sgC2, dir);
+  // which have p: {x, y} and r properties.
+  // Our local Circle type has cx, cy, r.
+  // Create adapter objects with proper typing.
+  const sgC1 = new SgCircleClass(new SgPointClass(c1.cx, c1.cy), c1.r);
+  const sgC2 = new SgCircleClass(new SgPointClass(c2.cx, c2.cy), c2.r);
+  const result: SgPoint | null = circlesIntersectionPoint(sgC1, sgC2, dir);
   if (!result) return null;
-  // result is a Point from @sg/geometry which has x and y properties
-  const x = (result as any).x;
-  const y = (result as any).y;
-  return validPoint(x, y);
+  // Convert @sg/geometry Point to our local Point type
+  return validPoint(result.x, result.y);
 }
 
 // Circle-Line Segment Intersection
