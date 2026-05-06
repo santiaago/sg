@@ -189,6 +189,12 @@ install_deps() {
         return 1
     fi
     
+    # Install playwright-cli skills
+    log_info "Installing playwright-cli skills..."
+    if ! npx playwright-cli install --skills; then
+        log_warn "Failed to install playwright-cli skills"
+    fi
+    
     log_info "Dependencies installed successfully"
 }
 
