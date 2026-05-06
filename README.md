@@ -16,6 +16,15 @@ pnpm dev
 - `app/` - Svelte application
 - `app2/` - React application
 
+## 🤖 Agent Skills
+
+The `agent-skills` directory is a symlink to [agent-skills](https://github.com/addyosmani/agent-skills) repository:
+
+```bash
+git clone https://github.com/addyosmani/agent-skills.git
+ln -s /path/to/agent-skills agent-skills
+```
+
 ## 🔧 Scripts
 
 ```bash
