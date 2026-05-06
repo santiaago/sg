@@ -194,28 +194,6 @@ export default function App(): JSX.Element {
   const squareSvgRef = useRef<SVGSVGElement>(null);
   const playIntervalSquare = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Helper function to clear Square store and remove DOM elements.
-  // Square store requires manual DOM cleanup because SVG elements and tooltips
-  // are directly appended to the SVG container and need explicit removal.
-  // v0 store does not need this because it uses a different rendering approach.
-  const clearSquareStore = (): void => {
-    if (storeSquare?.clear) {
-      Object.keys(storeSquare.items).forEach((key) => {
-        const item = storeSquare.items[key];
-        if (item && item.element && item.element.parentNode) {
-          item.element.parentNode.removeChild(item.element);
-        }
-        if (item && item.element && item.element.tooltip && item.element.tooltip.parentNode) {
-          item.element.tooltip.parentNode.removeChild(item.element.tooltip);
-        }
-        if (item && item.element && item.element.tooltipBg && item.element.tooltipBg.parentNode) {
-          item.element.tooltipBg.parentNode.removeChild(item.element.tooltipBg);
-        }
-      });
-      storeSquare.clear();
-    }
-  };
-
   const handleNextClickSquare = (): void => {
     // Stop playing if user manually clicks
     if (isPlayingSquare && playIntervalSquare.current) {
@@ -247,7 +225,7 @@ export default function App(): JSX.Element {
       playIntervalSquare.current = null;
       setIsPlayingSquare(false);
     }
-    clearSquareStore();
+    storeSquare.clear();
     setCurrentStepSquare(0);
     setRestartKeySquare(restartKeySquare + 1);
   };
@@ -259,7 +237,7 @@ export default function App(): JSX.Element {
       playIntervalSquare.current = null;
       setIsPlayingSquare(false);
     }
-    clearSquareStore();
+    storeSquare.clear();
     setCurrentStepSquare(0);
     setRestartKeySquare(restartKeySquare + 1);
   };
@@ -271,7 +249,7 @@ export default function App(): JSX.Element {
       playIntervalSquare.current = null;
       setIsPlayingSquare(false);
     }
-    clearSquareStore();
+    storeSquare.clear();
     setCurrentStepSquare(SQUARE_STEPS.length);
     setRestartKeySquare(restartKeySquare + 1);
   };

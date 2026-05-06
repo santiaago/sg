@@ -224,9 +224,9 @@ describe("GeometryList", () => {
       fireEvent.click(c1Item);
       expect(store.items.c1.selected).toBe(true);
 
-      // Second click on same item - keeps c1 selected (unified with GeometryDetails behavior)
+      // Second click on same item - deselects c1 (toggle behavior)
       fireEvent.click(c1Item);
-      expect(store.items.c1.selected).toBe(true);
+      expect(store.items.c1.selected).toBe(false);
       expect(store.items.line_main.selected).toBe(false);
     });
 
@@ -420,11 +420,11 @@ describe("GeometryList", () => {
       expect(c1Item).toHaveClass("text-yellow-400");
       expect(lineMainItem).toHaveClass("text-orange-400");
 
-      // Second click on c1 - keeps c1 selected (unified with GeometryDetails behavior)
-      // Input highlights should still be shown
+      // Second click on c1 - deselects it (toggle behavior)
+      // Input highlights should be cleared
       fireEvent.click(c1Item);
-      expect(c1Item).toHaveClass("text-yellow-400");
-      expect(lineMainItem).toHaveClass("text-orange-400");
+      expect(c1Item).not.toHaveClass("text-yellow-400");
+      expect(lineMainItem).not.toHaveClass("text-orange-400");
     });
 
     it("shows selected geometry in yellow and its input in orange", () => {

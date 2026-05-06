@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import type { JSX } from "react";
-import type { GeometryItem } from "../react-store";
+import type { GeometryItem, GeometryStore } from "../react-store";
 import type { GeometryType } from "../types/geometry";
 import {
   applyInputVisualFeedback,
@@ -9,7 +9,7 @@ import {
 } from "../utils/geometryHighlighting";
 
 interface GeometryListProps {
-  store: any;
+  store: GeometryStore;
   strokeMid?: number;
   strokeBig?: number;
   strokeLine?: number;
@@ -104,13 +104,26 @@ export function GeometryList({
     const item = store.items[name] as GeometryItem | undefined;
     if (!item) return;
 
-    // Use shared selection utility for consistent behavior
-    selectGeometry(store, name, strokeBig);
+    // If the item is already selected, deselect it and clear input highlights
+    if (item.selected) {
+      // Deselect the item
+      store.update(name, { selected: false });
+      if (item.element) {
+        restoreInitialState(item.element, item);
+      }
+      // Clear input highlights
+      if (showInputHighlight) {
+        setHighlightedInputs(new Set());
+      }
+    } else {
+      // Use shared selection utility for consistent behavior
+      selectGeometry(store, name, strokeBig);
 
-    // Update highlighted inputs based on selection
-    if (showInputHighlight) {
-      // Always highlight dependencies of the clicked (now selected) item
-      setHighlightedInputs(new Set(item.dependsOn || []));
+      // Update highlighted inputs based on selection
+      if (showInputHighlight) {
+        // Highlight dependencies of the selected item
+        setHighlightedInputs(new Set(item.dependsOn || []));
+      }
     }
   };
 
