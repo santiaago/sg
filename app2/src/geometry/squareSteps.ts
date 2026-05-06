@@ -531,7 +531,13 @@ const STEP_FINAL_SQUARE: Step<SquareConfig> = {
 
     if (!square || !isPolygon(square)) return;
 
-    const svgPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    const svgPolygon = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "polygon",
+    ) as SVGPolygonElement & {
+      tooltip?: SVGTextElement;
+      tooltipBg?: SVGRectElement;
+    };
     const points = square.points.map((p) => `${p.x},${p.y}`).join(" ");
     svgPolygon.setAttribute("points", points);
     // Stroke uses theme.COLOR_PRIMARY with GOLDEN_RATIO width
@@ -548,8 +554,8 @@ const STEP_FINAL_SQUARE: Step<SquareConfig> = {
     const tooltipY = square.points[0].y;
     const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, GEOM.SQUARE, 15, theme);
     // Store tooltip references on the element
-    (svgPolygon as any).tooltip = tooltip;
-    (svgPolygon as any).tooltipBg = tooltipBg;
+    svgPolygon.tooltip = tooltip;
+    svgPolygon.tooltipBg = tooltipBg;
 
     if (store) {
       store.add(GEOM.SQUARE, svgPolygon, "polygon", []);
