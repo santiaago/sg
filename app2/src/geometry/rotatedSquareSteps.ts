@@ -187,9 +187,12 @@ const STEP_C1: Step<SquareConfig> = {
 
   compute: computeSingle(GEOM.C1, (inputs, params) => {
     const mainLine = getGeometry(inputs, GEOM.MAIN_LINE, isLine, "Line");
-    const lineLength = mainLine.x2 - mainLine.x1;
-    const c1x = mainLine.x1 + lineLength * params.C1_POSITION_RATIO;
-    return point(c1x, mainLine.y1);
+    // Position C1 along the main line using linear interpolation for both x and y
+    // This is necessary because the main line may be rotated (not horizontal)
+    const ratio = params.C1_POSITION_RATIO;
+    const c1x = mainLine.x1 + (mainLine.x2 - mainLine.x1) * ratio;
+    const c1y = mainLine.y1 + (mainLine.y2 - mainLine.y1) * ratio;
+    return point(c1x, c1y);
   }),
 
   draw: (svg, values, store, theme) => {
