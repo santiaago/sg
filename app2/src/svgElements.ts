@@ -31,28 +31,8 @@ const ARROWHEAD_MARKER_HEIGHT = 7;
 const ARROWHEAD_REF_X = 10;
 const ARROWHEAD_REF_Y = 3.5;
 
-// Extend SVG element types to include custom tooltip properties
-declare global {
-  interface SVGCircleElement {
-    tooltip?: SVGTextElement;
-    tooltipBg?: SVGRectElement;
-  }
-
-  interface SVGLineElement {
-    tooltip?: SVGTextElement;
-    tooltipBg?: SVGRectElement;
-  }
-
-  interface SVGGElement {
-    tooltip?: SVGTextElement;
-    tooltipBg?: SVGRectElement;
-  }
-
-  interface SVGPolygonElement {
-    tooltip?: SVGTextElement;
-    tooltipBg?: SVGRectElement;
-  }
-}
+// Note: SVG element type augmentations for tooltip properties are defined in
+// src/types/svg-elements.d.ts to avoid global scope pollution in this module.
 
 /**
  * Create tooltip elements (text + background rect) for an SVG element
