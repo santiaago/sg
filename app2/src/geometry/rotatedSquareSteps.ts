@@ -8,7 +8,7 @@
  * The steps are identical to squareSteps.ts except for the coordinate system rotation.
  */
 
-import type { Step, GeometryValue, StepExecutionContext } from "../types/geometry";
+import type { Step } from "../types/geometry";
 import {
   point,
   line,
@@ -28,6 +28,11 @@ import {
   computeSingle,
   type SquareConfig,
 } from "./operations";
+import {
+  POINT_RADIUS_MEDIUM,
+  STROKE_WIDTH_THIN,
+  COORDINATE_SYSTEM_ARROW_LENGTH_RATIO,
+} from "../config/geometryConfig";
 import {
   circleFromPoint,
   pointFromCircles,
@@ -63,7 +68,7 @@ const STEP_COORDINATE_SYSTEM: Step<SquareConfig> = {
   compute: computeSingle(GEOM.COORDINATE_SYSTEM, (_inputs, params) => {
     // Place coordinate system at SVG origin (0, 0) = top-left corner.
     // SVG coordinate system: X increases right (east), Y increases down (south).
-    const arrowLength = params.height / 24;
+    const arrowLength = params.height * COORDINATE_SYSTEM_ARROW_LENGTH_RATIO;
     // Rotation: Pi/16 radians (X axis goes down by Pi/16)
     return coordinateSystem(0, 0, arrowLength, COORDINATE_SYSTEM_ROTATION);
   }),
@@ -73,7 +78,7 @@ const STEP_COORDINATE_SYSTEM: Step<SquareConfig> = {
       svg,
       values,
       GEOM.COORDINATE_SYSTEM,
-      0.5,
+      STROKE_WIDTH_THIN,
       store,
       theme,
       theme.COLOR_PRIMARY,
@@ -114,7 +119,7 @@ const STEP_P1: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.P1, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.P1, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -149,7 +154,7 @@ const STEP_P2: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.P2, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.P2, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -170,7 +175,7 @@ const STEP_MAIN_LINE: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.MAIN_LINE, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.MAIN_LINE, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -196,7 +201,7 @@ const STEP_C1: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.C1, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.C1, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -217,7 +222,7 @@ const STEP_C1_CIRCLE: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawCircle(svg, values, GEOM.C1_CIRCLE, 0.5, store, theme);
+    drawCircle(svg, values, GEOM.C1_CIRCLE, STROKE_WIDTH_THIN, store, theme);
   },
 };
 
@@ -244,7 +249,7 @@ const STEP_C2: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.C2, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.C2, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -265,7 +270,7 @@ const STEP_C2_CIRCLE: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawCircle(svg, values, GEOM.C2_CIRCLE, 0.5, store, theme);
+    drawCircle(svg, values, GEOM.C2_CIRCLE, STROKE_WIDTH_THIN, store, theme);
   },
 };
 
@@ -292,7 +297,7 @@ const STEP_INTERSECTION_POINT: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.INTERSECTION_POINT, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.INTERSECTION_POINT, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -313,7 +318,7 @@ const STEP_INTERSECTION_CIRCLE: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, 0.5, store, theme);
+    drawCircle(svg, values, GEOM.INTERSECTION_CIRCLE, STROKE_WIDTH_THIN, store, theme);
   },
 };
 
@@ -336,7 +341,7 @@ const STEP_LINE_C2_PI: Step<SquareConfig> = {
 
   draw: (svg, values, store, theme) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C2_PI, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LINE_C2_PI, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -366,7 +371,7 @@ const STEP_P3: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.P3, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.P3, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -389,7 +394,7 @@ const STEP_LINE_C1_PI: Step<SquareConfig> = {
 
   draw: (svg, values, store, theme) => {
     // Keep default stroke, only length is 1.1 * diameter
-    drawLine(svg, values, GEOM.LINE_C1_PI, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LINE_C1_PI, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -419,7 +424,7 @@ const STEP_P4: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.P4, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.P4, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -441,7 +446,7 @@ const STEP_LINE_C2_P4: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LINE_C2_P4, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LINE_C2_P4, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -467,7 +472,7 @@ const STEP_PL: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.PL, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.PL, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -489,7 +494,7 @@ const STEP_LINE_C1_P3: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawLine(svg, values, GEOM.LINE_C1_P3, 0.5, store, theme, theme.COLOR_PRIMARY);
+    drawLine(svg, values, GEOM.LINE_C1_P3, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
   },
 };
 
@@ -515,7 +520,7 @@ const STEP_PR: Step<SquareConfig> = {
   }),
 
   draw: (svg, values, store, theme) => {
-    drawPoint(svg, values, GEOM.PR, 2.0, store, theme);
+    drawPoint(svg, values, GEOM.PR, POINT_RADIUS_MEDIUM, store, theme);
   },
 };
 
@@ -543,7 +548,13 @@ const STEP_FINAL_SQUARE: Step<SquareConfig> = {
 
     if (!square || !isPolygon(square)) return;
 
-    const svgPolygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    const svgPolygon = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "polygon",
+    ) as SVGPolygonElement & {
+      tooltip?: SVGTextElement;
+      tooltipBg?: SVGRectElement;
+    };
     const points = square.points.map((p) => `${p.x},${p.y}`).join(" ");
     svgPolygon.setAttribute("points", points);
     // Stroke uses theme.COLOR_PRIMARY with GOLDEN_RATIO width
@@ -560,8 +571,8 @@ const STEP_FINAL_SQUARE: Step<SquareConfig> = {
     const tooltipY = square.points[0].y;
     const { tooltip, tooltipBg } = createTooltip(svg, tooltipX, tooltipY, GEOM.SQUARE, 15, theme);
     // Store tooltip references on the element
-    (svgPolygon as any).tooltip = tooltip;
-    (svgPolygon as any).tooltipBg = tooltipBg;
+    svgPolygon.tooltip = tooltip;
+    svgPolygon.tooltipBg = tooltipBg;
 
     if (store) {
       store.add(GEOM.SQUARE, svgPolygon, "polygon", []);
@@ -592,66 +603,5 @@ export const ROTATED_SQUARE_STEPS: readonly Step<SquareConfig>[] = [
   STEP_FINAL_SQUARE,
 ];
 
-// Step Execution Utility
-
-/**
- * Executes a single step: computes outputs and draws them.
- * @param step - The step to execute
- * @param allValues - Map of ALL geometry values computed so far (including previous steps)
- * @param ctx - Execution context (SVG, config, store)
- * @param squareConfig - Square geometry configuration
- * @returns Updated map of geometry values (with new outputs added)
- */
-export function executeStep(
-  step: Step<SquareConfig>,
-  allValues: Map<string, GeometryValue>,
-  ctx: StepExecutionContext,
-  squareConfig: SquareConfig,
-): Map<string, GeometryValue> {
-  // Collect input values for this step
-  const inputValues = new Map<string, GeometryValue>();
-  for (const inputId of step.inputs) {
-    const value = allValues.get(inputId);
-    if (!value) {
-      throw new Error(`Step ${step.id}: missing input geometry ${inputId}`);
-    }
-    inputValues.set(inputId, value);
-  }
-
-  // Use squareConfig directly (it now contains all required parameters)
-  const outputValues = step.compute(inputValues, squareConfig);
-
-  // Add outputs to allValues
-  const newAllValues = new Map(allValues);
-  for (const [id, value] of outputValues) {
-    newAllValues.set(id, value);
-  }
-
-  // Draw the step
-  step.draw(ctx.svg, newAllValues, ctx.store, ctx.theme);
-
-  return newAllValues;
-}
-
-/**
- * Executes all steps up to a given index.
- * @param steps - Array of steps to execute
- * @param upToIndex - Execute steps[0] through steps[upToIndex-1]
- * @param ctx - Execution context containing svg, store, and theme
- * @param squareConfig - Square geometry configuration
- * @returns Map of all computed geometry values
- */
-export function executeSteps(
-  steps: readonly Step<SquareConfig>[],
-  upToIndex: number,
-  ctx: StepExecutionContext,
-  squareConfig: SquareConfig,
-): Map<string, GeometryValue> {
-  let allValues = new Map<string, GeometryValue>();
-
-  for (let i = 0; i < Math.min(upToIndex, steps.length); i++) {
-    allValues = executeStep(steps[i], allValues, ctx, squareConfig);
-  }
-
-  return allValues;
-}
+// Re-export executeStep and executeSteps from shared module
+export { executeStep, executeSteps } from "./stepExecution";
