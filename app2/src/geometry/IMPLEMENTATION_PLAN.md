@@ -674,15 +674,15 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] Test each operation expression compiles to correct Step
-- [ ] Test Step has correct `inputs`, `outputs`, `parameters`
-- [ ] Test `compute()` produces correct geometry value
-- [ ] Test dependency tracking is correct
+- [x] Test each operation expression compiles to correct Step
+- [x] Test Step has correct `inputs`, `outputs`, `parameters`
+- [x] Test `compute()` produces correct geometry value
+- [x] Test dependency tracking is correct
 - [ ] Test error cases (no intersection, etc.)
 
 **Verification:**
 
-- [ ] All tests pass: `pnpm test -- --grep "dsl.*operation"`
+- [x] All tests pass: 22 tests in operations.test.ts
 
 **Dependencies:** Task 20, Tasks 15-18
 
@@ -751,6 +751,7 @@ Existing types/utility imports
 - [ ] All Phase 5 tasks complete
 - [x] `__tests__/` utilities created (dsl-test-utils.ts)
 - [x] Primitive expression tests pass (30 tests)
+- [x] Operation expression tests pass (22 tests)
 - [ ] All DSL tests pass
 - [ ] Square equivalence verified
 - [ ] Review with human before proceeding
