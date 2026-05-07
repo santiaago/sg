@@ -726,34 +726,36 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] DSL code replicates square construction (all 18 steps)
-- [ ] Compiled steps produce geometry identical to manual steps (within tolerance)
-- [ ] Dependency graph matches expected structure from squareSteps.ts
-- [ ] All geometry values match (points, lines, circles, final square)
+- [x] DSL code replicates square construction (all 18 steps)
+- [x] Compiled steps produce geometry identical to manual steps (within tolerance)
+- [x] Dependency graph matches expected structure from squareSteps.ts
+- [x] All geometry values match (points, lines, circles, final square)
 
 **Verification:**
 
-- [ ] Integration test passes
+- [x] Integration test passes (17 tests)
 - [ ] Visual comparison of outputs
 
 **Dependencies:** Task 20, Tasks 10-19
 
 **Files likely touched:**
 
-- `app2/src/geometry/dsl/__tests__/squareEquivalence.test.ts`
+- `app2/test/square-construction-equivalence.test.ts`
 
 **Estimated scope:** M
+
+**Status:** ✅ Complete
 
 ---
 
 ### Checkpoint: Integration Testing
 
-- [ ] All Phase 5 tasks complete
+- [x] All Phase 5 tasks complete
 - [x] `__tests__/` utilities created (dsl-test-utils.ts)
 - [x] Primitive expression tests pass (30 tests)
 - [x] Operation expression tests pass (22 tests)
-- [ ] All DSL tests pass
-- [ ] Square equivalence verified
+- [x] All DSL tests pass (34 GeometryBuilder + 17 Square equivalence = 51 new tests)
+- [x] Square equivalence verified (17 tests)
 - [ ] Review with human before proceeding
 
 ---
