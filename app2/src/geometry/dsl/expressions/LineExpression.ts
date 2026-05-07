@@ -27,48 +27,56 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
   private readonly endId?: string;
 
   /**
-   * Create a line expression from explicit coordinates.
-   *
-   * @param id - Unique identifier for this line
-   * @param x1 - X coordinate of start point
-   * @param y1 - Y coordinate of start point
-   * @param x2 - X coordinate of end point
-   * @param y2 - Y coordinate of end point
+   * Internal constructor - use factory methods for type safety.
    */
-  constructor(id: string, x1: number, y1: number, x2: number, y2: number);
-
-  /**
-   * Create a line expression from two point expressions.
-   *
-   * @param id - Unique identifier for this line
-   * @param start - Start point expression
-   * @param end - End point expression
-   */
-  constructor(id: string, start: PointExpression<TConfig>, end: PointExpression<TConfig>);
-
-  constructor(
+  private constructor(
     id: string,
-    arg1: number | PointExpression<TConfig>,
-    arg2: number | PointExpression<TConfig>,
-    arg3?: number,
-    arg4?: number,
+    args:
+      | { type: "coordinates"; x1: number; y1: number; x2: number; y2: number }
+      | { type: "points"; startId: string; endId: string },
   ) {
     this.id = id;
     this.parameters = [];
 
-    // Handle point expression arguments
-    if (arg1 instanceof PointExpression && arg2 instanceof PointExpression) {
-      this.startId = arg1.id;
-      this.endId = arg2.id;
-      this.dependencies = [arg1.id, arg2.id];
-    } else {
-      // Handle coordinate arguments
-      this.x1 = arg1 as number;
-      this.y1 = arg2 as number;
-      this.x2 = arg3 as number;
-      this.y2 = arg4 as number;
+    if (args.type === "coordinates") {
+      this.x1 = args.x1;
+      this.y1 = args.y1;
+      this.x2 = args.x2;
+      this.y2 = args.y2;
       this.dependencies = [];
+    } else {
+      this.startId = args.startId;
+      this.endId = args.endId;
+      this.dependencies = [args.startId, args.endId];
     }
+  }
+
+  /**
+   * Create a line expression from explicit coordinates.
+   */
+  static fromCoordinates<TConfig>(
+    id: string,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): LineExpression<TConfig> {
+    return new LineExpression(id, { type: "coordinates", x1, y1, x2, y2 });
+  }
+
+  /**
+   * Create a line expression from two point expressions.
+   */
+  static fromPoints<TConfig>(
+    id: string,
+    start: PointExpression<TConfig>,
+    end: PointExpression<TConfig>,
+  ): LineExpression<TConfig> {
+    return new LineExpression(id, {
+      type: "points",
+      startId: start.id,
+      endId: end.id,
+    });
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
