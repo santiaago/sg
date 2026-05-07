@@ -768,16 +768,17 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] `GeometryBuilder` exported
-- [ ] All expression types exported (for advanced users)
-- [ ] `GeometryRenderer` interface exported
-- [ ] `DefaultGeometryRenderer` exported
-- [ ] Type-only exports for types (IntersectionOptions, CircleIntersectionOptions)
+- [x] `GeometryBuilder` exported
+- [x] All expression types exported (for advanced users)
+- [x] `GeometryRenderer` interface exported
+- [x] `DefaultGeometryRenderer` exported
+- [x] Type-only exports for types (IntersectionOptions, CircleIntersectionOptions)
+- [x] PointLikeExpression, LineLikeExpression, CircleLikeExpression type aliases exported
 
 **Verification:**
 
-- [ ] Build succeeds: `pnpm type-check:app2`
-- [ ] Can import all public types from `../geometry/dsl`
+- [x] Build succeeds: `pnpm type-check:app2`
+- [x] Can import all public types from `../geometry/dsl`
 
 **Dependencies:** All previous tasks
 
@@ -786,6 +787,8 @@ Existing types/utility imports
 - `app2/src/geometry/dsl/index.ts`
 
 **Estimated scope:** XS
+
+**Status:** ✅ Complete
 
 ---
 

@@ -15,9 +15,9 @@ export type {
   CircleLikeExpression,
 } from "./expressions/types";
 
-// Expressions
-export type { GeometryExpression } from "./expressions/GeometryExpression";
-export type {
+// Expressions - classes exported for use in DSL
+// TypeScript automatically makes the type available when exporting the class
+export {
   PointExpression,
   LineExpression,
   CircleExpression,
@@ -28,6 +28,8 @@ export type {
   CircleIntersectionExpression,
   LineTowardsExpression,
 } from "./expressions";
+
+export type { GeometryExpression } from "./expressions/GeometryExpression";
 
 // Options types
 export type { IntersectionOptions, CircleIntersectionOptions } from "./expressions";
