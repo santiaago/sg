@@ -31,7 +31,7 @@ Additional Context:
 - The existing step system in `app2/src/geometry/` uses lazy evaluation with `compute()` and `draw()` separation
 - Reference implementation: squareSteps.ts shows the 16-step square construction we need to replicate with the new API
 
-Format: Save as backlog/PLAN geometry-framework-v1.md
+when done submit a PR (print full URL of PR when done)
 
 # spec for geometry framework
 
