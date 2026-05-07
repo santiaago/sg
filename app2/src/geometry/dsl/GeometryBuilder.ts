@@ -10,6 +10,16 @@ import { LineExpression } from "./expressions/LineExpression";
 import { CircleExpression } from "./expressions/CircleExpression";
 import { CoordinateSystemExpression } from "./expressions/CoordinateSystemExpression";
 import { PolygonExpression } from "./expressions/PolygonExpression";
+import { PointAtExpression } from "./expressions/operations/PointAtExpression";
+import {
+  IntersectionExpression,
+  type IntersectionOptions,
+} from "./expressions/operations/IntersectionExpression";
+import {
+  CircleIntersectionExpression,
+  type CircleIntersectionOptions,
+} from "./expressions/operations/CircleIntersectionExpression";
+import { LineTowardsExpression } from "./expressions/operations/LineTowardsExpression";
 
 /**
  * GeometryBuilder is the main facade for the declarative geometry DSL.
@@ -174,6 +184,88 @@ export class GeometryBuilder<TConfig> {
    */
   polygon(id: string, points: PointExpression<TConfig>[]): PolygonExpression<TConfig> {
     const expr = new PolygonExpression(id, points);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  // ========================================
+  // Operation Expression Factory Methods
+  // ========================================
+
+  /**
+   * Create a point-at expression.
+   * Computes a point at a specific ratio along a line.
+   *
+   * @param id - Unique identifier for this point
+   * @param line - Line expression to compute the point along
+   * @param ratio - Ratio along the line (0 = start, 1 = end, 0.5 = midpoint)
+   * @returns The created PointAtExpression
+   */
+  pointAt(id: string, line: LineExpression<TConfig>, ratio: number): PointAtExpression<TConfig> {
+    const expr = new PointAtExpression(id, line, ratio);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create an intersection expression.
+   * Finds where a circle intersects with a line.
+   *
+   * @param id - Unique identifier for this intersection point
+   * @param circle - Circle expression
+   * @param line - Line expression
+   * @param options - Intersection options (excludeId, position, tolerance)
+   * @returns The created IntersectionExpression
+   */
+  intersection(
+    id: string,
+    circle: CircleExpression<TConfig>,
+    line: LineExpression<TConfig>,
+    options: IntersectionOptions = {},
+  ): IntersectionExpression<TConfig> {
+    const expr = new IntersectionExpression(id, circle, line, options);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create a circle-circle intersection expression.
+   * Finds where two circles intersect.
+   *
+   * @param id - Unique identifier for this intersection point
+   * @param c1 - First circle expression
+   * @param c2 - Second circle expression
+   * @param options - Intersection options (select north or south)
+   * @returns The created CircleIntersectionExpression
+   */
+  circleIntersection(
+    id: string,
+    c1: CircleExpression<TConfig>,
+    c2: CircleExpression<TConfig>,
+    options: CircleIntersectionOptions = {},
+  ): CircleIntersectionExpression<TConfig> {
+    const expr = new CircleIntersectionExpression(id, c1, c2, options);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create a line-towards expression.
+   * Creates an extended line from a start point through an end point with a specific length.
+   *
+   * @param id - Unique identifier for this line
+   * @param start - Start point expression (origin of the line)
+   * @param end - End point expression (direction of the line)
+   * @param length - Length of the extended line
+   * @returns The created LineTowardsExpression
+   */
+  lineTowards(
+    id: string,
+    start: PointExpression<TConfig>,
+    end: PointExpression<TConfig>,
+    length: number,
+  ): LineTowardsExpression<TConfig> {
+    const expr = new LineTowardsExpression(id, start, end, length);
     this.expressions.set(id, expr);
     return expr;
   }

@@ -458,16 +458,16 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] `PointAtExpression<TConfig>` implements `GeometryExpression<TConfig, "point">`
-- [ ] Constructor accepts `id: string`, `line: LineExpression<TConfig>`, `ratio: number`
-- [ ] `dependencies` includes line expression ID
-- [ ] `compile()` compute uses `lineVal.x1 + (lineVal.x2 - lineVal.x1) * ratio` pattern
-- [ ] Uses `getGeometry()` from operations.ts for input validation
-- [ ] `draw()` uses injected renderer
+- [x] `PointAtExpression<TConfig>` implements `GeometryExpression<TConfig, "point">`
+- [x] Constructor accepts `id: string`, `line: LineExpression<TConfig>`, `ratio: number`
+- [x] `dependencies` includes line expression ID
+- [x] `compile()` compute uses `lineVal.x1 + (lineVal.x2 - lineVal.x1) * ratio` pattern
+- [x] Uses `getGeometry()` from operations.ts for input validation
+- [x] `draw()` uses injected renderer
 
 **Verification:**
 
-- [ ] Build succeeds: `pnpm type-check:app2`
+- [x] Build succeeds: `pnpm type-check:app2`
 - [ ] Unit test: compiles and computes correct point at ratio
 
 **Dependencies:** Task 4, Task 6
@@ -488,18 +488,18 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] `IntersectionExpression<TConfig>` implements `GeometryExpression<TConfig, "point">`
-- [ ] Constructor accepts `id: string`, `circle: CircleExpression<TConfig>`, `line: LineExpression<TConfig>`, `options?: IntersectionOptions`
-- [ ] `dependencies` includes circle and line expression IDs
-- [ ] `compile()` compute uses `pointFromCircleAndLine()` from constructors.ts
-- [ ] Supports `exclude` option to skip known intersection point
-- [ ] Supports `tolerance` option (falls back to config.tolerance)
-- [ ] Throws `GeometryError` if no intersection found
-- [ ] `draw()` uses injected renderer
+- [x] `IntersectionExpression<TConfig>` implements `GeometryExpression<TConfig, "point">`
+- [x] Constructor accepts `id: string`, `circle: CircleExpression<TConfig>`, `line: LineExpression<TConfig>`, `options?: IntersectionOptions`
+- [x] `dependencies` includes circle and line expression IDs
+- [x] `compile()` compute uses `pointFromCircleAndLine()` from constructors.ts
+- [x] Supports `exclude` option to skip known intersection point
+- [x] Supports `tolerance` option (falls back to config.tolerance)
+- [x] Throws `GeometryError` if no intersection found
+- [x] `draw()` uses injected renderer
 
 **Verification:**
 
-- [ ] Build succeeds: `pnpm type-check:app2`
+- [x] Build succeeds: `pnpm type-check:app2`
 - [ ] Unit test: compiles and computes correct intersection point
 
 **Dependencies:** Task 4, Task 6, Task 7
@@ -521,17 +521,17 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] `CircleIntersectionExpression<TConfig>` implements `GeometryExpression<TConfig, "point">`
-- [ ] Constructor accepts `id: string`, `c1: CircleExpression<TConfig>`, `c2: CircleExpression<TConfig>`, `options?: CircleIntersectionOptions`
-- [ ] `dependencies` includes both circle expression IDs
-- [ ] `compile()` compute uses `pointFromCircles()` from constructors.ts
-- [ ] Supports `select` option: `"north"` or `"south"`
-- [ ] Throws `GeometryError` if no intersection found
-- [ ] `draw()` uses injected renderer
+- [x] `CircleIntersectionExpression<TConfig>` implements `GeometryExpression<TConfig, "point">`
+- [x] Constructor accepts `id: string`, `c1: CircleExpression<TConfig>`, `c2: CircleExpression<TConfig>`, `options?: CircleIntersectionOptions`
+- [x] `dependencies` includes both circle expression IDs
+- [x] `compile()` compute uses `pointFromCircles()` from constructors.ts
+- [x] Supports `select` option: `"north"` or `"south"`
+- [x] Throws `GeometryError` if no intersection found
+- [x] `draw()` uses injected renderer
 
 **Verification:**
 
-- [ ] Build succeeds: `pnpm type-check:app2`
+- [x] Build succeeds: `pnpm type-check:app2`
 - [ ] Unit test: compiles and computes correct intersection point
 
 **Dependencies:** Task 4, Task 7
@@ -553,15 +553,15 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] `LineTowardsExpression<TConfig>` implements `GeometryExpression<TConfig, "line">`
-- [ ] Constructor accepts `id: string`, `start: PointExpression<TConfig>`, `end: PointExpression<TConfig>`, `length: number`
-- [ ] `dependencies` includes start and end point expression IDs
-- [ ] `compile()` compute uses `lineTowards()` from constructors.ts
-- [ ] `draw()` uses injected renderer
+- [x] `LineTowardsExpression<TConfig>` implements `GeometryExpression<TConfig, "line">`
+- [x] Constructor accepts `id: string`, `start: PointExpression<TConfig>`, `end: PointExpression<TConfig>`, `length: number`
+- [x] `dependencies` includes start and end point expression IDs
+- [x] `compile()` compute uses `lineTowards()` from constructors.ts
+- [x] `draw()` uses injected renderer
 
 **Verification:**
 
-- [ ] Build succeeds: `pnpm type-check:app2`
+- [x] Build succeeds: `pnpm type-check:app2`
 - [ ] Unit test: compiles and computes correct extended line
 
 **Dependencies:** Task 4, Task 5
@@ -582,16 +582,16 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] `pointAt(id, line, ratio)` returns `PointAtExpression<TConfig>` and tracks it
-- [ ] `intersection(id, circle, line, options?)` returns `IntersectionExpression<TConfig>` and tracks it
-- [ ] `circleIntersection(id, c1, c2, options?)` returns `CircleIntersectionExpression<TConfig>` and tracks it
-- [ ] `lineTowards(id, start, end, length)` returns `LineTowardsExpression<TConfig>` and tracks it
-- [ ] All methods store expression in `this.expressions` map
+- [x] `pointAt(id, line, ratio)` returns `PointAtExpression<TConfig>` and tracks it
+- [x] `intersection(id, circle, line, options?)` returns `IntersectionExpression<TConfig>` and tracks it
+- [x] `circleIntersection(id, c1, c2, options?)` returns `CircleIntersectionExpression<TConfig>` and tracks it
+- [x] `lineTowards(id, start, end, length)` returns `LineTowardsExpression<TConfig>` and tracks it
+- [x] All methods store expression in `this.expressions` map
 
 **Verification:**
 
-- [ ] Build succeeds: `pnpm type-check:app2`
-- [ ] Can create all operation expressions via builder
+- [x] Build succeeds: `pnpm type-check:app2`
+- [x] Can create all operation expressions via builder
 
 **Dependencies:** Task 11, Tasks 15-18
 
@@ -605,9 +605,9 @@ Existing types/utility imports
 
 ### Checkpoint: Operation Expressions
 
-- [ ] All Phase 4 tasks complete
-- [ ] `pnpm type-check:app2` passes
-- [ ] All operation expressions can be created and compiled
+- [x] All Phase 4 tasks complete
+- [x] `pnpm type-check:app2` passes
+- [x] All operation expressions can be created and compiled
 - [ ] Review with human before proceeding
 
 ---

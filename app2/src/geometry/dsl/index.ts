@@ -16,4 +16,11 @@ export type {
   CircleExpression,
   CoordinateSystemExpression,
   PolygonExpression,
+  PointAtExpression,
+  IntersectionExpression,
+  CircleIntersectionExpression,
+  LineTowardsExpression,
 } from "./expressions";
+
+// Options types
+export type { IntersectionOptions, CircleIntersectionOptions } from "./expressions";

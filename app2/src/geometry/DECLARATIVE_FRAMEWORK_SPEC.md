@@ -756,13 +756,28 @@ class GeometryBuilder<TConfig> {
 
 10. **Line Extension Separate**: `lineTowards()` as separate method for extended lines
 
+## Implementation Status
+
+| Phase               | Tasks                                                                                          | Status      |
+| ------------------- | ---------------------------------------------------------------------------------------------- | ----------- |
+| Phase 1: Foundation | T1-T4 (Directory, GeometryRenderer, DefaultGeometryRenderer, GeometryExpression)               | ✅ Complete |
+| Phase 2: Primitives | T5-T9 (Point, Line, Circle, CoordinateSystem, Polygon expressions)                             | ✅ Complete |
+| Phase 3: Builder    | T10-T14 (GeometryBuilder with factory methods, dependency tracking, topological sort, compile) | ✅ Complete |
+| Phase 4: Operations | T15-T19 (PointAt, Intersection, CircleIntersection, LineTowards expressions)                   | ✅ Complete |
+| Phase 5: Testing    | T20-T24 (Tests for primitives, operations, builder, square equivalence)                        | ⏳ Pending  |
+| Phase 6: Polish     | T25-T27 (Exports, JSDoc, final verification)                                                   | ⏳ Pending  |
+
+**Last Commit**: `3501220 feat(app2/geometry): add GeometryBuilder with primitive factory methods`
+
+**Latest**: Operation expressions implemented and verified (type-check, format, lint pass)
+
 ## Implementation Priority
 
-1. **Phase 1**: Core expression base interface and types (NO any)
-2. **Phase 2**: GeometryBuilder factory with noun-based method names
-3. **Phase 3**: Primitive expressions (Point, Line, Circle, CoordinateSystem)
-4. **Phase 4**: Renderer interface and DefaultGeometryRenderer
-5. **Phase 5**: Operation expressions (pointAt, intersection, circleIntersection, lineTowards)
-6. **Phase 6**: Polygon expression
-7. **Phase 7**: Compilation and topological sorting
-8. **Phase 8**: Equivalence testing with squareSteps.ts
+1. **Phase 1**: Core expression base interface and types (NO any) - ✅ Complete
+2. **Phase 2**: GeometryBuilder factory with noun-based method names - ✅ Complete
+3. **Phase 3**: Primitive expressions (Point, Line, Circle, CoordinateSystem) - ✅ Complete
+4. **Phase 4**: Renderer interface and DefaultGeometryRenderer - ✅ Complete
+5. **Phase 5**: Operation expressions (pointAt, intersection, circleIntersection, lineTowards) - ✅ Complete
+6. **Phase 6**: Polygon expression - ✅ Complete
+7. **Phase 7**: Compilation and topological sorting - ✅ Complete
+8. **Phase 8**: Equivalence testing with squareSteps.ts - Pending
