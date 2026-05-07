@@ -649,14 +649,14 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] Test each primitive expression compiles to correct Step
-- [ ] Test Step has correct `inputs`, `outputs`, `parameters`
-- [ ] Test `compute()` produces correct geometry value
-- [ ] Test `draw()` doesn't throw with mock renderer
+- [x] Test each primitive expression compiles to correct Step
+- [x] Test Step has correct `inputs`, `outputs`, `parameters`
+- [x] Test `compute()` produces correct geometry value
+- [x] Test `draw()` doesn't throw with mock renderer
 
 **Verification:**
 
-- [ ] All tests pass: `pnpm test -- --grep "dsl.*primitive"`
+- [x] All tests pass: 30 tests in primitives.test.ts
 
 **Dependencies:** Task 20, Tasks 5-9
 
@@ -749,7 +749,8 @@ Existing types/utility imports
 ### Checkpoint: Integration Testing
 
 - [ ] All Phase 5 tasks complete
-- [x] `__tests__/` directory created with utilities
+- [x] `__tests__/` utilities created (dsl-test-utils.ts)
+- [x] Primitive expression tests pass (30 tests)
 - [ ] All DSL tests pass
 - [ ] Square equivalence verified
 - [ ] Review with human before proceeding

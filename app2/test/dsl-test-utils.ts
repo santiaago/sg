@@ -2,11 +2,11 @@
 // Provides mock implementations of SVG, store, theme for unit testing
 
 import { expect } from "vitest";
-import type { GeometryStore, GeometryItem, GeometryType } from "@/react-store";
-import type { Theme } from "@/themes";
-import { lightTheme } from "@/themes";
-import type { GeometryValue, Step } from "@/types/geometry";
-import type { GeometryRenderer } from "@/geometry/dsl/renderers/types";
+import type { GeometryStore, GeometryItem, GeometryType } from "../src/react-store";
+import type { Theme } from "../src/themes";
+import { lightTheme } from "../src/themes";
+import type { GeometryValue, Step, StepExecutionContext } from "../src/types/geometry";
+import type { GeometryRenderer } from "../src/geometry/dsl/renderers/types";
 
 export interface TestContext {
   svg: SVGSVGElement;
@@ -24,8 +24,6 @@ export interface TestContext {
  * This is a minimal implementation that satisfies the type requirements.
  */
 export function createMockSVG(): SVGSVGElement {
-  // We create a real SVG element in a minimal document context
-  // This is needed because some operations may need real DOM methods
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg") as SVGSVGElement;
   svg.setAttribute("width", "800");
   svg.setAttribute("height", "600");
@@ -182,8 +180,6 @@ export class TestGeometryRenderer implements GeometryRenderer {
 // Step Execution Helper
 // ============================================================================
 
-import type { StepExecutionContext } from "@/types/geometry";
-
 /**
  * Options for executing steps
  */
@@ -269,7 +265,7 @@ export function verifyStepStructure<TConfig>(
     expect(step.id).toBe(expected.id);
   }
   if (expected.inputs !== undefined) {
-    expect(Array.from(step.inputs)).toEqual(expect.arrayContaining(expected.inputs));
+    expect(Array.from(step.inputs ?? [])).toEqual(expect.arrayContaining(expected.inputs));
   }
   if (expected.outputs !== undefined) {
     expect(Array.from(step.outputs)).toEqual(expected.outputs);

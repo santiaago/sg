@@ -12,6 +12,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@sg/geometry": path.resolve(__dirname, "../packages/geometry/src/index.ts"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
   test: {

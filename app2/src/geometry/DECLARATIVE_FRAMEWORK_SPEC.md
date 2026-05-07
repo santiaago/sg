@@ -767,9 +767,7 @@ class GeometryBuilder<TConfig> {
 | Phase 5: Testing    | T20-T24 (Tests for primitives, operations, builder, square equivalence)                        | ⏳ Pending  |
 | Phase 6: Polish     | T25-T27 (Exports, JSDoc, final verification)                                                   | ⏳ Pending  |
 
-**Last Commit**: `3501220 feat(app2/geometry): add GeometryBuilder with primitive factory methods`
-
-**Latest**: Operation expressions implemented and verified (type-check, format, lint pass)
+**Last Commit**: `6460c12 feat(app2/geometry): add operation expressions (PointAt, Intersection, CircleIntersection, LineTowards)`
 
 ## Implementation Priority
 
