@@ -2,9 +2,11 @@ import type { JSX } from "react";
 import type { Theme } from "../themes";
 import { darkTheme } from "../themes";
 
+type SectionId = "sixfold-v0" | "square" | "rotated-square";
+
 interface NavigationProps {
-  onNavigate: (sectionId: "sixfold-v0" | "square") => void;
-  activeSection: "sixfold-v0" | "square";
+  onNavigate: (sectionId: SectionId) => void;
+  activeSection: SectionId;
   onToggleTheme?: () => void;
   svgTheme?: Theme;
 }
@@ -15,7 +17,7 @@ export function Navigation({
   onToggleTheme,
   svgTheme = darkTheme,
 }: NavigationProps): JSX.Element {
-  const handleNavigate = (sectionId: "sixfold-v0" | "square"): void => {
+  const handleNavigate = (sectionId: SectionId): void => {
     // Update URL hash
     window.location.hash = sectionId;
     // Call the original navigation function
@@ -50,6 +52,19 @@ export function Navigation({
               data-testid="nav-square"
             >
               Square
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleNavigate("rotated-square")}
+              className={`px-4 py-2 rounded transition-colors ${
+                activeSection === "rotated-square"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+              data-testid="nav-rotated-square"
+            >
+              Rotated Square
             </button>
           </li>
         </ul>

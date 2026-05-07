@@ -217,6 +217,7 @@ const AXIS_LABEL_FONT_SIZE = 8;
  * @param arrowLength - Length of the arrows
  * @param strokeWidth - Width of the arrow lines
  * @param strokeColor - Color of the arrow lines
+ * @param rotation - Rotation angle in radians (default: 0 = X right, Y down)
  * @returns SVG group element containing the coordinate system
  */
 export function coordinateSystemArrows(
@@ -226,6 +227,7 @@ export function coordinateSystemArrows(
   arrowLength: number,
   strokeWidth: number,
   strokeColor: string,
+  rotation: number = 0,
 ): SVGGElement {
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("data-coordinate-system", "true");
@@ -234,11 +236,15 @@ export function coordinateSystemArrows(
   ensureArrowheadMarker(svg, strokeColor);
 
   // Draw X axis arrow (pointing right/east - positive X direction)
+  // With rotation: X arrow points at angle `rotation` from horizontal
+  const x2 = x + arrowLength * Math.cos(rotation);
+  const y2 = y + arrowLength * Math.sin(rotation);
+
   const xArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
   xArrow.setAttribute("x1", x.toString());
   xArrow.setAttribute("y1", y.toString());
-  xArrow.setAttribute("x2", (x + arrowLength).toString());
-  xArrow.setAttribute("y2", y.toString());
+  xArrow.setAttribute("x2", x2.toString());
+  xArrow.setAttribute("y2", y2.toString());
   xArrow.setAttribute("stroke", strokeColor);
   xArrow.setAttribute("stroke-width", strokeWidth.toString());
   xArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
@@ -246,10 +252,13 @@ export function coordinateSystemArrows(
   xArrow.setAttribute("data-original-stroke", strokeColor);
   group.appendChild(xArrow);
 
-  // X axis label - positioned below the X arrow line
+  // X axis label - positioned along the X arrow line
   const xLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  xLabel.setAttribute("x", (x + arrowLength + AXIS_LABEL_OFFSET).toString());
-  xLabel.setAttribute("y", (y + AXIS_LABEL_FONT_SIZE * 1.5).toString());
+  const labelOffset = arrowLength + AXIS_LABEL_OFFSET;
+  const labelX = x + labelOffset * Math.cos(rotation);
+  const labelY = y + labelOffset * Math.sin(rotation);
+  xLabel.setAttribute("x", labelX.toString());
+  xLabel.setAttribute("y", labelY.toString());
   xLabel.setAttribute("font-size", AXIS_LABEL_FONT_SIZE.toString());
   xLabel.setAttribute("fill", strokeColor);
   xLabel.setAttribute("text-anchor", "middle");
@@ -258,12 +267,17 @@ export function coordinateSystemArrows(
   xLabel.textContent = "X";
   group.appendChild(xLabel);
 
-  // Draw Y axis arrow (pointing down/south - positive Y direction in SVG)
+  // Draw Y axis arrow (pointing perpendicular to X, at angle rotation + Pi/2)
+  // In SVG, Y increases downward, so we add Pi/2 to the rotation
+  const yRotation = rotation + Math.PI / 2;
+  const y2_x = x + arrowLength * Math.cos(yRotation);
+  const y2_y = y + arrowLength * Math.sin(yRotation);
+
   const yArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
   yArrow.setAttribute("x1", x.toString());
   yArrow.setAttribute("y1", y.toString());
-  yArrow.setAttribute("x2", x.toString());
-  yArrow.setAttribute("y2", (y + arrowLength).toString());
+  yArrow.setAttribute("x2", y2_x.toString());
+  yArrow.setAttribute("y2", y2_y.toString());
   yArrow.setAttribute("stroke", strokeColor);
   yArrow.setAttribute("stroke-width", strokeWidth.toString());
   yArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
@@ -271,10 +285,13 @@ export function coordinateSystemArrows(
   yArrow.setAttribute("data-original-stroke", strokeColor);
   group.appendChild(yArrow);
 
-  // Y axis label - positioned to the right of the Y arrow line
+  // Y axis label - positioned along the Y arrow line
   const yLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
-  yLabel.setAttribute("x", (x + AXIS_LABEL_OFFSET).toString());
-  yLabel.setAttribute("y", (y + arrowLength + AXIS_LABEL_FONT_SIZE / 2).toString());
+  const yLabelOffset = arrowLength + AXIS_LABEL_OFFSET;
+  const yLabelX = x + yLabelOffset * Math.cos(yRotation);
+  const yLabelY = y + yLabelOffset * Math.sin(yRotation);
+  yLabel.setAttribute("x", yLabelX.toString());
+  yLabel.setAttribute("y", yLabelY.toString());
   yLabel.setAttribute("font-size", AXIS_LABEL_FONT_SIZE.toString());
   yLabel.setAttribute("fill", strokeColor);
   yLabel.setAttribute("text-anchor", "middle");
@@ -550,7 +567,16 @@ export function drawCoordinateSystem(
     svg.removeChild(existingCs);
   }
 
-  const group = coordinateSystemArrows(svg, cs.x, cs.y, cs.arrowLength, strokeWidth, strokeColor);
+  const rotation = cs.rotation ?? 0;
+  const group = coordinateSystemArrows(
+    svg,
+    cs.x,
+    cs.y,
+    cs.arrowLength,
+    strokeWidth,
+    strokeColor,
+    rotation,
+  );
 
   // Add tooltip to the group - positioned diagonally from origin to stay within canvas
   group.style.cursor = "pointer";

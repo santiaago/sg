@@ -42,7 +42,7 @@ test.describe("Navigation & URL Hash", () => {
       await page.goto("/#square");
       await waitForPageLoad(page);
 
-      const squareButton = page.getByRole("button", { name: "Square" });
+      const squareButton = page.getByTestId("nav-square");
       const classList = await squareButton.getAttribute("class");
       expect(classList).toContain("bg-blue-600");
     });

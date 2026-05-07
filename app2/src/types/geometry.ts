@@ -66,6 +66,7 @@ export interface CoordinateSystem {
   x: number;
   y: number;
   arrowLength: number;
+  rotation?: number; // Rotation angle in radians (default: 0 = X right, Y down)
 }
 
 // Union type for all geometry values
@@ -188,6 +189,11 @@ export function isCoordinateSystem(value: GeometryValue): value is CoordinateSys
   return value.type === "coordinate_system";
 }
 
-export function coordinateSystem(x: number, y: number, arrowLength: number): CoordinateSystem {
-  return { type: "coordinate_system", x, y, arrowLength };
+export function coordinateSystem(
+  x: number,
+  y: number,
+  arrowLength: number,
+  rotation: number = 0,
+): CoordinateSystem {
+  return { type: "coordinate_system", x, y, arrowLength, rotation };
 }

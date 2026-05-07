@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { JSX } from "react";
-import { useGeometryStoreSquare, useGeometryStoreSixFoldV0 } from "./react-store";
+import { useGeometryStoreSquare, useGeometryStoreSixFoldV0, useGeometryStore } from "./react-store";
 import { SixFoldV0Svg } from "./components/SixFoldV0Svg";
 import { SquareSvg } from "./components/SquareSvg";
+import { RotatedSquareSvg } from "./components/RotatedSquareSvg";
 import { GeometryPlayer } from "./components/GeometryPlayer";
 import { standardSvgConfig } from "./config/svgConfig";
 import { GeometryList } from "./components/GeometryList";
@@ -11,6 +12,7 @@ import { Navigation } from "./components/Navigation";
 import { CopyUrlButton } from "./components/CopyUrlButton";
 import { SQUARE_STEPS } from "./geometry/squareSteps";
 import { SIX_FOLD_V0_STEPS } from "./geometry/sixFoldV0Steps";
+import { ROTATED_SQUARE_STEPS } from "./geometry/rotatedSquareSteps";
 import { lightTheme, darkTheme } from "./themes";
 import type { Theme, GeometryType } from "./types/geometry";
 
@@ -43,14 +45,16 @@ export default function App(): JSX.Element {
   }, [svgTheme]);
 
   // Navigation menu state
-  const [activeSection, setActiveSection] = useState<"sixfold-v0" | "square">("sixfold-v0");
+  type SectionId = "sixfold-v0" | "square" | "rotated-square";
+  const [activeSection, setActiveSection] = useState<SectionId>("sixfold-v0");
   const sectionRefs = {
     "sixfold-v0": useRef<HTMLDivElement>(null),
     square: useRef<HTMLDivElement>(null),
+    "rotated-square": useRef<HTMLDivElement>(null),
   };
 
   // Scroll to section when navigation changes
-  const scrollToSection = (sectionId: "sixfold-v0" | "square") => {
+  const scrollToSection = (sectionId: SectionId) => {
     setActiveSection(sectionId);
     // Update URL hash
     window.location.hash = sectionId;
@@ -66,9 +70,9 @@ export default function App(): JSX.Element {
   // Handle URL hash changes
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.substring(1) as "sixfold-v0" | "square" | "";
-      const validSections = ["sixfold-v0", "square"] as const;
-      if (hash && validSections.includes(hash as "sixfold-v0" | "square")) {
+      const hash = window.location.hash.substring(1) as SectionId | "";
+      const validSections = ["sixfold-v0", "square", "rotated-square"] as const;
+      if (hash && validSections.includes(hash as SectionId)) {
         scrollToSection(hash);
       }
     };
@@ -86,6 +90,7 @@ export default function App(): JSX.Element {
 
   const storeSquare = useGeometryStoreSquare();
   const storeSixFoldV0 = useGeometryStoreSixFoldV0();
+  const storeRotatedSquare = useGeometryStore();
 
   // SixFoldV0 state
   const [currentStepv0, setCurrentStepv0] = useState<number>(0);
@@ -304,6 +309,119 @@ export default function App(): JSX.Element {
     setShowInputHighlight(!showInputHighlight);
   };
 
+  // Rotated Square state
+  const [currentStepRotated, setCurrentStepRotated] = useState<number>(0);
+  const [restartKeyRotated, setRestartKeyRotated] = useState<number>(0);
+  const [isPlayingRotated, setIsPlayingRotated] = useState<boolean>(false);
+  const rotatedSquareSvgRef = useRef<SVGSVGElement>(null);
+  const playIntervalRotated = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const handleNextClickRotated = (): void => {
+    // Stop playing if user manually clicks
+    if (isPlayingRotated && playIntervalRotated.current) {
+      clearInterval(playIntervalRotated.current);
+      playIntervalRotated.current = null;
+      setIsPlayingRotated(false);
+    }
+    if (currentStepRotated < ROTATED_SQUARE_STEPS.length) {
+      setCurrentStepRotated(currentStepRotated + 1);
+    }
+  };
+
+  const handlePrevClickRotated = (): void => {
+    // Stop playing if user manually clicks
+    if (isPlayingRotated && playIntervalRotated.current) {
+      clearInterval(playIntervalRotated.current);
+      playIntervalRotated.current = null;
+      setIsPlayingRotated(false);
+    }
+    if (currentStepRotated > 0) {
+      setCurrentStepRotated(currentStepRotated - 1);
+    }
+  };
+
+  const handleRestartRotated = (): void => {
+    // Stop playing when restarting
+    if (isPlayingRotated && playIntervalRotated.current) {
+      clearInterval(playIntervalRotated.current);
+      playIntervalRotated.current = null;
+      setIsPlayingRotated(false);
+    }
+    storeRotatedSquare.clear();
+    setCurrentStepRotated(0);
+    setRestartKeyRotated(restartKeyRotated + 1);
+  };
+
+  const handleFirstStepRotated = (): void => {
+    // Stop playing when jumping to first step
+    if (isPlayingRotated && playIntervalRotated.current) {
+      clearInterval(playIntervalRotated.current);
+      playIntervalRotated.current = null;
+      setIsPlayingRotated(false);
+    }
+    storeRotatedSquare.clear();
+    setCurrentStepRotated(0);
+    setRestartKeyRotated(restartKeyRotated + 1);
+  };
+
+  const handleLastStepRotated = (): void => {
+    // Stop playing when jumping to end
+    if (isPlayingRotated && playIntervalRotated.current) {
+      clearInterval(playIntervalRotated.current);
+      playIntervalRotated.current = null;
+      setIsPlayingRotated(false);
+    }
+    storeRotatedSquare.clear();
+    setCurrentStepRotated(ROTATED_SQUARE_STEPS.length);
+    setRestartKeyRotated(restartKeyRotated + 1);
+  };
+
+  const handlePlayClickRotated = (): void => {
+    if (isPlayingRotated) {
+      // Stop playing
+      if (playIntervalRotated.current) {
+        clearInterval(playIntervalRotated.current);
+        playIntervalRotated.current = null;
+      }
+      setIsPlayingRotated(false);
+    } else {
+      // Clear any existing interval first to prevent race condition
+      if (playIntervalRotated.current) {
+        clearInterval(playIntervalRotated.current);
+        playIntervalRotated.current = null;
+      }
+      // Reset to 0 if at the end
+      if (currentStepRotated >= ROTATED_SQUARE_STEPS.length) {
+        setCurrentStepRotated(0);
+      }
+      // Start playing
+      setIsPlayingRotated(true);
+      playIntervalRotated.current = setInterval(() => {
+        setCurrentStepRotated((prev) => {
+          if (prev >= ROTATED_SQUARE_STEPS.length) {
+            // Stop when reaching the end
+            if (playIntervalRotated.current) {
+              clearInterval(playIntervalRotated.current);
+              playIntervalRotated.current = null;
+            }
+            setIsPlayingRotated(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 200); // 200ms delay between steps
+    }
+  };
+
+  // Clean up interval on unmount
+  useEffect(() => {
+    return () => {
+      if (playIntervalRotated.current) {
+        clearInterval(playIntervalRotated.current);
+      }
+    };
+  }, []);
+
   return (
     <main className="p-8 bg-gray-900 text-white">
       <h1 className="text-5xl font-bold mb-8 text-left text-blue-400">sg</h1>
@@ -453,6 +571,82 @@ export default function App(): JSX.Element {
             <div>
               <GeometryList
                 store={storeSquare}
+                strokeMid={strokeMid}
+                strokeBig={strokeBig}
+                strokeLine={strokeLine}
+                showInputHighlight={showInputHighlight}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Rotated Square Section */}
+      <div
+        ref={sectionRefs["rotated-square"]}
+        className="mb-8 p-8 bg-dark-card rounded-lg"
+        id="rotated-square"
+        data-testid="section-rotated-square"
+      >
+        <div className="mb-6 flex items-center">
+          <h1 className="text-2xl font-semibold mb-1 text-left">Rotated Square</h1>
+          <CopyUrlButton />
+        </div>
+        <div className="mb-4">
+          <small className="block text-gray-400 mb-2">05/05/2026</small>
+          <p className="text-gray-300 mb-4">
+            Square with rotated coordinate system (Pi/16 radians) to test CS transformations.
+          </p>
+        </div>
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-7">
+            <GeometryPlayer
+              svgRef={rotatedSquareSvgRef}
+              svgConfig={standardSvgConfig}
+              currentStep={currentStepRotated}
+              totalSteps={ROTATED_SQUARE_STEPS.length}
+              onStepChange={setCurrentStepRotated}
+              onFirstStep={handleFirstStepRotated}
+              onPrevStep={handlePrevClickRotated}
+              onNextStep={handleNextClickRotated}
+              onLastStep={handleLastStepRotated}
+              onRestart={handleRestartRotated}
+              showInputsToggle={true}
+              showInputHighlight={showInputHighlight}
+              onToggleInputs={toggleInputs}
+              showPlayButton={true}
+              isPlaying={isPlayingRotated}
+              onPlayClick={handlePlayClickRotated}
+            >
+              <RotatedSquareSvg
+                ref={rotatedSquareSvgRef}
+                store={storeRotatedSquare}
+                dotStrokeWidth={strokeBig}
+                svgConfig={standardSvgConfig}
+                restartTrigger={restartKeyRotated}
+                currentStep={currentStepRotated}
+                theme={svgTheme}
+              />
+            </GeometryPlayer>
+          </div>
+          <div className="col-span-2">
+            <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <p className="text-gray-300 mb-4">
+              Current step {currentStepRotated}/{ROTATED_SQUARE_STEPS.length}
+            </p>
+            <GeometryDetails
+              store={storeRotatedSquare}
+              strokeBig={strokeBig}
+              steps={ROTATED_SQUARE_STEPS}
+            />
+          </div>
+          <div className="col-span-3">
+            <div>
+              <GeometryList
+                store={storeRotatedSquare}
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
