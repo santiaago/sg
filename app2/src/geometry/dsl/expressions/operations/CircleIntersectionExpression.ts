@@ -7,7 +7,7 @@ import { GeometryError } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
 import { pointFromCircles } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
-import type { CircleExpression } from "../CircleExpression";
+import type { CircleLikeExpression } from "../types";
 
 /** Options for circle-circle intersection */
 export interface CircleIntersectionOptions {
@@ -33,14 +33,14 @@ export class CircleIntersectionExpression<TConfig> implements GeometryExpression
    * Create a circle-circle intersection expression.
    *
    * @param id - Unique identifier for this intersection point
-   * @param c1 - First circle expression
-   * @param c2 - Second circle expression
+   * @param c1 - First circle expression (any circle-like expression)
+   * @param c2 - Second circle expression (any circle-like expression)
    * @param options - Intersection options (select north or south)
    */
   constructor(
     id: string,
-    c1: CircleExpression<TConfig>,
-    c2: CircleExpression<TConfig>,
+    c1: CircleLikeExpression<TConfig>,
+    c2: CircleLikeExpression<TConfig>,
     options: CircleIntersectionOptions = {},
   ) {
     this.id = id;

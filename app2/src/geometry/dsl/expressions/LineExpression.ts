@@ -4,7 +4,7 @@ import type { GeometryRenderer } from "../renderers/types";
 import type { Step, GeometryValue } from "@/types/geometry";
 import { line, isPoint } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
-import { PointExpression } from "./PointExpression";
+import type { PointLikeExpression } from "./types";
 
 /**
  * Expression for a line geometry.
@@ -66,11 +66,12 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
 
   /**
    * Create a line expression from two point expressions.
+   * Accepts any expression that produces a point.
    */
   static fromPoints<TConfig>(
     id: string,
-    start: PointExpression<TConfig>,
-    end: PointExpression<TConfig>,
+    start: PointLikeExpression<TConfig>,
+    end: PointLikeExpression<TConfig>,
   ): LineExpression<TConfig> {
     return new LineExpression(id, {
       type: "points",

@@ -8,6 +8,13 @@ export { GeometryBuilder } from "./GeometryBuilder";
 export type { GeometryRenderer } from "./renderers/types";
 export { DefaultGeometryRenderer } from "./renderers/DefaultRenderer";
 
+// Expression type aliases
+export type {
+  PointLikeExpression,
+  LineLikeExpression,
+  CircleLikeExpression,
+} from "./expressions/types";
+
 // Expressions
 export type { GeometryExpression } from "./expressions/GeometryExpression";
 export type {

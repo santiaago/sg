@@ -4,11 +4,11 @@ import type { GeometryRenderer } from "../renderers/types";
 import type { Step, GeometryValue } from "@/types/geometry";
 import { circle, isPoint } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
-import { PointExpression } from "./PointExpression";
+import type { PointLikeExpression } from "./types";
 
 /**
  * Expression for a circle geometry.
- * Requires a center point (as PointExpression) and a radius.
+ * Requires a center point (any point-like expression) and a radius.
  */
 export class CircleExpression<TConfig> implements GeometryExpression<TConfig, "circle"> {
   readonly id: string;
@@ -23,10 +23,10 @@ export class CircleExpression<TConfig> implements GeometryExpression<TConfig, "c
    * Create a circle expression.
    *
    * @param id - Unique identifier for this circle
-   * @param center - Center point expression
+   * @param center - Center point expression (any expression that produces a point)
    * @param radius - Radius of the circle
    */
-  constructor(id: string, center: PointExpression<TConfig>, radius: number) {
+  constructor(id: string, center: PointLikeExpression<TConfig>, radius: number) {
     this.id = id;
     this.centerId = center.id;
     this.radius = radius;

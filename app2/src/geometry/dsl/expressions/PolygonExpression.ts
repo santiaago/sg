@@ -4,7 +4,7 @@ import type { GeometryRenderer } from "../renderers/types";
 import type { Step, GeometryValue } from "@/types/geometry";
 import { polygon, isPoint } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
-import { PointExpression } from "./PointExpression";
+import type { PointLikeExpression } from "./types";
 
 /**
  * Expression for a polygon geometry.
@@ -20,11 +20,12 @@ export class PolygonExpression<TConfig> implements GeometryExpression<TConfig, "
 
   /**
    * Create a polygon expression from an array of point expressions.
+   * Accepts any expressions that produce points.
    *
    * @param id - Unique identifier for this polygon
-   * @param points - Array of point expressions defining the polygon vertices
+   * @param points - Array of point-like expressions defining the polygon vertices
    */
-  constructor(id: string, points: PointExpression<TConfig>[]) {
+  constructor(id: string, points: PointLikeExpression<TConfig>[]) {
     this.id = id;
     this.pointIds = points.map((p) => p.id);
     this.dependencies = [...this.pointIds];

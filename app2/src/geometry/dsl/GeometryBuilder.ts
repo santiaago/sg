@@ -5,6 +5,11 @@ import type { Step } from "@/types/geometry";
 import type { GeometryRenderer } from "./renderers/types";
 import { DefaultGeometryRenderer } from "./renderers/DefaultRenderer";
 import type { GeometryExpression } from "./expressions/GeometryExpression";
+import type {
+  PointLikeExpression,
+  LineLikeExpression,
+  CircleLikeExpression,
+} from "./expressions/types";
 import { PointExpression } from "./expressions/PointExpression";
 import { LineExpression } from "./expressions/LineExpression";
 import { CircleExpression } from "./expressions/CircleExpression";
@@ -105,24 +110,24 @@ export class GeometryBuilder<TConfig> {
    * Create a line expression from two point expressions.
    *
    * @param id - Unique identifier for this line
-   * @param start - Start point expression
-   * @param end - End point expression
+   * @param start - Start point expression (any expression that produces a point)
+   * @param end - End point expression (any expression that produces a point)
    * @returns The created LineExpression
    */
   line(
     id: string,
-    start: PointExpression<TConfig>,
-    end: PointExpression<TConfig>,
+    start: PointLikeExpression<TConfig>,
+    end: PointLikeExpression<TConfig>,
   ): LineExpression<TConfig>;
 
   line(
     id: string,
-    arg1: number | PointExpression<TConfig>,
-    arg2: number | PointExpression<TConfig>,
+    arg1: number | PointLikeExpression<TConfig>,
+    arg2: number | PointLikeExpression<TConfig>,
     arg3?: number,
     arg4?: number,
   ): LineExpression<TConfig> {
-    if (arg1 instanceof PointExpression && arg2 instanceof PointExpression) {
+    if (this.isPointLikeExpression(arg1) && this.isPointLikeExpression(arg2)) {
       const expr = LineExpression.fromPoints(id, arg1, arg2);
       this.expressions.set(id, expr);
       return expr;
@@ -140,14 +145,31 @@ export class GeometryBuilder<TConfig> {
   }
 
   /**
+   * Type guard to check if a value is a PointLikeExpression.
+   */
+  private isPointLikeExpression(value: unknown): value is PointLikeExpression<TConfig> {
+    return (
+      typeof value === "object" &&
+      value !== null &&
+      "id" in value &&
+      "type" in value &&
+      (value as { type: string }).type === "point"
+    );
+  }
+
+  /**
    * Create a circle expression.
    *
    * @param id - Unique identifier for this circle
-   * @param center - Center point expression
+   * @param center - Center point expression (any expression that produces a point)
    * @param radius - Radius of the circle
    * @returns The created CircleExpression
    */
-  circle(id: string, center: PointExpression<TConfig>, radius: number): CircleExpression<TConfig> {
+  circle(
+    id: string,
+    center: PointLikeExpression<TConfig>,
+    radius: number,
+  ): CircleExpression<TConfig> {
     const expr = new CircleExpression(id, center, radius);
     this.expressions.set(id, expr);
     return expr;
@@ -179,10 +201,10 @@ export class GeometryBuilder<TConfig> {
    * Create a polygon expression from an array of point expressions.
    *
    * @param id - Unique identifier for this polygon
-   * @param points - Array of point expressions defining the polygon vertices
+   * @param points - Array of point-like expressions defining the polygon vertices
    * @returns The created PolygonExpression
    */
-  polygon(id: string, points: PointExpression<TConfig>[]): PolygonExpression<TConfig> {
+  polygon(id: string, points: PointLikeExpression<TConfig>[]): PolygonExpression<TConfig> {
     const expr = new PolygonExpression(id, points);
     this.expressions.set(id, expr);
     return expr;
@@ -197,11 +219,15 @@ export class GeometryBuilder<TConfig> {
    * Computes a point at a specific ratio along a line.
    *
    * @param id - Unique identifier for this point
-   * @param line - Line expression to compute the point along
+   * @param line - Line expression to compute the point along (any line-like expression)
    * @param ratio - Ratio along the line (0 = start, 1 = end, 0.5 = midpoint)
    * @returns The created PointAtExpression
    */
-  pointAt(id: string, line: LineExpression<TConfig>, ratio: number): PointAtExpression<TConfig> {
+  pointAt(
+    id: string,
+    line: LineLikeExpression<TConfig>,
+    ratio: number,
+  ): PointAtExpression<TConfig> {
     const expr = new PointAtExpression(id, line, ratio);
     this.expressions.set(id, expr);
     return expr;
@@ -212,15 +238,15 @@ export class GeometryBuilder<TConfig> {
    * Finds where a circle intersects with a line.
    *
    * @param id - Unique identifier for this intersection point
-   * @param circle - Circle expression
-   * @param line - Line expression
+   * @param circle - Circle expression (any circle-like expression)
+   * @param line - Line expression (any line-like expression)
    * @param options - Intersection options (excludeId, position, tolerance)
    * @returns The created IntersectionExpression
    */
   intersection(
     id: string,
-    circle: CircleExpression<TConfig>,
-    line: LineExpression<TConfig>,
+    circle: CircleLikeExpression<TConfig>,
+    line: LineLikeExpression<TConfig>,
     options: IntersectionOptions = {},
   ): IntersectionExpression<TConfig> {
     const expr = new IntersectionExpression(id, circle, line, options);
@@ -233,15 +259,15 @@ export class GeometryBuilder<TConfig> {
    * Finds where two circles intersect.
    *
    * @param id - Unique identifier for this intersection point
-   * @param c1 - First circle expression
-   * @param c2 - Second circle expression
+   * @param c1 - First circle expression (any circle-like expression)
+   * @param c2 - Second circle expression (any circle-like expression)
    * @param options - Intersection options (select north or south)
    * @returns The created CircleIntersectionExpression
    */
   circleIntersection(
     id: string,
-    c1: CircleExpression<TConfig>,
-    c2: CircleExpression<TConfig>,
+    c1: CircleLikeExpression<TConfig>,
+    c2: CircleLikeExpression<TConfig>,
     options: CircleIntersectionOptions = {},
   ): CircleIntersectionExpression<TConfig> {
     const expr = new CircleIntersectionExpression(id, c1, c2, options);
@@ -254,15 +280,15 @@ export class GeometryBuilder<TConfig> {
    * Creates an extended line from a start point through an end point with a specific length.
    *
    * @param id - Unique identifier for this line
-   * @param start - Start point expression (origin of the line)
-   * @param end - End point expression (direction of the line)
+   * @param start - Start point expression (origin of the line, any point-like expression)
+   * @param end - End point expression (direction of the line, any point-like expression)
    * @param length - Length of the extended line
    * @returns The created LineTowardsExpression
    */
   lineTowards(
     id: string,
-    start: PointExpression<TConfig>,
-    end: PointExpression<TConfig>,
+    start: PointLikeExpression<TConfig>,
+    end: PointLikeExpression<TConfig>,
     length: number,
   ): LineTowardsExpression<TConfig> {
     const expr = new LineTowardsExpression(id, start, end, length);

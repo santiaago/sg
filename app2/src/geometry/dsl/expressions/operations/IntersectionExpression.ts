@@ -7,8 +7,7 @@ import { GeometryError } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
 import { pointFromCircleAndLine } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
-import type { CircleExpression } from "../CircleExpression";
-import type { LineExpression } from "../LineExpression";
+import type { CircleLikeExpression, LineLikeExpression } from "../types";
 
 /** Options for circle-line intersection */
 export interface IntersectionOptions {
@@ -38,14 +37,14 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
    * Create an intersection expression.
    *
    * @param id - Unique identifier for this intersection point
-   * @param circle - Circle expression
-   * @param line - Line expression
+   * @param circle - Circle expression (any circle-like expression)
+   * @param line - Line expression (any line-like expression)
    * @param options - Intersection options (excludeId, position, tolerance)
    */
   constructor(
     id: string,
-    circle: CircleExpression<TConfig>,
-    line: LineExpression<TConfig>,
+    circle: CircleLikeExpression<TConfig>,
+    line: LineLikeExpression<TConfig>,
     options: IntersectionOptions = {},
   ) {
     this.id = id;

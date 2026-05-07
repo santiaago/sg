@@ -5,7 +5,7 @@ import type { Step, GeometryValue } from "@/types/geometry";
 import { point, isLine } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
 import type { GeometryExpression } from "../GeometryExpression";
-import type { LineExpression } from "../LineExpression";
+import type { LineLikeExpression } from "../types";
 
 /**
  * Expression for a point at a ratio along a line.
@@ -24,10 +24,10 @@ export class PointAtExpression<TConfig> implements GeometryExpression<TConfig, "
    * Create a point-at expression.
    *
    * @param id - Unique identifier for this point
-   * @param line - Line expression to compute the point along
+   * @param line - Line expression to compute the point along (any line-like expression)
    * @param ratio - Ratio along the line (0 = start, 1 = end, 0.5 = midpoint)
    */
-  constructor(id: string, line: LineExpression<TConfig>, ratio: number) {
+  constructor(id: string, line: LineLikeExpression<TConfig>, ratio: number) {
     this.id = id;
     this.lineId = line.id;
     this.ratio = ratio;

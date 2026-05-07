@@ -7,7 +7,7 @@ import { isPoint } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
 import { lineTowards } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
-import type { PointExpression } from "../PointExpression";
+import type { PointLikeExpression } from "../types";
 
 /**
  * Expression for an extended line from a start point through an end point.
@@ -27,14 +27,14 @@ export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfi
    * Create a line-towards expression.
    *
    * @param id - Unique identifier for this line
-   * @param start - Start point expression (origin of the line)
-   * @param end - End point expression (direction of the line)
+   * @param start - Start point expression (origin of the line, any point-like expression)
+   * @param end - End point expression (direction of the line, any point-like expression)
    * @param length - Length of the extended line
    */
   constructor(
     id: string,
-    start: PointExpression<TConfig>,
-    end: PointExpression<TConfig>,
+    start: PointLikeExpression<TConfig>,
+    end: PointLikeExpression<TConfig>,
     length: number,
   ) {
     this.id = id;
