@@ -3,11 +3,23 @@
 
 import type { GeometryExpression } from "./GeometryExpression";
 
-// Point-producing expressions
+/**
+ * Any expression that produces a Point geometry.
+ * Used as a type constraint for methods that accept point-producing expressions
+ * (PointExpression, PointAtExpression, IntersectionExpression, CircleIntersectionExpression, etc.)
+ */
 export type PointLikeExpression<TConfig> = GeometryExpression<TConfig, "point">;
 
-// Line-producing expressions
+/**
+ * Any expression that produces a Line geometry.
+ * Used as a type constraint for methods that accept line-producing expressions
+ * (LineExpression, LineTowardsExpression, etc.)
+ */
 export type LineLikeExpression<TConfig> = GeometryExpression<TConfig, "line">;
 
-// Circle-producing expressions
+/**
+ * Any expression that produces a Circle geometry.
+ * Used as a type constraint for methods that accept circle-producing expressions
+ * (CircleExpression, etc.)
+ */
 export type CircleLikeExpression<TConfig> = GeometryExpression<TConfig, "circle">;

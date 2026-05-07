@@ -798,15 +798,15 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] All public classes have class-level JSDoc
-- [ ] All public methods have method-level JSDoc
-- [ ] All public interfaces have interface-level JSDoc
-- [ ] All public types have type-level JSDoc
+- [x] All public classes have class-level JSDoc
+- [x] All public methods have method-level JSDoc
+- [x] All public interfaces have interface-level JSDoc
+- [x] All public types have type-level JSDoc
 
 **Verification:**
 
-- [ ] No documentation warnings
-- [ ] IDE autocomplete shows documentation
+- [x] No documentation warnings
+- [x] IDE autocomplete shows documentation
 
 **Dependencies:** All previous tasks
 
@@ -815,6 +815,13 @@ Existing types/utility imports
 - All files in `app2/src/geometry/dsl/`
 
 **Estimated scope:** S
+
+**Status:** ✅ Complete
+
+**Files updated:**
+- `app2/src/geometry/dsl/expressions/types.ts` - Added JSDoc for PointLike/LineLike/CircleLike type aliases
+- `app2/src/geometry/dsl/renderers/types.ts` - Added JSDoc for GeometryRenderer interface methods
+- `app2/src/geometry/dsl/renderers/DefaultRenderer.ts` - Added JSDoc for all draw methods
 
 ---
 

@@ -11,6 +11,14 @@ import type { GeometryStore } from "@/react-store";
  * - Renderers handle SVG rendering logic
  */
 export interface GeometryRenderer {
+  /**
+   * Draw a point geometry.
+   * @param svg - The SVG element to draw into
+   * @param values - Map of all geometry values
+   * @param geomId - The ID of the geometry to draw
+   * @param store - The geometry store for tracking
+   * @param theme - The theme for styling
+   */
   drawPoint: (
     svg: SVGSVGElement,
     values: Map<string, GeometryValue>,
@@ -19,6 +27,14 @@ export interface GeometryRenderer {
     theme: Theme,
   ) => void;
 
+  /**
+   * Draw a line geometry.
+   * @param svg - The SVG element to draw into
+   * @param values - Map of all geometry values
+   * @param geomId - The ID of the geometry to draw
+   * @param store - The geometry store for tracking
+   * @param theme - The theme for styling
+   */
   drawLine: (
     svg: SVGSVGElement,
     values: Map<string, GeometryValue>,
@@ -27,6 +43,14 @@ export interface GeometryRenderer {
     theme: Theme,
   ) => void;
 
+  /**
+   * Draw a circle geometry.
+   * @param svg - The SVG element to draw into
+   * @param values - Map of all geometry values
+   * @param geomId - The ID of the geometry to draw
+   * @param store - The geometry store for tracking
+   * @param theme - The theme for styling
+   */
   drawCircle: (
     svg: SVGSVGElement,
     values: Map<string, GeometryValue>,
@@ -35,6 +59,14 @@ export interface GeometryRenderer {
     theme: Theme,
   ) => void;
 
+  /**
+   * Draw a polygon geometry.
+   * @param svg - The SVG element to draw into
+   * @param values - Map of all geometry values
+   * @param geomId - The ID of the geometry to draw
+   * @param store - The geometry store for tracking
+   * @param theme - The theme for styling
+   */
   drawPolygon: (
     svg: SVGSVGElement,
     values: Map<string, GeometryValue>,
@@ -43,6 +75,14 @@ export interface GeometryRenderer {
     theme: Theme,
   ) => void;
 
+  /**
+   * Draw a coordinate system geometry.
+   * @param svg - The SVG element to draw into
+   * @param values - Map of all geometry values
+   * @param geomId - The ID of the geometry to draw
+   * @param store - The geometry store for tracking
+   * @param theme - The theme for styling
+   */
   drawCoordinateSystem: (
     svg: SVGSVGElement,
     values: Map<string, GeometryValue>,
