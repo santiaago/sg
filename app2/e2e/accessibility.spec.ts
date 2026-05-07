@@ -189,7 +189,7 @@ test.describe("Accessibility", () => {
 
     test("Can activate buttons with Space key", async ({ page }) => {
       // Focus on Square button
-      const navButton = page.getByRole("button", { name: "Square" });
+      const navButton = page.getByTestId("nav-square");
       await navButton.focus();
 
       // Press Space
