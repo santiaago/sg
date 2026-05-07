@@ -4,6 +4,10 @@
 
 Implement a higher-level declarative geometry framework (DSL) that provides a fluid API for geometric constructions while maintaining the existing step-based architecture. The framework allows developers to write code like `c1 = b.pointAt(ml, C1_POSITION_RATIO)` instead of manually defining 16+ steps, while preserving lazy evaluation, dependency tracking, and compute/draw separation.
 
+## Status
+
+**Last Commit**: `6460c12 feat(app2/geometry): add operation expressions (PointAt, Intersection, CircleIntersection, LineTowards)`
+
 ## Architecture Decisions
 
 - **Directory**: `app2/src/geometry/dsl/` - Contains all new DSL framework code
@@ -620,13 +624,13 @@ Existing types/utility imports
 
 **Acceptance criteria:**
 
-- [ ] `__tests__/` directory created under `dsl/`
-- [ ] Test utilities for creating mock SVG, store, theme
-- [ ] Helper to execute compiled steps and extract values
+- [x] `__tests__/` directory created under `dsl/`
+- [x] Test utilities for creating mock SVG, store, theme
+- [x] Helper to execute compiled steps and extract values
 
 **Verification:**
 
-- [ ] Tests run without errors: `pnpm test`
+- [x] Tests run without errors: `pnpm test`
 
 **Dependencies:** None
 
@@ -745,6 +749,7 @@ Existing types/utility imports
 ### Checkpoint: Integration Testing
 
 - [ ] All Phase 5 tasks complete
+- [x] `__tests__/` directory created with utilities
 - [ ] All DSL tests pass
 - [ ] Square equivalence verified
 - [ ] Review with human before proceeding
