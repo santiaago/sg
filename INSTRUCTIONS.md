@@ -1,3 +1,51 @@
+# spec for geometry framework v2
+
+I want to create a higher-level declarative geometry framework.
+
+Requirements:
+
+1. Design a higher-level declarative language for geometric constructions that provides a fluid, chainable syntax
+2. This must be a facade/abstraction layer on top of the existing step-based architecture - steps still exist underneath and are created automatically from high-level code
+3. Create a new SquaresV2 component as proof-of-concept, do not modify existing code
+4. Ensure complete separation of concerns between geometry construction logic and SVG rendering
+5. No backward compatibility required - this framework is only for future components
+
+example (it is an example you do not need to make this 100% exact)
+
+```ts
+ml = line(config.lx1, config.ly1, config.lx2, config.ly2)
+c1 = pointAt(ml, C1_POSITION_RATIO)
+c1_c = circle(c1, config.circleRadius)
+c2 = intersection(c1_c, ml, "left")
+```
+
+Things to preserve
+
+1. **Explicit dependencies**: Each step declares `inputs`, `outputs`, `parameters`
+2. **Separation of concerns**: `compute()` for math, `draw()` for rendering
+3. **Lazy evaluation**: Steps compute only when needed
+4. **Type safety**: Geometry types well-defined
+
+
+Additional Context:
+* The existing step system in `app2/src/geometry/` uses lazy evaluation with `compute()` and `draw()` separation
+* Reference implementation: squareSteps.ts shows the 16-step square construction we need to replicate with the new API
+
+Format: Save as backlog/PLAN geometry-framework-v1.md
+
+
+# spec for geometry framework
+
+/spec-driven-development from backlog/PLAN geometry-framework.md take as much time as you need
+
+follow conventions in @AGENTS.md for atomic commit messages, take as much time as you need
+when done
+
+1. check app
+2. submit changed to AGENTS.md to would have improved your work for next time, changes in AGENTS.md should be very minimal
+3. submit a PR (print full URL of PR when done)
+
+
 # code review
 
 /code-review-and-quality based on @backlog/CODE_REVIEW.md section 'React Store & State Management '
