@@ -70,7 +70,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: TEST_PROD ? "npm run preview" : "npm run dev",
+    command: TEST_PROD ? "pnpm exec vite preview --port 5174 --host 0.0.0.0" : "pnpm run dev",
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
     cwd: path.resolve(__dirname),
