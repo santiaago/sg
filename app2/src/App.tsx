@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import type { JSX } from "react";
 import { useGeometryStoreSquare, useGeometryStoreSixFoldV0, useGeometryStore } from "./react-store";
 import { SixFoldV0Svg } from "./components/SixFoldV0Svg";
 import { SquareSvg } from "./components/SquareSvg";
+import { SquareDslSvg } from "./components/SquareDslSvg";
 import { RotatedSquareSvg } from "./components/RotatedSquareSvg";
 import { GeometryPlayer } from "./components/GeometryPlayer";
 import { standardSvgConfig } from "./config/svgConfig";
@@ -13,6 +14,7 @@ import { CopyUrlButton } from "./components/CopyUrlButton";
 import { SQUARE_STEPS } from "./geometry/squareSteps";
 import { SIX_FOLD_V0_STEPS } from "./geometry/sixFoldV0Steps";
 import { ROTATED_SQUARE_STEPS } from "./geometry/rotatedSquareSteps";
+import { DSL_SQUARE_STEPS_LENGTH, buildSquareDslSteps } from "./geometry/squareDslSteps";
 import { lightTheme, darkTheme } from "./themes";
 import type { Theme, GeometryType } from "./types/geometry";
 
@@ -45,11 +47,12 @@ export default function App(): JSX.Element {
   }, [svgTheme]);
 
   // Navigation menu state
-  type SectionId = "sixfold-v0" | "square" | "rotated-square";
+  type SectionId = "sixfold-v0" | "square" | "square-dsl" | "rotated-square";
   const [activeSection, setActiveSection] = useState<SectionId>("sixfold-v0");
   const sectionRefs = {
     "sixfold-v0": useRef<HTMLDivElement>(null),
     square: useRef<HTMLDivElement>(null),
+    "square-dsl": useRef<HTMLDivElement>(null),
     "rotated-square": useRef<HTMLDivElement>(null),
   };
 
@@ -71,7 +74,7 @@ export default function App(): JSX.Element {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.substring(1) as SectionId | "";
-      const validSections = ["sixfold-v0", "square", "rotated-square"] as const;
+      const validSections = ["sixfold-v0", "square", "square-dsl", "rotated-square"] as const;
       if (hash && validSections.includes(hash as SectionId)) {
         scrollToSection(hash);
       }
@@ -91,6 +94,7 @@ export default function App(): JSX.Element {
   const storeSquare = useGeometryStoreSquare();
   const storeSixFoldV0 = useGeometryStoreSixFoldV0();
   const storeRotatedSquare = useGeometryStore();
+  const storeSquareDsl = useGeometryStore();
 
   // SixFoldV0 state
   const [currentStepv0, setCurrentStepv0] = useState<number>(0);
@@ -422,6 +426,126 @@ export default function App(): JSX.Element {
     };
   }, []);
 
+  // DSL Square state
+  // Use the constant exported from squareDslSteps
+  const [currentStepSquareDsl, setCurrentStepSquareDsl] = useState<number>(0);
+  const [restartKeySquareDsl, setRestartKeySquareDsl] = useState<number>(0);
+  const [isPlayingSquareDsl, setIsPlayingSquareDsl] = useState<boolean>(false);
+  const squareDslSvgRef = useRef<SVGSVGElement>(null);
+  const playIntervalSquareDsl = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Build DSL square steps once based on standard SVG config
+  const squareDslSteps = useMemo(
+    () => buildSquareDslSteps(standardSvgConfig.width, standardSvgConfig.height),
+    [],
+  );
+
+  const handleNextClickSquareDsl = (): void => {
+    // Stop playing if user manually clicks
+    if (isPlayingSquareDsl && playIntervalSquareDsl.current) {
+      clearInterval(playIntervalSquareDsl.current);
+      playIntervalSquareDsl.current = null;
+      setIsPlayingSquareDsl(false);
+    }
+    if (currentStepSquareDsl < DSL_SQUARE_STEPS_LENGTH) {
+      setCurrentStepSquareDsl(currentStepSquareDsl + 1);
+    }
+  };
+
+  const handlePrevClickSquareDsl = (): void => {
+    // Stop playing if user manually clicks
+    if (isPlayingSquareDsl && playIntervalSquareDsl.current) {
+      clearInterval(playIntervalSquareDsl.current);
+      playIntervalSquareDsl.current = null;
+      setIsPlayingSquareDsl(false);
+    }
+    if (currentStepSquareDsl > 0) {
+      setCurrentStepSquareDsl(currentStepSquareDsl - 1);
+    }
+  };
+
+  const handleRestartSquareDsl = (): void => {
+    // Stop playing when restarting
+    if (isPlayingSquareDsl && playIntervalSquareDsl.current) {
+      clearInterval(playIntervalSquareDsl.current);
+      playIntervalSquareDsl.current = null;
+      setIsPlayingSquareDsl(false);
+    }
+    storeSquareDsl.clear();
+    setCurrentStepSquareDsl(0);
+    setRestartKeySquareDsl(restartKeySquareDsl + 1);
+  };
+
+  const handleFirstStepSquareDsl = (): void => {
+    // Stop playing when jumping to first step
+    if (isPlayingSquareDsl && playIntervalSquareDsl.current) {
+      clearInterval(playIntervalSquareDsl.current);
+      playIntervalSquareDsl.current = null;
+      setIsPlayingSquareDsl(false);
+    }
+    storeSquareDsl.clear();
+    setCurrentStepSquareDsl(0);
+    setRestartKeySquareDsl(restartKeySquareDsl + 1);
+  };
+
+  const handleLastStepSquareDsl = (): void => {
+    // Stop playing when jumping to end
+    if (isPlayingSquareDsl && playIntervalSquareDsl.current) {
+      clearInterval(playIntervalSquareDsl.current);
+      playIntervalSquareDsl.current = null;
+      setIsPlayingSquareDsl(false);
+    }
+    storeSquareDsl.clear();
+    setCurrentStepSquareDsl(DSL_SQUARE_STEPS_LENGTH);
+    setRestartKeySquareDsl(restartKeySquareDsl + 1);
+  };
+
+  const handlePlayClickSquareDsl = (): void => {
+    if (isPlayingSquareDsl) {
+      // Stop playing
+      if (playIntervalSquareDsl.current) {
+        clearInterval(playIntervalSquareDsl.current);
+        playIntervalSquareDsl.current = null;
+      }
+      setIsPlayingSquareDsl(false);
+    } else {
+      // Clear any existing interval first to prevent race condition
+      if (playIntervalSquareDsl.current) {
+        clearInterval(playIntervalSquareDsl.current);
+        playIntervalSquareDsl.current = null;
+      }
+      // Reset to 0 if at the end
+      if (currentStepSquareDsl >= DSL_SQUARE_STEPS_LENGTH) {
+        setCurrentStepSquareDsl(0);
+      }
+      // Start playing
+      setIsPlayingSquareDsl(true);
+      playIntervalSquareDsl.current = setInterval(() => {
+        setCurrentStepSquareDsl((prev) => {
+          if (prev >= DSL_SQUARE_STEPS_LENGTH) {
+            // Stop when reaching the end
+            if (playIntervalSquareDsl.current) {
+              clearInterval(playIntervalSquareDsl.current);
+              playIntervalSquareDsl.current = null;
+            }
+            setIsPlayingSquareDsl(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 200); // 200ms delay between steps
+    }
+  };
+
+  // Clean up interval on unmount
+  useEffect(() => {
+    return () => {
+      if (playIntervalSquareDsl.current) {
+        clearInterval(playIntervalSquareDsl.current);
+      }
+    };
+  }, []);
+
   return (
     <main className="p-8 bg-gray-900 text-white">
       <h1 className="text-5xl font-bold mb-8 text-left text-blue-400">sg</h1>
@@ -571,6 +695,78 @@ export default function App(): JSX.Element {
             <div>
               <GeometryList
                 store={storeSquare}
+                strokeMid={strokeMid}
+                strokeBig={strokeBig}
+                strokeLine={strokeLine}
+                showInputHighlight={showInputHighlight}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* DSL Square Section */}
+      <div
+        ref={sectionRefs["square-dsl"]}
+        className="mb-8 p-8 bg-gray-900 rounded-lg"
+        id="square-dsl"
+        data-testid="section-square-dsl"
+      >
+        <div className="mb-6 flex items-center">
+          <h1 className="text-2xl font-semibold mb-1 text-left">Square DSL</h1>
+          <CopyUrlButton />
+        </div>
+        <div className="mb-4">
+          <small className="block text-gray-400 mb-2">05/07/2026</small>
+          <p className="text-gray-300 mb-4">
+            Square construction using the new declarative DSL implementation.
+          </p>
+        </div>
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-7">
+            <GeometryPlayer
+              svgRef={squareDslSvgRef}
+              svgConfig={standardSvgConfig}
+              currentStep={currentStepSquareDsl}
+              totalSteps={DSL_SQUARE_STEPS_LENGTH}
+              onStepChange={setCurrentStepSquareDsl}
+              onFirstStep={handleFirstStepSquareDsl}
+              onPrevStep={handlePrevClickSquareDsl}
+              onNextStep={handleNextClickSquareDsl}
+              onLastStep={handleLastStepSquareDsl}
+              onRestart={handleRestartSquareDsl}
+              showInputsToggle={true}
+              showInputHighlight={showInputHighlight}
+              onToggleInputs={toggleInputs}
+              showPlayButton={true}
+              isPlaying={isPlayingSquareDsl}
+              onPlayClick={handlePlayClickSquareDsl}
+            >
+              <SquareDslSvg
+                ref={squareDslSvgRef}
+                store={storeSquareDsl}
+                dotStrokeWidth={strokeBig}
+                svgConfig={standardSvgConfig}
+                restartTrigger={restartKeySquareDsl}
+                currentStep={currentStepSquareDsl}
+                theme={svgTheme}
+              />
+            </GeometryPlayer>
+          </div>
+          <div className="col-span-2">
+            <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <p className="text-gray-300 mb-4">
+              Current step {currentStepSquareDsl}/{DSL_SQUARE_STEPS_LENGTH}
+            </p>
+            <GeometryDetails store={storeSquareDsl} strokeBig={strokeBig} steps={squareDslSteps} />
+          </div>
+          <div className="col-span-3">
+            <div>
+              <GeometryList
+                store={storeSquareDsl}
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}

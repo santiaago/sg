@@ -405,12 +405,11 @@ function polygon(
   points: { x: number; y: number }[],
   strokeWidth: number,
   strokeColor: string,
-  theme: Theme,
 ): SVGPolygonElement {
   const polygonEl = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
   polygonEl.setAttribute("stroke", strokeColor);
   polygonEl.setAttribute("stroke-width", strokeWidth.toString());
-  polygonEl.setAttribute("fill", theme.COLOR_SECONDARY);
+  polygonEl.setAttribute("fill", "none");
   const pointsStr = points.map((p) => `${p.x},${p.y}`).join(" ");
   polygonEl.setAttribute("points", pointsStr);
   svg.appendChild(polygonEl);
@@ -429,7 +428,7 @@ function polygonWithTooltip(
   theme: Theme,
   strokeColor: string,
 ): SVGPolygonElement {
-  const polygonEl = polygon(svg, points, strokeWidth, strokeColor, theme);
+  const polygonEl = polygon(svg, points, strokeWidth, strokeColor);
   polygonEl.style.cursor = "pointer";
 
   // Create tooltip element (positioned near first vertex)
