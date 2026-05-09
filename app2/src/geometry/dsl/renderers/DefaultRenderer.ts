@@ -5,6 +5,7 @@ import type { GeometryRenderer } from "./types";
 import type { GeometryValue, Theme } from "@/types/geometry";
 import type { GeometryStore } from "@/react-store";
 import { isPoint, isLine, isCircle, isPolygon, isCoordinateSystem } from "@/types/geometry";
+import type { PolygonStyleOptions } from "../expressions/PolygonExpression";
 import {
   drawPoint as svgDrawPoint,
   drawLine as svgDrawLine,
@@ -78,10 +79,20 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     geomId: string,
     store: GeometryStore,
     theme: Theme,
+    options?: PolygonStyleOptions,
   ): void {
     const p = values.get(geomId);
     if (!p || !isPolygon(p)) return;
-    svgDrawPolygon(svg, values, geomId, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
+
+    // Use custom stroke width/color if provided, otherwise use defaults
+    const strokeWidth = options?.strokeWidth ?? STROKE_WIDTH_THIN;
+    const strokeColor = options?.strokeColor
+      ? typeof options.strokeColor === "function"
+        ? options.strokeColor(theme)
+        : options.strokeColor
+      : theme.COLOR_PRIMARY;
+
+    svgDrawPolygon(svg, values, geomId, strokeWidth, store, theme, strokeColor);
   }
 
   /**

@@ -11,10 +11,11 @@ import type {
   CircleLikeExpression,
 } from "./expressions/types";
 import { PointExpression } from "./expressions/PointExpression";
+import { PointInCoordinateSystemExpression } from "./expressions/PointInCoordinateSystemExpression";
 import { LineExpression } from "./expressions/LineExpression";
 import { CircleExpression } from "./expressions/CircleExpression";
 import { CoordinateSystemExpression } from "./expressions/CoordinateSystemExpression";
-import { PolygonExpression } from "./expressions/PolygonExpression";
+import { PolygonExpression, type PolygonStyleOptions } from "./expressions/PolygonExpression";
 import { PointAtExpression } from "./expressions/operations/PointAtExpression";
 import {
   IntersectionExpression,
@@ -90,6 +91,28 @@ export class GeometryBuilder<TConfig> {
    */
   point(id: string, x: number, y: number): PointExpression<TConfig> {
     const expr = new PointExpression(id, x, y);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create a point expression defined in a coordinate system.
+   * The point's local coordinates are transformed by the coordinate system's
+   * position and rotation to produce global SVG coordinates.
+   *
+   * @param id - Unique identifier for this point
+   * @param cs - Coordinate system expression that defines the transformation
+   * @param localX - Local X coordinate (before transformation)
+   * @param localY - Local Y coordinate (before transformation)
+   * @returns The created PointInCoordinateSystemExpression
+   */
+  pointInCs(
+    id: string,
+    cs: CoordinateSystemExpression<TConfig>,
+    localX: number,
+    localY: number,
+  ): PointInCoordinateSystemExpression<TConfig> {
+    const expr = new PointInCoordinateSystemExpression(id, cs, localX, localY);
     this.expressions.set(id, expr);
     return expr;
   }
@@ -202,10 +225,15 @@ export class GeometryBuilder<TConfig> {
    *
    * @param id - Unique identifier for this polygon
    * @param points - Array of point-like expressions defining the polygon vertices
+   * @param options - Optional style options (strokeWidth, strokeColor)
    * @returns The created PolygonExpression
    */
-  polygon(id: string, points: PointLikeExpression<TConfig>[]): PolygonExpression<TConfig> {
-    const expr = new PolygonExpression(id, points);
+  polygon(
+    id: string,
+    points: PointLikeExpression<TConfig>[],
+    options?: PolygonStyleOptions,
+  ): PolygonExpression<TConfig> {
+    const expr = new PolygonExpression(id, points, options);
     this.expressions.set(id, expr);
     return expr;
   }

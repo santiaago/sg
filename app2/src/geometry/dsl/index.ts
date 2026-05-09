@@ -19,6 +19,7 @@ export type {
 // TypeScript automatically makes the type available when exporting the class
 export {
   PointExpression,
+  PointInCoordinateSystemExpression,
   LineExpression,
   CircleExpression,
   CoordinateSystemExpression,
@@ -28,6 +29,7 @@ export {
   CircleIntersectionExpression,
   LineTowardsExpression,
 } from "./expressions";
+export type { PolygonStyleOptions } from "./expressions";
 
 export type { GeometryExpression } from "./expressions/GeometryExpression";
 

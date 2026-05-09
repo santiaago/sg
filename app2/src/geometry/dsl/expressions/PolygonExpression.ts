@@ -1,10 +1,21 @@
 // Polygon expression for polygon geometry
 
 import type { GeometryRenderer } from "../renderers/types";
-import type { Step, GeometryValue } from "@/types/geometry";
+import type { Step, GeometryValue, Theme } from "@/types/geometry";
 import { polygon, isPoint } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
 import type { PointLikeExpression } from "./types";
+
+/**
+ * Style options for polygon geometry.
+ * Allows customizing stroke width and color for special polygons like the final square.
+ */
+export interface PolygonStyleOptions {
+  /** Stroke width for the polygon outline. Defaults to theme stroke width. */
+  strokeWidth?: number;
+  /** Stroke color for the polygon outline. Defaults to theme.COLOR_PRIMARY. */
+  strokeColor?: string | ((theme: Theme) => string);
+}
 
 /**
  * Expression for a polygon geometry.
@@ -17,6 +28,7 @@ export class PolygonExpression<TConfig> implements GeometryExpression<TConfig, "
   readonly parameters: (keyof TConfig)[];
 
   private readonly pointIds: readonly string[];
+  private readonly styleOptions?: PolygonStyleOptions;
 
   /**
    * Create a polygon expression from an array of point expressions.
@@ -24,15 +36,26 @@ export class PolygonExpression<TConfig> implements GeometryExpression<TConfig, "
    *
    * @param id - Unique identifier for this polygon
    * @param points - Array of point-like expressions defining the polygon vertices
+   * @param options - Optional style options (strokeWidth, strokeColor)
    */
-  constructor(id: string, points: PointLikeExpression<TConfig>[]) {
+  constructor(id: string, points: PointLikeExpression<TConfig>[], options?: PolygonStyleOptions) {
     this.id = id;
     this.pointIds = points.map((p) => p.id);
     this.dependencies = [...this.pointIds];
     this.parameters = [];
+    this.styleOptions = options;
+  }
+
+  /**
+   * Get the style options for this polygon.
+   */
+  getStyleOptions(): PolygonStyleOptions | undefined {
+    return this.styleOptions;
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const styleOptions = this.styleOptions;
+
     return {
       id: `step_${this.id}`,
       inputs: this.dependencies,
@@ -58,7 +81,7 @@ export class PolygonExpression<TConfig> implements GeometryExpression<TConfig, "
         return new Map([[this.id, polygon(polygonPoints)]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawPolygon(svg, values, this.id, store, theme);
+        renderer.drawPolygon(svg, values, this.id, store, theme, styleOptions);
       },
     };
   }
