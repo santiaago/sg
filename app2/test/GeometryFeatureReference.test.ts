@@ -145,7 +145,12 @@ describe("GeometryFeatureReference", () => {
 
     it("should throw error for missing property", () => {
       const ref = new GeometryFeatureReference(
-        { id: "p1", type: "point", dependencies: [], parameters: [] } as unknown as GeometryExpression<TestConfig, "point">,
+        {
+          id: "p1",
+          type: "point",
+          dependencies: [],
+          parameters: [],
+        } as unknown as GeometryExpression<TestConfig, "point">,
         "type" as keyof { type: string },
       );
 
@@ -237,7 +242,7 @@ describe("GeometryFeatureReference", () => {
       const builder = new GeometryBuilder<TestConfig>();
       const center = builder.point("center", 0, 0);
       const c1 = builder.circle("c1", center, 10);
-      const c2 = builder.circle("c2", builder.point("center2", 5, 5), c1.r);
+      builder.circle("c2", builder.point("center2", 5, 5), c1.r);
 
       const expr = builder.getExpression("c2")!;
       expect(expr.dependencies).toContain("center2");
@@ -247,7 +252,7 @@ describe("GeometryFeatureReference", () => {
     it("should track config parameter dependencies in CircleExpression", () => {
       const builder = new GeometryBuilder<TestConfig>();
       const center = builder.point("center", 0, 0);
-      const circle = builder.circle("c1", center, "radius" as const);
+      builder.circle("c1", center, "radius" as const);
 
       const expr = builder.getExpression("c1")!;
       expect(expr.parameters).toContain("radius");

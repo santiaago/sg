@@ -99,17 +99,15 @@ export class CoordinateSystemExpression<TConfig> implements GeometryExpression<
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
-      compute: (inputs: Map<string, GeometryValue>, params: TConfig): Map<string, GeometryValue> => {
+      compute: (
+        inputs: Map<string, GeometryValue>,
+        params: TConfig,
+      ): Map<string, GeometryValue> => {
         const x = resolveParameter(inputs, params, this.xCoord, "x");
         const y = resolveParameter(inputs, params, this.yCoord, "y");
         const arrowLength = resolveParameter(inputs, params, this.arrowLengthVal, "arrowLength");
         const rotation = resolveParameter(inputs, params, this.rotationVal, "rotation");
-        return new Map([
-          [
-            this.id,
-            coordinateSystem(x, y, arrowLength, rotation),
-          ],
-        ]);
+        return new Map([[this.id, coordinateSystem(x, y, arrowLength, rotation)]]);
       },
       draw: (svg, values, store, theme): void => {
         renderer.drawCoordinateSystem(svg, values, this.id, store, theme);

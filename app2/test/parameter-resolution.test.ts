@@ -106,7 +106,7 @@ describe("Parameter Resolution", () => {
     it("should resolve config parameter in CircleExpression", () => {
       const builder = new GeometryBuilder<SquareConfig>();
       const center = builder.point("center", 0, 0);
-      const circle = builder.circle("c1", center, "circleRadius" as const);
+      builder.circle("c1", center, "circleRadius" as const);
 
       const config: SquareConfig = {
         circleRadius: 25,
@@ -134,7 +134,7 @@ describe("Parameter Resolution", () => {
     it("should resolve config parameter in PointInCoordinateSystemExpression", () => {
       const builder = new GeometryBuilder<SquareConfig>();
       const cs = builder.coordinateSystem("cs", 0, 0, 10, 0);
-      const point = builder.pointInCs("p1", cs, "p1x" as const, "p1y" as const);
+      builder.pointInCs("p1", cs, "p1x" as const, "p1y" as const);
 
       const config: SquareConfig = {
         circleRadius: 10,
@@ -163,7 +163,7 @@ describe("Parameter Resolution", () => {
     it("should throw for missing config parameter", () => {
       const builder = new GeometryBuilder<SquareConfig>();
       const center = builder.point("center", 0, 0);
-      const circle = builder.circle("c1", center, "missingParam" as any);
+      builder.circle("c1", center, "missingParam" as any);
 
       const steps = builder.compile();
       const allValues = new Map<string, any>();
@@ -184,7 +184,7 @@ describe("Parameter Resolution", () => {
       const center1 = builder.point("center1", 0, 0);
       const c1 = builder.circle("c1", center1, 10);
       const center2 = builder.point("center2", 20, 20);
-      const c2 = builder.circle("c2", center2, c1.r);
+      builder.circle("c2", center2, c1.r);
 
       const steps = builder.compile();
       const allValues = new Map<string, any>();
@@ -205,7 +205,7 @@ describe("Parameter Resolution", () => {
       const center1 = builder.point("center1", 0, 0);
       const c1 = builder.circle("c1", center1, 15);
       const center2 = builder.point("center2", 20, 20);
-      const c2 = builder.circle("c2", center2, c1.radius);
+      builder.circle("c2", center2, c1.radius);
 
       const steps = builder.compile();
       const allValues = new Map<string, any>();
@@ -225,7 +225,7 @@ describe("Parameter Resolution", () => {
       const builder = new GeometryBuilder<SquareConfig>();
       const cs = builder.coordinateSystem("cs", 0, 0, 10, 0);
       const p1 = builder.pointInCs("p1", cs, 5, 5);
-      const p2 = builder.pointInCs("p2", cs, p1.x, 10);
+      builder.pointInCs("p2", cs, p1.x, 10);
 
       const steps = builder.compile();
       const allValues = new Map<string, any>();
@@ -247,7 +247,7 @@ describe("Parameter Resolution", () => {
       const start = builder.point("start", 0, 0);
       const end = builder.point("end", 1, 0);
       const c1 = builder.circle("c1", start, 10);
-      const lineExpr = builder.lineTowards("line1", start, end, c1.r);
+      builder.lineTowards("line1", start, end, c1.r);
 
       const steps = builder.compile();
       const allValues = new Map<string, any>();
@@ -272,7 +272,7 @@ describe("Parameter Resolution", () => {
       const start = builder.point("start", 0, 0);
       const end = builder.point("end", 10, 10);
       const lineExpr = builder.line("line1", start, end);
-      const pointAt = builder.pointAt("mid", lineExpr, lineExpr.length as any);
+      builder.pointAt("mid", lineExpr, lineExpr.length as any);
 
       // This should work - the feature reference will resolve at compute time
       // Note: This is a bit contrived since lineExpr.length is computed, not stored
@@ -283,25 +283,10 @@ describe("Parameter Resolution", () => {
     });
 
     it("should throw for missing geometry reference", () => {
-      const builder = new GeometryBuilder<SquareConfig>();
-      const center = builder.point("center", 0, 0);
-      // Create a reference to a non-existent circle
-      const fakeRef = {
-        sourceId: "nonexistent",
-        property: "r",
-        type: "geometry_feature_reference",
-      };
-
-      const steps = builder.compile();
-      const allValues = new Map<string, any>();
-
-      // This will fail when trying to resolve the feature reference
-      // since we're not actually using it in a compiled expression
-      // We need to test it through an actual expression
-
-      // Let's create a circle with a reference to a non-existent geometry
-      // This is tricky because we can't easily create such a scenario
-      // with the current API. The dependency tracking prevents this.
+      // TODO: This test is incomplete - the current API's dependency tracking
+      // prevents creating a scenario with a reference to a non-existent geometry.
+      // A proper test would need to create a circle with a reference to a non-existent
+      // geometry, but this is tricky with the current API.
     });
   });
 
@@ -309,8 +294,8 @@ describe("Parameter Resolution", () => {
     it("should handle mix of literal and config parameters", () => {
       const builder = new GeometryBuilder<SquareConfig>();
       const cs = builder.coordinateSystem("cs", 0, 0, 10, 0);
-      const p1 = builder.pointInCs("p1", cs, "p1x" as const, 5);
-      const p2 = builder.pointInCs("p2", cs, 10, "p2y" as const);
+      builder.pointInCs("p1", cs, "p1x" as const, 5);
+      builder.pointInCs("p2", cs, 10, "p2y" as const);
 
       const config: SquareConfig = {
         circleRadius: 10,
@@ -343,8 +328,8 @@ describe("Parameter Resolution", () => {
       const builder = new GeometryBuilder<SquareConfig>();
       // Use a literal for cs arrowLength, then reference it in circle
       const cs = builder.coordinateSystem("cs", 0, 0, 10, 0);
-      const p1 = builder.pointInCs("p1", cs, "p1x" as const, 5);
-      const c1 = builder.circle("c1", builder.point("center", 0, 0), cs.arrowLength);
+      builder.pointInCs("p1", cs, "p1x" as const, 5);
+      builder.circle("c1", builder.point("center", 0, 0), cs.arrowLength);
 
       const config: SquareConfig = {
         circleRadius: 10,
@@ -373,7 +358,7 @@ describe("Parameter Resolution", () => {
     it("should use builder.param() for config parameters", () => {
       const builder = new GeometryBuilder<SquareConfig>();
       const center = builder.point("center", 0, 0);
-      const circle = builder.circle("c1", center, builder.param("circleRadius"));
+      builder.circle("c1", center, builder.param("circleRadius"));
 
       const steps = builder.compile();
       const allValues = new Map<string, any>();
@@ -403,7 +388,7 @@ describe("Parameter Resolution", () => {
       const center1 = builder.point("center1", 0, 0);
       const c1 = builder.circle("c1", center1, 15);
       const center2 = builder.point("center2", 20, 20);
-      const c2 = builder.circle("c2", center2, c1.r);
+      builder.circle("c2", center2, c1.r);
 
       const steps = builder.compile();
       const allValues = new Map<string, any>();
@@ -424,7 +409,7 @@ describe("Parameter Resolution", () => {
       const c1 = builder.circle("c1", center1, 15);
       const center2 = builder.point("center2", 20, 20);
       // Note: Circle uses 'r' as the property name, not 'radius' in the GeometryValue type
-      const c2 = builder.circle("c2", center2, c1.r);
+      builder.circle("c2", center2, c1.r);
 
       const steps = builder.compile();
       const allValues = new Map<string, any>();
@@ -446,7 +431,7 @@ describe("Parameter Resolution", () => {
       const center1 = builder.point("center1", 0, 0);
       const c1 = builder.circle("c1", center1, 10);
       const center2 = builder.point("center2", 20, 20);
-      const c2 = builder.circle("c2", center2, c1.r);
+      builder.circle("c2", center2, c1.r);
 
       const c2Expr = builder.getExpression("c2")!;
       expect(c2Expr.dependencies).toContain("center2");
@@ -456,7 +441,7 @@ describe("Parameter Resolution", () => {
     it("should track parameters correctly for config references", () => {
       const builder = new GeometryBuilder<SquareConfig>();
       const center = builder.point("center", 0, 0);
-      const circle = builder.circle("c1", center, "circleRadius" as const);
+      builder.circle("c1", center, "circleRadius" as const);
 
       const circleExpr = builder.getExpression("c1")!;
       expect(circleExpr.parameters).toContain("circleRadius");
@@ -465,7 +450,7 @@ describe("Parameter Resolution", () => {
     it("should include both config params and feature refs in dependencies", () => {
       const builder = new GeometryBuilder<SquareConfig>();
       const cs = builder.coordinateSystem("cs", 0, 0, 10, 0);
-      const c1 = builder.circle("c1", builder.point("center", 0, 0), cs.arrowLength);
+      builder.circle("c1", builder.point("center", 0, 0), cs.arrowLength);
 
       const c1Expr = builder.getExpression("c1")!;
       expect(c1Expr.dependencies).toContain("center");
@@ -496,7 +481,7 @@ describe("Parameter Resolution", () => {
       const c2 = builder.intersection("c2", c1_c, line_main);
       const c2_c = builder.circle("c2_c", c2, c1_c.r); // Feature reference!
       const pi = builder.circleIntersection("pi", c1_c, c2_c, { select: "north" });
-      const ci = builder.circle("ci", pi, c1_c.r); // Feature reference!
+      builder.circle("ci", pi, c1_c.r); // Feature reference!
 
       const steps = builder.compile();
       const allValues = new Map<string, any>();
