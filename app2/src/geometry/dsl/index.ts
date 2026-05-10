@@ -4,6 +4,14 @@
 // Main facade
 export { GeometryBuilder } from "./GeometryBuilder";
 
+// Parameter types
+export type { ParameterValue, NumericPropertyOf } from "./types";
+export { GeometryFeatureReference } from "./GeometryFeatureReference";
+export { isGeometryFeatureReference } from "./types";
+
+// Utilities
+export { resolveParameter } from "./utils";
+
 // Renderer
 export type { GeometryRenderer } from "./renderers/types";
 export { DefaultGeometryRenderer } from "./renderers/DefaultRenderer";

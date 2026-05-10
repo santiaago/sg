@@ -14,6 +14,7 @@ import {
 } from "@sg/geometry";
 import type { Point, Circle, GeometryValue } from "../types/geometry";
 import { point, line, circle, GeometryError } from "../types/geometry";
+import { COORDINATE_SYSTEM_ARROW_LENGTH_RATIO } from "../config/geometryConfig";
 
 // Constants
 
@@ -57,6 +58,10 @@ export interface SquareConfig {
   C2_POSITION_RATIO: number;
   tolerance: number;
   selectMinY: boolean;
+  /** Length for line extensions (2.2 * circleRadius) */
+  lineExtensionLength: number;
+  /** Arrow length for coordinate system (height * COORDINATE_SYSTEM_ARROW_LENGTH_RATIO) */
+  coordinateSystemArrowLength: number;
 }
 
 /**
@@ -100,6 +105,8 @@ export function computeSquareConfig(width: number, height: number): SquareConfig
     C2_POSITION_RATIO,
     tolerance: DEFAULT_TOLERANCE,
     selectMinY: true,
+    lineExtensionLength: LINE_EXTENSION_MULTIPLIER * CIRCLE_RADIUS,
+    coordinateSystemArrowLength: height * COORDINATE_SYSTEM_ARROW_LENGTH_RATIO,
   };
 }
 
