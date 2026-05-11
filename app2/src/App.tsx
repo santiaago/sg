@@ -434,11 +434,8 @@ export default function App(): JSX.Element {
   const squareDslSvgRef = useRef<SVGSVGElement>(null);
   const playIntervalSquareDsl = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Build DSL square steps once based on standard SVG config
-  const squareDslSteps = useMemo(
-    () => buildSquareDslSteps(standardSvgConfig.width, standardSvgConfig.height),
-    [],
-  );
+  // Build DSL square steps once
+  const squareDslSteps = useMemo(() => buildSquareDslSteps(), []);
 
   const handleNextClickSquareDsl = (): void => {
     // Stop playing if user manually clicks

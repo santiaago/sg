@@ -1,9 +1,10 @@
 // Point expression for primitive point geometry
 
 import type { GeometryRenderer } from "../renderers/types";
-import type { Step, GeometryValue } from "@/types/geometry";
+import type { Step, GeometryValue, Point } from "@/types/geometry";
 import { point } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
+import { GeometryFeatureReference } from "../GeometryFeatureReference";
 
 /**
  * Expression for a primitive point geometry.
@@ -15,8 +16,8 @@ export class PointExpression<TConfig> implements GeometryExpression<TConfig, "po
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[];
 
-  private readonly x: number;
-  private readonly y: number;
+  private readonly xCoord: number;
+  private readonly yCoord: number;
 
   /**
    * Create a point expression with explicit coordinates.
@@ -29,8 +30,28 @@ export class PointExpression<TConfig> implements GeometryExpression<TConfig, "po
     this.id = id;
     this.dependencies = [];
     this.parameters = [];
-    this.x = x;
-    this.y = y;
+    this.xCoord = x;
+    this.yCoord = y;
+  }
+
+  // ========================================
+  // Feature Accessors
+  // ========================================
+
+  /**
+   * Access the x-coordinate as a feature reference.
+   * Note: This creates a reference to the computed point's x property.
+   */
+  get x(): GeometryFeatureReference<TConfig, Point, "x"> {
+    return new GeometryFeatureReference(this, "x");
+  }
+
+  /**
+   * Access the y-coordinate as a feature reference.
+   * Note: This creates a reference to the computed point's y property.
+   */
+  get y(): GeometryFeatureReference<TConfig, Point, "y"> {
+    return new GeometryFeatureReference(this, "y");
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
@@ -40,7 +61,7 @@ export class PointExpression<TConfig> implements GeometryExpression<TConfig, "po
       outputs: [this.id],
       parameters: this.parameters,
       compute: (): Map<string, GeometryValue> => {
-        return new Map([[this.id, point(this.x, this.y)]]);
+        return new Map([[this.id, point(this.xCoord, this.yCoord)]]);
       },
       draw: (svg, values, store, theme): void => {
         renderer.drawPoint(svg, values, this.id, store, theme);

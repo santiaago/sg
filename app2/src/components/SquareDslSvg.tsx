@@ -120,7 +120,7 @@ export const SquareDslSvg = forwardRef(function SquareDslSvg(
 
     try {
       // Build steps using DSL
-      const allSteps = buildSquareDslSteps(svgConfig.width, svgConfig.height);
+      const allSteps = buildSquareDslSteps();
 
       // Build step maps for dependency tracking and parameter values
       const { stepDependencies, stepForOutput } = buildStepMaps(allSteps, currentStep);

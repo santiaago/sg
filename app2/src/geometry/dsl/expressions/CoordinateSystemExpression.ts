@@ -1,9 +1,13 @@
 // Coordinate system expression for coordinate system geometry
 
 import type { GeometryRenderer } from "../renderers/types";
-import type { Step, GeometryValue } from "@/types/geometry";
+import type { Step, GeometryValue, CoordinateSystem } from "@/types/geometry";
 import { coordinateSystem } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
+import { GeometryFeatureReference } from "../GeometryFeatureReference";
+import type { ParameterValue } from "../types";
+import { isGeometryFeatureReference } from "../types";
+import { resolveParameter } from "../utils";
 
 /**
  * Expression for a coordinate system geometry.
@@ -18,28 +22,75 @@ export class CoordinateSystemExpression<TConfig> implements GeometryExpression<
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[];
 
-  private readonly x: number;
-  private readonly y: number;
-  private readonly arrowLength: number;
-  private readonly rotation: number;
+  private readonly xCoord: ParameterValue<TConfig>;
+  private readonly yCoord: ParameterValue<TConfig>;
+  private readonly arrowLengthVal: ParameterValue<TConfig>;
+  private readonly rotationVal: ParameterValue<TConfig>;
 
   /**
    * Create a coordinate system expression.
    *
    * @param id - Unique identifier for this coordinate system
-   * @param x - X position of the origin
-   * @param y - Y position of the origin
-   * @param arrowLength - Length of the axis arrows
-   * @param rotation - Optional rotation angle in radians (default: 0)
+   * @param x - X position of the origin (number, config key, or feature reference)
+   * @param y - Y position of the origin (number, config key, or feature reference)
+   * @param arrowLength - Length of the axis arrows (number, config key, or feature reference)
+   * @param rotation - Rotation angle in radians (number, config key, or feature reference) (default: 0)
    */
-  constructor(id: string, x: number, y: number, arrowLength: number, rotation: number = 0) {
+  constructor(
+    id: string,
+    x: ParameterValue<TConfig> = 0,
+    y: ParameterValue<TConfig> = 0,
+    arrowLength: ParameterValue<TConfig> = 0,
+    rotation: ParameterValue<TConfig> = 0,
+  ) {
     this.id = id;
-    this.x = x;
-    this.y = y;
-    this.arrowLength = arrowLength;
-    this.rotation = rotation;
+    this.xCoord = x;
+    this.yCoord = y;
+    this.arrowLengthVal = arrowLength;
+    this.rotationVal = rotation;
     this.dependencies = [];
     this.parameters = [];
+
+    // Track dependencies for each parameter
+    [x, y, arrowLength, rotation].forEach((val) => {
+      if (isGeometryFeatureReference(val)) {
+        this.dependencies.push(val.sourceId);
+      } else if (typeof val === "string") {
+        this.parameters.push(val as keyof TConfig);
+      }
+    });
+  }
+
+  // ========================================
+  // Feature Accessors
+  // ========================================
+
+  /**
+   * Access the origin x-coordinate as a feature reference.
+   */
+  get x(): GeometryFeatureReference<TConfig, CoordinateSystem, "x"> {
+    return new GeometryFeatureReference(this, "x");
+  }
+
+  /**
+   * Access the origin y-coordinate as a feature reference.
+   */
+  get y(): GeometryFeatureReference<TConfig, CoordinateSystem, "y"> {
+    return new GeometryFeatureReference(this, "y");
+  }
+
+  /**
+   * Access the arrow length as a feature reference.
+   */
+  get arrowLength(): GeometryFeatureReference<TConfig, CoordinateSystem, "arrowLength"> {
+    return new GeometryFeatureReference(this, "arrowLength");
+  }
+
+  /**
+   * Access the rotation as a feature reference.
+   */
+  get rotation(): GeometryFeatureReference<TConfig, CoordinateSystem, "rotation"> {
+    return new GeometryFeatureReference(this, "rotation");
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
@@ -48,10 +99,15 @@ export class CoordinateSystemExpression<TConfig> implements GeometryExpression<
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
-      compute: (): Map<string, GeometryValue> => {
-        return new Map([
-          [this.id, coordinateSystem(this.x, this.y, this.arrowLength, this.rotation)],
-        ]);
+      compute: (
+        inputs: Map<string, GeometryValue>,
+        params: TConfig,
+      ): Map<string, GeometryValue> => {
+        const x = resolveParameter(inputs, params, this.xCoord, "x");
+        const y = resolveParameter(inputs, params, this.yCoord, "y");
+        const arrowLength = resolveParameter(inputs, params, this.arrowLengthVal, "arrowLength");
+        const rotation = resolveParameter(inputs, params, this.rotationVal, "rotation");
+        return new Map([[this.id, coordinateSystem(x, y, arrowLength, rotation)]]);
       },
       draw: (svg, values, store, theme): void => {
         renderer.drawCoordinateSystem(svg, values, this.id, store, theme);

@@ -1,10 +1,12 @@
 // Line expression for line geometry
 
 import type { GeometryRenderer } from "../renderers/types";
-import type { Step, GeometryValue } from "@/types/geometry";
+import type { Step, GeometryValue, Line } from "@/types/geometry";
 import { line, isPoint } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
 import type { PointLikeExpression } from "./types";
+import { GeometryFeatureReference } from "../GeometryFeatureReference";
+import type { LineWithLength } from "./types";
 
 /**
  * Expression for a line geometry.
@@ -17,10 +19,10 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
   readonly parameters: (keyof TConfig)[];
 
   // For coordinate-based construction
-  private readonly x1?: number;
-  private readonly y1?: number;
-  private readonly x2?: number;
-  private readonly y2?: number;
+  private readonly x1Val?: number;
+  private readonly y1Val?: number;
+  private readonly x2Val?: number;
+  private readonly y2Val?: number;
 
   // For point-based construction, store the point expression IDs
   private readonly startId?: string;
@@ -39,16 +41,56 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
     this.parameters = [];
 
     if (args.type === "coordinates") {
-      this.x1 = args.x1;
-      this.y1 = args.y1;
-      this.x2 = args.x2;
-      this.y2 = args.y2;
+      this.x1Val = args.x1;
+      this.y1Val = args.y1;
+      this.x2Val = args.x2;
+      this.y2Val = args.y2;
       this.dependencies = [];
     } else {
       this.startId = args.startId;
       this.endId = args.endId;
       this.dependencies = [args.startId, args.endId];
     }
+  }
+
+  // ========================================
+  // Feature Accessors
+  // ========================================
+
+  /**
+   * Access the start x-coordinate as a feature reference.
+   */
+  get x1(): GeometryFeatureReference<TConfig, Line, "x1"> {
+    return new GeometryFeatureReference(this, "x1");
+  }
+
+  /**
+   * Access the start y-coordinate as a feature reference.
+   */
+  get y1(): GeometryFeatureReference<TConfig, Line, "y1"> {
+    return new GeometryFeatureReference(this, "y1");
+  }
+
+  /**
+   * Access the end x-coordinate as a feature reference.
+   */
+  get x2(): GeometryFeatureReference<TConfig, Line, "x2"> {
+    return new GeometryFeatureReference(this, "x2");
+  }
+
+  /**
+   * Access the end y-coordinate as a feature reference.
+   */
+  get y2(): GeometryFeatureReference<TConfig, Line, "y2"> {
+    return new GeometryFeatureReference(this, "y2");
+  }
+
+  /**
+   * Access the line length as a feature reference.
+   * Note: This is a computed property, not stored in the Line type.
+   */
+  get length(): GeometryFeatureReference<TConfig, LineWithLength, "length"> {
+    return new GeometryFeatureReference(this, "length" as any);
   }
 
   /**
@@ -105,12 +147,12 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
 
         // No dependencies - use stored coordinates
         if (
-          this.x1 !== undefined &&
-          this.y1 !== undefined &&
-          this.x2 !== undefined &&
-          this.y2 !== undefined
+          this.x1Val !== undefined &&
+          this.y1Val !== undefined &&
+          this.x2Val !== undefined &&
+          this.y2Val !== undefined
         ) {
-          return new Map([[this.id, line(this.x1, this.y1, this.x2, this.y2)]]);
+          return new Map([[this.id, line(this.x1Val, this.y1Val, this.x2Val, this.y2Val)]]);
         }
 
         throw new Error(`LineExpression ${this.id}: invalid construction`);

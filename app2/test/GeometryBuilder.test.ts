@@ -445,4 +445,248 @@ describe("GeometryBuilder", () => {
       expect(stepIds).toContain("step_PI");
     });
   });
+
+  // ========================================================================
+  // Parameter Helper Methods
+  // ========================================================================
+
+  describe("Parameter Helper Methods", () => {
+    it("param() returns the key unchanged", () => {
+      const key = builder.param("tolerance");
+      expect(key).toBe("tolerance");
+      expect(typeof key).toBe("string");
+    });
+
+    it("geom() creates a GeometryFeatureReference", () => {
+      const p1 = builder.point("P1", 10, 20);
+      const ref = builder.geom(p1, "x");
+
+      expect(ref.sourceId).toBe("P1");
+      expect(ref.property).toBe("x");
+      expect(ref.type).toBe("geometry_feature_reference");
+    });
+
+    it("geom() works with circle radius", () => {
+      const center = builder.point("center", 0, 0);
+      const circle = builder.circle("C1", center, 10);
+      const ref = builder.geom(circle, "r");
+
+      expect(ref.sourceId).toBe("C1");
+      expect(ref.property).toBe("r");
+    });
+
+    it("geom() works with different geometry types", () => {
+      const cs = builder.coordinateSystem("CS1", 0, 0, 10, 0);
+      const xRef = builder.geom(cs, "x");
+      const arrowRef = builder.geom(cs, "arrowLength");
+
+      expect(xRef.sourceId).toBe("CS1");
+      expect(arrowRef.sourceId).toBe("CS1");
+    });
+  });
+
+  // ========================================================================
+  // Parameterized Expressions
+  // ========================================================================
+
+  describe("Parameterized Expressions", () => {
+    it("CircleExpression accepts config parameter for radius", () => {
+      const center = builder.point("center", 0, 0);
+      builder.circle("C1", center, "tolerance" as const);
+
+      const expr = builder.getExpression("C1")!;
+      expect(expr.parameters).toContain("tolerance");
+    });
+
+    it("CircleExpression accepts feature reference for radius", () => {
+      const center1 = builder.point("center1", 0, 0);
+      const c1 = builder.circle("C1", center1, 10);
+      const center2 = builder.point("center2", 20, 20);
+      builder.circle("C2", center2, c1.r);
+
+      const expr = builder.getExpression("C2")!;
+      expect(expr.dependencies).toContain("center2");
+      expect(expr.dependencies).toContain("C1");
+    });
+
+    it("PointInCoordinateSystemExpression accepts config parameters", () => {
+      const cs = builder.coordinateSystem("CS1", 0, 0, 10, 0);
+      builder.pointInCs("P1", cs, "tolerance" as const, 5);
+
+      const expr = builder.getExpression("P1")!;
+      expect(expr.parameters).toContain("tolerance");
+    });
+
+    it("PointInCoordinateSystemExpression accepts feature references", () => {
+      const cs = builder.coordinateSystem("CS1", 0, 0, 10, 0);
+      const p1 = builder.pointInCs("P1", cs, 5, 5);
+      builder.pointInCs("P2", cs, p1.x, 10);
+
+      const expr = builder.getExpression("P2")!;
+      expect(expr.dependencies).toContain("CS1");
+      expect(expr.dependencies).toContain("P1");
+    });
+
+    it("LineTowardsExpression accepts config parameter for length", () => {
+      const start = builder.point("start", 0, 0);
+      const end = builder.point("end", 1, 1);
+      builder.lineTowards("L1", start, end, "tolerance" as const);
+
+      const expr = builder.getExpression("L1")!;
+      expect(expr.parameters).toContain("tolerance");
+    });
+
+    it("LineTowardsExpression accepts feature reference for length", () => {
+      const start = builder.point("start", 0, 0);
+      const end = builder.point("end", 1, 1);
+      const c1 = builder.circle("C1", start, 10);
+      builder.lineTowards("L1", start, end, c1.r);
+
+      const expr = builder.getExpression("L1")!;
+      expect(expr.dependencies).toContain("C1");
+    });
+
+    it("PointAtExpression accepts config parameter for ratio", () => {
+      const start = builder.point("start", 0, 0);
+      const end = builder.point("end", 10, 10);
+      const line = builder.line("L1", start, end);
+      builder.pointAt("P1", line, 0.5);
+
+      const expr = builder.getExpression("P1")!;
+      // 0.5 is a literal number, so no parameters
+      expect(expr.parameters).toEqual([]);
+    });
+
+    it("PointAtExpression accepts feature reference for ratio", () => {
+      const start = builder.point("start", 0, 0);
+      const end = builder.point("end", 10, 10);
+      const line = builder.line("L1", start, end);
+      const c1 = builder.circle("C1", start, 0.5);
+      builder.pointAt("P1", line, c1.r);
+
+      const expr = builder.getExpression("P1")!;
+      expect(expr.dependencies).toContain("C1");
+    });
+  });
+
+  // ========================================================================
+  // Execution with Parameters
+  // ========================================================================
+
+  describe("Execution with Parameters", () => {
+    it("executes circle with config parameter", () => {
+      builder.point("center", 0, 0);
+      builder.circle("C1", builder.getExpression("center")!, "tolerance" as const);
+
+      const steps = builder.compile();
+      const result = executeSteps(steps, { config: { tolerance: 25 } });
+
+      expect(result.errors).toHaveLength(0);
+      const circleValue = result.values.get("C1") as any;
+      expect(circleValue).toBeDefined();
+      expect(circleValue.r).toBe(25);
+    });
+
+    it("executes circle with feature reference", () => {
+      const center1 = builder.point("center1", 0, 0);
+      const c1 = builder.circle("C1", center1, 10);
+      const center2 = builder.point("center2", 20, 20);
+      builder.circle("C2", center2, c1.r);
+
+      const steps = builder.compile();
+      const result = executeSteps(steps, { config: defaultConfig });
+
+      expect(result.errors).toHaveLength(0);
+      const c1Value = result.values.get("C1") as any;
+      const c2Value = result.values.get("C2") as any;
+      expect(c1Value.r).toBe(10);
+      expect(c2Value.r).toBe(10); // Same as C1
+    });
+
+    it("executes pointInCs with mixed parameter types", () => {
+      const cs = builder.coordinateSystem("CS1", 0, 0, 10, 0);
+      builder.pointInCs("P1", cs, "tolerance" as const, 5);
+
+      const steps = builder.compile();
+      const result = executeSteps(steps, { config: { tolerance: 3 } });
+
+      expect(result.errors).toHaveLength(0);
+      const pointValue = result.values.get("P1") as any;
+      expect(pointValue).toBeDefined();
+      expect(pointValue.x).toBe(3);
+      expect(pointValue.y).toBe(5);
+    });
+
+    it("executes lineTowards with feature reference length", () => {
+      const start = builder.point("start", 0, 0);
+      const end = builder.point("end", 1, 0);
+      const c1 = builder.circle("C1", start, 10);
+      builder.lineTowards("L1", start, end, c1.r);
+
+      const steps = builder.compile();
+      const result = executeSteps(steps, { config: defaultConfig });
+
+      expect(result.errors).toHaveLength(0);
+      const lineValue = result.values.get("L1") as any;
+      expect(lineValue).toBeDefined();
+      // Verify length is approximately 10
+      const dx = lineValue.x2 - lineValue.x1;
+      const dy = lineValue.y2 - lineValue.y1;
+      const length = Math.sqrt(dx * dx + dy * dy);
+      expect(length).toBeCloseTo(10, 0.001);
+    });
+
+    it("executes pointAt with config parameter ratio", () => {
+      builder.point("start", 0, 0);
+      builder.point("end", 100, 100);
+      builder.line("L1", builder.getExpression("start")!, builder.getExpression("end")!);
+      builder.pointAt("P1", builder.getExpression("L1")!, "tolerance" as const);
+
+      const steps = builder.compile();
+      const result = executeSteps(steps, { config: { tolerance: 0.5 } });
+
+      expect(result.errors).toHaveLength(0);
+      const pointValue = result.values.get("P1") as any;
+      expect(pointValue).toBeDefined();
+      expect(pointValue.x).toBeCloseTo(50, 0.001);
+      expect(pointValue.y).toBeCloseTo(50, 0.001);
+    });
+  });
+
+  // ========================================================================
+  // Backward Compatibility
+  // ========================================================================
+
+  describe("Backward Compatibility", () => {
+    it("still works with literal numbers (no parameters)", () => {
+      builder.point("P1", 10, 20);
+      builder.point("P2", 30, 40);
+      builder.circle("C1", builder.getExpression("P1")!, 15);
+      builder.line("L1", builder.getExpression("P1")!, builder.getExpression("P2")!);
+
+      const steps = builder.compile();
+      const result = executeSteps(steps, { config: defaultConfig });
+
+      expect(result.errors).toHaveLength(0);
+      expect(result.values.get("P1")).toBeDefined();
+      expect(result.values.get("P2")).toBeDefined();
+      expect(result.values.get("C1")).toBeDefined();
+      expect(result.values.get("L1")).toBeDefined();
+    });
+
+    it("all existing expression types still work", () => {
+      builder.point("P1", 0, 0);
+      builder.point("P2", 100, 0);
+      builder.line("L1", builder.getExpression("P1")!, builder.getExpression("P2")!);
+      builder.circle("C1", builder.getExpression("P1")!, 30);
+      builder.circle("C2", builder.getExpression("P2")!, 30);
+      builder.intersection("I1", builder.getExpression("C1")!, builder.getExpression("L1")!);
+
+      const steps = builder.compile();
+      expect(steps.length).toBeGreaterThan(0);
+
+      const result = executeSteps(steps, { config: defaultConfig });
+      expect(result.errors).toHaveLength(0);
+    });
+  });
 });

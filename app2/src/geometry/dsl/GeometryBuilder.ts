@@ -10,6 +10,8 @@ import type {
   LineLikeExpression,
   CircleLikeExpression,
 } from "./expressions/types";
+import { GeometryFeatureReference } from "./GeometryFeatureReference";
+import type { ParameterValue, NumericPropertyOf, GeometryTypeMap } from "./types";
 import { PointExpression } from "./expressions/PointExpression";
 import { PointInCoordinateSystemExpression } from "./expressions/PointInCoordinateSystemExpression";
 import { LineExpression } from "./expressions/LineExpression";
@@ -78,6 +80,46 @@ export class GeometryBuilder<TConfig> {
   }
 
   // ========================================
+  // Parameter Helper Methods
+  // ========================================
+
+  /**
+   * Create a type-safe reference to a config parameter.
+   * Improves readability over string literals with `as const`.
+   *
+   * @param key - The configuration key to reference
+   * @returns The key with type safety
+   *
+   * @example
+   * ```typescript
+   * builder.circle("c1", center, builder.param("circleRadius"));
+   * ```
+   */
+  param<K extends keyof TConfig>(key: K): K {
+    return key;
+  }
+
+  /**
+   * Create a reference to a geometry feature.
+   * Alternative syntax to direct property access (e.g., `c1.r`).
+   *
+   * @param expr - The geometry expression to reference
+   * @param key - The numeric property name to reference
+   * @returns A GeometryFeatureReference that can be used as a parameter value
+   *
+   * @example
+   * ```typescript
+   * builder.circle("c2", center2, builder.geom(c1, "r"));
+   * ```
+   */
+  geom<TType extends keyof GeometryTypeMap, K extends NumericPropertyOf<GeometryTypeMap[TType]>>(
+    expr: GeometryExpression<TConfig, TType>,
+    key: K,
+  ): GeometryFeatureReference<TConfig, GeometryTypeMap[TType], K> {
+    return new GeometryFeatureReference(expr, key);
+  }
+
+  // ========================================
   // Primitive Geometry Factory Methods
   // ========================================
 
@@ -102,15 +144,15 @@ export class GeometryBuilder<TConfig> {
    *
    * @param id - Unique identifier for this point
    * @param cs - Coordinate system expression that defines the transformation
-   * @param localX - Local X coordinate (before transformation)
-   * @param localY - Local Y coordinate (before transformation)
+   * @param localX - Local X coordinate (before transformation) - number, config key, or feature reference
+   * @param localY - Local Y coordinate (before transformation) - number, config key, or feature reference
    * @returns The created PointInCoordinateSystemExpression
    */
   pointInCs(
     id: string,
     cs: CoordinateSystemExpression<TConfig>,
-    localX: number,
-    localY: number,
+    localX: ParameterValue<TConfig>,
+    localY: ParameterValue<TConfig>,
   ): PointInCoordinateSystemExpression<TConfig> {
     const expr = new PointInCoordinateSystemExpression(id, cs, localX, localY);
     this.expressions.set(id, expr);
@@ -185,13 +227,13 @@ export class GeometryBuilder<TConfig> {
    *
    * @param id - Unique identifier for this circle
    * @param center - Center point expression (any expression that produces a point)
-   * @param radius - Radius of the circle
+   * @param radius - Radius of the circle (number, config parameter, or feature reference)
    * @returns The created CircleExpression
    */
   circle(
     id: string,
     center: PointLikeExpression<TConfig>,
-    radius: number,
+    radius: ParameterValue<TConfig>,
   ): CircleExpression<TConfig> {
     const expr = new CircleExpression(id, center, radius);
     this.expressions.set(id, expr);
@@ -202,18 +244,18 @@ export class GeometryBuilder<TConfig> {
    * Create a coordinate system expression.
    *
    * @param id - Unique identifier for this coordinate system
-   * @param x - X position of the origin
-   * @param y - Y position of the origin
-   * @param arrowLength - Length of the axis arrows
-   * @param rotation - Optional rotation angle in radians (default: 0)
+   * @param x - X position of the origin (number, config key, or feature reference)
+   * @param y - Y position of the origin (number, config key, or feature reference)
+   * @param arrowLength - Length of the axis arrows (number, config key, or feature reference)
+   * @param rotation - Optional rotation angle in radians (number, config key, or feature reference) (default: 0)
    * @returns The created CoordinateSystemExpression
    */
   coordinateSystem(
     id: string,
-    x: number,
-    y: number,
-    arrowLength: number,
-    rotation: number = 0,
+    x: ParameterValue<TConfig> = 0,
+    y: ParameterValue<TConfig> = 0,
+    arrowLength: ParameterValue<TConfig> = 0,
+    rotation: ParameterValue<TConfig> = 0,
   ): CoordinateSystemExpression<TConfig> {
     const expr = new CoordinateSystemExpression(id, x, y, arrowLength, rotation);
     this.expressions.set(id, expr);
@@ -248,13 +290,13 @@ export class GeometryBuilder<TConfig> {
    *
    * @param id - Unique identifier for this point
    * @param line - Line expression to compute the point along (any line-like expression)
-   * @param ratio - Ratio along the line (0 = start, 1 = end, 0.5 = midpoint)
+   * @param ratio - Ratio along the line (0 = start, 1 = end, 0.5 = midpoint) - number, config key, or feature reference
    * @returns The created PointAtExpression
    */
   pointAt(
     id: string,
     line: LineLikeExpression<TConfig>,
-    ratio: number,
+    ratio: ParameterValue<TConfig>,
   ): PointAtExpression<TConfig> {
     const expr = new PointAtExpression(id, line, ratio);
     this.expressions.set(id, expr);
@@ -310,14 +352,14 @@ export class GeometryBuilder<TConfig> {
    * @param id - Unique identifier for this line
    * @param start - Start point expression (origin of the line, any point-like expression)
    * @param end - End point expression (direction of the line, any point-like expression)
-   * @param length - Length of the extended line
+   * @param length - Length of the extended line (number, config key, or feature reference)
    * @returns The created LineTowardsExpression
    */
   lineTowards(
     id: string,
     start: PointLikeExpression<TConfig>,
     end: PointLikeExpression<TConfig>,
-    length: number,
+    length: ParameterValue<TConfig>,
   ): LineTowardsExpression<TConfig> {
     const expr = new LineTowardsExpression(id, start, end, length);
     this.expressions.set(id, expr);
