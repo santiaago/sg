@@ -327,6 +327,7 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
 
 /**
  * Number of steps in the DSL SixFold construction.
- * Matches the manual sixFoldV0Steps.ts step count.
+ * Note: DSL has 96 steps (94 manual + 2 helper lines: line_pc23_cp2, line_pc34_cp4)
+ * These helper lines are intermediate steps needed for circle intersections.
  */
-export const DSL_SIXFOLD_STEPS_LENGTH = 94;
+export const DSL_SIXFOLD_STEPS_LENGTH = 96;

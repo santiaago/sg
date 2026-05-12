@@ -62,16 +62,15 @@ describe("SixFold DSL - Step Count", () => {
 
   it("DSL produces consistent step count", () => {
     const dslSteps = buildSixfoldDslSteps();
-    // Note: DSL currently produces 96 steps due to helper lines (line_pc23_cp2, line_pc34_cp4)
-    // Manual has 94. These 2 helper lines are intermediate steps not in manual.
+    // DSL produces 96 steps: 94 manual + 2 helper lines (line_pc23_cp2, line_pc34_cp4)
+    // These helper lines are intermediate steps needed for circle intersections.
     expect(dslSteps.length).toBe(96);
   });
 
   it("DSL_SIXFOLD_STEPS_LENGTH matches actual DSL step count", () => {
     const dslSteps = buildSixfoldDslSteps();
-    // TODO: Update DSL_SIXFOLD_STEPS_LENGTH from 94 to 96, or remove helper lines
-    expect(DSL_SIXFOLD_STEPS_LENGTH).toBe(94); // Current value
-    expect(dslSteps.length).toBe(96); // Actual value
+    expect(DSL_SIXFOLD_STEPS_LENGTH).toBe(96);
+    expect(dslSteps.length).toBe(96);
   });
 });
 
@@ -142,8 +141,10 @@ describe("SixFold DSL - Dependency Graphs", () => {
     return result;
   }
 
-  // NOTE: Skipped because DSL uses intermediate distance/line expressions
-  // while manual computes inline. Geometry values match (see value test).
+  // NOTE: Skipped - DSL uses explicit intermediate steps (line_pc23_cp2, line_pc34_cp4)
+  // while manual computes them inline. Additionally, manual steps may have unused inputs
+  // (e.g., STEP_81 for PC23E lists PC3SW as input but doesn't use it).
+  // The geometry value equivalence test (below) is the authoritative check.
   it.skip("DSL and manual have same transitive dependency structure", () => {
     const dslSteps = buildSixfoldDslSteps();
     const manualSteps = [...SIX_FOLD_V0_STEPS];
@@ -194,9 +195,6 @@ describe("SixFold DSL - Geometry Values", () => {
     expect(manualResult.errors).toHaveLength(0);
   });
 
-  // NOTE: This test currently fails due to Phase 2 DSL implementation bugs
-  // The DSL produces different geometry values for some IDs (e.g., pic23, pc34e)
-  // These need to be fixed in the DSL implementation before this test passes
   it("DSL and manual produce same geometry values (with tolerance)", () => {
     const dslSteps = buildSixfoldDslSteps();
     const manualSteps = [...SIX_FOLD_V0_STEPS];
