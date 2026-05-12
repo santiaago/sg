@@ -39,7 +39,7 @@ export {
   BisectCircleAndPointExpression,
   LineIntersectionExpression,
 } from "./expressions";
-export type { PolygonStyleOptions } from "./expressions";
+export type { PolygonStyleOptions, LineStyleOptions } from "./expressions";
 
 export type { GeometryExpression } from "./expressions/GeometryExpression";
 

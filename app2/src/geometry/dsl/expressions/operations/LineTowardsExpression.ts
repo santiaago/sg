@@ -12,6 +12,7 @@ import type { ParameterValue } from "../../types";
 import { isGeometryFeatureReference } from "../../types";
 import { resolveParameter } from "../../utils";
 import type { LineWithLength } from "../types";
+import type { LineStyleOptions } from "../LineExpression";
 
 /**
  * Expression for an extended line from a start point through an end point.
@@ -27,6 +28,7 @@ export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfi
   private readonly startId: string;
   private readonly endId: string;
   private readonly lengthParam: ParameterValue<TConfig>;
+  private readonly styleOptions?: LineStyleOptions;
 
   /**
    * Create a line-towards expression.
@@ -35,17 +37,20 @@ export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfi
    * @param start - Start point expression (origin of the line, any point-like expression)
    * @param end - End point expression (direction of the line, any point-like expression)
    * @param length - Length of the extended line (number, config key, or feature reference)
+   * @param options - Optional style options (strokeWidth, strokeColor)
    */
   constructor(
     id: string,
     start: PointLikeExpression<TConfig>,
     end: PointLikeExpression<TConfig>,
     length: ParameterValue<TConfig>,
+    options?: LineStyleOptions,
   ) {
     this.id = id;
     this.startId = start.id;
     this.endId = end.id;
     this.lengthParam = length;
+    this.styleOptions = options;
     this.dependencies = [start.id, end.id];
     this.parameters = [];
 
@@ -55,6 +60,13 @@ export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfi
     } else if (typeof length === "string") {
       this.parameters.push(length as keyof TConfig);
     }
+  }
+
+  /**
+   * Get the style options for this line.
+   */
+  getStyleOptions(): LineStyleOptions | undefined {
+    return this.styleOptions;
   }
 
   // ========================================
@@ -98,6 +110,8 @@ export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfi
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const styleOptions = this.styleOptions;
+
     return {
       id: `step_${this.id}`,
       inputs: this.dependencies,
@@ -124,7 +138,7 @@ export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfi
         return new Map([[this.id, line(startVal.x, startVal.y, x2, y2)]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawLine(svg, values, this.id, store, theme);
+        renderer.drawLine(svg, values, this.id, store, theme, styleOptions);
       },
     };
   }

@@ -14,7 +14,7 @@ import { GeometryFeatureReference } from "./GeometryFeatureReference";
 import type { ParameterValue, NumericPropertyOf, GeometryTypeMap } from "./types";
 import { PointExpression } from "./expressions/PointExpression";
 import { PointInCoordinateSystemExpression } from "./expressions/PointInCoordinateSystemExpression";
-import { LineExpression } from "./expressions/LineExpression";
+import { LineExpression, type LineStyleOptions } from "./expressions/LineExpression";
 import { CircleExpression } from "./expressions/CircleExpression";
 import { CoordinateSystemExpression } from "./expressions/CoordinateSystemExpression";
 import { PolygonExpression, type PolygonStyleOptions } from "./expressions/PolygonExpression";
@@ -171,9 +171,17 @@ export class GeometryBuilder<TConfig> {
    * @param y1 - Y coordinate of start point
    * @param x2 - X coordinate of end point
    * @param y2 - Y coordinate of end point
+   * @param options - Optional style options (strokeWidth, strokeColor)
    * @returns The created LineExpression
    */
-  line(id: string, x1: number, y1: number, x2: number, y2: number): LineExpression<TConfig>;
+  line(
+    id: string,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+    options?: LineStyleOptions,
+  ): LineExpression<TConfig>;
 
   /**
    * Create a line expression from two point expressions.
@@ -181,32 +189,38 @@ export class GeometryBuilder<TConfig> {
    * @param id - Unique identifier for this line
    * @param start - Start point expression (any expression that produces a point)
    * @param end - End point expression (any expression that produces a point)
+   * @param options - Optional style options (strokeWidth, strokeColor)
    * @returns The created LineExpression
    */
   line(
     id: string,
     start: PointLikeExpression<TConfig>,
     end: PointLikeExpression<TConfig>,
+    options?: LineStyleOptions,
   ): LineExpression<TConfig>;
 
   line(
     id: string,
     arg1: number | PointLikeExpression<TConfig>,
     arg2: number | PointLikeExpression<TConfig>,
-    arg3?: number,
-    arg4?: number,
+    arg3?: number | LineStyleOptions,
+    arg4?: number | LineStyleOptions,
+    arg5?: LineStyleOptions,
   ): LineExpression<TConfig> {
+    // Check if we have point expressions
     if (this.isPointLikeExpression(arg1) && this.isPointLikeExpression(arg2)) {
-      const expr = LineExpression.fromPoints(id, arg1, arg2);
+      const expr = LineExpression.fromPoints(id, arg1, arg2, arg3 as LineStyleOptions);
       this.expressions.set(id, expr);
       return expr;
     } else {
+      // Coordinate-based line
       const expr = LineExpression.fromCoordinates(
         id,
         arg1 as number,
         arg2 as number,
         arg3 as number,
         arg4 as number,
+        arg5,
       );
       this.expressions.set(id, expr);
       return expr;
@@ -357,6 +371,7 @@ export class GeometryBuilder<TConfig> {
    * @param start - Start point expression (origin of the line, any point-like expression)
    * @param end - End point expression (direction of the line, any point-like expression)
    * @param length - Length of the extended line (number, config key, or feature reference)
+   * @param options - Optional style options (strokeWidth, strokeColor)
    * @returns The created LineTowardsExpression
    */
   lineTowards(
@@ -364,8 +379,9 @@ export class GeometryBuilder<TConfig> {
     start: PointLikeExpression<TConfig>,
     end: PointLikeExpression<TConfig>,
     length: ParameterValue<TConfig>,
+    options?: LineStyleOptions,
   ): LineTowardsExpression<TConfig> {
-    const expr = new LineTowardsExpression(id, start, end, length);
+    const expr = new LineTowardsExpression(id, start, end, length, options);
     this.expressions.set(id, expr);
     return expr;
   }

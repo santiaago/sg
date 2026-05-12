@@ -4,6 +4,7 @@
 import type { GeometryValue, Theme } from "@/types/geometry";
 import type { GeometryStore } from "@/react-store";
 import type { PolygonStyleOptions } from "../expressions/PolygonExpression";
+import type { LineStyleOptions } from "../expressions/LineExpression";
 
 /**
  * Renderer interface for drawing geometry values.
@@ -35,6 +36,7 @@ export interface GeometryRenderer {
    * @param geomId - The ID of the geometry to draw
    * @param store - The geometry store for tracking
    * @param theme - The theme for styling
+   * @param options - Optional style options (strokeWidth, strokeColor)
    */
   drawLine: (
     svg: SVGSVGElement,
@@ -42,6 +44,7 @@ export interface GeometryRenderer {
     geomId: string,
     store: GeometryStore,
     theme: Theme,
+    options?: LineStyleOptions,
   ) => void;
 
   /**

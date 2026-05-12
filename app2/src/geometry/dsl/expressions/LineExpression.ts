@@ -1,12 +1,23 @@
 // Line expression for line geometry
 
 import type { GeometryRenderer } from "../renderers/types";
-import type { Step, GeometryValue, Line } from "@/types/geometry";
+import type { Step, GeometryValue, Line, Theme } from "@/types/geometry";
 import { line, isPoint } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
 import type { PointLikeExpression } from "./types";
 import { GeometryFeatureReference } from "../GeometryFeatureReference";
 import type { LineWithLength } from "./types";
+
+/**
+ * Style options for line geometry.
+ * Allows customizing stroke width and color for special lines like outline geometries.
+ */
+export interface LineStyleOptions {
+  /** Stroke width for the line. Defaults to theme stroke width. */
+  strokeWidth?: number;
+  /** Stroke color for the line. Defaults to theme.COLOR_PRIMARY. */
+  strokeColor?: string | ((theme: Theme) => string);
+}
 
 /**
  * Expression for a line geometry.
@@ -28,6 +39,9 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
   private readonly startId?: string;
   private readonly endId?: string;
 
+  // Style options for custom rendering
+  private readonly styleOptions?: LineStyleOptions;
+
   /**
    * Internal constructor - use factory methods for type safety.
    */
@@ -36,9 +50,11 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
     args:
       | { type: "coordinates"; x1: number; y1: number; x2: number; y2: number }
       | { type: "points"; startId: string; endId: string },
+    options?: LineStyleOptions,
   ) {
     this.id = id;
     this.parameters = [];
+    this.styleOptions = options;
 
     if (args.type === "coordinates") {
       this.x1Val = args.x1;
@@ -51,6 +67,13 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
       this.endId = args.endId;
       this.dependencies = [args.startId, args.endId];
     }
+  }
+
+  /**
+   * Get the style options for this line.
+   */
+  getStyleOptions(): LineStyleOptions | undefined {
+    return this.styleOptions;
   }
 
   // ========================================
@@ -95,6 +118,13 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
 
   /**
    * Create a line expression from explicit coordinates.
+   *
+   * @param id - Unique identifier for this line
+   * @param x1 - X coordinate of start point
+   * @param y1 - Y coordinate of start point
+   * @param x2 - X coordinate of end point
+   * @param y2 - Y coordinate of end point
+   * @param options - Optional style options (strokeWidth, strokeColor)
    */
   static fromCoordinates<TConfig>(
     id: string,
@@ -102,27 +132,40 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
     y1: number,
     x2: number,
     y2: number,
+    options?: LineStyleOptions,
   ): LineExpression<TConfig> {
-    return new LineExpression(id, { type: "coordinates", x1, y1, x2, y2 });
+    return new LineExpression(id, { type: "coordinates", x1, y1, x2, y2 }, options);
   }
 
   /**
    * Create a line expression from two point expressions.
    * Accepts any expression that produces a point.
+   *
+   * @param id - Unique identifier for this line
+   * @param start - Start point expression
+   * @param end - End point expression
+   * @param options - Optional style options (strokeWidth, strokeColor)
    */
   static fromPoints<TConfig>(
     id: string,
     start: PointLikeExpression<TConfig>,
     end: PointLikeExpression<TConfig>,
+    options?: LineStyleOptions,
   ): LineExpression<TConfig> {
-    return new LineExpression(id, {
-      type: "points",
-      startId: start.id,
-      endId: end.id,
-    });
+    return new LineExpression(
+      id,
+      {
+        type: "points",
+        startId: start.id,
+        endId: end.id,
+      },
+      options,
+    );
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const styleOptions = this.styleOptions;
+
     return {
       id: `step_${this.id}`,
       inputs: this.dependencies,
@@ -158,7 +201,7 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
         throw new Error(`LineExpression ${this.id}: invalid construction`);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawLine(svg, values, this.id, store, theme);
+        renderer.drawLine(svg, values, this.id, store, theme, styleOptions);
       },
     };
   }
