@@ -670,7 +670,43 @@ bisectCircleAndPoint(
 - [x] `pnpm lint` passes
 - [x] `pnpm format` passes
 
+### Phase 2: DSL Steps Implementation ⏳ IN PROGRESS
+
+- [x] Task 5: Created `sixfoldDslSteps.ts` with imports and boilerplate
+- [ ] Task 6: Implement Steps 0-4 (Coordinate System, P1, P2, LINE1, CP1)
+- [ ] Task 7: Implement Steps 5-9 (C1, CP2, C2, PIC12, CPIC12)
+- [ ] Task 8: Implement Steps 10-11 (P3, P4) - First bisectCircleAndPoint usage
+- [ ] Task 9: Implement Steps 12-16 (L13, L24, CP4, CP3, C4)
+- [ ] Task 10: Implement Steps 17-22 (L23, L41, PI2, C1_D1, C2_D1)
+- [ ] Task 11: Continue through Step 27
+- [ ] Task 12: Continue through Step 50
+- [ ] Task 13: Continue through Step 75
+- [ ] Task 14: Continue through Step 94
+- [ ] Task 15: Export DSL_SIXFOLD_STEPS_LENGTH constant
+
+**Verification**:
+
+- [x] `pnpm type-check:app2` passes (boilerplate)
+- [ ] `pnpm type-check:app2` passes (full implementation)
+- [ ] `pnpm lint` passes
+- [ ] `pnpm format` passes
+
+### Phase 3: Testing ⏳ PENDING
+
+- [ ] Task 16: Create equivalence test file
+- [ ] Task 17: Implement geometry order verification test
+- [ ] Task 18: Implement geometry value equivalence test
+- [ ] Task 19: Implement dependency graph verification test
+- [ ] Task 20: Implement step count verification
+
+**Verification**:
+
+- [ ] All equivalence tests pass
+- [ ] `pnpm test` exits with code 0
+
 ### Next Steps
 
-1. **Phase 2**: DSL Steps Implementation (Tasks 5-15 from PLAN)
-2. **Phase 3**: Testing (Tasks 16-20 from PLAN)
+1. **Phase 2, Task 6**: Implement Steps 0-4 in `sixfoldDslSteps.ts`
+2. **Phase 2, Task 7**: Implement Steps 5-9
+3. Continue through remaining tasks
+4. **Phase 3**: Testing

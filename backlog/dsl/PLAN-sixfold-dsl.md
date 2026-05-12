@@ -18,7 +18,7 @@ using the existing Geometry DSL framework, preserving exact geometry order and c
 | Phase                        | Status      | Tasks | Files   |
 | ---------------------------- | ----------- | ----- | ------- |
 | Phase 1: Framework Extension | ✅ COMPLETE | 1-4   | 5 files |
-| Phase 2: DSL Steps           | ⏳ PENDING  | 5-15  | 1 file  |
+| Phase 2: DSL Steps           | ⏳ IN PROGRESS | 5-15  | 1 file  |
 | Phase 3: Testing             | ⏳ PENDING  | 16-20 | 1 file  |
 
 **Phase 1 Deliverables:**
@@ -195,7 +195,7 @@ behavior of `bisectCircleAndPoint` from `app2/src/geometry/constructors.ts`.
 - [x] `pnpm lint` passes
 - [x] `pnpm format` passes
 - [x] `builder.bisectCircleAndPoint()` is available and working
-- [ ] Review with human before proceeding to Phase 2
+- [x] Review with human before proceeding to Phase 2
 
 ---
 
