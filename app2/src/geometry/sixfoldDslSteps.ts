@@ -98,25 +98,24 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   // Step 27: Point PI2 - intersection of LCP1CP3 and LCP2CP4
   const pi2 = builder.lineIntersection("pi2", lcp1cp3, lcp2cp4);
 
-  // Step 28-33: Compute d1 = distance(pic14, pi2) and create circles with that radius
+  // Step 28-33: Create circles with radius = distance(pic14, pi2)
   // Step 28: Circle C1_D1
-  const d1 = builder.distance("d1", pic14, pi2);
-  const c1_d1 = builder.circle("c1_d1", cp1, d1.d);
+  const c1_d1 = builder.circleWithDistanceRadius("c1_d1", cp1, pic14, pi2);
 
   // Step 29: Circle C2_D1
-  const c2_d1 = builder.circle("c2_d1", cp2, d1.d);
+  const c2_d1 = builder.circleWithDistanceRadius("c2_d1", cp2, pic14, pi2);
 
   // Step 30: Circle C3_D1
-  const c3_d1 = builder.circle("c3_d1", cp3, d1.d);
+  const c3_d1 = builder.circleWithDistanceRadius("c3_d1", cp3, pic14, pi2);
 
   // Step 31: Circle C4_D1
-  const c4_d1 = builder.circle("c4_d1", cp4, d1.d);
+  const c4_d1 = builder.circleWithDistanceRadius("c4_d1", cp4, pic14, pi2);
 
   // Step 32: Circle C14_D1
-  const c14_d1 = builder.circle("c14_d1", pic14, d1.d);
+  const c14_d1 = builder.circleWithDistanceRadius("c14_d1", pic14, pic14, pi2);
 
   // Step 33: Circle C12_D1
-  const c12_d1 = builder.circle("c12_d1", pic12, d1.d);
+  const c12_d1 = builder.circleWithDistanceRadius("c12_d1", pic12, pic14, pi2);
 
   // Step 34: Point PI3 - east intersection of C14_D1 and C2_D1
   const pi3 = builder.circleIntersection("pi3", c14_d1, c2_d1, { select: "east" });
@@ -150,11 +149,10 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const c23s = builder.intersection("c23s", c2_d1, line_pc23_cp2);
 
   // Step 44: Circle C23 - radius = distance(pc23, c23s)
-  const d2a = builder.distance("d2a", pc23, c23s);
-  const c23 = builder.circle("c23", pc23, d2a.d);
+  const c23 = builder.circleWithDistanceRadius("c23", pc23, pc23, c23s);
 
-  // Step 45: Circle CPI12 - radius = distance(pic14, pi2) = d1
-  const cpic12 = builder.circle("cpic12", pic12, d1.d);
+  // Step 45: Circle CPI12 - radius = distance(pic14, pi2)
+  const cpic12 = builder.circleWithDistanceRadius("cpic12", pic12, pic14, pi2);
 
   // Step 46: Point C34N - bisect CPI12 through PRX6
   const c34n = builder.bisectCircleAndPoint("c34n", cpic12, prx6);
@@ -170,8 +168,7 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const c34e = builder.intersection("c34e", c4_d1, line_pc34_cp4);
 
   // Step 50: Circle C34 - radius = distance(pc34, c34e)
-  const d2b = builder.distance("d2b", pc34, c34e);
-  const c34 = builder.circle("c34", pc34, d2b.d);
+  const c34 = builder.circleWithDistanceRadius("c34", pc34, pc34, c34e);
 
   // Step 51: Point PP - first intersection of C1_D1 with LPIC14
   const pp = builder.intersection("pp", c1_d1, lpic14);
@@ -188,13 +185,12 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   // Step 55: Line LPII1PII2 from PII1 to PII2
   const lpii1pii2 = builder.line("lpii1pii2", pii1, pii2);
 
-  // Step 56-57: Compute d3 = distance(pii1, cp1) and create circles with that radius
+  // Step 56-57: Create circles with radius = distance(pii1, cp1)
   // Step 56: Circle C1_D3
-  const d3 = builder.distance("d3", pii1, cp1);
-  const c1_d3 = builder.circle("c1_d3", cp1, d3.d);
+  const c1_d3 = builder.circleWithDistanceRadius("c1_d3", cp1, pii1, cp1);
 
   // Step 57: Circle C3_D3
-  const c3_d3 = builder.circle("c3_d3", cp3, d3.d);
+  const c3_d3 = builder.circleWithDistanceRadius("c3_d3", cp3, pii1, cp1);
 
   // Step 58: Line LCP2PIC14 from CP2 to PIC14
   const lcp2pic14 = builder.line("lcp2pic14", cp2, pic14);

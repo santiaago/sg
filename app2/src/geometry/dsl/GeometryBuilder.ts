@@ -31,6 +31,7 @@ import { LineTowardsExpression } from "./expressions/operations/LineTowardsExpre
 import { BisectCircleAndPointExpression } from "./expressions/operations/BisectCircleAndPointExpression";
 import { LineIntersectionExpression } from "./expressions/operations/LineIntersectionExpression";
 import { DistanceExpression } from "./expressions/operations/DistanceExpression";
+import { CircleWithDistanceRadiusExpression } from "./expressions/operations/CircleWithDistanceRadiusExpression";
 
 /**
  * GeometryBuilder is the main facade for the declarative geometry DSL.
@@ -426,6 +427,26 @@ export class GeometryBuilder<TConfig> {
     return expr;
   }
 
+  /**
+   * Create a circle with radius equal to the distance between two points.
+   * This avoids creating a separate distance step, matching manual implementation.
+   *
+   * @param id - Unique identifier for the circle
+   * @param center - Center point expression
+   * @param p1 - First point for distance calculation
+   * @param p2 - Second point for distance calculation
+   * @returns The created CircleWithDistanceRadiusExpression
+   */
+  circleWithDistanceRadius(
+    id: string,
+    center: PointLikeExpression<TConfig>,
+    p1: PointLikeExpression<TConfig>,
+    p2: PointLikeExpression<TConfig>,
+  ): CircleWithDistanceRadiusExpression<TConfig> {
+    const expr = new CircleWithDistanceRadiusExpression(id, center, p1, p2);
+    this.expressions.set(id, expr);
+    return expr;
+  }
   // ========================================
   // Dependency Graph Methods
   // ========================================

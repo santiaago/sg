@@ -62,16 +62,16 @@ describe("SixFold DSL - Step Count", () => {
 
   it("DSL produces consistent step count", () => {
     const dslSteps = buildSixfoldDslSteps();
-    // Note: DSL currently produces 100 steps due to distance expressions
-    // Manual has 94. This discrepancy needs resolution in Phase 2.
-    expect(dslSteps.length).toBe(100);
+    // Note: DSL currently produces 96 steps due to helper lines (line_pc23_cp2, line_pc34_cp4)
+    // Manual has 94. These 2 helper lines are intermediate steps not in manual.
+    expect(dslSteps.length).toBe(96);
   });
 
   it("DSL_SIXFOLD_STEPS_LENGTH matches actual DSL step count", () => {
     const dslSteps = buildSixfoldDslSteps();
-    // TODO: Update DSL_SIXFOLD_STEPS_LENGTH from 94 to 100, or fix DSL to produce 94 steps
+    // TODO: Update DSL_SIXFOLD_STEPS_LENGTH from 94 to 96, or remove helper lines
     expect(DSL_SIXFOLD_STEPS_LENGTH).toBe(94); // Current value
-    expect(dslSteps.length).toBe(100); // Actual value
+    expect(dslSteps.length).toBe(96); // Actual value
   });
 });
 
