@@ -132,6 +132,8 @@ export interface SixFoldV0Config {
   p2y: number;
   // CP1 is the first circle center on LINE1
   cp1OffsetRatio: number;
+  /** Arrow length for coordinate system (height / 24) */
+  coordinateSystemArrowLength: number;
 }
 
 /**
@@ -166,5 +168,6 @@ export function computeSixFoldV0Config(width: number, height: number): SixFoldV0
     p2x: safe(p2x),
     p2y: safe(p2y),
     cp1OffsetRatio: 5 / 8,
+    coordinateSystemArrowLength: height / 24,
   };
 }

@@ -5,7 +5,7 @@ import type { Step, GeometryValue, Point } from "@/types/geometry";
 import { isCircle, isLine, isPoint, point } from "@/types/geometry";
 import { GeometryError } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
-import { pointFromCircleAndLine } from "@/geometry/constructors";
+import { pointFromCircleAndLine, interceptCircleLineSegHelper } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { CircleLikeExpression, LineLikeExpression } from "../types";
 
@@ -62,6 +62,10 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    // Determine index based on position option
+    // left = 0, right = 1 (matching interceptCircleLineDirHelper semantics)
+    const positionIndex = this.options.position === "right" ? 1 : 0;
+
     return {
       id: `step_${this.id}`,
       inputs: this.dependencies,
@@ -73,6 +77,19 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
       ): Map<string, GeometryValue> => {
         const circleVal = getGeometry(inputs, this.circleId, isCircle, "Circle", `step_${this.id}`);
         const lineVal = getGeometry(inputs, this.lineId, isLine, "Line", `step_${this.id}`);
+
+        // If position is specified, use interceptCircleLineSegHelper with index
+        if (this.options.position === "left" || this.options.position === "right") {
+          const result = interceptCircleLineSegHelper(circleVal, lineVal, positionIndex);
+          if (!result) {
+            throw new GeometryError(
+              `step_${this.id}`,
+              this.id,
+              "No intersection found between circle and line",
+            );
+          }
+          return new Map([[this.id, result]]);
+        }
 
         // Build exclude point if provided
         let excludePoint: Point | undefined;

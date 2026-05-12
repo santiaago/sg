@@ -11,8 +11,8 @@ import type { CircleLikeExpression } from "../types";
 
 /** Options for circle-circle intersection */
 export interface CircleIntersectionOptions {
-  /** Which intersection point to select: "north" (lower y in SVG) or "south" (higher y in SVG) */
-  select?: "north" | "south";
+  /** Which intersection point to select: "north" (lower y), "south" (higher y), "west" (lower x), or "east" (higher x) in SVG coordinates */
+  select?: "north" | "south" | "west" | "east";
 }
 
 /**

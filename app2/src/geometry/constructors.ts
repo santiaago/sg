@@ -35,7 +35,7 @@ export function circleFromPoint(center: Point, radius: number): Circle {
 export function pointFromCircles(
   c1: Circle,
   c2: Circle,
-  options?: { select?: "north" | "south" },
+  options?: { select?: "north" | "south" | "west" | "east" },
 ): Point | null {
   const result = rawIntersection(c1.cx, c1.cy, c1.r, c2.cx, c2.cy, c2.r);
 
@@ -49,9 +49,15 @@ export function pointFromCircles(
   if (select === "north") {
     // Pick north point (lower y-coordinate in SVG where y increases downward)
     return point(y1 < y2 ? x1 : x2, y1 < y2 ? y1 : y2);
-  } else {
+  } else if (select === "south") {
     // Pick south point (higher y-coordinate)
     return point(y1 > y2 ? x1 : x2, y1 > y2 ? y1 : y2);
+  } else if (select === "west") {
+    // Pick west point (lower x-coordinate)
+    return point(x1 < x2 ? x1 : x2, x1 < x2 ? y1 : y2);
+  } else {
+    // Pick east point (higher x-coordinate)
+    return point(x1 > x2 ? x1 : x2, x1 > x2 ? y1 : y2);
   }
 }
 

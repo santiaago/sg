@@ -28,6 +28,10 @@ import {
   type CircleIntersectionOptions,
 } from "./expressions/operations/CircleIntersectionExpression";
 import { LineTowardsExpression } from "./expressions/operations/LineTowardsExpression";
+import { BisectCircleAndPointExpression } from "./expressions/operations/BisectCircleAndPointExpression";
+import { LineIntersectionExpression } from "./expressions/operations/LineIntersectionExpression";
+import { DistanceExpression } from "./expressions/operations/DistanceExpression";
+import { CircleWithDistanceRadiusExpression } from "./expressions/operations/CircleWithDistanceRadiusExpression";
 
 /**
  * GeometryBuilder is the main facade for the declarative geometry DSL.
@@ -366,6 +370,83 @@ export class GeometryBuilder<TConfig> {
     return expr;
   }
 
+  /**
+   * Create a bisect-circle-and-point expression.
+   * Computes a point on a circle's circumference by bisecting through a given point.
+   * This matches the behavior of the `bisectCircleAndPoint` helper from constructors.ts.
+   *
+   * @param id - Unique identifier for this bisected point
+   * @param circle - Circle expression (any circle-like expression)
+   * @param point - Point expression to bisect through (any point-like expression)
+   * @returns The created BisectCircleAndPointExpression
+   */
+  bisectCircleAndPoint(
+    id: string,
+    circle: CircleLikeExpression<TConfig>,
+    point: PointLikeExpression<TConfig>,
+  ): BisectCircleAndPointExpression<TConfig> {
+    const expr = new BisectCircleAndPointExpression(id, circle, point);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create a line-line intersection expression.
+   * Finds where two lines intersect.
+   *
+   * @param id - Unique identifier for this intersection point
+   * @param line1 - First line expression (any line-like expression)
+   * @param line2 - Second line expression (any line-like expression)
+   * @returns The created LineIntersectionExpression
+   */
+  lineIntersection(
+    id: string,
+    line1: LineLikeExpression<TConfig>,
+    line2: LineLikeExpression<TConfig>,
+  ): LineIntersectionExpression<TConfig> {
+    const expr = new LineIntersectionExpression(id, line1, line2);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+  /**
+   * Create a distance expression that computes the distance between two points.
+   * The computed distance can be referenced as a radius or other numeric parameter.
+   *
+   * @param id - Unique identifier for this distance computation
+   * @param p1 - First point expression
+   * @param p2 - Second point expression
+   * @returns The created DistanceExpression with a .d property to reference the distance value
+   */
+  distance(
+    id: string,
+    p1: PointLikeExpression<TConfig>,
+    p2: PointLikeExpression<TConfig>,
+  ): DistanceExpression<TConfig> {
+    const expr = new DistanceExpression(id, p1, p2);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create a circle with radius equal to the distance between two points.
+   * This avoids creating a separate distance step, matching manual implementation.
+   *
+   * @param id - Unique identifier for the circle
+   * @param center - Center point expression
+   * @param p1 - First point for distance calculation
+   * @param p2 - Second point for distance calculation
+   * @returns The created CircleWithDistanceRadiusExpression
+   */
+  circleWithDistanceRadius(
+    id: string,
+    center: PointLikeExpression<TConfig>,
+    p1: PointLikeExpression<TConfig>,
+    p2: PointLikeExpression<TConfig>,
+  ): CircleWithDistanceRadiusExpression<TConfig> {
+    const expr = new CircleWithDistanceRadiusExpression(id, center, p1, p2);
+    this.expressions.set(id, expr);
+    return expr;
+  }
   // ========================================
   // Dependency Graph Methods
   // ========================================
