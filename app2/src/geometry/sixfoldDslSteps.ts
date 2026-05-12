@@ -5,6 +5,8 @@ import { GeometryBuilder } from "./dsl/GeometryBuilder";
 import { DefaultGeometryRenderer } from "./dsl/renderers/DefaultRenderer";
 import type { Step } from "@/types/geometry";
 import type { SixFoldV0Config } from "./sixFold/operations";
+import { GOLDEN_RATIO } from "./operations";
+import type { LineStyleOptions } from "./dsl/expressions/LineExpression";
 
 /**
  * Build the SixFold v0 construction steps using the DSL.
@@ -13,6 +15,12 @@ import type { SixFoldV0Config } from "./sixFold/operations";
  */
 export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const builder = new GeometryBuilder<SixFoldV0Config>(new DefaultGeometryRenderer());
+
+  // Outline style - same as square polygon style in squareDslSteps.ts
+  const outlineStyle: LineStyleOptions = {
+    strokeWidth: GOLDEN_RATIO,
+    strokeColor: (theme) => theme.COLOR_PRIMARY,
+  };
 
   // Step 0: Coordinate System
   const cs = builder.coordinateSystem("cs", 0, 0, builder.param("coordinateSystemArrowLength"), 0);
@@ -205,13 +213,13 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const pic4 = builder.lineIntersection("pic4", lpii1pi4, lcp4pic12);
 
   // Step 62: Outline1 from PII1 to PIC4
-  const outline1 = builder.line("outline1", pii1, pic4);
+  const outline1 = builder.line("outline1", pii1, pic4, outlineStyle);
 
   // Step 63: Point PIC2 - intersection of LPII1PII2 and LCP2PIC14
   const pic2 = builder.lineIntersection("pic2", lpii1pii2, lcp2pic14);
 
   // Step 64: Outline2 from PII1 to PIC2
-  const outline2 = builder.line("outline2", pii1, pic2);
+  const outline2 = builder.line("outline2", pii1, pic2, outlineStyle);
 
   // Step 65: Point PIC1W - first intersection of C1_D3 with LCP1PI3
   const pic1w = builder.intersection("pic1w", c1_d3, lcp1pi3);
@@ -220,7 +228,7 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const pic34 = builder.intersection("pic34", c34, l34);
 
   // Step 67: Outline3 from PIC1W to PIC34
-  const outline3 = builder.line("outline3", pic1w, pic34);
+  const outline3 = builder.line("outline3", pic1w, pic34, outlineStyle);
 
   // Step 68: Point PIC1N - first intersection of C1_D3 with LCP1PI4
   const pic1n = builder.intersection("pic1n", c1_d3, lcp1pi4);
@@ -229,7 +237,7 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const pic23 = builder.intersection("pic23", c23, l23, { position: "right" });
 
   // Step 70: Outline4 from PIC1N to PIC23
-  const outline4 = builder.line("outline4", pic1n, pic23);
+  const outline4 = builder.line("outline4", pic1n, pic23, outlineStyle);
 
   // Step 71: Point PC1W - first intersection of C1_D1 with L12
   const pc1w = builder.intersection("pc1w", c1_d1, l12);
@@ -238,7 +246,7 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const pc23s = builder.intersection("pc23s", c23, l23);
 
   // Step 73: Outline5 from PC1W to PC23S
-  const outline5 = builder.line("outline5", pc1w, pc23s);
+  const outline5 = builder.line("outline5", pc1w, pc23s, outlineStyle);
 
   // Step 74: Point PC1N - first intersection of C1_D1 with L41
   const pc1n = builder.intersection("pc1n", c1_d1, l41);
@@ -247,13 +255,13 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const pc34e = builder.intersection("pc34e", c34, l34, { position: "right" });
 
   // Step 76: Outline6 from PC1N to PC34E
-  const outline6 = builder.line("outline6", pc1n, pc34e);
+  const outline6 = builder.line("outline6", pc1n, pc34e, outlineStyle);
 
   // Step 77: Outline7 from PC1N to PIC1N
-  const outline7 = builder.line("outline7", pc1n, pic1n);
+  const outline7 = builder.line("outline7", pc1n, pic1n, outlineStyle);
 
   // Step 78: Outline8 from PC1W to PIC1W
-  const outline8 = builder.line("outline8", pc1w, pic1w);
+  const outline8 = builder.line("outline8", pc1w, pic1w, outlineStyle);
 
   // Step 79: Point PC3SW - first intersection of C3_D3 with LCP1CP3
   const pc3sw = builder.intersection("pc3sw", c3_d3, lcp1cp3);
@@ -265,7 +273,7 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const pc23e = builder.intersection("pc23e", c23, lc23cp1);
 
   // Step 82: Outline9 from PC3SW to PC23E
-  const outline9 = builder.line("outline9", pc3sw, pc23e);
+  const outline9 = builder.line("outline9", pc3sw, pc23e, outlineStyle);
 
   // Step 83: Line LC34CP1 from C34 center (pc34) to CP1
   const lc34cp1 = builder.line("lc34cp1", pc34, cp1);
@@ -274,31 +282,31 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   const pc34s = builder.intersection("pc34s", c34, lc34cp1);
 
   // Step 85: Outline10 from PC34S to PC3SW
-  const outline10 = builder.line("outline10", pc34s, pc3sw);
+  const outline10 = builder.line("outline10", pc34s, pc3sw, outlineStyle);
 
   // Step 86: Outline11 from PC34E to PC34S
-  const outline11 = builder.line("outline11", pc34e, pc34s);
+  const outline11 = builder.line("outline11", pc34e, pc34s, outlineStyle);
 
   // Step 87: Outline12 from PC23S to PC23E
-  const outline12 = builder.line("outline12", pc23s, pc23e);
+  const outline12 = builder.line("outline12", pc23s, pc23e, outlineStyle);
 
   // Step 88: Outline13 from CP4 to PIC4
-  const outline13 = builder.line("outline13", cp4, pic4);
+  const outline13 = builder.line("outline13", cp4, pic4, outlineStyle);
 
   // Step 89: Outline14 from CP2 to PIC2
-  const outline14 = builder.line("outline14", cp2, pic2);
+  const outline14 = builder.line("outline14", cp2, pic2, outlineStyle);
 
   // Step 90: Outline15 from CP2 to CP1
-  const outline15 = builder.line("outline15", cp2, cp1);
+  const outline15 = builder.line("outline15", cp2, cp1, outlineStyle);
 
   // Step 91: Outline16 from CP2 to CP3
-  const outline16 = builder.line("outline16", cp2, cp3);
+  const outline16 = builder.line("outline16", cp2, cp3, outlineStyle);
 
   // Step 92: Outline17 from CP3 to CP4
-  const outline17 = builder.line("outline17", cp3, cp4);
+  const outline17 = builder.line("outline17", cp3, cp4, outlineStyle);
 
   // Step 93: Outline18 from CP4 to CP1
-  const outline18 = builder.line("outline18", cp4, cp1);
+  const outline18 = builder.line("outline18", cp4, cp1, outlineStyle);
 
   // NOTE: The following geometries are created to match the manual sixFoldV0Steps.ts
   // but are not used as inputs to any other geometry construction in the DSL.

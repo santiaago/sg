@@ -6,6 +6,7 @@ import type { GeometryValue, Theme } from "@/types/geometry";
 import type { GeometryStore } from "@/react-store";
 import { isPoint, isLine, isCircle, isPolygon, isCoordinateSystem } from "@/types/geometry";
 import type { PolygonStyleOptions } from "../expressions/PolygonExpression";
+import type { LineStyleOptions } from "../expressions/LineExpression";
 import {
   drawPoint as svgDrawPoint,
   drawLine as svgDrawLine,
@@ -40,6 +41,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
   /**
    * Draw a line geometry using the configured stroke width and primary theme color.
    * Validates that the geometry is a Line before drawing.
+   * Uses custom stroke width/color if provided in options.
    */
   drawLine(
     svg: SVGSVGElement,
@@ -47,10 +49,20 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     geomId: string,
     store: GeometryStore,
     theme: Theme,
+    options?: LineStyleOptions,
   ): void {
     const l = values.get(geomId);
     if (!l || !isLine(l)) return;
-    svgDrawLine(svg, values, geomId, STROKE_WIDTH_THIN, store, theme, theme.COLOR_PRIMARY);
+
+    // Use custom stroke width/color if provided, otherwise use defaults
+    const strokeWidth = options?.strokeWidth ?? STROKE_WIDTH_THIN;
+    const strokeColor = options?.strokeColor
+      ? typeof options.strokeColor === "function"
+        ? options.strokeColor(theme)
+        : options.strokeColor
+      : theme.COLOR_PRIMARY;
+
+    svgDrawLine(svg, values, geomId, strokeWidth, store, theme, strokeColor);
   }
 
   /**

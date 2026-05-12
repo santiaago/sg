@@ -111,6 +111,7 @@ export class TestGeometryRenderer implements GeometryRenderer {
     geomId: string,
     _store: GeometryStore,
     _theme: Theme,
+    _options?: unknown,
   ): void {
     this.drawnLines.push(geomId);
   }
