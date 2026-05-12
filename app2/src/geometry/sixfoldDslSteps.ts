@@ -74,11 +74,31 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   // Manual: bisectCircleAndPoint(cPic12, cp1)
   const p4 = builder.bisectCircleAndPoint("p4", cPic12, cp1);
 
-  // TODO: Continue with Steps 12-93
+  // Step 12: Line L13 from CP1 to P3
+  // Manual: line(cp1.x, cp1.y, p3.x, p3.y)
+  const l13 = builder.line("l13", cp1, p3);
+
+  // Step 13: Line L24 from CP2 to P4
+  // Manual: line(cp2.x, cp2.y, p4.x, p4.y)
+  const l24 = builder.line("l24", cp2, p4);
+
+  // Step 14: Point CP4 - intersection of C1 and L13 (index 0)
+  // Manual: interceptCircleLineSegHelper(c1, l13, 0)
+  const cp4 = builder.intersection("cp4", c1, l13);
+
+  // Step 15: Point CP3 - intersection of C2 and L24 (index 0)
+  // Manual: interceptCircleLineSegHelper(c2, l24, 0)
+  const cp3 = builder.intersection("cp3", c2, l24);
+
+  // Step 16: Circle C4 at CP4 with radius
+  // Manual: circle(cp4.x, cp4.y, config.radius)
+  const c4 = builder.circle("c4", cp4, builder.param("radius"));
+
+  // TODO: Continue with Steps 17-93
 
   // Keep references to satisfy TypeScript (variables are registered in builder)
-  void p3;
-  void p4;
+  void cp3;
+  void c4;
 
   return builder.compile();
 }
