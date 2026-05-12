@@ -57,11 +57,13 @@ pnpm clean          # Remove node_modules, dist, coverage
 
 ✅ Geometry package extracted and tested
 ✅ TypeScript conversion complete
-✅ Vitest test suite (15 tests, 95% coverage)
+✅ Vitest test suite (527 tests, 1 skipped)
 ✅ Production-ready shared package
+✅ Declarative DSL framework with Square and SixFold v0 constructions
 
 ## 🎯 Next
 
 - Migrate app2 to use shared geometry
 - Add CI/CD pipeline
 - Expand shared package ecosystem
+- Create SixFoldDslSvg component
