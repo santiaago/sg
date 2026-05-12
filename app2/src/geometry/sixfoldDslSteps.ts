@@ -300,9 +300,14 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   // Step 93: Outline18 from CP4 to CP1
   const outline18 = builder.line("outline18", cp4, cp1);
 
-  // Keep references to satisfy TypeScript noUnusedLocals
-  void c3;
-  void c3_d1;
+  // NOTE: The following geometries are created to match the manual sixFoldV0Steps.ts
+  // but are not used as inputs to any other geometry construction in the DSL.
+  // In the manual implementation, these geometries exist but are also not used as inputs.
+  // They are kept to maintain step equivalence with the manual step definitions.
+  // Keep references to satisfy TypeScript noUnusedLocals (variables are assigned but never read)
+  void c3; // Circle C3 created at Step 17, not referenced as input to other geometries
+  void c3_d1; // Circle C3_D1 created at Step 30, not referenced as input to other geometries
+  // Outline lines (Steps 62-93) - part of final visual output, not used as construction inputs
   void outline1;
   void outline2;
   void outline3;
