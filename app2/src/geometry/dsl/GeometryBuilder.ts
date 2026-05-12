@@ -30,6 +30,7 @@ import {
 import { LineTowardsExpression } from "./expressions/operations/LineTowardsExpression";
 import { BisectCircleAndPointExpression } from "./expressions/operations/BisectCircleAndPointExpression";
 import { LineIntersectionExpression } from "./expressions/operations/LineIntersectionExpression";
+import { DistanceExpression } from "./expressions/operations/DistanceExpression";
 
 /**
  * GeometryBuilder is the main facade for the declarative geometry DSL.
@@ -388,7 +389,6 @@ export class GeometryBuilder<TConfig> {
     return expr;
   }
 
-
   /**
    * Create a line-line intersection expression.
    * Finds where two lines intersect.
@@ -407,6 +407,25 @@ export class GeometryBuilder<TConfig> {
     this.expressions.set(id, expr);
     return expr;
   }
+  /**
+   * Create a distance expression that computes the distance between two points.
+   * The computed distance can be referenced as a radius or other numeric parameter.
+   *
+   * @param id - Unique identifier for this distance computation
+   * @param p1 - First point expression
+   * @param p2 - Second point expression
+   * @returns The created DistanceExpression with a .d property to reference the distance value
+   */
+  distance(
+    id: string,
+    p1: PointLikeExpression<TConfig>,
+    p2: PointLikeExpression<TConfig>,
+  ): DistanceExpression<TConfig> {
+    const expr = new DistanceExpression(id, p1, p2);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
   // ========================================
   // Dependency Graph Methods
   // ========================================

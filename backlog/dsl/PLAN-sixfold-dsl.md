@@ -13,12 +13,21 @@ using the existing Geometry DSL framework, preserving exact geometry order and c
 
 ---
 
+## Recent Changes
+
+**2025-XX-XX**: Phase 2 Complete - All 94 DSL steps implemented
+
+- Added `DistanceExpression` to framework (unplanned but required for computed radii)
+- Implemented all Steps 0-93 in `sixfoldDslSteps.ts`
+- All checks pass: type-check, lint, format, tests
+- Ready for human review before Phase 3 (Testing)
+
 ## Progress Summary
 
 | Phase                        | Status      | Tasks | Files   |
 | ---------------------------- | ----------- | ----- | ------- |
 | Phase 1: Framework Extension | ✅ COMPLETE | 1-4   | 5 files |
-| Phase 2: DSL Steps           | ⏳ IN PROGRESS | 5-15  | 1 file  |
+| Phase 2: DSL Steps           | ✅ COMPLETE | 5-15  | 1 file  |
 | Phase 3: Testing             | ⏳ PENDING  | 16-20 | 1 file  |
 
 **Phase 1 Deliverables:**
@@ -27,6 +36,24 @@ using the existing Geometry DSL framework, preserving exact geometry order and c
 - `builder.bisectCircleAndPoint()` method available
 - All exports configured
 - All checks pass (type-check, lint, format)
+
+**Phase 1 Additional (unplanned but required):**
+
+- `DistanceExpression` class added to DSL framework (`app2/src/geometry/dsl/expressions/operations/DistanceExpression.ts`)
+- `builder.distance()` method added to GeometryBuilder
+- Required for Steps 28-33, 44, 50, 56-57 where circles use computed radii based on distance between points
+
+**Phase 2 Deliverables:**
+
+- All 94 steps from `sixFoldV0Steps.ts` translated to DSL in `sixfoldDslSteps.ts`
+- Geometry IDs match manual implementation order
+- Direction constants mapped: `directions.left` → `{ position: "left" }`, `directions.right` → `{ select: "east" }`
+- `bisectCircleAndPoint` helper mapped to `builder.bisectCircleAndPoint()`
+- `interceptCircleLineDirHelper` mapped to `builder.intersection()` with position hints
+- `circlesIntersectionPointHelper` mapped to `builder.circleIntersection()` with select options
+- `interceptCircleLineSegHelper` mapped to `builder.intersection()` (index 0 = default, index 1 = `{ position: "right" }`)
+- Computed radii via `builder.distance().d` for d1, d2, d3 distance calculations
+- `DSL_SIXFOLD_STEPS_LENGTH = 94` constant exported
 
 ---
 
@@ -527,12 +554,14 @@ Approximately 19 steps including final outline polygons.
 
 ---
 
-### Checkpoint: DSL Steps Implementation Complete
+### Checkpoint: DSL Steps Implementation Complete ✅
 
-- [ ] All 94 steps translated to DSL
-- [ ] `pnpm type-check:app2` passes
-- [ ] `pnpm lint` passes
-- [ ] `pnpm format` passes
+- [x] All 94 steps translated to DSL (Steps 0-93)
+- [x] `pnpm type-check:app2` passes
+- [x] `pnpm lint` passes
+- [x] `pnpm format` passes
+- [x] `buildSixfoldDslSteps()` returns array of Steps
+- [x] `DSL_SIXFOLD_STEPS_LENGTH = 94` exported
 - [ ] Review with human before proceeding to Phase 3
 
 ---
@@ -670,14 +699,15 @@ Approximately 19 steps including final outline polygons.
 
 ## File Summary
 
-| File                                                                             | Action | Lines    | Status  |
-| -------------------------------------------------------------------------------- | ------ | -------- | ------- |
-| `app2/src/geometry/dsl/expressions/operations/BisectCircleAndPointExpression.ts` | NEW    | ~50      | Pending |
-| `app2/src/geometry/dsl/expressions/operations/index.ts`                          | MODIFY | +2       | Pending |
-| `app2/src/geometry/dsl/GeometryBuilder.ts`                                       | MODIFY | +15      | Pending |
-| `app2/src/geometry/dsl/index.ts`                                                 | MODIFY | +1       | Pending |
-| `app2/src/geometry/sixfoldDslSteps.ts`                                           | NEW    | ~400-600 | Pending |
-| `app2/test/sixfold-construction-equivalence.test.ts`                             | NEW    | ~200-300 | Pending |
+| File                                                                             | Action | Lines    | Status      |
+| -------------------------------------------------------------------------------- | ------ | -------- | ----------- |
+| `app2/src/geometry/dsl/expressions/operations/BisectCircleAndPointExpression.ts` | NEW    | ~50      | ✅ COMPLETE |
+| `app2/src/geometry/dsl/expressions/operations/index.ts`                          | MODIFY | +2       | ✅ COMPLETE |
+| `app2/src/geometry/dsl/GeometryBuilder.ts`                                       | MODIFY | +25      | ✅ COMPLETE |
+| `app2/src/geometry/dsl/index.ts`                                                 | MODIFY | +1       | ✅ COMPLETE |
+| `app2/src/geometry/sixfoldDslSteps.ts`                                           | NEW    | ~290     | ✅ COMPLETE |
+| `app2/src/geometry/dsl/expressions/operations/DistanceExpression.ts`             | NEW    | ~60      | ✅ COMPLETE |
+| `app2/test/sixfold-construction-equivalence.test.ts`                             | NEW    | ~200-300 | Pending     |
 
 ---
 
@@ -723,12 +753,14 @@ Approximately 19 steps including final outline polygons.
 
 ## Next Steps
 
-1. **Execute Phase 1**: Framework extension (Tasks 1-4)
-2. **Verify Checkpoint 1**: Get human approval
-3. **Execute Phase 2**: DSL steps implementation (Tasks 5-15)
-4. **Verify Checkpoint 2**: Get human approval
-5. **Execute Phase 3**: Testing (Tasks 16-20)
-6. **Verify Checkpoint 3**: Final approval
+1. **Phase 1**: Framework extension (Tasks 1-4) - ✅ COMPLETE
+2. **Checkpoint 1**: Get human approval - ✅ APPROVED
+3. **Phase 2**: DSL steps implementation (Tasks 5-15) - ✅ COMPLETE
+4. **Checkpoint 2**: Get human approval - ⏳ PENDING
+5. **Phase 3**: Testing (Tasks 16-20) - ⏳ PENDING
+6. **Checkpoint 3**: Final approval - ⏳ PENDING
+
+**Next immediate action**: Review Phase 2 implementation with human, then proceed to Phase 3 (Testing).
 
 ---
 

@@ -32,11 +32,7 @@ export class LineIntersectionExpression<TConfig> implements GeometryExpression<T
    * @param line1 - First line expression (any line-like expression)
    * @param line2 - Second line expression (any line-like expression)
    */
-  constructor(
-    id: string,
-    line1: LineLikeExpression<TConfig>,
-    line2: LineLikeExpression<TConfig>,
-  ) {
+  constructor(id: string, line1: LineLikeExpression<TConfig>, line2: LineLikeExpression<TConfig>) {
     this.id = id;
     this.line1Id = line1.id;
     this.line2Id = line2.id;

@@ -10,3 +10,4 @@ export { PointAtExpression } from "./PointAtExpression";
 export { LineTowardsExpression } from "./LineTowardsExpression";
 export { BisectCircleAndPointExpression } from "./BisectCircleAndPointExpression";
 export { LineIntersectionExpression } from "./LineIntersectionExpression";
+export { DistanceExpression } from "./DistanceExpression";
