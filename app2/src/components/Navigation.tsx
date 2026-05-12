@@ -2,7 +2,7 @@ import type { JSX } from "react";
 import type { Theme } from "../themes";
 import { darkTheme } from "../themes";
 
-type SectionId = "sixfold-v0" | "square" | "square-dsl" | "rotated-square";
+type SectionId = "sixfold-v0" | "square" | "square-dsl" | "sixfold-dsl" | "rotated-square";
 
 interface NavigationProps {
   onNavigate: (sectionId: SectionId) => void;
@@ -65,6 +65,19 @@ export function Navigation({
               data-testid="nav-square-dsl"
             >
               Square DSL
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleNavigate("sixfold-dsl")}
+              className={`px-4 py-2 rounded transition-colors ${
+                activeSection === "sixfold-dsl"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+              data-testid="nav-sixfold-dsl"
+            >
+              SixFold DSL
             </button>
           </li>
           <li>
