@@ -11,6 +11,10 @@ function approx(a: number, b: number, tolerance = 1e-6): boolean {
   return Math.abs(a - b) <= tolerance;
 }
 
+// Debug: Compare distance computations
+// Manual: distance(pic14, pi2) computed inline
+// DSL: builder.distance("d1", pic14, pi2) creates separate step
+
 // Helper function to compare geometry values approximately
 function geomApproxEqual(
   a: GeometryValue | undefined,
@@ -107,63 +111,67 @@ describe("SixFold DSL - Geometry Order", () => {
 });
 
 describe("SixFold DSL - Dependency Graphs", () => {
-  // NOTE: This test currently fails due to Phase 2 DSL implementation differences
-  // The DSL uses distance expressions and helper lines which create different dependency graphs
-  // This is architectural and may be acceptable - the final geometry should still match
-  it.skip("DSL and manual have same dependency structure", () => {
+  /**
+   * Compute transitive dependencies for a geometry ID.
+   * Returns all IDs that are transitively required to compute the given ID.
+   */
+  function getTransitiveDependencies(
+    id: string,
+    steps: Array<{ inputs: string[]; outputs: string[] }>,
+  ): Set<string> {
+    const result = new Set<string>();
+    const visited = new Set<string>();
+
+    function visit(currentId: string): void {
+      if (visited.has(currentId)) return;
+      visited.add(currentId);
+
+      for (const step of steps) {
+        if (step.outputs.includes(currentId)) {
+          for (const input of step.inputs) {
+            if (!visited.has(input)) {
+              result.add(input);
+              visit(input);
+            }
+          }
+        }
+      }
+    }
+
+    visit(id);
+    return result;
+  }
+
+  // NOTE: Skipped because DSL uses intermediate distance/line expressions
+  // while manual computes inline. Geometry values match (see value test).
+  it.skip("DSL and manual have same transitive dependency structure", () => {
     const dslSteps = buildSixfoldDslSteps();
     const manualSteps = [...SIX_FOLD_V0_STEPS];
-
-    // Build dependency map: geometry ID -> set of input IDs
-    const dslDeps = new Map<string, Set<string>>();
-    for (const step of dslSteps) {
-      for (const output of step.outputs) {
-        if (!dslDeps.has(output)) {
-          dslDeps.set(output, new Set(step.inputs));
-        }
-      }
-    }
-
-    const manualDeps = new Map<string, Set<string>>();
-    for (const step of manualSteps) {
-      for (const output of step.outputs) {
-        if (!manualDeps.has(output)) {
-          manualDeps.set(output, new Set(step.inputs));
-        }
-      }
-    }
 
     // Get all manual geometry IDs
     const manualIds = manualSteps.flatMap((step) => step.outputs);
 
-    // Compare dependencies for each manual geometry ID
+    // Compare transitive dependencies for each manual geometry ID
     const depMismatches: string[] = [];
     for (const id of manualIds) {
-      const dslInputSet = dslDeps.get(id);
-      const manualInputSet = manualDeps.get(id);
+      const dslTransitive = getTransitiveDependencies(id, dslSteps);
+      const manualTransitive = getTransitiveDependencies(id, manualSteps);
 
-      if (!dslInputSet) {
-        depMismatches.push(`${id}: DSL missing dependency info`);
-        continue;
-      }
-      if (!manualInputSet) {
-        depMismatches.push(`${id}: Manual missing dependency info`);
-        continue;
-      }
+      // Compare sets (order doesn't matter)
+      const dslArray = Array.from(dslTransitive).sort();
+      const manualArray = Array.from(manualTransitive).sort();
 
-      // Compare input sets (order doesn't matter)
-      const dslInputs = Array.from(dslInputSet).sort();
-      const manualInputs = Array.from(manualInputSet).sort();
-
-      if (JSON.stringify(dslInputs) !== JSON.stringify(manualInputs)) {
+      if (JSON.stringify(dslArray) !== JSON.stringify(manualArray)) {
+        const onlyInDsl = dslArray.filter((x) => !manualArray.includes(x));
+        const onlyInManual = manualArray.filter((x) => !dslArray.includes(x));
         depMismatches.push(
-          `${id}: DSL deps=[${dslInputs.join(",")}], Manual deps=[${manualInputs.join(",")}]`,
+          `${id}: Only in DSL=[${onlyInDsl.join(",")}], Only in Manual=[${onlyInManual.join(",")}]`,
         );
       }
     }
 
     if (depMismatches.length > 0) {
-      expect.fail(`Dependency mismatches:\n${depMismatches.join("\n")}`);
+      expect.fail(`Transitive dependency mismatches:\n${depMismatches.join("\n")}`);
     }
   });
 });
@@ -189,7 +197,7 @@ describe("SixFold DSL - Geometry Values", () => {
   // NOTE: This test currently fails due to Phase 2 DSL implementation bugs
   // The DSL produces different geometry values for some IDs (e.g., pic23, pc34e)
   // These need to be fixed in the DSL implementation before this test passes
-  it.skip("DSL and manual produce same geometry values (with tolerance)", () => {
+  it("DSL and manual produce same geometry values (with tolerance)", () => {
     const dslSteps = buildSixfoldDslSteps();
     const manualSteps = [...SIX_FOLD_V0_STEPS];
 
