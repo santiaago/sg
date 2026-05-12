@@ -53,10 +53,23 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   // DSL returns first intersection by default, matching the manual behavior
   const cp2 = builder.intersection("cp2", c1, line1);
 
-  // TODO: Continue with Steps 7-93
+  // Step 7: Circle C2 at CP2 with radius
+  // Manual: circle(cp2.x, cp2.y, config.radius)
+  const c2 = builder.circle("c2", cp2, builder.param("radius"));
+
+  // Step 8: Point PIC12 - intersection of C1 and C2 (top point)
+  // Manual: circlesIntersectionPointHelper(c1, c2, directions.up)
+  // DSL: circleIntersection with select: "north" (directions.up = top = lower y in SVG)
+  const pic12 = builder.circleIntersection("pic12", c1, c2, { select: "north" });
+
+  // Step 9: Circle CPIC12 at PIC12 with radius
+  // Manual: circle(pic12.x, pic12.y, config.radius)
+  const cPic12 = builder.circle("cPic12", pic12, builder.param("radius"));
+
+  // TODO: Continue with Steps 10-93
 
   // Keep references to satisfy TypeScript (variables are registered in builder)
-  void cp2;
+  void cPic12;
 
   return builder.compile();
 }
