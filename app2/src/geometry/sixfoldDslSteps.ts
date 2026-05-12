@@ -89,7 +89,22 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   // Step 22: Point PIC14
   const pic14 = builder.circleIntersection("pic14", c4, c1, { select: "west" });
 
-  // TODO: Continue with Steps 23-93
+  // Step 23: Line LPIC12 from CP1 to PIC12
+  const lpic12 = builder.line("lpic12", cp1, pic12);
+
+  // Step 24: Line LPIC14 from CP1 to PIC14
+  const lpic14 = builder.line("lpic14", cp1, pic14);
+
+  // Step 25: Line LCP1CP3 from CP1 to CP3
+  const lcp1cp3 = builder.line("lcp1cp3", cp1, cp3);
+
+  // Step 26: Line LCP2CP4 from CP2 to CP4
+  const lcp2cp4 = builder.line("lcp2cp4", cp2, cp4);
+
+  // Step 27: Point PI2 - intersection of LCP1CP3 and LCP2CP4
+  const pi2 = builder.lineIntersection("pi2", lcp1cp3, lcp2cp4);
+
+  // TODO: Continue with Steps 28-93
 
   // Keep references to satisfy TypeScript (variables are registered in builder)
   void c3;
@@ -98,6 +113,11 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   void l34;
   void l41;
   void pic14;
+  void lpic12;
+  void lpic14;
+  void lcp1cp3;
+  void lcp2cp4;
+  void pi2;
 
   return builder.compile();
 }

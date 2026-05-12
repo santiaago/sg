@@ -37,6 +37,7 @@ export {
   CircleIntersectionExpression,
   LineTowardsExpression,
   BisectCircleAndPointExpression,
+  LineIntersectionExpression,
 } from "./expressions";
 export type { PolygonStyleOptions } from "./expressions";
 

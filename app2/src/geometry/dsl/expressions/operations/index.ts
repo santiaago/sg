@@ -9,3 +9,4 @@ export { CircleIntersectionExpression } from "./CircleIntersectionExpression";
 export { PointAtExpression } from "./PointAtExpression";
 export { LineTowardsExpression } from "./LineTowardsExpression";
 export { BisectCircleAndPointExpression } from "./BisectCircleAndPointExpression";
+export { LineIntersectionExpression } from "./LineIntersectionExpression";

@@ -29,6 +29,7 @@ import {
 } from "./expressions/operations/CircleIntersectionExpression";
 import { LineTowardsExpression } from "./expressions/operations/LineTowardsExpression";
 import { BisectCircleAndPointExpression } from "./expressions/operations/BisectCircleAndPointExpression";
+import { LineIntersectionExpression } from "./expressions/operations/LineIntersectionExpression";
 
 /**
  * GeometryBuilder is the main facade for the declarative geometry DSL.
@@ -383,6 +384,26 @@ export class GeometryBuilder<TConfig> {
     point: PointLikeExpression<TConfig>,
   ): BisectCircleAndPointExpression<TConfig> {
     const expr = new BisectCircleAndPointExpression(id, circle, point);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+
+  /**
+   * Create a line-line intersection expression.
+   * Finds where two lines intersect.
+   *
+   * @param id - Unique identifier for this intersection point
+   * @param line1 - First line expression (any line-like expression)
+   * @param line2 - Second line expression (any line-like expression)
+   * @returns The created LineIntersectionExpression
+   */
+  lineIntersection(
+    id: string,
+    line1: LineLikeExpression<TConfig>,
+    line2: LineLikeExpression<TConfig>,
+  ): LineIntersectionExpression<TConfig> {
+    const expr = new LineIntersectionExpression(id, line1, line2);
     this.expressions.set(id, expr);
     return expr;
   }
