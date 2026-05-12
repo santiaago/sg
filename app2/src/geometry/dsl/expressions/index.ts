@@ -16,4 +16,5 @@ export {
   IntersectionExpression,
   CircleIntersectionExpression,
   LineTowardsExpression,
+  BisectCircleAndPointExpression,
 } from "./operations";

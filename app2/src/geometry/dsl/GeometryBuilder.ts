@@ -28,6 +28,7 @@ import {
   type CircleIntersectionOptions,
 } from "./expressions/operations/CircleIntersectionExpression";
 import { LineTowardsExpression } from "./expressions/operations/LineTowardsExpression";
+import { BisectCircleAndPointExpression } from "./expressions/operations/BisectCircleAndPointExpression";
 
 /**
  * GeometryBuilder is the main facade for the declarative geometry DSL.
@@ -366,6 +367,25 @@ export class GeometryBuilder<TConfig> {
     return expr;
   }
 
+  /**
+   * Create a bisect-circle-and-point expression.
+   * Computes a point on a circle's circumference by bisecting through a given point.
+   * This matches the behavior of the `bisectCircleAndPoint` helper from constructors.ts.
+   *
+   * @param id - Unique identifier for this bisected point
+   * @param circle - Circle expression (any circle-like expression)
+   * @param point - Point expression to bisect through (any point-like expression)
+   * @returns The created BisectCircleAndPointExpression
+   */
+  bisectCircleAndPoint(
+    id: string,
+    circle: CircleLikeExpression<TConfig>,
+    point: PointLikeExpression<TConfig>,
+  ): BisectCircleAndPointExpression<TConfig> {
+    const expr = new BisectCircleAndPointExpression(id, circle, point);
+    this.expressions.set(id, expr);
+    return expr;
+  }
   // ========================================
   // Dependency Graph Methods
   // ========================================
