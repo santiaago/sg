@@ -57,8 +57,7 @@ export class GeometryFeatureReference<
     const value = (sourceValue as any)[this.property];
     if (typeof value !== "number") {
       throw new Error(
-        `GeometryFeatureReference: property '${String(this.property)}' on ` +
-          `'${this.sourceId}' is not a number (got ${typeof value})`,
+        `GeometryFeatureReference: property '${String(this.property)}' on '${this.sourceId}' is not a number (got ${typeof value})`,
       );
     }
 

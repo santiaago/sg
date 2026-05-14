@@ -23,6 +23,23 @@ import { POINT_RADIUS_MEDIUM, STROKE_WIDTH_THIN } from "@/config/geometryConfig"
  */
 export class DefaultGeometryRenderer implements GeometryRenderer {
   /**
+   * Resolve stroke options from style options or defaults.
+   */
+  private resolveStrokeOptions(
+    theme: Theme,
+    options?: LineStyleOptions | PolygonStyleOptions,
+  ): { strokeWidth: number; strokeColor: string } {
+    return {
+      strokeWidth: options?.strokeWidth ?? STROKE_WIDTH_THIN,
+      strokeColor: options?.strokeColor
+        ? typeof options.strokeColor === "function"
+          ? options.strokeColor(theme)
+          : options.strokeColor
+        : theme.COLOR_PRIMARY,
+    };
+  }
+
+  /**
    * Draw a point geometry using the configured point radius.
    * Validates that the geometry is a Point before drawing.
    */
@@ -54,14 +71,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     const l = values.get(geomId);
     if (!l || !isLine(l)) return;
 
-    // Use custom stroke width/color if provided, otherwise use defaults
-    const strokeWidth = options?.strokeWidth ?? STROKE_WIDTH_THIN;
-    const strokeColor = options?.strokeColor
-      ? typeof options.strokeColor === "function"
-        ? options.strokeColor(theme)
-        : options.strokeColor
-      : theme.COLOR_PRIMARY;
-
+    const { strokeWidth, strokeColor } = this.resolveStrokeOptions(theme, options);
     svgDrawLine(svg, values, geomId, strokeWidth, store, theme, strokeColor);
   }
 
@@ -96,14 +106,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     const p = values.get(geomId);
     if (!p || !isPolygon(p)) return;
 
-    // Use custom stroke width/color if provided, otherwise use defaults
-    const strokeWidth = options?.strokeWidth ?? STROKE_WIDTH_THIN;
-    const strokeColor = options?.strokeColor
-      ? typeof options.strokeColor === "function"
-        ? options.strokeColor(theme)
-        : options.strokeColor
-      : theme.COLOR_PRIMARY;
-
+    const { strokeWidth, strokeColor } = this.resolveStrokeOptions(theme, options);
     svgDrawPolygon(svg, values, geomId, strokeWidth, store, theme, strokeColor);
   }
 
