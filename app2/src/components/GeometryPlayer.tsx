@@ -29,9 +29,6 @@ export interface GeometryPlayerProps {
   // Callback for last step
   onLastStep?: () => void;
 
-  // Callback for restart
-  onRestart?: () => void;
-
   // Whether to show the inputs toggle button
   showInputsToggle?: boolean;
 
@@ -62,7 +59,7 @@ export interface GeometryPlayerProps {
 
 /**
  * GeometryPlayer component - Wraps an SVG geometry component with player controls.
- * Provides a consistent interface for step navigation, restart, and other controls.
+ * Provides a consistent interface for step navigation and other controls.
  */
 export function GeometryPlayer({
   svgRef,
@@ -73,7 +70,6 @@ export function GeometryPlayer({
   onPrevStep,
   onNextStep,
   onLastStep,
-  onRestart,
   showInputsToggle = false,
   showInputHighlight = false,
   onToggleInputs,
@@ -205,17 +201,6 @@ export function GeometryPlayer({
               data-testid="step-last"
             >
               »»
-            </button>
-          )}
-
-          {onRestart && (
-            <button
-              onClick={onRestart}
-              className="px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
-              aria-label="Restart animation"
-              data-testid="step-restart"
-            >
-              restart
             </button>
           )}
 

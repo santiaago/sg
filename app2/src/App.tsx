@@ -237,18 +237,6 @@ export default function App(): JSX.Element {
     }
   };
 
-  const handleRestartSquare = (): void => {
-    // Stop playing when restarting
-    if (isPlayingSquare && playIntervalSquare.current) {
-      clearInterval(playIntervalSquare.current);
-      playIntervalSquare.current = null;
-      setIsPlayingSquare(false);
-    }
-    storeSquare.clear();
-    setCurrentStepSquare(0);
-    setRestartKeySquare(restartKeySquare + 1);
-  };
-
   const handleFirstStepSquare = (): void => {
     // Stop playing when jumping to first step
     if (isPlayingSquare && playIntervalSquare.current) {
@@ -352,18 +340,6 @@ export default function App(): JSX.Element {
     if (currentStepRotated > 0) {
       setCurrentStepRotated(currentStepRotated - 1);
     }
-  };
-
-  const handleRestartRotated = (): void => {
-    // Stop playing when restarting
-    if (isPlayingRotated && playIntervalRotated.current) {
-      clearInterval(playIntervalRotated.current);
-      playIntervalRotated.current = null;
-      setIsPlayingRotated(false);
-    }
-    storeRotatedSquare.clear();
-    setCurrentStepRotated(0);
-    setRestartKeyRotated(restartKeyRotated + 1);
   };
 
   const handleFirstStepRotated = (): void => {
@@ -481,18 +457,6 @@ export default function App(): JSX.Element {
     }
   };
 
-  const handleRestartSquareDsl = (): void => {
-    // Stop playing when restarting
-    if (isPlayingSquareDsl && playIntervalSquareDsl.current) {
-      clearInterval(playIntervalSquareDsl.current);
-      playIntervalSquareDsl.current = null;
-      setIsPlayingSquareDsl(false);
-    }
-    storeSquareDsl.clear();
-    setCurrentStepSquareDsl(0);
-    setRestartKeySquareDsl(restartKeySquareDsl + 1);
-  };
-
   const handleFirstStepSquareDsl = (): void => {
     // Stop playing when jumping to first step
     if (isPlayingSquareDsl && playIntervalSquareDsl.current) {
@@ -586,18 +550,6 @@ export default function App(): JSX.Element {
     if (currentStepSixfoldDsl > 0) {
       setCurrentStepSixfoldDsl(currentStepSixfoldDsl - 1);
     }
-  };
-
-  const handleRestartSixfoldDsl = (): void => {
-    // Stop playing when restarting
-    if (isPlayingSixfoldDsl && playIntervalSixfoldDsl.current) {
-      clearInterval(playIntervalSixfoldDsl.current);
-      playIntervalSixfoldDsl.current = null;
-      setIsPlayingSixfoldDsl(false);
-    }
-    storeSixFoldDsl.clear();
-    setCurrentStepSixfoldDsl(0);
-    setRestartKeySixfoldDsl(restartKeySixfoldDsl + 1);
   };
 
   const handleFirstStepSixfoldDsl = (): void => {
@@ -710,7 +662,6 @@ export default function App(): JSX.Element {
               onPrevStep={handlePrevClickv0}
               onNextStep={handleNextClickv0}
               onLastStep={handleLastStepv0}
-              onRestart={handleRestartv0}
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
@@ -789,7 +740,6 @@ export default function App(): JSX.Element {
               onPrevStep={handlePrevClickSquare}
               onNextStep={handleNextClickSquare}
               onLastStep={handleLastStepSquare}
-              onRestart={handleRestartSquare}
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
@@ -861,7 +811,6 @@ export default function App(): JSX.Element {
               onPrevStep={handlePrevClickSquareDsl}
               onNextStep={handleNextClickSquareDsl}
               onLastStep={handleLastStepSquareDsl}
-              onRestart={handleRestartSquareDsl}
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
@@ -933,7 +882,6 @@ export default function App(): JSX.Element {
               onPrevStep={handlePrevClickSixfoldDsl}
               onNextStep={handleNextClickSixfoldDsl}
               onLastStep={handleLastStepSixfoldDsl}
-              onRestart={handleRestartSixfoldDsl}
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
@@ -1009,7 +957,6 @@ export default function App(): JSX.Element {
               onPrevStep={handlePrevClickRotated}
               onNextStep={handleNextClickRotated}
               onLastStep={handleLastStepRotated}
-              onRestart={handleRestartRotated}
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}

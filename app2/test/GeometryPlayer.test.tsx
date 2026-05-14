@@ -28,14 +28,12 @@ describe("GeometryPlayer Component", () => {
         onPrevStep: vi.fn(),
         onNextStep: vi.fn(),
         onLastStep: vi.fn(),
-        onRestart: vi.fn(),
       };
       render(<GeometryPlayer {...props} />);
       expect(screen.getByLabelText("First step")).toBeInTheDocument();
       expect(screen.getByLabelText("Previous step")).toBeInTheDocument();
       expect(screen.getByLabelText("Next step")).toBeInTheDocument();
       expect(screen.getByLabelText("Last step")).toBeInTheDocument();
-      expect(screen.getByLabelText("Restart animation")).toBeInTheDocument();
     });
 
     it("should not render first step button when onFirstStep not provided", () => {
@@ -44,7 +42,6 @@ describe("GeometryPlayer Component", () => {
         onPrevStep: vi.fn(),
         onNextStep: vi.fn(),
         onLastStep: vi.fn(),
-        onRestart: vi.fn(),
       };
       render(<GeometryPlayer {...props} />);
       expect(screen.queryByLabelText("First step")).not.toBeInTheDocument();
@@ -56,7 +53,6 @@ describe("GeometryPlayer Component", () => {
         onFirstStep: vi.fn(),
         onNextStep: vi.fn(),
         onLastStep: vi.fn(),
-        onRestart: vi.fn(),
       };
       render(<GeometryPlayer {...props} />);
       expect(screen.queryByLabelText("Previous step")).not.toBeInTheDocument();
@@ -68,7 +64,6 @@ describe("GeometryPlayer Component", () => {
         onFirstStep: vi.fn(),
         onPrevStep: vi.fn(),
         onLastStep: vi.fn(),
-        onRestart: vi.fn(),
       };
       render(<GeometryPlayer {...props} />);
       expect(screen.queryByLabelText("Next step")).not.toBeInTheDocument();
@@ -80,22 +75,9 @@ describe("GeometryPlayer Component", () => {
         onFirstStep: vi.fn(),
         onPrevStep: vi.fn(),
         onNextStep: vi.fn(),
-        onRestart: vi.fn(),
       };
       render(<GeometryPlayer {...props} />);
       expect(screen.queryByLabelText("Last step")).not.toBeInTheDocument();
-    });
-
-    it("should not render restart button when onRestart not provided", () => {
-      const props = {
-        ...defaultProps,
-        onFirstStep: vi.fn(),
-        onPrevStep: vi.fn(),
-        onNextStep: vi.fn(),
-        onLastStep: vi.fn(),
-      };
-      render(<GeometryPlayer {...props} />);
-      expect(screen.queryByLabelText("Restart animation")).not.toBeInTheDocument();
     });
 
     it("should render inputs toggle button when showInputsToggle is true", () => {
@@ -174,15 +156,6 @@ describe("GeometryPlayer Component", () => {
       expect(onLastStep).toHaveBeenCalledTimes(1);
     });
 
-    it("should call onRestart when restart button clicked", async () => {
-      const onRestart = vi.fn();
-      const user = userEvent.setup();
-      render(<GeometryPlayer {...defaultProps} onRestart={onRestart} />);
-
-      await user.click(screen.getByLabelText("Restart animation"));
-      expect(onRestart).toHaveBeenCalledTimes(1);
-    });
-
     it("should call onToggleInputs when inputs toggle button clicked", async () => {
       const onToggleInputs = vi.fn();
       const user = userEvent.setup();
@@ -206,7 +179,6 @@ describe("GeometryPlayer Component", () => {
       onPrevStep: vi.fn(),
       onNextStep: vi.fn(),
       onLastStep: vi.fn(),
-      onRestart: vi.fn(),
     };
 
     it("should disable prev button when currentStep is 0", () => {
@@ -242,14 +214,12 @@ describe("GeometryPlayer Component", () => {
         onPrevStep: vi.fn(),
         onNextStep: vi.fn(),
         onLastStep: vi.fn(),
-        onRestart: vi.fn(),
       };
       render(<GeometryPlayer {...props} />);
       expect(screen.getByLabelText("First step")).toBeInTheDocument();
       expect(screen.getByLabelText("Previous step")).toBeInTheDocument();
       expect(screen.getByLabelText("Next step")).toBeInTheDocument();
       expect(screen.getByLabelText("Last step")).toBeInTheDocument();
-      expect(screen.getByLabelText("Restart animation")).toBeInTheDocument();
     });
 
     it("should have aria-label on slider", () => {
