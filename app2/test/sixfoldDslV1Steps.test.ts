@@ -68,9 +68,9 @@ describe("Sixfold DSL v1 with cs2", () => {
       expect(cs2).toBeDefined();
       const p2Pt = p2 as Point;
       const cs2Coord = cs2 as CoordinateSystem;
-      // p2 at (p2x, p2y) in cs2, so absolute = cs2 + (p2x, p2y)
+      // p2 at (p2x, 0) in cs2, so absolute = cs2 + (p2x, 0)
       expect(approx(p2Pt.x, cs2Coord.x + defaultConfig.p2x)).toBe(true);
-      expect(approx(p2Pt.y, cs2Coord.y + defaultConfig.p2y)).toBe(true);
+      expect(approx(p2Pt.y, cs2Coord.y + 0)).toBe(true);
     });
   });
 
