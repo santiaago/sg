@@ -7,6 +7,7 @@ import {
   removeHoverHighlight,
   selectGeometry,
 } from "../src/utils/geometryHighlighting";
+import { POINT_HIGHLIGHT_RADIUS } from "../src/config/geometryConfig";
 import type { GeometryItem } from "../src/react-store";
 
 // Mock SVG element with tracking
@@ -54,7 +55,7 @@ describe("applyInputVisualFeedback", () => {
     applyInputVisualFeedback(element, item, 2);
 
     expect(element.setAttribute).toHaveBeenCalledWith("fill", "orange");
-    expect(element.setAttribute).toHaveBeenCalledWith("r", "2");
+    expect(element.setAttribute).toHaveBeenCalledWith("r", POINT_HIGHLIGHT_RADIUS.toString());
   });
 
   it("applies orange stroke to line elements", () => {
@@ -112,7 +113,7 @@ describe("applyVisualFeedback", () => {
     applyVisualFeedback(element, item, 3);
 
     expect(element.setAttribute).toHaveBeenCalledWith("fill", "red");
-    expect(element.setAttribute).toHaveBeenCalledWith("r", "3");
+    expect(element.setAttribute).toHaveBeenCalledWith("r", POINT_HIGHLIGHT_RADIUS.toString());
   });
 
   it("applies red stroke to selected line elements", () => {
@@ -159,7 +160,7 @@ describe("applyHoverHighlight", () => {
     applyHoverHighlight(element, item, 2);
 
     expect(element.setAttribute).toHaveBeenCalledWith("fill", "orange");
-    expect(element.setAttribute).toHaveBeenCalledWith("r", "2");
+    expect(element.setAttribute).toHaveBeenCalledWith("r", POINT_HIGHLIGHT_RADIUS.toString());
   });
 
   it("applies cyan color when specified for points", () => {
@@ -169,7 +170,7 @@ describe("applyHoverHighlight", () => {
     applyHoverHighlight(element, item, 2, "cyan");
 
     expect(element.setAttribute).toHaveBeenCalledWith("fill", "cyan");
-    expect(element.setAttribute).toHaveBeenCalledWith("r", "2");
+    expect(element.setAttribute).toHaveBeenCalledWith("r", POINT_HIGHLIGHT_RADIUS.toString());
     // Verify tooltip background color is changed for GeometryDetails hover
     expect(element.tooltipBg.setAttribute).toHaveBeenCalledWith("fill", "#00ffff");
   });
@@ -237,7 +238,7 @@ describe("removeHoverHighlight", () => {
 
     // Should re-apply selection (red) instead of restoring initial state
     expect(element.setAttribute).toHaveBeenCalledWith("fill", "red");
-    expect(element.setAttribute).toHaveBeenCalledWith("r", "3");
+    expect(element.setAttribute).toHaveBeenCalledWith("r", POINT_HIGHLIGHT_RADIUS.toString());
     // Should restore tooltipBg fill to original color
     expect(element.tooltipBg.setAttribute).toHaveBeenCalledWith("fill", "black");
   });
@@ -281,7 +282,7 @@ describe("selectGeometry", () => {
     selectGeometry(store, "item1", 3);
 
     expect(element.setAttribute).toHaveBeenCalledWith("fill", "red");
-    expect(element.setAttribute).toHaveBeenCalledWith("r", "3");
+    expect(element.setAttribute).toHaveBeenCalledWith("r", POINT_HIGHLIGHT_RADIUS.toString());
   });
 
   it("does nothing when geometry not found", () => {

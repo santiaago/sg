@@ -1,5 +1,6 @@
 import type { GeometryItem } from "../react-store";
 import type { GeometryStore } from "../react-store";
+import { POINT_HIGHLIGHT_RADIUS } from "../config/geometryConfig";
 
 // Color constants for highlighting - these match the Theme interface values
 const COLOR_INPUT_HIGHLIGHT = "orange";
@@ -69,7 +70,7 @@ export function applyInputVisualFeedback(
   try {
     if (shape.type === "point") {
       element.setAttribute("fill", COLOR_INPUT_HIGHLIGHT);
-      element.setAttribute("r", scale.toString());
+      element.setAttribute("r", POINT_HIGHLIGHT_RADIUS.toString());
     } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
       element.setAttribute("stroke", COLOR_INPUT_HIGHLIGHT);
       element.setAttribute("stroke-width", scale.toString());
@@ -186,9 +187,10 @@ export function applyVisualFeedback(
   try {
     if (shape.selected) {
       // Apply selection styles (consistent red highlighting)
+      // For points, use configured highlight radius for better visibility
       if (shape.type === "point") {
         element.setAttribute("fill", COLOR_SELECTED);
-        element.setAttribute("r", strokeBig.toString());
+        element.setAttribute("r", POINT_HIGHLIGHT_RADIUS.toString());
         // Show tooltip and background when selected
         if (element.tooltip) {
           element.tooltip.setAttribute("opacity", "1");
@@ -288,7 +290,7 @@ export function applyHoverHighlight(
   try {
     if (shape.type === "point") {
       element.setAttribute("fill", color);
-      element.setAttribute("r", scale.toString());
+      element.setAttribute("r", POINT_HIGHLIGHT_RADIUS.toString());
     } else if (shape.type === "circle" || shape.type === "line" || shape.type === "polygon") {
       element.setAttribute("stroke", color);
       element.setAttribute("stroke-width", scale.toString());
