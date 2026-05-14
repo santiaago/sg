@@ -115,4 +115,65 @@ describe("useThemeAwareSteps Hook", () => {
     rerender({ currentStep: 1, theme: lightTheme });
     expect(result.current.shouldClear).toBe(true);
   });
+
+  it("should return shouldClear=true when restartTrigger changes (0 -> 1)", () => {
+    const { result, rerender } = renderHook(
+      ({ restartTrigger }) =>
+        useThemeAwareSteps({
+          currentStep: 1,
+          restartTrigger,
+          theme: darkTheme,
+        }),
+      { initialProps: { restartTrigger: 0 } },
+    );
+
+    expect(result.current.shouldClear).toBe(false);
+    rerender({ restartTrigger: 1 });
+    expect(result.current.shouldClear).toBe(true);
+  });
+
+  it("should return shouldClear=false when restartTrigger stays the same", () => {
+    const { result, rerender } = renderHook(
+      ({ restartTrigger }) =>
+        useThemeAwareSteps({
+          currentStep: 1,
+          restartTrigger,
+          theme: darkTheme,
+        }),
+      { initialProps: { restartTrigger: 1 } },
+    );
+
+    rerender({ restartTrigger: 1 });
+    expect(result.current.shouldClear).toBe(false);
+  });
+
+  it("should return shouldClear=false when going forward with non-zero restartTrigger", () => {
+    const { result, rerender } = renderHook(
+      ({ currentStep }) =>
+        useThemeAwareSteps({
+          currentStep,
+          restartTrigger: 1,
+          theme: darkTheme,
+        }),
+      { initialProps: { currentStep: 0 } },
+    );
+
+    rerender({ currentStep: 1 });
+    expect(result.current.shouldClear).toBe(false);
+  });
+
+  it("should return shouldClear=true when going backwards with non-zero restartTrigger", () => {
+    const { result, rerender } = renderHook(
+      ({ currentStep }) =>
+        useThemeAwareSteps({
+          currentStep,
+          restartTrigger: 1,
+          theme: darkTheme,
+        }),
+      { initialProps: { currentStep: 2 } },
+    );
+
+    rerender({ currentStep: 1 });
+    expect(result.current.shouldClear).toBe(true);
+  });
 });

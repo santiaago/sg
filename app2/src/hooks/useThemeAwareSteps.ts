@@ -19,12 +19,12 @@ export interface UseThemeAwareStepsResult {
 }
 
 /**
- * Custom hook that tracks step and theme changes to determine when to clear geometry.
+ * Custom hook that tracks step, restart, and theme changes to determine when to clear geometry.
  *
  * This hook encapsulates the logic for detecting when the SVG canvas needs to be
  * redrawn due to:
  * - Going backwards in steps (currentStep < previousStep)
- * - Restarting the construction (restartTrigger changed)
+ * - Restarting the construction (restartTrigger changed from previous value)
  * - Theme change (theme object reference changed)
  *
  * @param options - Configuration options containing currentStep, restartTrigger, and theme
@@ -52,17 +52,21 @@ export function useThemeAwareSteps({
   theme,
 }: UseThemeAwareStepsOptions): UseThemeAwareStepsResult {
   const prevStepRef = useRef<number>(0);
+  const prevRestartTriggerRef = useRef<number>(0);
   const prevThemeRef = useRef<Theme>(theme);
 
   // Track whether we should clear geometry and store
   const shouldClear =
-    currentStep < prevStepRef.current || restartTrigger !== 0 || prevThemeRef.current !== theme;
+    currentStep < prevStepRef.current ||
+    restartTrigger !== prevRestartTriggerRef.current ||
+    prevThemeRef.current !== theme;
 
   // Update refs after computing shouldClear
   useEffect(() => {
     prevStepRef.current = currentStep;
+    prevRestartTriggerRef.current = restartTrigger;
     prevThemeRef.current = theme;
-  }, [currentStep, theme]);
+  }, [currentStep, restartTrigger, theme]);
 
   return { shouldClear };
 }

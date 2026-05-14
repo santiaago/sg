@@ -77,6 +77,13 @@ export function GeometryList({
     }
   }, [showInputHighlight]);
 
+  // Clear highlighted inputs when store is cleared (restart/reset)
+  useEffect(() => {
+    if (showInputHighlight && Object.keys(store.items || {}).length === 0) {
+      setHighlightedInputs(new Set());
+    }
+  }, [store.items, showInputHighlight]);
+
   // Apply orange styles to SVG elements for highlighted inputs
   useEffect(() => {
     if (!showInputHighlight) return;
