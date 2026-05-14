@@ -560,8 +560,8 @@ export function drawCoordinateSystem(
   const cs = values.get(geomId);
   if (!cs || !isCoordinateSystem(cs)) return;
 
-  // Remove existing coordinate system if present to prevent duplicates
-  const existingCs = svg.querySelector("[data-coordinate-system]");
+  // Remove existing coordinate system with matching geomId to prevent duplicates
+  const existingCs = svg.querySelector(`[data-geom-id="${geomId}"]`);
   if (existingCs) {
     svg.removeChild(existingCs);
   }
@@ -576,6 +576,9 @@ export function drawCoordinateSystem(
     strokeColor,
     rotation,
   );
+
+  // Store geomId on the group for proper cleanup
+  group.setAttribute("data-geom-id", geomId);
 
   // Add tooltip to the group - positioned diagonally from origin to stay within canvas
   group.style.cursor = "pointer";

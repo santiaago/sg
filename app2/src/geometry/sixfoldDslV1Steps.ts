@@ -26,16 +26,22 @@ export function buildSixfoldDslV1Steps(): Step<SixFoldV0Config>[] {
 
   // Step 0: Coordinate System - unchanged from v0
   const cs = builder.coordinateSystem("cs", 0, 0, builder.param("coordinateSystemArrowLength"), 0);
-
-  // Step 1: Coordinate System cs2 - at (p1x, p1y) from config, based on cs
-  const cs2 = builder.coordinateSystem("cs2", builder.param("p1x"), builder.param("p1y"), 0, 0);
+  // Step 1: Coordinate System cs2 - at (p1x, p1y) from config
+  const cs2 = builder.coordinateSystem(
+    "cs2",
+    builder.param("p1x"),
+    builder.param("p1y"),
+    builder.param("coordinateSystemArrowLength"),
+    0,
+  );
 
   // Step 2: Point P1 in cs2 at (0, 0) - absolute position = (p1x, p1y)
   const p1 = builder.pointInCs("p1", cs2, 0, 0);
+  
   void cs; // Root coordinate system, not directly referenced but part of hierarchy
 
   // Step 3: Point P2 - changed to use cs2 instead of cs
-  const p2 = builder.pointInCs("p2", cs2, builder.param("p2x"), builder.param("p2y"));
+  const p2 = builder.pointInCs("p2", cs2, builder.param("p2x"), 0);
 
   // Step 4: Line LINE1
   const line1 = builder.line("line1", p1, p2);
