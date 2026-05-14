@@ -193,7 +193,8 @@ export function GeometryList({
       <p>
         Showing {filteredCount} of {totalCount} items
       </p>
-      <ul>
+      {/* max-h-[500px] matches SVG height (519px) minus header/filters space (~20-40px), ensuring scrollable list stays aligned with SVG section */}
+      <ul className="max-h-[500px] overflow-y-auto">
         {filteredItems.map(([key, item]) => (
           <li
             key={key}
