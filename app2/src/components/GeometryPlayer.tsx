@@ -153,7 +153,7 @@ export function GeometryPlayer({
               aria-label="Previous step"
               data-testid="step-prev"
             >
-              prev
+              {"<"}
             </button>
           )}
 
@@ -183,7 +183,7 @@ export function GeometryPlayer({
               aria-label="Next step"
               data-testid="step-next"
             >
-              next
+              {">"}
             </button>
           )}
 
