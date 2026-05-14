@@ -346,6 +346,6 @@ export function buildSixfoldDslV1Steps(): Step<SixFoldV0Config>[] {
 
 /**
  * Number of steps in the DSL SixFold v1 construction.
- * 95 total: 94 v0 steps + 1 cs2 step (steps 0-94)
+ * 97 total: 96 v0 DSL steps + 1 cs2 step
  */
-export const DSL_SIXFOLD_V1_STEPS_LENGTH = 95;
+export const DSL_SIXFOLD_V1_STEPS_LENGTH = 97;
