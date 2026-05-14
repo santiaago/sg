@@ -56,10 +56,6 @@ export type NumericPropertyOf<T> = {
  * }
  */
 export function isGeometryFeatureReference(value: unknown): value is GeometryFeatureReferenceLike {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "type" in value &&
-    (value as { type: unknown }).type === "geometry_feature_reference"
-  );
+  if (typeof value !== "object" || value === null) return false;
+  return (value as { type: unknown }).type === "geometry_feature_reference";
 }
