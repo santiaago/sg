@@ -6,6 +6,7 @@ import { SquareSvg } from "./components/SquareSvg";
 import { SquareDslSvg } from "./components/SquareDslSvg";
 import { SixFoldDslSvg } from "./components/SixFoldDslSvg";
 import { RotatedSquareSvg } from "./components/RotatedSquareSvg";
+import { SixFoldDslV1Svg } from "./components/SixFoldDslV1Svg";
 import { GeometryPlayer } from "./components/GeometryPlayer";
 import { standardSvgConfig } from "./config/svgConfig";
 import { GeometryList } from "./components/GeometryList";
@@ -17,6 +18,7 @@ import { SIX_FOLD_V0_STEPS } from "./geometry/sixFoldV0Steps";
 import { ROTATED_SQUARE_STEPS } from "./geometry/rotatedSquareSteps";
 import { DSL_SQUARE_STEPS_LENGTH, buildSquareDslSteps } from "./geometry/squareDslSteps";
 import { DSL_SIXFOLD_STEPS_LENGTH, buildSixfoldDslSteps } from "./geometry/sixfoldDslSteps";
+import { DSL_SIXFOLD_V1_STEPS_LENGTH, buildSixfoldDslV1Steps } from "./geometry/sixfoldDslV1Steps";
 import { lightTheme, darkTheme } from "./themes";
 import type { Theme, GeometryType } from "./types/geometry";
 
@@ -49,13 +51,20 @@ export default function App(): JSX.Element {
   }, [svgTheme]);
 
   // Navigation menu state
-  type SectionId = "sixfold-v0" | "square" | "square-dsl" | "sixfold-dsl" | "rotated-square";
+  type SectionId =
+    | "sixfold-v0"
+    | "square"
+    | "square-dsl"
+    | "sixfold-dsl"
+    | "sixfold-dsl-v1"
+    | "rotated-square";
   const [activeSection, setActiveSection] = useState<SectionId>("sixfold-v0");
   const sectionRefs = {
     "sixfold-v0": useRef<HTMLDivElement>(null),
     square: useRef<HTMLDivElement>(null),
     "square-dsl": useRef<HTMLDivElement>(null),
     "sixfold-dsl": useRef<HTMLDivElement>(null),
+    "sixfold-dsl-v1": useRef<HTMLDivElement>(null),
     "rotated-square": useRef<HTMLDivElement>(null),
   };
 
@@ -82,6 +91,7 @@ export default function App(): JSX.Element {
         "square",
         "square-dsl",
         "sixfold-dsl",
+        "sixfold-dsl-v1",
         "rotated-square",
       ] as const;
       if (hash && validSections.includes(hash as SectionId)) {
@@ -105,6 +115,7 @@ export default function App(): JSX.Element {
   const storeRotatedSquare = useGeometryStore();
   const storeSquareDsl = useGeometryStore();
   const storeSixFoldDsl = useGeometryStore();
+  const storeSixFoldDslV1 = useGeometryStore();
 
   // SixFoldV0 state
   const [currentStepv0, setCurrentStepv0] = useState<number>(0);
@@ -433,6 +444,16 @@ export default function App(): JSX.Element {
   // Build DSL sixfold steps once
   const sixfoldDslSteps = useMemo(() => buildSixfoldDslSteps(), []);
 
+  // SixFold DSL v1 state
+  const [currentStepSixfoldDslV1, setCurrentStepSixfoldDslV1] = useState<number>(0);
+  const [restartKeySixfoldDslV1, setRestartKeySixfoldDslV1] = useState<number>(0);
+  const [isPlayingSixfoldDslV1, setIsPlayingSixfoldDslV1] = useState<boolean>(false);
+  const sixfoldDslV1SvgRef = useRef<SVGSVGElement>(null);
+  const playIntervalSixfoldDslV1 = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Build DSL sixfold v1 steps once
+  const sixfoldDslV1Steps = useMemo(() => buildSixfoldDslV1Steps(), []);
+
   const handleNextClickSquareDsl = (): void => {
     // Stop playing if user manually clicks
     if (isPlayingSquareDsl && playIntervalSquareDsl.current) {
@@ -618,6 +639,113 @@ export default function App(): JSX.Element {
     return () => {
       if (playIntervalSixfoldDsl.current) {
         clearInterval(playIntervalSixfoldDsl.current);
+      }
+    };
+  }, []);
+
+  // SixFold DSL v1 handlers
+  const handleNextClickSixfoldDslV1 = (): void => {
+    // Stop playing if user manually clicks
+    if (isPlayingSixfoldDslV1 && playIntervalSixfoldDslV1.current) {
+      clearInterval(playIntervalSixfoldDslV1.current);
+      playIntervalSixfoldDslV1.current = null;
+      setIsPlayingSixfoldDslV1(false);
+    }
+    if (currentStepSixfoldDslV1 < DSL_SIXFOLD_V1_STEPS_LENGTH) {
+      setCurrentStepSixfoldDslV1(currentStepSixfoldDslV1 + 1);
+    }
+  };
+
+  const handlePrevClickSixfoldDslV1 = (): void => {
+    // Stop playing if user manually clicks
+    if (isPlayingSixfoldDslV1 && playIntervalSixfoldDslV1.current) {
+      clearInterval(playIntervalSixfoldDslV1.current);
+      playIntervalSixfoldDslV1.current = null;
+      setIsPlayingSixfoldDslV1(false);
+    }
+    if (currentStepSixfoldDslV1 > 0) {
+      setCurrentStepSixfoldDslV1(currentStepSixfoldDslV1 - 1);
+    }
+  };
+
+  const handleRestartSixfoldDslV1 = (): void => {
+    // Stop playing when restarting
+    if (isPlayingSixfoldDslV1 && playIntervalSixfoldDslV1.current) {
+      clearInterval(playIntervalSixfoldDslV1.current);
+      playIntervalSixfoldDslV1.current = null;
+      setIsPlayingSixfoldDslV1(false);
+    }
+    storeSixFoldDslV1.clear();
+    setCurrentStepSixfoldDslV1(0);
+    setRestartKeySixfoldDslV1(restartKeySixfoldDslV1 + 1);
+  };
+
+  const handleFirstStepSixfoldDslV1 = (): void => {
+    // Stop playing when jumping to first step
+    if (isPlayingSixfoldDslV1 && playIntervalSixfoldDslV1.current) {
+      clearInterval(playIntervalSixfoldDslV1.current);
+      playIntervalSixfoldDslV1.current = null;
+      setIsPlayingSixfoldDslV1(false);
+    }
+    storeSixFoldDslV1.clear();
+    setCurrentStepSixfoldDslV1(0);
+    setRestartKeySixfoldDslV1(restartKeySixfoldDslV1 + 1);
+  };
+
+  const handleLastStepSixfoldDslV1 = (): void => {
+    // Stop playing when jumping to end
+    if (isPlayingSixfoldDslV1 && playIntervalSixfoldDslV1.current) {
+      clearInterval(playIntervalSixfoldDslV1.current);
+      playIntervalSixfoldDslV1.current = null;
+      setIsPlayingSixfoldDslV1(false);
+    }
+    storeSixFoldDslV1.clear();
+    setCurrentStepSixfoldDslV1(DSL_SIXFOLD_V1_STEPS_LENGTH);
+    setRestartKeySixfoldDslV1(restartKeySixfoldDslV1 + 1);
+  };
+
+  const handlePlayClickSixfoldDslV1 = (): void => {
+    if (isPlayingSixfoldDslV1) {
+      // Stop playing
+      if (playIntervalSixfoldDslV1.current) {
+        clearInterval(playIntervalSixfoldDslV1.current);
+        playIntervalSixfoldDslV1.current = null;
+      }
+      setIsPlayingSixfoldDslV1(false);
+    } else {
+      // Clear any existing interval first to prevent race condition
+      if (playIntervalSixfoldDslV1.current) {
+        clearInterval(playIntervalSixfoldDslV1.current);
+        playIntervalSixfoldDslV1.current = null;
+      }
+      // Reset to 0 if at the end
+      if (currentStepSixfoldDslV1 >= DSL_SIXFOLD_V1_STEPS_LENGTH) {
+        setCurrentStepSixfoldDslV1(0);
+      }
+      // Start playing
+      setIsPlayingSixfoldDslV1(true);
+      playIntervalSixfoldDslV1.current = setInterval(() => {
+        setCurrentStepSixfoldDslV1((prev) => {
+          if (prev >= DSL_SIXFOLD_V1_STEPS_LENGTH) {
+            // Stop when reaching the end
+            if (playIntervalSixfoldDslV1.current) {
+              clearInterval(playIntervalSixfoldDslV1.current);
+              playIntervalSixfoldDslV1.current = null;
+            }
+            setIsPlayingSixfoldDslV1(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 200); // 200ms delay between steps
+    }
+  };
+
+  // Clean up interval on unmount
+  useEffect(() => {
+    return () => {
+      if (playIntervalSixfoldDslV1.current) {
+        clearInterval(playIntervalSixfoldDslV1.current);
       }
     };
   }, []);
@@ -915,6 +1043,82 @@ export default function App(): JSX.Element {
             <div>
               <GeometryList
                 store={storeSixFoldDsl}
+                strokeMid={strokeMid}
+                strokeBig={strokeBig}
+                strokeLine={strokeLine}
+                showInputHighlight={showInputHighlight}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SixFold DSL v1 Section */}
+      <div
+        ref={sectionRefs["sixfold-dsl-v1"]}
+        className="mb-8 p-8 bg-gray-900 rounded-lg"
+        id="sixfold-dsl-v1"
+        data-testid="section-sixfold-dsl-v1"
+      >
+        <div className="mb-6 flex items-center">
+          <h1 className="text-2xl font-semibold mb-1 text-left">SixFold v1 DSL with cs2</h1>
+          <CopyUrlButton />
+        </div>
+        <div className="mb-4">
+          <small className="block text-gray-400 mb-2">05/14/2026</small>
+          <p className="text-gray-300 mb-4">
+            SixFold v1 construction using DSL with cs2 coordinate system (97 steps).
+          </p>
+        </div>
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-7">
+            <GeometryPlayer
+              svgRef={sixfoldDslV1SvgRef}
+              svgConfig={standardSvgConfig}
+              currentStep={currentStepSixfoldDslV1}
+              totalSteps={DSL_SIXFOLD_V1_STEPS_LENGTH}
+              onStepChange={setCurrentStepSixfoldDslV1}
+              onFirstStep={handleFirstStepSixfoldDslV1}
+              onPrevStep={handlePrevClickSixfoldDslV1}
+              onNextStep={handleNextClickSixfoldDslV1}
+              onLastStep={handleLastStepSixfoldDslV1}
+              onRestart={handleRestartSixfoldDslV1}
+              showInputsToggle={true}
+              showInputHighlight={showInputHighlight}
+              onToggleInputs={toggleInputs}
+              showPlayButton={true}
+              isPlaying={isPlayingSixfoldDslV1}
+              onPlayClick={handlePlayClickSixfoldDslV1}
+            >
+              <SixFoldDslV1Svg
+                ref={sixfoldDslV1SvgRef}
+                store={storeSixFoldDslV1}
+                dotStrokeWidth={strokeBig}
+                svgConfig={standardSvgConfig}
+                restartTrigger={restartKeySixfoldDslV1}
+                currentStep={currentStepSixfoldDslV1}
+                theme={svgTheme}
+              />
+            </GeometryPlayer>
+          </div>
+          <div className="col-span-2">
+            <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <p className="text-gray-300 mb-4">
+              Current step {currentStepSixfoldDslV1}/{DSL_SIXFOLD_V1_STEPS_LENGTH}
+            </p>
+            <GeometryDetails
+              store={storeSixFoldDslV1}
+              strokeBig={strokeBig}
+              steps={sixfoldDslV1Steps}
+            />
+          </div>
+          <div className="col-span-3">
+            <div>
+              <GeometryList
+                store={storeSixFoldDslV1}
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
