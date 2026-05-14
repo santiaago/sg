@@ -132,5 +132,15 @@ describe("Sixfold DSL v1 with cs2", () => {
         expect(result.values.get(id)).toBeDefined();
       }
     });
+
+    // TODO: Task 12 - Test all points use cs2 as parent
+    // This requires inspecting step inputs to verify pointInCs calls use cs2
+    // For now, we verify key geometries are positioned correctly relative to cs2
+
+    // TODO: Task 13 - Test direction computation relative to cs2 orientation
+    // Requires framework support for relative direction computation
+
+    // TODO: Task 14 - Test cs2 transformations propagate
+    // Requires testing with rotated cs2 and verifying child geometries update
   });
 });
