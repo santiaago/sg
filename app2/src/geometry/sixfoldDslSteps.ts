@@ -19,7 +19,7 @@ export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
   // Outline style - same as square polygon style in squareDslSteps.ts
   const outlineStyle: LineStyleOptions = {
     strokeWidth: GOLDEN_RATIO,
-    strokeColor: (theme) => theme.COLOR_PRIMARY,
+    strokeColor: (theme) => theme.COLOR_OUTLINE,
   };
 
   // Step 0: Coordinate System

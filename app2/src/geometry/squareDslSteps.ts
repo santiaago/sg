@@ -75,7 +75,7 @@ export function buildSquareDslSteps(): Step<SquareConfig>[] {
   // Step 18: Final square with custom stroke width (GOLDEN_RATIO)
   const squareStyle: PolygonStyleOptions = {
     strokeWidth: GOLDEN_RATIO,
-    strokeColor: (theme) => theme.COLOR_PRIMARY,
+    strokeColor: (theme) => theme.COLOR_OUTLINE,
   };
   builder.polygon("square", [pl, pr, c1, c2], squareStyle);
 
