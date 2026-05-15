@@ -9,6 +9,7 @@ import type {
   PointLikeExpression,
   LineLikeExpression,
   CircleLikeExpression,
+  CoordinateSystemLikeExpression,
 } from "./expressions/types";
 import { GeometryFeatureReference } from "./GeometryFeatureReference";
 import type { ParameterValue, NumericPropertyOf, GeometryTypeMap } from "./types";
@@ -32,6 +33,11 @@ import { BisectCircleAndPointExpression } from "./expressions/operations/BisectC
 import { LineIntersectionExpression } from "./expressions/operations/LineIntersectionExpression";
 import { DistanceExpression } from "./expressions/operations/DistanceExpression";
 import { CircleWithDistanceRadiusExpression } from "./expressions/operations/CircleWithDistanceRadiusExpression";
+import { VectorExpression } from "./expressions/operations/VectorExpression";
+import { AddExpression } from "./expressions/operations/AddExpression";
+import { SubtractExpression } from "./expressions/operations/SubtractExpression";
+import { MultiplyExpression } from "./expressions/operations/MultiplyExpression";
+import { DivideExpression } from "./expressions/operations/DivideExpression";
 
 /**
  * GeometryBuilder is the main facade for the declarative geometry DSL.
@@ -463,6 +469,103 @@ export class GeometryBuilder<TConfig> {
     this.expressions.set(id, expr);
     return expr;
   }
+
+  // ========================================
+  // Vector and Arithmetic Expression Factory Methods
+  // ========================================
+
+  /**
+   * Create a vector expression that computes the vector (dx, dy) between two points or coordinate systems.
+   * The result can be referenced via .dx and .dy properties.
+   *
+   * @param id - Unique identifier for this vector
+   * @param from - Source geometry expression (point or coordinate system)
+   * @param to - Target geometry expression (point or coordinate system)
+   * @returns The created VectorExpression with .dx and .dy properties
+   */
+  vector(
+    id: string,
+    from: PointLikeExpression<TConfig> | CoordinateSystemLikeExpression<TConfig>,
+    to: PointLikeExpression<TConfig> | CoordinateSystemLikeExpression<TConfig>,
+  ): VectorExpression<TConfig> {
+    const expr = new VectorExpression(id, from, to);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create an add expression that computes the sum of two numeric values.
+   * The result can be referenced via .value property.
+   *
+   * @param id - Unique identifier for this addition
+   * @param a - First operand (number, config key, or feature reference)
+   * @param b - Second operand (number, config key, or feature reference)
+   * @returns The created AddExpression with .value property
+   */
+  add(id: string, a: ParameterValue<TConfig>, b: ParameterValue<TConfig>): AddExpression<TConfig> {
+    const expr = new AddExpression(id, a, b);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create a subtract expression that computes the difference of two numeric values.
+   * The result can be referenced via .value property.
+   *
+   * @param id - Unique identifier for this subtraction
+   * @param a - First operand (minuend) - number, config key, or feature reference
+   * @param b - Second operand (subtrahend) - number, config key, or feature reference
+   * @returns The created SubtractExpression with .value property
+   */
+  subtract(
+    id: string,
+    a: ParameterValue<TConfig>,
+    b: ParameterValue<TConfig>,
+  ): SubtractExpression<TConfig> {
+    const expr = new SubtractExpression(id, a, b);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create a multiply expression that computes the product of two numeric values.
+   * The result can be referenced via .value property.
+   *
+   * @param id - Unique identifier for this multiplication
+   * @param a - First operand (number, config key, or feature reference)
+   * @param b - Second operand (number, config key, or feature reference)
+   * @returns The created MultiplyExpression with .value property
+   */
+  multiply(
+    id: string,
+    a: ParameterValue<TConfig>,
+    b: ParameterValue<TConfig>,
+  ): MultiplyExpression<TConfig> {
+    const expr = new MultiplyExpression(id, a, b);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
+  /**
+   * Create a divide expression that computes the quotient of two numeric values.
+   * The result can be referenced via .value property.
+   * Returns NaN if dividing by zero (matches JavaScript behavior).
+   *
+   * @param id - Unique identifier for this division
+   * @param a - First operand (dividend) - number, config key, or feature reference
+   * @param b - Second operand (divisor) - number, config key, or feature reference
+   * @returns The created DivideExpression with .value property
+   */
+  divide(
+    id: string,
+    a: ParameterValue<TConfig>,
+    b: ParameterValue<TConfig>,
+  ): DivideExpression<TConfig> {
+    const expr = new DivideExpression(id, a, b);
+    this.expressions.set(id, expr);
+    return expr;
+  }
+
   // ========================================
   // Dependency Graph Methods
   // ========================================
