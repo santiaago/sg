@@ -122,6 +122,18 @@ describe("Vector Translation", () => {
       expect(quotientResult).toBeDefined();
       expect(approx(quotientResult!.x, 3)).toBe(true);
     });
+
+    it("returns Infinity when dividing by zero", () => {
+      const builder = new GeometryBuilder<TestConfig>();
+      builder.divide("quotient_zero", 10, 0);
+
+      const steps = builder.compile();
+      const result = executeStepsUtil(steps, { config });
+      const quotientResult = getGeometryValue<Point>(result, "quotient_zero");
+
+      expect(quotientResult).toBeDefined();
+      expect(quotientResult!.x).toBe(Infinity);
+    });
   });
 
   describe("Point Translation Pattern", () => {
