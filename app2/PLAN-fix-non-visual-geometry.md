@@ -4,6 +4,25 @@
 
 Fix issue where computation-only geometry (vectors, arithmetic expressions) appear in GeometryDetails as empty items (`|`). Implement Option B from SPEC: add `isVisual: boolean` property to GeometryExpression, filter non-visual geometry from store updates in DSL SVG components, and fail early on unknown geometry types in renderer.
 
+## Progress
+
+### Completed
+- [x] **Pass 1: Tests** - Created all failing tests (Tasks 15-18)
+  - `test/geometry/dsl/expressions.test.ts` - 27 tests
+  - `test/geometry/renderers/defaultRenderer.test.ts` - 31 tests
+  - `test/geometry/dsl/nonVisualGeometry.test.ts` - 9 tests
+  - `test/geometry/dsl/allDslComponents.test.ts` - 7 tests
+  - All tests FAIL as expected, documenting current broken behavior
+  - Commit: `4239820` - "test(app2): add SPEC, PLAN, and failing tests for non-visual geometry fix"
+
+### In Progress
+- [ ] **Pass 2: Foundation** - Add isVisual property (Tasks 1-4)
+- [ ] **Pass 3: Parallel** - Propagate to steps + renderer validation (Tasks 5-6, 10-14)
+- [ ] **Pass 4: Filtering** - Update DSL SVG components (Tasks 7-9)
+
+### Not Started
+- [ ] Final verification and manual testing
+
 ## Architecture Decisions
 
 1. **Approach: Option B** - Add `isVisual: boolean` to GeometryExpression interface (default `true`), override to `false` in non-visual expressions
