@@ -51,7 +51,12 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     theme: Theme,
   ): void {
     const p = values.get(geomId);
-    if (!p || !isPoint(p)) return;
+    if (!p) {
+      throw new Error(`drawPoint: geometry '${geomId}' not found in values`);
+    }
+    if (!isPoint(p)) {
+      throw new Error(`drawPoint: geometry '${geomId}' is ${p.type}, expected point`);
+    }
     svgDrawPoint(svg, values, geomId, POINT_RADIUS_MEDIUM, store, theme);
   }
 
@@ -69,7 +74,12 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     options?: LineStyleOptions,
   ): void {
     const l = values.get(geomId);
-    if (!l || !isLine(l)) return;
+    if (!l) {
+      throw new Error(`drawLine: geometry '${geomId}' not found in values`);
+    }
+    if (!isLine(l)) {
+      throw new Error(`drawLine: geometry '${geomId}' is ${l.type}, expected line`);
+    }
 
     const { strokeWidth, strokeColor } = this.resolveStrokeOptions(theme, options);
     svgDrawLine(svg, values, geomId, strokeWidth, store, theme, strokeColor);
@@ -87,7 +97,12 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     theme: Theme,
   ): void {
     const c = values.get(geomId);
-    if (!c || !isCircle(c)) return;
+    if (!c) {
+      throw new Error(`drawCircle: geometry '${geomId}' not found in values`);
+    }
+    if (!isCircle(c)) {
+      throw new Error(`drawCircle: geometry '${geomId}' is ${c.type}, expected circle`);
+    }
     svgDrawCircle(svg, values, geomId, STROKE_WIDTH_THIN, store, theme);
   }
 
@@ -104,7 +119,12 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     options?: PolygonStyleOptions,
   ): void {
     const p = values.get(geomId);
-    if (!p || !isPolygon(p)) return;
+    if (!p) {
+      throw new Error(`drawPolygon: geometry '${geomId}' not found in values`);
+    }
+    if (!isPolygon(p)) {
+      throw new Error(`drawPolygon: geometry '${geomId}' is ${p.type}, expected polygon`);
+    }
 
     const { strokeWidth, strokeColor } = this.resolveStrokeOptions(theme, options);
     svgDrawPolygon(svg, values, geomId, strokeWidth, store, theme, strokeColor);
@@ -122,7 +142,14 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     theme: Theme,
   ): void {
     const cs = values.get(geomId);
-    if (!cs || !isCoordinateSystem(cs)) return;
+    if (!cs) {
+      throw new Error(`drawCoordinateSystem: geometry '${geomId}' not found in values`);
+    }
+    if (!isCoordinateSystem(cs)) {
+      throw new Error(
+        `drawCoordinateSystem: geometry '${geomId}' is ${cs.type}, expected coordinate_system`,
+      );
+    }
     svgDrawCoordinateSystem(
       svg,
       values,

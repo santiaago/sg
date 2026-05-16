@@ -700,6 +700,7 @@ export class GeometryBuilder<TConfig> {
       if (!expr) continue;
 
       const step = expr.compile(this.renderer);
+      step.isVisual = expr.isVisual;
       steps.push(step);
     }
 
