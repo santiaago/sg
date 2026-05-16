@@ -567,8 +567,8 @@ if (!isCoordinateSystem(cs))
 
 - [x] `pnpm test` passes (all existing tests + new tests) - 632 passed, 1 skipped
 - [x] `pnpm type-check` passes (1 pre-existing App.tsx error unrelated to changes)
-- [x] `pnpm lint` passes
-- [x] `pnpm format` passes
+- [x] `pnpm lint` passes (66 warnings, 0 errors)
+- [x] `pnpm format` passes (after format:fix)
 - [ ] SixFold DSL v1 construction renders correctly in browser (manual verification needed)
 - [ ] SixFold DSL v0 construction renders correctly in browser (manual verification needed)
 - [ ] Square DSL construction renders correctly in browser (manual verification needed)
