@@ -14,10 +14,18 @@ Fix issue where computation-only geometry (vectors, arithmetic expressions) appe
   - `test/geometry/dsl/allDslComponents.test.ts` - 7 tests
   - All tests FAIL as expected, documenting current broken behavior
   - Commit: `4239820` - "test(app2): add SPEC, PLAN, and failing tests for non-visual geometry fix"
+- [x] **Pass 2: Foundation** - Add isVisual property (Tasks 1-4)
+  - GeometryExpression interface has `readonly isVisual: boolean` (default true)
+  - Step interface has `isVisual?: boolean`
+  - 6 non-visual expressions set to `isVisual = false`
+  - 13 visual expressions set to `isVisual = true`
+  - Commit: `86776b4` - "feat(app2/geometry): add isVisual property to expressions and Step interface"
+- [x] **Pass 3: Parallel** - Propagate to steps + renderer validation (Tasks 5-6, 10-14)
+  - GeometryBuilder.compile() propagates isVisual from expressions to steps
+  - All 5 DefaultRenderer draw methods throw descriptive errors on missing/wrong types
+  - Commit: `bdc3974` - "feat(app2/geometry): propagate isVisual to steps and add renderer type validation"
 
 ### In Progress
-- [ ] **Pass 2: Foundation** - Add isVisual property (Tasks 1-4)
-- [ ] **Pass 3: Parallel** - Propagate to steps + renderer validation (Tasks 5-6, 10-14)
 - [ ] **Pass 4: Filtering** - Update DSL SVG components (Tasks 7-9)
 
 ### Not Started
@@ -88,17 +96,19 @@ DefaultRenderer (fail early on unknown types)
 **Description:** Add optional `isVisual?: boolean` property to Step interface. This allows DSL SVG components to check visual status without accessing expressions directly.
 
 **Acceptance criteria:**
-- [ ] Step interface has `isVisual?: boolean` property
-- [ ] All existing code using Step interface still compiles
+- [x] Step interface has `isVisual?: boolean` property
+- [x] All existing code using Step interface still compiles
 
 **Verification:**
-- [ ] Tests pass: `pnpm type-check`
-- [ ] Build succeeds: `pnpm build`
+- [x] Tests pass: `pnpm type-check`
+- [x] Build succeeds: `pnpm build`
 
 **Dependencies:** None
 
-**Files likely touched:**
+**Files touched:**
 - `app2/src/types/geometry.ts`
+
+**Commit:** `86776b4`
 
 **Estimated scope:** XS
 
@@ -180,19 +190,21 @@ DefaultRenderer (fail early on unknown types)
 **Description:** Modify `GeometryBuilder.compile()` to add `isVisual` from each expression to its compiled Step. This propagates the visual status from expressions to steps.
 
 **Acceptance criteria:**
-- [ ] Each compiled Step has `isVisual` property set from its expression
-- [ ] Visual expressions produce steps with `isVisual: true` or undefined (defaults to true)
-- [ ] Non-visual expressions produce steps with `isVisual: false`
+- [x] Each compiled Step has `isVisual` property set from its expression
+- [x] Visual expressions produce steps with `isVisual: true` or undefined (defaults to true)
+- [x] Non-visual expressions produce steps with `isVisual: false`
 
 **Verification:**
-- [ ] Tests pass: `pnpm type-check`
-- [ ] Build succeeds: `pnpm build`
-- [ ] Manual check: compiled steps have isVisual property
+- [x] Tests pass: `pnpm type-check`
+- [x] Build succeeds: `pnpm build`
+- [x] Manual check: compiled steps have isVisual property
 
 **Dependencies:** Task 1, Task 2, Task 3
 
-**Files likely touched:**
+**Files touched:**
 - `app2/src/geometry/dsl/GeometryBuilder.ts`
+
+**Commit:** `bdc3974`
 
 **Estimated scope:** S
 
@@ -250,10 +262,12 @@ DefaultRenderer (fail early on unknown types)
 
 **Dependencies:** Task 6
 
-**Files likely touched:**
+**Files to touch:**
 - `app2/src/components/SixFoldDslV1Svg.tsx`
 
 **Estimated scope:** S
+
+**Status:** TODO - Next in Pass 4
 
 ---
 
@@ -272,10 +286,12 @@ DefaultRenderer (fail early on unknown types)
 
 **Dependencies:** Task 6, Task 7
 
-**Files likely touched:**
+**Files to touch:**
 - `app2/src/components/SixFoldDslSvg.tsx`
 
 **Estimated scope:** S
+
+**Status:** TODO - Next in Pass 4
 
 ---
 
@@ -294,8 +310,12 @@ DefaultRenderer (fail early on unknown types)
 
 **Dependencies:** Task 6, Task 7
 
-**Files likely touched:**
+**Files to touch:**
 - `app2/src/components/SquareDslSvg.tsx`
+
+**Estimated scope:** S
+
+**Status:** TODO - Next in Pass 4
 
 **Estimated scope:** S
 
@@ -595,3 +615,7 @@ Before considering implementation complete:
 4. Execute Pass 3: Parallel work (Tasks 5-6, 10-14)
 5. Execute Pass 4: Filtering (Tasks 7-9)
 6. Final verification
+
+5. Execute Pass 4: Filtering (Tasks 7-9)
+6. Final verification
+verification
