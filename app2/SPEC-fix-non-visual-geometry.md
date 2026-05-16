@@ -7,6 +7,7 @@ Fix issue where computation-only geometry (vectors, arithmetic expressions) appe
 **User pain point:** When stepping through SixFold DSL construction, GeometryDetails shows `vec_cs2_to_cs`, `p1_x`, `p1_y`, etc. as empty items, cluttering the UI and confusing users.
 
 **Success looks like:**
+
 - Only geometry with SVG elements appears in GeometryDetails
 - Non-visual computation steps (VectorExpression, AddExpression, SubtractExpression, MultiplyExpression, DivideExpression, DistanceExpression) do NOT appear in GeometryDetails
 - Unknown geometry types cause early, loud failures in both SVG rendering and GeometryDetails
@@ -119,6 +120,7 @@ app2/
 Add `isVisual: boolean` property to `GeometryExpression` interface, default `true`. Override to `false` in non-visual expressions.
 
 **Non-visual expressions (isVisual = false):**
+
 - VectorExpression
 - AddExpression
 - SubtractExpression
@@ -127,6 +129,7 @@ Add `isVisual: boolean` property to `GeometryExpression` interface, default `tru
 - DistanceExpression
 
 **Visual expressions (isVisual = true, default):**
+
 - PointExpression
 - PointInCoordinateSystemExpression
 - LineExpression
@@ -145,7 +148,7 @@ In DSL SVG components (`SixFoldDslV1Svg.tsx`, `SixFoldDslSvg.tsx`, `SquareDslSvg
 for (const [id, _] of allValues) {
   const step = stepForOutput.get(id);
   const expr = builder.getExpression(id);
-  
+
   // Only update store for visual geometry
   if (expr?.isVisual !== false) {
     store.update(id, { dependsOn: deps, stepId, parameterValues });
@@ -158,6 +161,7 @@ for (const [id, _] of allValues) {
 **SVG Rendering:** When `DefaultRenderer.draw*()` receives a geometry value that doesn't match the expected type, throw descriptive error immediately.
 
 Current behavior (BAD):
+
 ```ts
 drawPoint(svg, values, geomId, store, theme): void {
   const p = values.get(geomId);
@@ -166,6 +170,7 @@ drawPoint(svg, values, geomId, store, theme): void {
 ```
 
 Required behavior (GOOD):
+
 ```ts
 drawPoint(svg, values, geomId, store, theme): void {
   const p = values.get(geomId);
@@ -215,6 +220,7 @@ interface GeometryExpression {
 ```
 
 **Naming:**
+
 - Property: `isVisual` (boolean, readonly)
 - Test files: `*.test.ts` alongside source files
 - Error messages: include geometry ID, expected type, actual type
@@ -223,14 +229,14 @@ interface GeometryExpression {
 
 ### Test Levels
 
-| Concern | Test Level | Location |
-|---------|-----------|----------|
-| isVisual property on expressions | Unit | `tests/geometry/dsl/expressions.test.ts` |
-| Non-visual expressions have isVisual=false | Unit | `tests/geometry/dsl/expressions.test.ts` |
-| Visual expressions have isVisual=true | Unit | `tests/geometry/dsl/expressions.test.ts` |
-| Non-visual geometry not in store | Unit | `tests/geometry/dsl/nonVisualGeometry.test.ts` |
-| Renderer fails on unknown types | Unit | `tests/geometry/renderers/defaultRenderer.test.ts` |
-| All DSL components filter correctly | Integration | Manual + existing tests |
+| Concern                                    | Test Level  | Location                                           |
+| ------------------------------------------ | ----------- | -------------------------------------------------- |
+| isVisual property on expressions           | Unit        | `tests/geometry/dsl/expressions.test.ts`           |
+| Non-visual expressions have isVisual=false | Unit        | `tests/geometry/dsl/expressions.test.ts`           |
+| Visual expressions have isVisual=true      | Unit        | `tests/geometry/dsl/expressions.test.ts`           |
+| Non-visual geometry not in store           | Unit        | `tests/geometry/dsl/nonVisualGeometry.test.ts`     |
+| Renderer fails on unknown types            | Unit        | `tests/geometry/renderers/defaultRenderer.test.ts` |
+| All DSL components filter correctly        | Integration | Manual + existing tests                            |
 
 ### Coverage Expectations
 
@@ -283,7 +289,13 @@ describe("GeometryExpression isVisual property", () => {
 ```ts
 // tests/geometry/renderers/defaultRenderer.test.ts
 import { DefaultGeometryRenderer } from "../../../src/geometry/dsl/renderers/DefaultRenderer";
-import { isPoint, isLine, isCircle, isPolygon, isCoordinateSystem } from "../../../src/types/geometry";
+import {
+  isPoint,
+  isLine,
+  isCircle,
+  isPolygon,
+  isCoordinateSystem,
+} from "../../../src/types/geometry";
 
 describe("DefaultRenderer - type validation", () => {
   const renderer = new DefaultGeometryRenderer();
@@ -293,65 +305,55 @@ describe("DefaultRenderer - type validation", () => {
 
   describe("SHOULD FAIL: silent failures on wrong types", () => {
     it("drawPoint silently accepts line", () => {
-      const values = new Map([
-        ["line-as-point", { type: "line", x1: 0, y1: 0, x2: 1, y2: 1 }],
-      ]);
-      expect(() => renderer.drawPoint(svg, values, "line-as-point", store, theme))
-        .not.toThrow(); // BAD: should throw
+      const values = new Map([["line-as-point", { type: "line", x1: 0, y1: 0, x2: 1, y2: 1 }]]);
+      expect(() => renderer.drawPoint(svg, values, "line-as-point", store, theme)).not.toThrow(); // BAD: should throw
     });
 
     it("drawLine silently accepts point", () => {
-      const values = new Map([
-        ["point-as-line", { type: "point", x: 0, y: 0 }],
-      ]);
-      expect(() => renderer.drawLine(svg, values, "point-as-line", store, theme))
-        .not.toThrow(); // BAD: should throw
+      const values = new Map([["point-as-line", { type: "point", x: 0, y: 0 }]]);
+      expect(() => renderer.drawLine(svg, values, "point-as-line", store, theme)).not.toThrow(); // BAD: should throw
     });
 
     it("drawCircle silently accepts polygon", () => {
-      const values = new Map([
-        ["poly-as-circle", { type: "polygon", points: [] }],
-      ]);
-      expect(() => renderer.drawCircle(svg, values, "poly-as-circle", store, theme))
-        .not.toThrow(); // BAD: should throw
+      const values = new Map([["poly-as-circle", { type: "polygon", points: [] }]]);
+      expect(() => renderer.drawCircle(svg, values, "poly-as-circle", store, theme)).not.toThrow(); // BAD: should throw
     });
   });
 
   describe("WILL PASS AFTER FIX: loud failures on wrong types", () => {
     it("drawPoint throws on line", () => {
-      const values = new Map([
-        ["line-as-point", { type: "line", x1: 0, y1: 0, x2: 1, y2: 1 }],
-      ]);
-      expect(() => renderer.drawPoint(svg, values, "line-as-point", store, theme))
-        .toThrow("geometry 'line-as-point' is line, expected point");
+      const values = new Map([["line-as-point", { type: "line", x1: 0, y1: 0, x2: 1, y2: 1 }]]);
+      expect(() => renderer.drawPoint(svg, values, "line-as-point", store, theme)).toThrow(
+        "geometry 'line-as-point' is line, expected point",
+      );
     });
 
     it("drawLine throws on point", () => {
-      const values = new Map([
-        ["point-as-line", { type: "point", x: 0, y: 0 }],
-      ]);
-      expect(() => renderer.drawLine(svg, values, "point-as-line", store, theme))
-        .toThrow("geometry 'point-as-line' is point, expected line");
+      const values = new Map([["point-as-line", { type: "point", x: 0, y: 0 }]]);
+      expect(() => renderer.drawLine(svg, values, "point-as-line", store, theme)).toThrow(
+        "geometry 'point-as-line' is point, expected line",
+      );
     });
 
     it("drawCircle throws on polygon", () => {
-      const values = new Map([
-        ["poly-as-circle", { type: "polygon", points: [] }],
-      ]);
-      expect(() => renderer.drawCircle(svg, values, "poly-as-circle", store, theme))
-        .toThrow("geometry 'poly-as-circle' is polygon, expected circle");
+      const values = new Map([["poly-as-circle", { type: "polygon", points: [] }]]);
+      expect(() => renderer.drawCircle(svg, values, "poly-as-circle", store, theme)).toThrow(
+        "geometry 'poly-as-circle' is polygon, expected circle",
+      );
     });
 
     it("drawPoint throws on missing geometry", () => {
       const values = new Map();
-      expect(() => renderer.drawPoint(svg, values, "missing", store, theme))
-        .toThrow("geometry 'missing' not found in values");
+      expect(() => renderer.drawPoint(svg, values, "missing", store, theme)).toThrow(
+        "geometry 'missing' not found in values",
+      );
     });
 
     it("drawLine throws on missing geometry", () => {
       const values = new Map();
-      expect(() => renderer.drawLine(svg, values, "missing", store, theme))
-        .toThrow("geometry 'missing' not found in values");
+      expect(() => renderer.drawLine(svg, values, "missing", store, theme)).toThrow(
+        "geometry 'missing' not found in values",
+      );
     });
   });
 });
@@ -372,9 +374,9 @@ describe("Non-visual geometry filtering", () => {
       const steps = buildSixfoldDslV1Steps();
       const store = createMockStore();
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      
+
       executeSteps(steps, 5, { svg, store, theme: darkTheme }, config);
-      
+
       expect(store.items["vec_cs2_to_cs"]).toBeDefined(); // BAD
     });
 
@@ -382,9 +384,9 @@ describe("Non-visual geometry filtering", () => {
       const steps = buildSixfoldDslV1Steps();
       const store = createMockStore();
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      
+
       executeSteps(steps, 5, { svg, store, theme: darkTheme }, config);
-      
+
       expect(store.items["p1_x"]).toBeDefined(); // BAD
       expect(store.items["p1_y"]).toBeDefined(); // BAD
     });
@@ -395,9 +397,9 @@ describe("Non-visual geometry filtering", () => {
       const steps = buildSixfoldDslV1Steps();
       const store = createMockStore();
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      
+
       executeSteps(steps, 5, { svg, store, theme: darkTheme }, config);
-      
+
       expect(store.items["vec_cs2_to_cs"]).toBeUndefined();
     });
 
@@ -405,9 +407,9 @@ describe("Non-visual geometry filtering", () => {
       const steps = buildSixfoldDslV1Steps();
       const store = createMockStore();
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      
+
       executeSteps(steps, 5, { svg, store, theme: darkTheme }, config);
-      
+
       expect(store.items["p1_x"]).toBeUndefined();
       expect(store.items["p1_y"]).toBeUndefined();
       expect(store.items["p2_x"]).toBeUndefined();
@@ -418,9 +420,9 @@ describe("Non-visual geometry filtering", () => {
       const steps = buildSixfoldDslV1Steps();
       const store = createMockStore();
       const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      
+
       executeSteps(steps, 5, { svg, store, theme: darkTheme }, config);
-      
+
       // Visual geometry should still be present
       expect(store.items["cs"]).toBeDefined();
       expect(store.items["cs2"]).toBeDefined();
@@ -495,11 +497,11 @@ for (const [id, _] of allValues) {
   const step = stepForOutput.get(id);
   const paramValues = step?.parameters ? pick(sixfoldConfig, step.parameters) : {};
   const stepId = step?.id ?? "";
-  
+
   // Get the expression from the builder to check isVisual
   // Need to pass builder or expressions map to this scope
   const expr = /* get expression for id */;
-  
+
   if (expr?.isVisual !== false) {
     store.update(id, { dependsOn: deps, stepId, parameterValues });
   }
@@ -507,6 +509,7 @@ for (const [id, _] of allValues) {
 ```
 
 Note: Need mechanism to access expressions from builder. Options:
+
 - Pass `builder` or `builder.getAllExpressions()` to the component
 - Store expressions map on the compiled steps
 - Export expressions map from step files
@@ -530,11 +533,15 @@ if (!isCircle(c)) throw new Error(`drawCircle: geometry '${geomId}' is ${c.type}
 
 // drawPolygon
 if (!p) throw new Error(`drawPolygon: geometry '${geomId}' not found in values`);
-if (!isPolygon(p)) throw new Error(`drawPolygon: geometry '${geomId}' is ${p.type}, expected polygon`);
+if (!isPolygon(p))
+  throw new Error(`drawPolygon: geometry '${geomId}' is ${p.type}, expected polygon`);
 
 // drawCoordinateSystem
 if (!cs) throw new Error(`drawCoordinateSystem: geometry '${geomId}' not found in values`);
-if (!isCoordinateSystem(cs)) throw new Error(`drawCoordinateSystem: geometry '${geomId}' is ${cs.type}, expected coordinate_system`);
+if (!isCoordinateSystem(cs))
+  throw new Error(
+    `drawCoordinateSystem: geometry '${geomId}' is ${cs.type}, expected coordinate_system`,
+  );
 ```
 
 ## Boundaries
@@ -574,6 +581,7 @@ if (!isCoordinateSystem(cs)) throw new Error(`drawCoordinateSystem: geometry '${
 ## Implementation Status: COMPLETE
 
 All 4 passes implemented:
+
 - **Pass 1 (Tests):** Commit `4239820` - Created all failing tests
 - **Pass 2 (Foundation):** Commit `86776b4` - isVisual property on all expressions
 - **Pass 3 (Parallel):** Commit `bdc3974` - Propagate isVisual + renderer validation
@@ -597,9 +605,11 @@ All 4 passes implemented:
 ## Files to Modify
 
 ### Interface/Type Changes
+
 - `app2/src/geometry/dsl/expressions/GeometryExpression.ts` - Add `isVisual: boolean`
 
 ### Non-Visual Expressions (set isVisual = false)
+
 - `app2/src/geometry/dsl/expressions/operations/VectorExpression.ts`
 - `app2/src/geometry/dsl/expressions/operations/AddExpression.ts`
 - `app2/src/geometry/dsl/expressions/operations/SubtractExpression.ts`
@@ -608,17 +618,21 @@ All 4 passes implemented:
 - `app2/src/geometry/dsl/expressions/operations/DistanceExpression.ts`
 
 ### Visual Expressions (verify isVisual = true, default)
+
 - All other expression classes in `app2/src/geometry/dsl/expressions/` and subdirectories
 
 ### DSL SVG Components (filter non-visual)
+
 - `app2/src/components/SixFoldDslV1Svg.tsx`
 - `app2/src/components/SixFoldDslSvg.tsx`
 - `app2/src/components/SquareDslSvg.tsx`
 
 ### Renderer (fail early on unknown types)
+
 - `app2/src/geometry/dsl/renderers/DefaultRenderer.ts`
 
 ### New Test Files
+
 - `app2/tests/geometry/dsl/expressions.test.ts`
 - `app2/tests/geometry/renderers/defaultRenderer.test.ts`
 - `app2/tests/geometry/dsl/nonVisualGeometry.test.ts`

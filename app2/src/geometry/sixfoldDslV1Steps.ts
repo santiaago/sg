@@ -37,7 +37,7 @@ export function buildSixfoldDslV1Steps(): Step<SixFoldV0Config>[] {
 
   // Step 2: Point P1 in cs2 at (0, 0) - absolute position = (p1x, p1y)
   const p1 = builder.pointInCs("p1", cs2, 0, 0);
-  
+
   void cs; // Root coordinate system, not directly referenced but part of hierarchy
 
   // Step 3: Point P2 - changed to use cs2 instead of cs

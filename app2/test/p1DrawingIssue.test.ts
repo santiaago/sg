@@ -21,21 +21,27 @@ interface TestConfig {
 }
 
 describe("P1 Vector Translation Pattern - from sixfoldDslV1Steps.ts", () => {
-  const config: TestConfig = { 
-    p1x: 100, 
-    p1y: 200, 
-    p2x: 30, 
-    p2y: 40, 
-    coordinateSystemArrowLength: 10 
+  const config: TestConfig = {
+    p1x: 100,
+    p1y: 200,
+    p2x: 30,
+    p2y: 40,
+    coordinateSystemArrowLength: 10,
   };
 
   it("pattern from sixfoldDslV1Steps.ts computes p1 correctly", () => {
     const builder = new GeometryBuilder<TestConfig>();
-    
+
     // Exact pattern from user's file
-    const cs = builder.coordinateSystem("cs", 0, 0, builder.param("coordinateSystemArrowLength"), 0);
+    const cs = builder.coordinateSystem(
+      "cs",
+      0,
+      0,
+      builder.param("coordinateSystemArrowLength"),
+      0,
+    );
     const cs2 = builder.coordinateSystem("cs2", builder.param("p1x"), builder.param("p1y"), 0, 0);
-    
+
     const vec_cs2_to_cs = builder.vector("vec_cs2_to_cs", cs2, cs);
     const p1_x = builder.add("p1_x", builder.param("p1x"), vec_cs2_to_cs.dx);
     const p1_y = builder.add("p1_y", builder.param("p1y"), vec_cs2_to_cs.dy);
@@ -43,10 +49,10 @@ describe("P1 Vector Translation Pattern - from sixfoldDslV1Steps.ts", () => {
 
     const steps = builder.compile();
     const result = executeStepsUtil(steps, { config });
-    
+
     const p1Result = getGeometryValue<Point>(result, "p1");
     const cs2Result = getGeometryValue<Point>(result, "cs2");
-    
+
     expect(p1Result).toBeDefined();
     expect(cs2Result).toBeDefined();
     expect(approx(p1Result!.x, cs2Result!.x)).toBe(true);

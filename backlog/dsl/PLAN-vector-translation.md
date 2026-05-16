@@ -1,6 +1,7 @@
 # Implementation Plan: Vector Translation Support in DSL
 
 ## Overview
+
 Implement vector arithmetic (addition, subtraction, multiplication, division) and vector computation for the declarative geometry DSL. This resolves the NaN issue when subtracting `GeometryFeatureReference` objects (e.g., `cs.x - cs2.x`) and enables point translation using computed vectors. Zero breaking changes to existing DSL code.
 
 ## Architecture Decisions
@@ -79,7 +80,7 @@ Existing DSL infrastructure (GeometryExpression, GeometryFeatureReference, types
   - **Status**: COMPLETE
 
 - [x] **Task 4: Create MultiplyExpression**
-  - **Description**: Implement `MultiplyExpression<TConfig>` that computes a * b
+  - **Description**: Implement `MultiplyExpression<TConfig>` that computes a \* b
   - **Acceptance criteria**:
     - [x] Class extends `GeometryExpression<TConfig, "point">`
     - [x] Constructor accepts id, a, b
@@ -230,6 +231,7 @@ Existing DSL infrastructure (GeometryExpression, GeometryFeatureReference, types
 ## Next Steps
 
 Ready for:
+
 1. Human review of implementation
 2. Integration into sixfoldDslV1Steps.ts (user code update to use new API)
 3. Any additional tasks from the spec
@@ -237,6 +239,7 @@ Ready for:
 ## Resume Point
 
 To continue work:
+
 ```bash
 # All Phase 1-4 tasks complete. Ready for next phase or review.
 # Run verification:
@@ -248,13 +251,13 @@ pnpm test
 
 ## Risks and Mitigations
 
-| Risk                                                        | Impact | Mitigation                                                                                        | Status      |
-| ----------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------- | ----------- |
-| Type incompatibility between expressions and ParameterValue | High   | Verify `ParameterValue` union accepts all new expression types via `GeometryFeatureReferenceLike` | Mitigated  |
-| Dependency tracking issues in compiled Steps                | High   | Follow `DistanceExpression` pattern exactly; test dependency tracking                             | Mitigated  |
-| Floating point precision issues                             | Medium | Use `approx()` helper in tests with 1e-9 tolerance                                                | Mitigated  |
-| Division by zero in DivideExpression                        | Medium | Return NaN (matches JavaScript behavior) or throw descriptive error                               | Mitigated  |
-| Breaking existing DSL code                                  | High   | Run full test suite after each phase; no changes to existing expression implementations           | Mitigated  |
+| Risk                                                        | Impact | Mitigation                                                                                        | Status    |
+| ----------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------- | --------- |
+| Type incompatibility between expressions and ParameterValue | High   | Verify `ParameterValue` union accepts all new expression types via `GeometryFeatureReferenceLike` | Mitigated |
+| Dependency tracking issues in compiled Steps                | High   | Follow `DistanceExpression` pattern exactly; test dependency tracking                             | Mitigated |
+| Floating point precision issues                             | Medium | Use `approx()` helper in tests with 1e-9 tolerance                                                | Mitigated |
+| Division by zero in DivideExpression                        | Medium | Return NaN (matches JavaScript behavior) or throw descriptive error                               | Mitigated |
+| Breaking existing DSL code                                  | High   | Run full test suite after each phase; no changes to existing expression implementations           | Mitigated |
 
 ## Open Questions
 

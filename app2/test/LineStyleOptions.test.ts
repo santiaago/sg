@@ -275,10 +275,9 @@ describe("LineStyleOptions", () => {
       };
 
       // Provide valid line geometry
-      const values = new Map<string, unknown>([[
-        "L1",
-        { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 },
-      ]]);
+      const values = new Map<string, unknown>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
 
       // This should not throw
       expect(() => {
@@ -288,10 +287,9 @@ describe("LineStyleOptions", () => {
 
     it("drawLine works without style options", () => {
       // Provide valid line geometry
-      const values = new Map<string, unknown>([[
-        "L1",
-        { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 },
-      ]]);
+      const values = new Map<string, unknown>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
 
       // This should not throw (backward compatibility)
       expect(() => {
@@ -305,10 +303,9 @@ describe("LineStyleOptions", () => {
         strokeColor: "#00ff00",
       };
 
-      const values = new Map<string, unknown>([[
-        "L1",
-        { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 },
-      ]]);
+      const values = new Map<string, unknown>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
 
       renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme, style);
 
@@ -336,10 +333,9 @@ describe("LineStyleOptions", () => {
       };
 
       // Provide valid line geometry
-      const values = new Map<string, unknown>([[
-        "L1",
-        { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 },
-      ]]);
+      const values = new Map<string, unknown>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
 
       // This should not throw
       expect(() => {
@@ -349,10 +345,9 @@ describe("LineStyleOptions", () => {
 
     it("drawLine works without style options", () => {
       // Provide valid line geometry
-      const values = new Map<string, unknown>([[
-        "L1",
-        { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 },
-      ]]);
+      const values = new Map<string, unknown>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
 
       // This should not throw (backward compatibility)
       expect(() => {
@@ -531,10 +526,9 @@ describe("LineStyleOptions", () => {
       const ctx = createTestContext();
 
       // Provide valid line geometry
-      const values = new Map<string, unknown>([[
-        "L1",
-        { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 },
-      ]]);
+      const values = new Map<string, unknown>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
 
       expect(() => {
         renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme);
@@ -546,10 +540,9 @@ describe("LineStyleOptions", () => {
       const ctx = createTestContext();
 
       // TestGeometryRenderer doesn't validate, but provide valid geometry for consistency
-      const values = new Map<string, unknown>([[
-        "L1",
-        { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 },
-      ]]);
+      const values = new Map<string, unknown>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
 
       expect(() => {
         renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme);

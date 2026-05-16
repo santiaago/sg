@@ -7,6 +7,7 @@ Create new Sixfold DSL v1 variant introducing `cs2` coordinate system. `cs2` cre
 **User**: Geometry construction developers needing hierarchical coordinate system support.
 
 **Success Criteria:**
+
 - [ ] `cs2` coordinate system created after cs at (p1x, p1y) from config (based on cs)
 - [ ] `p1` created in cs2 at (0, 0)
 - [ ] All direction choices **computed relative to cs2's orientation** (not hardcoded strings)
@@ -67,13 +68,13 @@ Match `sixfoldDslSteps.ts` patterns exactly.
 
 ### Naming Conventions
 
-| Entity | Convention | Example |
-|--------|------------|---------|
-| Coordinate System IDs | lowercase with underscore | `cs`, `cs2` |
-| Geometry IDs | lowercase with underscore | `p1`, `c1`, `line1` |
-| Builder variable | `builder` | `const builder = new GeometryBuilder...` |
-| Function name | `buildSixfoldDslV1Steps` | Exported function |
-| Step count constant | UPPER_SNAKE_CASE | `DSL_SIXFOLD_V1_STEPS_LENGTH` |
+| Entity                | Convention                | Example                                  |
+| --------------------- | ------------------------- | ---------------------------------------- |
+| Coordinate System IDs | lowercase with underscore | `cs`, `cs2`                              |
+| Geometry IDs          | lowercase with underscore | `p1`, `c1`, `line1`                      |
+| Builder variable      | `builder`                 | `const builder = new GeometryBuilder...` |
+| Function name         | `buildSixfoldDslV1Steps`  | Exported function                        |
+| Step count constant   | UPPER_SNAKE_CASE          | `DSL_SIXFOLD_V1_STEPS_LENGTH`            |
 
 ### Example Structure
 
@@ -122,15 +123,16 @@ const line1 = builder.line("line1", p1, p2);
 
 **Test Location**: `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts`
 
-| Test Level | Concern | Coverage |
-|------------|---------|----------|
-| Unit | cs2 coordinate system creation | cs2 at same position as cs, p1 at (0,0) in cs2 |
-| Integration | Geometry parentage | All geometries use cs2 as parent coordinate system |
-| Integration | Direction semantics | Direction choices (up, left, etc.) relative to cs2 |
-| Integration | Transformation propagation | cs2 transformations affect all geometries in cs2 hierarchy |
-| Integration | Step equivalence | Steps produce valid geometry |
+| Test Level  | Concern                        | Coverage                                                   |
+| ----------- | ------------------------------ | ---------------------------------------------------------- |
+| Unit        | cs2 coordinate system creation | cs2 at same position as cs, p1 at (0,0) in cs2             |
+| Integration | Geometry parentage             | All geometries use cs2 as parent coordinate system         |
+| Integration | Direction semantics            | Direction choices (up, left, etc.) relative to cs2         |
+| Integration | Transformation propagation     | cs2 transformations affect all geometries in cs2 hierarchy |
+| Integration | Step equivalence               | Steps produce valid geometry                               |
 
 **Test Cases:**
+
 1. Verify cs2 position equals config p1x, p1y
 2. Verify p1 at (0, 0) in cs2, absolute position = (p1x, p1y)
 3. Verify all geometries after cs2 use cs2 as parent (transitively through dependencies)
@@ -142,6 +144,7 @@ const line1 = builder.line("line1", p1, p2);
 **Note on Dependencies**: Not all geometries will have direct dependency on cs2. For example, a point created at the intersection of two lines depends on those lines, not directly on cs2. However, if those lines are defined using points in cs2, there is an indirect dependency through the dependency chain. Tests should verify transitive dependency, not direct dependency.
 
 **Verification Commands:**
+
 ```bash
 pnpm test
 pnpm type-check:app2
@@ -232,14 +235,14 @@ pnpm format
 
 ### Step Order
 
-| Step | Geometry | Coordinate System | Description |
-|------|----------|-------------------|-------------|
-| 0 | cs | - | Root coordinate system at (0, 0) |
-| 1 | cs2 | - | Secondary coordinate system at (p1x, p1y) from config |
-| 2 | p1 | cs2 | Point p1 at (0, 0) in cs2, absolute position = (p1x, p1y) |
-| 3 | p2 | cs2 | Point p2 in cs2 (was in cs in v0, now in cs2) |
-| 4 | line1 | - | Line from p1 to p2 |
-| ... | ... | cs2 | All subsequent points use cs2 |
+| Step | Geometry | Coordinate System | Description                                               |
+| ---- | -------- | ----------------- | --------------------------------------------------------- |
+| 0    | cs       | -                 | Root coordinate system at (0, 0)                          |
+| 1    | cs2      | -                 | Secondary coordinate system at (p1x, p1y) from config     |
+| 2    | p1       | cs2               | Point p1 at (0, 0) in cs2, absolute position = (p1x, p1y) |
+| 3    | p2       | cs2               | Point p2 in cs2 (was in cs in v0, now in cs2)             |
+| 4    | line1    | -                 | Line from p1 to p2                                        |
+| ...  | ...      | cs2               | All subsequent points use cs2                             |
 
 **Note**: Step numbers shift by +1 compared to original v0 (cs2 inserted at step 1, original steps 1-93 become steps 2-94).
 
@@ -320,13 +323,15 @@ import { executeSteps } from "../stepExecution";
 import { approx } from "@sg/geometry";
 
 describe("Sixfold DSL v1 with cs2", () => {
-  const config = { /* default SixFoldV0Config */ };
+  const config = {
+    /* default SixFoldV0Config */
+  };
 
   it("cs2 at (p1x, p1y) from config", () => {
     const steps = buildSixfoldDslV1Steps();
     const results = executeSteps(steps, config);
     const cs2 = results.get("cs2");
-    
+
     // cs2 should be at absolute position (config.p1x, config.p1y)
     expect(approx(cs2.x, config.p1x)).toBeTrue();
     expect(approx(cs2.y, config.p1y)).toBeTrue();
@@ -337,7 +342,7 @@ describe("Sixfold DSL v1 with cs2", () => {
     const results = executeSteps(steps, config);
     const p1 = results.get("p1");
     const cs2 = results.get("cs2");
-    
+
     // p1's global position should equal cs2's position (p1 at origin of cs2)
     expect(approx(p1.x, cs2.x)).toBeTrue();
     expect(approx(p1.y, cs2.y)).toBeTrue();
@@ -357,14 +362,14 @@ describe("Sixfold DSL v1 with cs2", () => {
     // Verify that direction-based operations compute directions relative to cs2
     // Rotate cs2 and verify geometry recomputes correctly
     // This test ensures zero code changes needed when cs2 rotates
-    
+
     // Create config with cs2 rotation
     const configWithRotation = { ...config, cs2Rotation: Math.PI / 2 }; // 90 degrees
-    
+
     // Execute steps with rotated cs2
     const steps = buildSixfoldDslV1Steps();
     const results = executeSteps(steps, configWithRotation);
-    
+
     // Verify that direction-based geometries have recomputed positions
     // relative to cs2's new orientation
     // (Specific assertions depend on direction computation implementation)
@@ -392,20 +397,21 @@ describe("Sixfold DSL v1 with cs2", () => {
 
 ## Decisions
 
-| # | Decision | Options | Recommendation | Status |
-|---|----------|---------|----------------|--------|
-| 1 | File naming | Use v1 version naming | `sixfoldDslV1Steps.ts` | **RESOLVED** |
-| 2 | cs2 position | Before p1 / After p1 | **Before p1** (cs2 created at step 1, p1 at step 2 in cs2) | **RESOLVED** |
-| 3 | p1 position in cs2 | Arbitrary / (0,0) | **(0,0)** - p1 at origin of cs2 | **RESOLVED** |
-| 4 | cs2 based on cs | At (p1x, p1y) from config | Absolute position based on cs origin | **RESOLVED** |
-| 5 | Direction choices | Hardcoded / Computed relative to cs2 | **Computed relative to cs2** - ensures rotation works with zero changes | **RESOLVED** |
-| 6 | Step numbering shift | Acceptable? | **Yes - shift ok** | **RESOLVED** |
-| 7 | cs2 inherit from cs | Should cs2 inherit? | **Yes - inherit** | **RESOLVED** |
-| 8 | Direction reference | Absolute / Relative to cs2 | **Relative to cs2 position** | **RESOLVED** |
+| #   | Decision             | Options                              | Recommendation                                                          | Status       |
+| --- | -------------------- | ------------------------------------ | ----------------------------------------------------------------------- | ------------ |
+| 1   | File naming          | Use v1 version naming                | `sixfoldDslV1Steps.ts`                                                  | **RESOLVED** |
+| 2   | cs2 position         | Before p1 / After p1                 | **Before p1** (cs2 created at step 1, p1 at step 2 in cs2)              | **RESOLVED** |
+| 3   | p1 position in cs2   | Arbitrary / (0,0)                    | **(0,0)** - p1 at origin of cs2                                         | **RESOLVED** |
+| 4   | cs2 based on cs      | At (p1x, p1y) from config            | Absolute position based on cs origin                                    | **RESOLVED** |
+| 5   | Direction choices    | Hardcoded / Computed relative to cs2 | **Computed relative to cs2** - ensures rotation works with zero changes | **RESOLVED** |
+| 6   | Step numbering shift | Acceptable?                          | **Yes - shift ok**                                                      | **RESOLVED** |
+| 7   | cs2 inherit from cs  | Should cs2 inherit?                  | **Yes - inherit**                                                       | **RESOLVED** |
+| 8   | Direction reference  | Absolute / Relative to cs2           | **Relative to cs2 position**                                            | **RESOLVED** |
 
 ## Appendix A: Reference - Step Order Comparison
 
 Original `sixfoldDslSteps.ts` (v0):
+
 - Step 0: cs (coordinate system at origin)
 - Step 1: p1 (point in cs at config p1x, p1y)
 - Step 2: p2 (point in cs at config p2x, p2y)
@@ -413,6 +419,7 @@ Original `sixfoldDslSteps.ts` (v0):
 - ...
 
 New `sixfoldDslV1Steps.ts`:
+
 - Step 0: cs (coordinate system at origin) - UNCHANGED
 - Step 1: cs2 (coordinate system at config p1x, p1y) - NEW
 - Step 2: p1 (point in cs2 at (0, 0)) - MODIFIED (was in cs at config coords, now in cs2 at origin; absolute position still (p1x, p1y))

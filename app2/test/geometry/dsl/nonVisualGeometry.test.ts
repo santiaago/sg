@@ -4,7 +4,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { GeometryBuilder } from "@/geometry/dsl/GeometryBuilder";
 import { DefaultGeometryRenderer } from "@/geometry/dsl/renderers/DefaultRenderer";
-import { createMockGeometryStore, createMockSVG, createMockTheme, createStepExecutionContext } from "../../dsl-test-utils";
+import {
+  createMockGeometryStore,
+  createMockSVG,
+  createMockTheme,
+  createStepExecutionContext,
+} from "../../dsl-test-utils";
 import { executeSteps } from "@/geometry/stepExecution";
 
 // Test configuration type matching SixFoldV0Config
@@ -49,7 +54,13 @@ describe("Non-visual geometry filtering", () => {
 
   function buildTestSteps() {
     // Coordinate systems
-    const cs = builder.coordinateSystem("cs", 0, 0, builder.param("coordinateSystemArrowLength"), 0);
+    const cs = builder.coordinateSystem(
+      "cs",
+      0,
+      0,
+      builder.param("coordinateSystemArrowLength"),
+      0,
+    );
     const cs2 = builder.coordinateSystem(
       "cs2",
       builder.param("p1x"),
@@ -98,14 +109,14 @@ describe("Non-visual geometry filtering", () => {
     it("VectorExpression NOT in store.items after execution", () => {
       const steps = buildTestSteps();
       const items = executeAndGetStore(steps, 8); // Execute enough steps to include vec_cs2_to_cs
-      
+
       expect(items["vec_cs2_to_cs"]).toBeUndefined();
     });
 
     it("AddExpression NOT in store.items after execution", () => {
       const steps = buildTestSteps();
       const items = executeAndGetStore(steps, 10); // Execute enough steps to include p1_x, p1_y
-      
+
       expect(items["p1_x"]).toBeUndefined();
       expect(items["p1_y"]).toBeUndefined();
       expect(items["p2_x"]).toBeUndefined();
@@ -115,21 +126,21 @@ describe("Non-visual geometry filtering", () => {
     it("DistanceExpression NOT in store.items after execution", () => {
       const steps = buildTestSteps();
       const items = executeAndGetStore(steps, 12); // Execute all steps including distance
-      
+
       expect(items["dist_p1_p2"]).toBeUndefined();
     });
 
     it("Visual geometry still in store.items after execution", () => {
       const steps = buildTestSteps();
       const items = executeAndGetStore(steps, 12);
-      
+
       // Visual geometry should still be present
       expect(items["cs"]).toBeDefined();
       expect(items["cs2"]).toBeDefined();
       expect(items["p1"]).toBeDefined();
       expect(items["p2"]).toBeDefined();
       expect(items["line1"]).toBeDefined();
-      
+
       // And they should have elements
       expect(items["cs"]?.element).toBeDefined();
       expect(items["cs2"]?.element).toBeDefined();
@@ -141,14 +152,14 @@ describe("Non-visual geometry filtering", () => {
     it("All non-visual expressions filtered from store", () => {
       const steps = buildTestSteps();
       const items = executeAndGetStore(steps, 12);
-      
+
       const nonVisualIds = ["vec_cs2_to_cs", "p1_x", "p1_y", "p2_x", "p2_y", "dist_p1_p2"];
       const visualIds = ["cs", "cs2", "p1", "p2", "line1"];
-      
+
       nonVisualIds.forEach((id) => {
         expect(items[id]).toBeUndefined();
       });
-      
+
       visualIds.forEach((id) => {
         expect(items[id]).toBeDefined();
       });

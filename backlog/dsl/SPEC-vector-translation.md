@@ -7,6 +7,7 @@ Enable vector-based point translation in the declarative geometry DSL. Currently
 **User**: Geometry construction developers needing to translate points using computed vectors.
 
 **Success Criteria:**
+
 - [ ] Vector arithmetic (addition, subtraction) supported for `ParameterValue` types
 - [ ] `cs.x - cs2.x` pattern produces numeric vector component, not NaN
 - [ ] Points can be defined as `p1x + vector_dx, p1y + vector_dy` in DSL
@@ -71,12 +72,12 @@ Match existing DSL expression patterns. See `DistanceExpression.ts` for referenc
 
 ### Naming Conventions
 
-| Entity | Convention | Example |
-|--------|------------|---------|
-| Expression classes | PascalCase + Expression | `VectorExpression`, `AddExpression` |
-| Method names | camelCase | `vector`, `add`, `subtract`, `multiply`, `divide` |
-| Property accessors | getters | `get dx()`, `get dy()`, `get value()` |
-| Helper methods | builder prefix | `builder.vector()`, `builder.add()` |
+| Entity             | Convention              | Example                                           |
+| ------------------ | ----------------------- | ------------------------------------------------- |
+| Expression classes | PascalCase + Expression | `VectorExpression`, `AddExpression`               |
+| Method names       | camelCase               | `vector`, `add`, `subtract`, `multiply`, `divide` |
+| Property accessors | getters                 | `get dx()`, `get dy()`, `get value()`             |
+| Helper methods     | builder prefix          | `builder.vector()`, `builder.add()`               |
 
 ### Example Structure
 
@@ -125,7 +126,10 @@ export class VectorExpression<TConfig> implements GeometryExpression<TConfig, "p
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
-      compute: (inputs: Map<string, GeometryValue>, _params: TConfig): Map<string, GeometryValue> => {
+      compute: (
+        inputs: Map<string, GeometryValue>,
+        _params: TConfig,
+      ): Map<string, GeometryValue> => {
         const fromValue = inputs.get(this.fromId);
         const toValue = inputs.get(this.toId);
         if (!fromValue || !toValue) {
@@ -146,9 +150,12 @@ export class VectorExpression<TConfig> implements GeometryExpression<TConfig, "p
 
 // Usage in sixfoldDslV1Steps.ts
 const vec = builder.vector("vec_cs_cs2", cs, cs2);
-const p1 = builder.pointInCs("p1", cs2,
-    builder.add("p1x_translated", builder.param("p1x"), vec.dx),
-    builder.add("p1y_translated", builder.param("p1y"), vec.dy));
+const p1 = builder.pointInCs(
+  "p1",
+  cs2,
+  builder.add("p1x_translated", builder.param("p1x"), vec.dx),
+  builder.add("p1y_translated", builder.param("p1y"), vec.dy),
+);
 ```
 
 ## Testing Strategy
@@ -157,16 +164,17 @@ const p1 = builder.pointInCs("p1", cs2,
 
 **Test Location**: `app2/src/geometry/__tests__/vectorTranslation.test.ts`
 
-| Test Level | Concern | Coverage |
-|------------|---------|----------|
-| Unit | VectorExpression | dx, dy computed correctly |
-| Unit | AddExpression | Sum of two ParameterValues |
-| Unit | SubtractExpression | Difference of two ParameterValues |
-| Integration | Builder methods | `builder.vector()`, `builder.add()`, `builder.subtract()` |
-| Integration | Chained operations | `add(subtract(a, b), c)` |
-| Integration | With pointInCs | Vector translation in coordinate systems |
+| Test Level  | Concern            | Coverage                                                  |
+| ----------- | ------------------ | --------------------------------------------------------- |
+| Unit        | VectorExpression   | dx, dy computed correctly                                 |
+| Unit        | AddExpression      | Sum of two ParameterValues                                |
+| Unit        | SubtractExpression | Difference of two ParameterValues                         |
+| Integration | Builder methods    | `builder.vector()`, `builder.add()`, `builder.subtract()` |
+| Integration | Chained operations | `add(subtract(a, b), c)`                                  |
+| Integration | With pointInCs     | Vector translation in coordinate systems                  |
 
 **Test Cases:**
+
 1. Vector between two points: dx = p2.x - p1.x, dy = p2.y - p1.y
 2. Vector between coordinate systems: dx = cs2.x - cs.x, dy = cs2.y - cs.y
 3. Add two config params: result = paramA + paramB
@@ -178,6 +186,7 @@ const p1 = builder.pointInCs("p1", cs2,
 ## Boundaries
 
 ### Always Do
+
 - Follow existing expression pattern (see `DistanceExpression`)
 - Maintain type safety throughout
 - Add JSDoc comments to all new types and methods
@@ -185,11 +194,13 @@ const p1 = builder.pointInCs("p1", cs2,
 - Use existing `GeometryFeatureReference` for output access
 
 ### Ask First
+
 - Changes to `ParameterValue` type definition
 - Modifications to core expression compilation logic
 - Adding new geometry value types
 
 ### Never Do
+
 - Modify existing expression implementations
 - Break existing type-check, lint, or test
 - Use `any` type in new code
@@ -344,7 +355,7 @@ Implementation complete when:
    - [ ] Vector between cs and cs2: dx = cs2.x - cs.x, dy = cs2.y - cs.y
    - [ ] Add: result = a + b
    - [ ] Subtract: result = a - b
-   - [ ] Multiply: result = a * b
+   - [ ] Multiply: result = a \* b
    - [ ] Divide: result = a / b
    - [ ] Geometry values correct within floating point tolerance (1e-9)
    - [ ] Dependency tracking works (expressions depend on inputs)
@@ -482,9 +493,12 @@ describe("Vector Translation", () => {
       const cs2 = builder.coordinateSystem("cs2", 100, 200, 0, 0);
       const vec = builder.vector("vec_cs_cs2", cs, cs2);
 
-      const p1 = builder.pointInCs("p1", cs2,
-          builder.add("p1x_translated", builder.param("p1x"), vec.dx),
-          builder.add("p1y_translated", builder.param("p1y"), vec.dy));
+      const p1 = builder.pointInCs(
+        "p1",
+        cs2,
+        builder.add("p1x_translated", builder.param("p1x"), vec.dx),
+        builder.add("p1y_translated", builder.param("p1y"), vec.dy),
+      );
 
       const steps = builder.compile();
       const results = executeSteps(steps, config);
@@ -517,25 +531,28 @@ describe("Vector Translation", () => {
 
 ## Decisions
 
-| # | Decision | Options | Recommendation | Status |
-|---|----------|---------|----------------|--------|
-| 1 | Arithmetic scope | Add/Sub only vs Full (+-*/) | **Full (+-*/)** | **RESOLVED** |
-| 2 | Property naming | `.value` vs specific | **`.value`** | **RESOLVED** |
-| 3 | Vector from points | Yes vs No | **Yes** | **RESOLVED** |
-| 4 | Expression types | Separate classes vs Generic | **Separate classes** (clearer, type-safe) | **RESOLVED** |
-| 5 | Creation | Eager vs Lazy | **Lazy** | **RESOLVED** |
+| #   | Decision           | Options                      | Recommendation                            | Status       |
+| --- | ------------------ | ---------------------------- | ----------------------------------------- | ------------ |
+| 1   | Arithmetic scope   | Add/Sub only vs Full (+-\*/) | **Full (+-\*/)**                          | **RESOLVED** |
+| 2   | Property naming    | `.value` vs specific         | **`.value`**                              | **RESOLVED** |
+| 3   | Vector from points | Yes vs No                    | **Yes**                                   | **RESOLVED** |
+| 4   | Expression types   | Separate classes vs Generic  | **Separate classes** (clearer, type-safe) | **RESOLVED** |
+| 5   | Creation           | Eager vs Lazy                | **Lazy**                                  | **RESOLVED** |
 
 ## Appendix A: Current Problem Code
 
 ```typescript
 // sixfoldDslV1Steps.ts - Lines 27-28 (WRONG - produces NaN)
-const x_vector_cs2_cs = (cs.x as any) - (cs2.x as any);  // NaN
-const y_vector_cs2_cs = (cs.y as any) - (cs2.y as any);  // NaN
+const x_vector_cs2_cs = (cs.x as any) - (cs2.x as any); // NaN
+const y_vector_cs2_cs = (cs.y as any) - (cs2.y as any); // NaN
 
 // Lines 31-32 (WRONG - uses NaN values)
-const p1 = builder.pointInCs("p1", cs2,
-    (builder.param("p1x") as any) + x_vector_cs2_cs,
-    (builder.param("p1y") as any) + y_vector_cs2_cs);
+const p1 = builder.pointInCs(
+  "p1",
+  cs2,
+  (builder.param("p1x") as any) + x_vector_cs2_cs,
+  (builder.param("p1y") as any) + y_vector_cs2_cs,
+);
 ```
 
 **Why it fails:** `cs.x` and `cs2.x` are `GeometryFeatureReference` objects. Subtracting objects with `-` operator produces NaN.
