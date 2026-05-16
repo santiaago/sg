@@ -24,6 +24,7 @@ export interface PolygonStyleOptions {
 export class PolygonExpression<TConfig> implements GeometryExpression<TConfig, "polygon"> {
   readonly id: string;
   readonly type = "polygon" as const;
+  readonly isVisual = true;
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[];
 

@@ -24,6 +24,9 @@ export interface GeometryExpression<TConfig, TType extends GeometryValue["type"]
   /** The type of geometry this expression produces */
   readonly type: TType;
 
+  /** Whether this expression produces visible geometry. Default: true */
+  readonly isVisual: boolean;
+
   /** IDs of other geometry expressions this one depends on */
   readonly dependencies: string[];
 

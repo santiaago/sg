@@ -17,6 +17,7 @@ export class CircleWithDistanceRadiusExpression<TConfig> implements GeometryExpr
 > {
   readonly id: string;
   readonly type = "circle" as const;
+  readonly isVisual = true;
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[] = [];
 

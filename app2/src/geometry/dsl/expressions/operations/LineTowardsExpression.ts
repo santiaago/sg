@@ -22,6 +22,7 @@ import type { LineStyleOptions } from "../LineExpression";
 export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfig, "line"> {
   readonly id: string;
   readonly type = "line" as const;
+  readonly isVisual = true;
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[];
 

@@ -15,6 +15,7 @@ import { GeometryFeatureReference } from "../../GeometryFeatureReference";
 export class VectorExpression<TConfig> implements GeometryExpression<TConfig, "point"> {
   readonly id: string;
   readonly type = "point" as const;
+  readonly isVisual = false;
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[] = [];
 

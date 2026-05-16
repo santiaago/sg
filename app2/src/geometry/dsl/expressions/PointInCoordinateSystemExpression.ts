@@ -27,6 +27,7 @@ export class PointInCoordinateSystemExpression<TConfig> implements GeometryExpre
 > {
   readonly id: string;
   readonly type = "point" as const;
+  readonly isVisual = true;
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[];
 

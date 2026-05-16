@@ -103,6 +103,9 @@ export interface Step<TConfig = unknown> {
   // IDs of geometries this step produces as output
   outputs: string[];
 
+  // Whether this step produces visible geometry. Default: true.
+  isVisual?: boolean;
+
   // Names of configuration properties (non-geometry values) this step requires.
   // Declared for documentation; actual config passed as TConfig object.
   parameters?: (keyof TConfig)[];
