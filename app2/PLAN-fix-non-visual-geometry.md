@@ -692,9 +692,9 @@ Before considering implementation complete:
 5. [x] Execute Pass 4: Filtering (Tasks 7-9) - Commit `f55af3b`
 6. [x] Update tests to expect new behavior - Commit `3a1d8bf`
 7. [x] Update PLAN with completion status - Commit `6b0f617`
-8. [ ] Update SPEC with completion status
+8. [x] Update SPEC with completion status - Commits `a8335ec`, `8a24d2f`
 9. [ ] Final verification: Manual testing in browser
-10. [ ] Run `pnpm lint` and `pnpm format`
+10. [x] Run `pnpm lint` and `pnpm format` - Commit `a912ae6`
 
 ## Summary of Commits
 
