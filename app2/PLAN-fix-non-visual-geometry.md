@@ -617,12 +617,29 @@ Before considering implementation complete:
 
 ## Next Steps
 
-1. Human reviews and approves this plan
-2. Execute Pass 1: Create failing tests (Tasks 15-18)
-3. Execute Pass 2: Foundation (Tasks 1-4)
-4. Execute Pass 3: Parallel work (Tasks 5-6, 10-14)
-5. Execute Pass 4: Filtering (Tasks 7-9)
-6. Final verification
+1. [x] Human reviews and approves this plan
+2. [x] Execute Pass 1: Create failing tests (Tasks 15-18) - Commit `4239820`
+3. [x] Execute Pass 2: Foundation (Tasks 1-4) - Commit `86776b4`
+4. [x] Execute Pass 3: Parallel work (Tasks 5-6, 10-14) - Commit `bdc3974`
+5. [x] Execute Pass 4: Filtering (Tasks 7-9) - Commit `f55af3b`
+6. [x] Update tests to expect new behavior - Commit `3a1d8bf`
+7. [x] Update PLAN with completion status - Commit `6b0f617`
+8. [ ] Update SPEC with completion status
+9. [ ] Final verification: Manual testing in browser
+10. [ ] Run `pnpm lint` and `pnpm format`
+
+## Summary of Commits
+
+| Commit | Message | Changes |
+|--------|---------|---------|
+| 4239820 | test(app2): add SPEC, PLAN, and failing tests | Pass 1: 4 new test files |
+| 86776b4 | feat(app2/geometry): add isVisual property | Pass 2: 21 files, 25 insertions |
+| bdc3974 | feat(app2/geometry): propagate isVisual + renderer validation | Pass 3: 2 files, 33 insertions |
+| f55af3b | feat(app2/components): filter non-visual in DSL SVG components | Pass 4: 3 files, 24 insertions |
+| 3a1d8bf | test(app2): update tests to expect new behavior | Tests: 6 files, 201 insertions, 430 deletions |
+| 6b0f617 | docs(app2): update PLAN with Pass 4 completion | Documentation |
+
+**Total: 6 commits, all passes complete, all tests pass (632 passed, 1 skipped)**
 
 5. Execute Pass 4: Filtering (Tasks 7-9)
 6. Final verification
