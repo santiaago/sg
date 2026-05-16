@@ -136,11 +136,14 @@ export const SquareDslSvg = forwardRef(function SquareDslSvg(
           const paramValues = step?.parameters ? pick(squareConfig, step.parameters) : {};
           const stepId = step?.id ?? "";
 
-          store.update(id, {
-            dependsOn: deps,
-            stepId,
-            parameterValues: paramValues,
-          });
+          // Only update store for visual geometry
+          if (step?.isVisual !== false) {
+            store.update(id, {
+              dependsOn: deps,
+              stepId,
+              parameterValues: paramValues,
+            });
+          }
         }
       }
     } catch (error) {
