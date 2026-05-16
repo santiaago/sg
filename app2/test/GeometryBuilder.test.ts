@@ -74,9 +74,12 @@ describe("GeometryBuilder", () => {
     it("uses DefaultGeometryRenderer by default", () => {
       const _p1 = builder.point("P1", 10, 20);
       const step = _p1.compile(new DefaultGeometryRenderer());
+      
+      // Need to provide the computed value for draw to work
+      const values = new Map<string, unknown>([["P1", { type: "point", x: 10, y: 20 }]]);
 
       expect(() => {
-        step.draw(ctx.svg, new Map(), ctx.store, ctx.theme);
+        step.draw(ctx.svg, values, ctx.store, ctx.theme);
       }).not.toThrow();
     });
   });

@@ -1,6 +1,5 @@
 // Integration tests for non-visual geometry filtering
-// Tests that FAIL before implementation (documenting current broken behavior)
-// and PASS after implementation
+// Tests verify non-visual geometry is NOT added to store.items
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { GeometryBuilder } from "@/geometry/dsl/GeometryBuilder";
@@ -92,62 +91,20 @@ describe("Non-visual geometry filtering", () => {
   }
 
   // ========================================================================
-  // SHOULD FAIL: Current behavior adds non-visual to store
+  // Non-visual geometry NOT in store
   // ========================================================================
 
-  describe("SHOULD FAIL: Non-visual geometry appears in store.items", () => {
-    it("VectorExpression appears in store.items after execution", () => {
-      const steps = buildTestSteps();
-      const items = executeAndGetStore(steps, 8); // Execute enough steps to include vec_cs2_to_cs
-      
-      // Current BAD behavior: vec_cs2_to_cs is in store.items even though it has no SVG element
-      expect(items["vec_cs2_to_cs"]).toBeDefined();
-    });
-
-    it("AddExpression appears in store.items after execution", () => {
-      const steps = buildTestSteps();
-      const items = executeAndGetStore(steps, 10); // Execute enough steps to include p1_x, p1_y
-      
-      // Current BAD behavior: arithmetic expressions are in store.items
-      expect(items["p1_x"]).toBeDefined();
-      expect(items["p1_y"]).toBeDefined();
-      expect(items["p2_x"]).toBeDefined();
-      expect(items["p2_y"]).toBeDefined();
-    });
-
-    it("DistanceExpression appears in store.items after execution", () => {
-      const steps = buildTestSteps();
-      const items = executeAndGetStore(steps, 12); // Execute all steps including distance
-      
-      // Current BAD behavior: distance expression is in store.items
-      expect(items["dist_p1_p2"]).toBeDefined();
-    });
-
-    it("Non-visual geometry has no element but is in store", () => {
-      const steps = buildTestSteps();
-      const items = executeAndGetStore(steps, 12);
-      
-      // Current BAD behavior: items exist but have null/undefined element
-      expect(items["vec_cs2_to_cs"]).toBeDefined();
-      expect(items["vec_cs2_to_cs"]?.element).toBeUndefined();
-    });
-  });
-
-  // ========================================================================
-  // WILL PASS AFTER FIX: Non-visual geometry NOT in store
-  // ========================================================================
-
-  describe("WILL PASS AFTER FIX: Non-visual geometry NOT in store.items", () => {
+  describe("Non-visual geometry NOT in store.items after filtering", () => {
     it("VectorExpression NOT in store.items after execution", () => {
       const steps = buildTestSteps();
-      const items = executeAndGetStore(steps, 8);
+      const items = executeAndGetStore(steps, 8); // Execute enough steps to include vec_cs2_to_cs
       
       expect(items["vec_cs2_to_cs"]).toBeUndefined();
     });
 
     it("AddExpression NOT in store.items after execution", () => {
       const steps = buildTestSteps();
-      const items = executeAndGetStore(steps, 10);
+      const items = executeAndGetStore(steps, 10); // Execute enough steps to include p1_x, p1_y
       
       expect(items["p1_x"]).toBeUndefined();
       expect(items["p1_y"]).toBeUndefined();
@@ -157,7 +114,7 @@ describe("Non-visual geometry filtering", () => {
 
     it("DistanceExpression NOT in store.items after execution", () => {
       const steps = buildTestSteps();
-      const items = executeAndGetStore(steps, 12);
+      const items = executeAndGetStore(steps, 12); // Execute all steps including distance
       
       expect(items["dist_p1_p2"]).toBeUndefined();
     });

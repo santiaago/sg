@@ -1,19 +1,13 @@
 // Unit tests for GeometryExpression isVisual property
-// Tests that FAIL before implementation (documenting current broken behavior)
-// and PASS after implementation
+// Tests verify isVisual property exists on all expressions with correct values
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { GeometryBuilder } from "@/geometry/dsl/GeometryBuilder";
-import { createTestContext } from "../../dsl-test-utils";
 
 // Test configuration type
 interface TestConfig {
   tolerance: number;
 }
-
-const defaultConfig: TestConfig = {
-  tolerance: 0.001,
-};
 
 // ============================================================================
 // Helper to check if isVisual property exists on an expression
@@ -29,75 +23,10 @@ function hasIsVisualProperty(obj: unknown): obj is { isVisual: boolean } {
 }
 
 // ============================================================================
-// SHOULD FAIL: isVisual property does not exist yet
+// isVisual property on GeometryExpression
 // ============================================================================
 
-describe("SHOULD FAIL: isVisual property does not exist on GeometryExpression", () => {
-  let builder: GeometryBuilder<TestConfig>;
-
-  beforeEach(() => {
-    builder = new GeometryBuilder<TestConfig>();
-  });
-
-  it("PointExpression missing isVisual property", () => {
-    const p1 = builder.point("P1", 10, 20);
-    // @ts-expect-error - isVisual property doesn't exist yet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((p1 as any).isVisual).toBeUndefined();
-  });
-
-  it("VectorExpression missing isVisual property", () => {
-    const cs1 = builder.coordinateSystem("CS1", 0, 0, 0, 0);
-    const cs2 = builder.coordinateSystem("CS2", 10, 10, 0, 0);
-    const vec = builder.vector("vec_cs1_cs2", cs1, cs2);
-    // @ts-expect-error - isVisual property doesn't exist yet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((vec as any).isVisual).toBeUndefined();
-  });
-
-  it("AddExpression missing isVisual property", () => {
-    const a = builder.add("add_test", 1, 2);
-    // @ts-expect-error - isVisual property doesn't exist yet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((a as any).isVisual).toBeUndefined();
-  });
-
-  it("SubtractExpression missing isVisual property", () => {
-    const s = builder.subtract("sub_test", 5, 2);
-    // @ts-expect-error - isVisual property doesn't exist yet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((s as any).isVisual).toBeUndefined();
-  });
-
-  it("MultiplyExpression missing isVisual property", () => {
-    const m = builder.multiply("mul_test", 2, 3);
-    // @ts-expect-error - isVisual property doesn't exist yet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((m as any).isVisual).toBeUndefined();
-  });
-
-  it("DivideExpression missing isVisual property", () => {
-    const d = builder.divide("div_test", 10, 2);
-    // @ts-expect-error - isVisual property doesn't exist yet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((d as any).isVisual).toBeUndefined();
-  });
-
-  it("DistanceExpression missing isVisual property", () => {
-    const p1 = builder.point("p1", 0, 0);
-    const p2 = builder.point("p2", 3, 4);
-    const dist = builder.distance("dist_test", p1, p2);
-    // @ts-expect-error - isVisual property doesn't exist yet
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect((dist as any).isVisual).toBeUndefined();
-  });
-});
-
-// ============================================================================
-// WILL PASS AFTER FIX: isVisual property exists and has correct values
-// ============================================================================
-
-describe("WILL PASS AFTER FIX: isVisual property on GeometryExpression", () => {
+describe("isVisual property on GeometryExpression", () => {
   let builder: GeometryBuilder<TestConfig>;
 
   beforeEach(() => {

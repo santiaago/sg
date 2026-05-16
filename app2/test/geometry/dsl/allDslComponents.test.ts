@@ -1,6 +1,5 @@
 // Integration tests for ALL DSL SVG components filtering non-visual geometry
-// Tests that FAIL before implementation (documenting current broken behavior)
-// and PASS after implementation
+// Tests verify non-visual geometry is filtered from store in all DSL components
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { buildSixfoldDslV1Steps } from "@/geometry/sixfoldDslV1Steps";
@@ -25,64 +24,10 @@ describe("All DSL components filter non-visual geometry", () => {
   });
 
   // ========================================================================
-  // SHOULD FAIL: Current behavior - non-visual geometry in store
+  // Non-visual geometry filtered from all components
   // ========================================================================
 
-  describe("SHOULD FAIL: Non-visual geometry appears in store for all DSL components", () => {
-    it("SixFoldDslV1Svg has non-visual geometry in store", () => {
-      const steps = buildSixfoldDslV1Steps();
-      const config = computeSixFoldV0Config(800, 600);
-      const ctx = createStepExecutionContext({ svg, store, theme });
-      
-      executeSteps(steps, 5, ctx, config);
-      
-      // Current BAD behavior: non-visual items are in store
-      // vec_cs2_to_cs is created in the DSL steps
-      expect(store.items["vec_cs2_to_cs"]).toBeDefined();
-      expect(store.items["p1_x"]).toBeDefined();
-      expect(store.items["p1_y"]).toBeDefined();
-    });
-
-    it("SixFoldDslSvg has non-visual geometry in store", () => {
-      const steps = buildSixFoldDslSteps();
-      const config = computeSixFoldV0Config(800, 600);
-      const ctx = createStepExecutionContext({ svg, store, theme });
-      
-      // Execute a few steps - SixFold DSL also uses vectors and arithmetic
-      executeSteps(steps, 5, ctx, config as unknown as SixFoldV0Config);
-      
-      // Check for any non-visual items that might be present
-      // The exact IDs depend on the SixFold DSL implementation
-      const nonVisualItems = Object.keys(store.items).filter(
-        (id) => id.includes("vec_") || id.includes("_x") || id.includes("_y")
-      );
-      
-      // Current BAD behavior: there are non-visual items
-      expect(nonVisualItems.length).toBeGreaterThan(0);
-    });
-
-    it("SquareDslSvg has non-visual geometry in store", () => {
-      const steps = buildSquareDslSteps();
-      const config = computeSquareConfig(800, 600);
-      const ctx = createStepExecutionContext({ svg, store, theme });
-      
-      executeSteps(steps, 5, ctx, config as unknown as SquareConfig);
-      
-      // Check for any non-visual items
-      // Square DSL might use fewer non-visual expressions, but let's check
-      const allItems = Object.keys(store.items);
-      
-      // Current BAD behavior: if there are any items, we just verify the test runs
-      // The specific non-visual items depend on Square DSL implementation
-      expect(allItems.length).toBeGreaterThan(0);
-    });
-  });
-
-  // ========================================================================
-  // WILL PASS AFTER FIX: Non-visual geometry filtered from all components
-  // ========================================================================
-
-  describe("WILL PASS AFTER FIX: Non-visual geometry NOT in store for any DSL component", () => {
+  describe("Non-visual geometry NOT in store for any DSL component", () => {
     it("SixFoldDslV1Svg filters all non-visual geometry", () => {
       const steps = buildSixfoldDslV1Steps();
       const config = computeSixFoldV0Config(800, 600);
@@ -105,7 +50,7 @@ describe("All DSL components filter non-visual geometry", () => {
     });
 
     it("SixFoldDslSvg filters all non-visual geometry", () => {
-      const steps = buildSixFoldDslSteps();
+      const steps = buildSixfoldDslSteps();
       const config = computeSixFoldV0Config(800, 600);
       const ctx = createStepExecutionContext({ svg, store, theme });
       
