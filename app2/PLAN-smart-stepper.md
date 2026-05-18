@@ -102,7 +102,7 @@ Step interface (existing, has isVisual)
 **Description:** Implement React hook that wraps stepper utilities for use in components. Manages visual step index, maps to actual step index, provides navigation functions.
 
 **Acceptance criteria:**
-- [ ] Hook exports: `currentVisualIndex`, `visualStepCount`, `actualStepIndex`, `goToNext`, `goToPrev`, `goToStep`, `canGoNext`, `canGoPrev`
+- [ ] Hook exports: `currentVisualIndex`, `visualStepCount`, `stepsUpToIndex`, `goToNext`, `goToPrev`, `goToStep`, `canGoNext`, `canGoPrev`
 - [ ] Hook accepts `steps: Step[]` and optional `initialVisualIndex`
 - [ ] Navigation functions respect boundaries (can't go below 0 or above visualStepCount-1)
 - [ ] `goToStep` accepts visual index and clamps to valid range
@@ -163,7 +163,7 @@ Step interface (existing, has isVisual)
 
 **Acceptance criteria:**
 - [ ] Component uses `useSmartStepper` with `sixfoldDslV1Steps`
-- [ ] executeSteps called with `actualStepIndex` (not visual index)
+- [ ] executeSteps called with `stepsUpToIndex` (not visual index)
 - [ ] UI displays visual step index: "Step {currentVisualIndex + 1}/{visualStepCount}"
 - [ ] Next/prev buttons use hook's `goToNext`/`goToPrev`
 - [ ] Hardcoded `DSL_SIXFOLD_V1_STEPS_LENGTH` removed or replaced with dynamic value
@@ -203,7 +203,7 @@ Step interface (existing, has isVisual)
 
 **Acceptance criteria:**
 - [ ] Component uses `useSmartStepper` with `sixFoldDslSteps`
-- [ ] executeSteps called with `actualStepIndex`
+- [ ] executeSteps called with `stepsUpToIndex`
 - [ ] UI displays visual step index
 - [ ] Next/prev buttons use hook's navigation
 - [ ] Hardcoded `DSL_SIXFOLD_STEPS_LENGTH` removed
@@ -241,7 +241,7 @@ Step interface (existing, has isVisual)
 
 **Acceptance criteria:**
 - [ ] Component uses `useSmartStepper` with `squareDslSteps`
-- [ ] executeSteps called with `actualStepIndex`
+- [ ] executeSteps called with `stepsUpToIndex`
 - [ ] UI displays visual step index
 - [ ] Next/prev buttons use hook's navigation
 - [ ] Hardcoded `DSL_SQUARE_STEPS_LENGTH` removed
@@ -323,7 +323,7 @@ Step interface (existing, has isVisual)
 | Risk | Impact | Mitigation |
 |------|--------|------------|
 | Breaking existing DSL rendering | High | Keep executeSteps logic unchanged, only change stepper UI navigation |
-| Non-visual steps not executing | High | Verify all steps 0..actualStepIndex execute, not just visual ones |
+| Non-visual steps not executing | High | Verify all steps 0..stepsUpToIndex execute, not just visual ones |
 | Hook re-renders excessively | Medium | Use useMemo for derived values in hook |
 | Hardcoded constants referenced elsewhere | Medium | Grep for all `_STEPS_LENGTH` usages before removal |
 | Index mapping off-by-one errors | Medium | Comprehensive unit tests for all edge cases |

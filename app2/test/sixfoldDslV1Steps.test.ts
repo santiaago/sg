@@ -21,10 +21,10 @@ describe("Sixfold DSL v1 with cs2", () => {
   const defaultConfig = computeSixFoldV0Config(800, 600);
 
   describe("Step count", () => {
-    it("step count is 97", () => {
+    it("step count is 102", () => {
       const steps = buildSixfoldDslV1Steps();
       expect(steps.length).toBe(DSL_SIXFOLD_V1_STEPS_LENGTH);
-      expect(DSL_SIXFOLD_V1_STEPS_LENGTH).toBe(97);
+      expect(DSL_SIXFOLD_V1_STEPS_LENGTH).toBe(102);
     });
   });
 
@@ -68,9 +68,9 @@ describe("Sixfold DSL v1 with cs2", () => {
       expect(cs2).toBeDefined();
       const p2Pt = p2 as Point;
       const cs2Coord = cs2 as CoordinateSystem;
-      // p2 at (p2x, 0) in cs2, so absolute = cs2 + (p2x, 0)
-      expect(approx(p2Pt.x, cs2Coord.x + defaultConfig.p2x)).toBe(true);
-      expect(approx(p2Pt.y, cs2Coord.y + 0)).toBe(true);
+      // p2 at absolute (p2x, p2y) from config, matching v0 behavior
+      expect(approx(p2Pt.x, defaultConfig.p2x)).toBe(true);
+      expect(approx(p2Pt.y, defaultConfig.p2y)).toBe(true);
     });
   });
 
@@ -142,5 +142,44 @@ describe("Sixfold DSL v1 with cs2", () => {
 
     // TODO: Task 14 - Test cs2 transformations propagate
     // Requires testing with rotated cs2 and verifying child geometries update
+  });
+
+  describe("Outline geometries", () => {
+    it("all outline geometries 1-18 exist", () => {
+      const steps = buildSixfoldDslV1Steps();
+      const result = executeSteps(steps, { config: defaultConfig });
+
+      for (let i = 1; i <= 18; i++) {
+        const outlineId = `outline${i}`;
+        expect(result.values.get(outlineId), `outline${i} should exist`).toBeDefined();
+      }
+    });
+
+    it("outline18 has valid coordinates", () => {
+      const steps = buildSixfoldDslV1Steps();
+      const result = executeSteps(steps, { config: defaultConfig });
+      const outline18 = result.values.get("outline18") as Line;
+
+      expect(outline18).toBeDefined();
+      expect(outline18.x1).not.toBeNaN();
+      expect(outline18.y1).not.toBeNaN();
+      expect(outline18.x2).not.toBeNaN();
+      expect(outline18.y2).not.toBeNaN();
+      // Line should have non-zero length
+      expect(Math.abs(outline18.x2 - outline18.x1) + Math.abs(outline18.y2 - outline18.y1)).toBeGreaterThan(0);
+    });
+
+    it("outline18 has non-zero length", () => {
+      const steps = buildSixfoldDslV1Steps();
+      const result = executeSteps(steps, { config: defaultConfig });
+      const outline18 = result.values.get("outline18") as Line;
+
+      expect(outline18).toBeDefined();
+      // Line should have non-zero length (cp4 and cp1 are different points)
+      const length = Math.sqrt(
+        Math.pow(outline18.x2 - outline18.x1, 2) + Math.pow(outline18.y2 - outline18.y1, 2),
+      );
+      expect(length).toBeGreaterThan(0);
+    });
   });
 });

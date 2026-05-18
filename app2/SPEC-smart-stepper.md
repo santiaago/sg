@@ -314,7 +314,7 @@ interface UseSmartStepperProps {
 interface UseSmartStepperResult {
   currentVisualIndex: number
   visualStepCount: number
-  actualStepIndex: number
+  stepsUpToIndex: number
   goToNext: () => void
   goToPrev: () => void
   goToStep: (visualIndex: number) => void
