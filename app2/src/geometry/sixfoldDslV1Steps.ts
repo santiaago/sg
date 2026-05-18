@@ -43,13 +43,13 @@ export function buildSixfoldDslV1Steps(): Step<SixFoldV0Config>[] {
   // Step 2: Point P1 in cs2 at (0, 0) - absolute position = (p1x, p1y)
   const vec_cs2_to_cs = builder.vector("vec_cs2_cs", cs2, cs);
 
-  const p1x = builder.add("p1x", builder.param("p1x"), vec_cs2_to_cs.dx); 
+  const p1x = builder.add("p1x", builder.param("p1x"), vec_cs2_to_cs.dx);
   const p1y = builder.add("p1y", builder.param("p1y"), vec_cs2_to_cs.dy);
 
   const p1 = builder.pointInCs("p1", cs2, p1x.value, p1y.value);
 
   // Step 3: Point P2 - changed to use cs2 instead of cs
-  const p2x = builder.add("p2x", builder.param("p2x"), vec_cs2_to_cs.dx); 
+  const p2x = builder.add("p2x", builder.param("p2x"), vec_cs2_to_cs.dx);
   const p2y = builder.add("p2y", builder.param("p2y"), vec_cs2_to_cs.dy);
 
   const p2 = builder.pointInCs("p2", cs2, p2x.value, p2y.value);

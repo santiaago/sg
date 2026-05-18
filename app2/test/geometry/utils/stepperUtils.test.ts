@@ -1,10 +1,9 @@
 import { describe, it, expect } from "vitest";
 
 // Import types for type checking
-import type { Step } from "../../../src/types/geometry";
+import type { Step, GeometryValue } from "../../../src/types/geometry";
 
-// Import actual implementation - will fail until module exists
-// @ts-expect-error - module does not exist yet
+// Import actual implementation
 import {
   findNextVisualStep,
   findPrevVisualStep,
@@ -12,6 +11,18 @@ import {
   getActualStepIndex,
   getVisualStepCount,
 } from "../../../src/geometry/utils/stepperUtils";
+
+// Helper to create minimal Step for testing
+function createMockStep<TConfig>(id: string, isVisual = true): Step<TConfig> {
+  return {
+    id,
+    inputs: [],
+    outputs: [],
+    isVisual,
+    compute: () => new Map<string, GeometryValue>(),
+    draw: () => {},
+  };
+}
 
 // ============================================================================
 // Stepper Utilities Tests
@@ -23,12 +34,12 @@ describe("Stepper Utilities", () => {
   // Actual indices:          0, 1, 2, 3, 4, 5
   // Visual indices:          0, 1,   2,   3
   const steps: Step[] = [
-    { id: "s1", isVisual: true },
-    { id: "s2", isVisual: true },
-    { id: "s3", isVisual: false },
-    { id: "s4", isVisual: true },
-    { id: "s5", isVisual: false },
-    { id: "s6", isVisual: true },
+    createMockStep("s1", true),
+    createMockStep("s2", true),
+    createMockStep("s3", false),
+    createMockStep("s4", true),
+    createMockStep("s5", false),
+    createMockStep("s6", true),
   ];
 
   describe("findNextVisualStep", () => {
@@ -49,10 +60,7 @@ describe("Stepper Utilities", () => {
     });
 
     it("returns same index when no next visual step exists", () => {
-      const lastSteps: Step[] = [
-        { id: "s1", isVisual: true },
-        { id: "s2", isVisual: false },
-      ];
+      const lastSteps: Step[] = [createMockStep("s1", true), createMockStep("s2", false)];
       expect(findNextVisualStep(lastSteps, 0)).toBe(0);
     });
   });
@@ -75,10 +83,7 @@ describe("Stepper Utilities", () => {
     });
 
     it("returns same index when at first step", () => {
-      const firstSteps: Step[] = [
-        { id: "s1", isVisual: false },
-        { id: "s2", isVisual: true },
-      ];
+      const firstSteps: Step[] = [createMockStep("s1", false), createMockStep("s2", true)];
       expect(findPrevVisualStep(firstSteps, 1)).toBe(1);
     });
   });
@@ -150,27 +155,24 @@ describe("Stepper Utilities", () => {
     });
 
     it("returns 0 for all non-visual steps", () => {
-      const allNonVisual: Step[] = [
-        { id: "nv1", isVisual: false },
-        { id: "nv2", isVisual: false },
-      ];
+      const allNonVisual: Step[] = [createMockStep("nv1", false), createMockStep("nv2", false)];
       expect(getVisualStepCount(allNonVisual)).toBe(0);
     });
 
     it("returns full count for all visual steps", () => {
       const allVisual: Step[] = [
-        { id: "v1", isVisual: true },
-        { id: "v2", isVisual: true },
-        { id: "v3", isVisual: true },
+        createMockStep("v1", true),
+        createMockStep("v2", true),
+        createMockStep("v3", true),
       ];
       expect(getVisualStepCount(allVisual)).toBe(3);
     });
 
     it("counts visual steps when isVisual is undefined (defaults to true)", () => {
       const stepsWithUndefined: Step[] = [
-        { id: "v1" }, // isVisual undefined = visual
-        { id: "nv1", isVisual: false },
-        { id: "v2" }, // isVisual undefined = visual
+        createMockStep("v1"), // isVisual undefined = visual
+        createMockStep("nv1", false),
+        createMockStep("v2"), // isVisual undefined = visual
       ];
       expect(getVisualStepCount(stepsWithUndefined)).toBe(2);
     });

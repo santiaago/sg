@@ -6,10 +6,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import type { Step } from "../types/geometry";
-import {
-  getActualStepIndex,
-  getVisualStepCount,
-} from "../geometry/utils/stepperUtils";
+import { getActualStepIndex, getVisualStepCount } from "../geometry/utils/stepperUtils";
 
 /**
  * Props for the useSmartStepper hook.
@@ -56,56 +53,59 @@ export function useSmartStepper<TConfig = unknown>({
 }: UseSmartStepperProps<TConfig>): UseSmartStepperResult {
   // Calculate derived values
   const visualStepCount = useMemo(() => getVisualStepCount(steps), [steps]);
-  
+
   // Clamp initial visual index to valid range
   const clampedInitial = useMemo(() => {
     if (visualStepCount === 0) return -1;
     return Math.max(0, Math.min(initialVisualIndex, visualStepCount - 1));
   }, [initialVisualIndex, visualStepCount]);
-  
+
   // State for current visual index
   const [currentVisualIndex, setCurrentVisualIndex] = useState<number>(clampedInitial);
-  
+
   // Calculate execution boundary from visual index
   // executeSteps uses exclusive upper bound (executes steps 0..N-1 for upToIndex=N)
   const stepsUpToIndex = useMemo(() => {
     if (currentVisualIndex < 0) return -1;
     return getActualStepIndex(steps, currentVisualIndex) + 1;
   }, [steps, currentVisualIndex]);
-  
+
   // Calculate navigation boundaries
   const canGoNext = useMemo(() => {
     return currentVisualIndex >= 0 && currentVisualIndex < visualStepCount - 1;
   }, [currentVisualIndex, visualStepCount]);
-  
+
   const canGoPrev = useMemo(() => {
     return currentVisualIndex > 0;
   }, [currentVisualIndex]);
-  
+
   // Navigation functions
   const goToNext = useCallback(() => {
     if (canGoNext) {
       setCurrentVisualIndex((prev) => prev + 1);
     }
   }, [canGoNext]);
-  
+
   const goToPrev = useCallback(() => {
     if (canGoPrev) {
       setCurrentVisualIndex((prev) => prev - 1);
     }
   }, [canGoPrev]);
-  
-  const goToStep = useCallback((visualIndex: number) => {
-    // Clamp to valid range
-    if (visualStepCount === 0) {
-      setCurrentVisualIndex(-1);
-      return;
-    }
-    
-    const clamped = Math.max(0, Math.min(visualIndex, visualStepCount - 1));
-    setCurrentVisualIndex(clamped);
-  }, [visualStepCount]);
-  
+
+  const goToStep = useCallback(
+    (visualIndex: number) => {
+      // Clamp to valid range
+      if (visualStepCount === 0) {
+        setCurrentVisualIndex(-1);
+        return;
+      }
+
+      const clamped = Math.max(0, Math.min(visualIndex, visualStepCount - 1));
+      setCurrentVisualIndex(clamped);
+    },
+    [visualStepCount],
+  );
+
   return {
     currentVisualIndex,
     visualStepCount,

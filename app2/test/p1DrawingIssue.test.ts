@@ -45,7 +45,7 @@ describe("P1 Vector Translation Pattern - from sixfoldDslV1Steps.ts", () => {
     const vec_cs2_to_cs = builder.vector("vec_cs2_to_cs", cs2, cs);
     const p1_x = builder.add("p1_x", builder.param("p1x"), vec_cs2_to_cs.dx);
     const p1_y = builder.add("p1_y", builder.param("p1y"), vec_cs2_to_cs.dy);
-    const p1 = builder.pointInCs("p1", cs2, p1_x.value, p1_y.value);
+    builder.pointInCs("p1", cs2, p1_x.value, p1_y.value);
 
     const steps = builder.compile();
     const result = executeStepsUtil(steps, { config });

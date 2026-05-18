@@ -67,7 +67,6 @@ describe("Sixfold DSL v1 with cs2", () => {
       expect(p2).toBeDefined();
       expect(cs2).toBeDefined();
       const p2Pt = p2 as Point;
-      const cs2Coord = cs2 as CoordinateSystem;
       // p2 at absolute (p2x, p2y) from config, matching v0 behavior
       expect(approx(p2Pt.x, defaultConfig.p2x)).toBe(true);
       expect(approx(p2Pt.y, defaultConfig.p2y)).toBe(true);
@@ -166,7 +165,9 @@ describe("Sixfold DSL v1 with cs2", () => {
       expect(outline18.x2).not.toBeNaN();
       expect(outline18.y2).not.toBeNaN();
       // Line should have non-zero length
-      expect(Math.abs(outline18.x2 - outline18.x1) + Math.abs(outline18.y2 - outline18.y1)).toBeGreaterThan(0);
+      expect(
+        Math.abs(outline18.x2 - outline18.x1) + Math.abs(outline18.y2 - outline18.y1),
+      ).toBeGreaterThan(0);
     });
 
     it("outline18 has non-zero length", () => {

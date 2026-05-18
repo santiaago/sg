@@ -15,17 +15,20 @@ import type { Step } from "../../types/geometry";
  * @param fromIndex - Current step index to start searching from
  * @returns Index of the next visual step, or current index if at the end
  */
-export function findNextVisualStep<TConfig = unknown>(steps: Step<TConfig>[], fromIndex: number): number {
+export function findNextVisualStep<TConfig = unknown>(
+  steps: Step<TConfig>[],
+  fromIndex: number,
+): number {
   // Clamp fromIndex to valid range
   const clampedIndex = Math.max(0, Math.min(fromIndex, steps.length - 1));
-  
+
   // Start searching from the next index
   for (let i = clampedIndex + 1; i < steps.length; i++) {
     if (steps[i].isVisual !== false) {
       return i;
     }
   }
-  
+
   // No next visual step found, return current
   return clampedIndex;
 }
@@ -39,17 +42,20 @@ export function findNextVisualStep<TConfig = unknown>(steps: Step<TConfig>[], fr
  * @param fromIndex - Current step index to start searching from
  * @returns Index of the previous visual step, or current index if at the beginning
  */
-export function findPrevVisualStep<TConfig = unknown>(steps: Step<TConfig>[], fromIndex: number): number {
+export function findPrevVisualStep<TConfig = unknown>(
+  steps: Step<TConfig>[],
+  fromIndex: number,
+): number {
   // Clamp fromIndex to valid range
   const clampedIndex = Math.max(0, Math.min(fromIndex, steps.length - 1));
-  
+
   // Start searching from the previous index
   for (let i = clampedIndex - 1; i >= 0; i--) {
     if (steps[i].isVisual !== false) {
       return i;
     }
   }
-  
+
   // No previous visual step found, return current
   return clampedIndex;
 }
@@ -62,16 +68,19 @@ export function findPrevVisualStep<TConfig = unknown>(steps: Step<TConfig>[], fr
  * @param actualIndex - The actual step index to look up
  * @returns Visual step index (0-indexed among visual steps only), or -1 if not found
  */
-export function getVisualStepIndex<TConfig = unknown>(steps: Step<TConfig>[], actualIndex: number): number {
+export function getVisualStepIndex<TConfig = unknown>(
+  steps: Step<TConfig>[],
+  actualIndex: number,
+): number {
   if (actualIndex < 0 || actualIndex >= steps.length) {
     return -1;
   }
-  
+
   // Check if this step is non-visual
   if (steps[actualIndex].isVisual === false) {
     return -1;
   }
-  
+
   // Count visual steps up to and including actualIndex
   let visualCount = 0;
   for (let i = 0; i <= actualIndex; i++) {
@@ -79,7 +88,7 @@ export function getVisualStepIndex<TConfig = unknown>(steps: Step<TConfig>[], ac
       visualCount++;
     }
   }
-  
+
   return visualCount - 1; // Convert count to 0-indexed
 }
 
@@ -91,11 +100,14 @@ export function getVisualStepIndex<TConfig = unknown>(steps: Step<TConfig>[], ac
  * @param visualIndex - The visual step index to look up
  * @returns Actual step index, or -1 if not found
  */
-export function getActualStepIndex<TConfig = unknown>(steps: Step<TConfig>[], visualIndex: number): number {
+export function getActualStepIndex<TConfig = unknown>(
+  steps: Step<TConfig>[],
+  visualIndex: number,
+): number {
   if (visualIndex < 0) {
     return -1;
   }
-  
+
   // Find the nth visual step
   let visualCount = 0;
   for (let i = 0; i < steps.length; i++) {
@@ -106,7 +118,7 @@ export function getActualStepIndex<TConfig = unknown>(steps: Step<TConfig>[], vi
       visualCount++;
     }
   }
-  
+
   // Visual index out of bounds
   return -1;
 }

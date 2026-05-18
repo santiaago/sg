@@ -11,11 +11,10 @@ import {
   createMockSVG,
   createMockTheme,
   createStepExecutionContext,
+  TestGeometryRenderer,
 } from "../../dsl-test-utils";
 import { computeSixFoldV0Config } from "@/geometry/sixFold/operations";
 import { computeSquareConfig } from "@/geometry/operations";
-import type { SixFoldV0Config } from "@/geometry/sixFold/operations";
-import type { SquareConfig } from "@/geometry/operations";
 
 describe("All DSL components filter non-visual geometry", () => {
   let svg: SVGSVGElement;
@@ -36,7 +35,12 @@ describe("All DSL components filter non-visual geometry", () => {
     it("SixFoldDslV1Svg filters all non-visual geometry", () => {
       const steps = buildSixfoldDslV1Steps();
       const config = computeSixFoldV0Config(800, 600);
-      const ctx = createStepExecutionContext({ svg, store, theme });
+      const ctx = createStepExecutionContext({
+        svg,
+        store,
+        theme,
+        renderer: new TestGeometryRenderer(),
+      });
 
       executeSteps(steps, 97, ctx, config); // Execute all steps
 
@@ -57,9 +61,14 @@ describe("All DSL components filter non-visual geometry", () => {
     it("SixFoldDslSvg filters all non-visual geometry", () => {
       const steps = buildSixfoldDslSteps();
       const config = computeSixFoldV0Config(800, 600);
-      const ctx = createStepExecutionContext({ svg, store, theme });
+      const ctx = createStepExecutionContext({
+        svg,
+        store,
+        theme,
+        renderer: new TestGeometryRenderer(),
+      });
 
-      executeSteps(steps, 96, ctx, config as unknown as SixFoldV0Config);
+      executeSteps(steps, 96, ctx, config);
 
       // Check that no items have null/undefined elements
       // (non-visual items would have been added via store.update but have no element)
@@ -79,9 +88,14 @@ describe("All DSL components filter non-visual geometry", () => {
     it("SquareDslSvg filters all non-visual geometry", () => {
       const steps = buildSquareDslSteps();
       const config = computeSquareConfig(800, 600);
-      const ctx = createStepExecutionContext({ svg, store, theme });
+      const ctx = createStepExecutionContext({
+        svg,
+        store,
+        theme,
+        renderer: new TestGeometryRenderer(),
+      });
 
-      executeSteps(steps, steps.length, ctx, config as unknown as SquareConfig);
+      executeSteps(steps, steps.length, ctx, config);
 
       // All items should have defined elements
       Object.values(store.items).forEach((item) => {
@@ -91,30 +105,60 @@ describe("All DSL components filter non-visual geometry", () => {
     });
 
     it("All DSL components have consistent filtering behavior", () => {
-      // Test all three DSLs and verify they all filter consistently
-      const configs = {
-        sixfoldv1: computeSixFoldV0Config(800, 600),
-        sixfold: computeSixFoldV0Config(800, 600),
-        square: computeSquareConfig(800, 600),
-      };
-
-      const stepsMap = {
-        sixfoldv1: buildSixfoldDslV1Steps(),
-        sixfold: buildSixfoldDslSteps(),
-        square: buildSquareDslSteps(),
-      };
-
-      for (const [name, steps] of Object.entries(stepsMap)) {
-        const config = configs[name as keyof typeof configs];
+      // Test sixfoldv1
+      {
+        const config = computeSixFoldV0Config(800, 600);
+        const steps = buildSixfoldDslV1Steps();
         const localStore = createMockGeometryStore();
-        const ctx = createStepExecutionContext({ svg, store: localStore, theme });
-
-        executeSteps(steps, steps.length, ctx, config as unknown as Record<string, unknown>);
-
-        // All items should have elements (no non-visual items)
+        const ctx = createStepExecutionContext({
+          svg,
+          store: localStore,
+          theme,
+          renderer: new TestGeometryRenderer(),
+        });
+        executeSteps(steps, steps.length, ctx, config);
         Object.values(localStore.items).forEach((item) => {
-          expect(item.element, `DSL ${name}: item ${item.name} has no element`).not.toBeUndefined();
-          expect(item.element, `DSL ${name}: item ${item.name} has no element`).not.toBeNull();
+          expect(
+            item.element,
+            `DSL sixfoldv1: item ${item.name} has no element`,
+          ).not.toBeUndefined();
+          expect(item.element, `DSL sixfoldv1: item ${item.name} has no element`).not.toBeNull();
+        });
+      }
+
+      // Test sixfold
+      {
+        const config = computeSixFoldV0Config(800, 600);
+        const steps = buildSixfoldDslSteps();
+        const localStore = createMockGeometryStore();
+        const ctx = createStepExecutionContext({
+          svg,
+          store: localStore,
+          theme,
+          renderer: new TestGeometryRenderer(),
+        });
+        executeSteps(steps, steps.length, ctx, config);
+        Object.values(localStore.items).forEach((item) => {
+          expect(item.element, `DSL sixfold: item ${item.name} has no element`).not.toBeUndefined();
+          expect(item.element, `DSL sixfold: item ${item.name} has no element`).not.toBeNull();
+        });
+      }
+
+      // Test square
+      {
+        const config = computeSquareConfig(800, 600);
+        const steps = buildSquareDslSteps();
+        const localStore = createMockGeometryStore();
+        const ctx = createStepExecutionContext({
+          svg,
+          store: localStore,
+          theme,
+          renderer: new TestGeometryRenderer(),
+        });
+        executeSteps(steps, steps.length, ctx, config);
+        Object.values(localStore.items).forEach((item) => {
+          expect(item.element, `DSL square: item ${item.name} has no element`).not.toBeUndefined();
+          expect(item.element, `DSL square: item ${item.name} has no element`).not.toBeNull();
         });
       }
     });

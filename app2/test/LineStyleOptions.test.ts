@@ -7,6 +7,7 @@ import { GeometryBuilder } from "@/geometry/dsl/GeometryBuilder";
 import { DefaultGeometryRenderer } from "@/geometry/dsl/renderers/DefaultRenderer";
 import { TestGeometryRenderer, createTestContext, executeSteps } from "./dsl-test-utils";
 import { GOLDEN_RATIO } from "@/geometry/operations";
+import type { GeometryValue } from "@/types/geometry";
 import type { LineStyleOptions } from "@/geometry/dsl/expressions/LineExpression";
 import { LineExpression, LineTowardsExpression, PointExpression } from "@/geometry/dsl/expressions";
 
@@ -275,7 +276,7 @@ describe("LineStyleOptions", () => {
       };
 
       // Provide valid line geometry
-      const values = new Map<string, unknown>([
+      const values = new Map<string, GeometryValue>([
         ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
       ]);
 
@@ -287,7 +288,7 @@ describe("LineStyleOptions", () => {
 
     it("drawLine works without style options", () => {
       // Provide valid line geometry
-      const values = new Map<string, unknown>([
+      const values = new Map<string, GeometryValue>([
         ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
       ]);
 
@@ -303,7 +304,7 @@ describe("LineStyleOptions", () => {
         strokeColor: "#00ff00",
       };
 
-      const values = new Map<string, unknown>([
+      const values = new Map<string, GeometryValue>([
         ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
       ]);
 
@@ -333,7 +334,7 @@ describe("LineStyleOptions", () => {
       };
 
       // Provide valid line geometry
-      const values = new Map<string, unknown>([
+      const values = new Map<string, GeometryValue>([
         ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
       ]);
 
@@ -345,7 +346,7 @@ describe("LineStyleOptions", () => {
 
     it("drawLine works without style options", () => {
       // Provide valid line geometry
-      const values = new Map<string, unknown>([
+      const values = new Map<string, GeometryValue>([
         ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
       ]);
 
@@ -526,7 +527,7 @@ describe("LineStyleOptions", () => {
       const ctx = createTestContext();
 
       // Provide valid line geometry
-      const values = new Map<string, unknown>([
+      const values = new Map<string, GeometryValue>([
         ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
       ]);
 
@@ -540,7 +541,7 @@ describe("LineStyleOptions", () => {
       const ctx = createTestContext();
 
       // TestGeometryRenderer doesn't validate, but provide valid geometry for consistency
-      const values = new Map<string, unknown>([
+      const values = new Map<string, GeometryValue>([
         ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
       ]);
 

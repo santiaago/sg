@@ -9,6 +9,7 @@ import {
   createMockSVG,
   createMockTheme,
   createStepExecutionContext,
+  TestGeometryRenderer,
 } from "../../dsl-test-utils";
 import { executeSteps } from "@/geometry/stepExecution";
 
@@ -38,14 +39,12 @@ describe("Non-visual geometry filtering", () => {
   let svg: SVGSVGElement;
   let store: ReturnType<typeof createMockGeometryStore>;
   let theme: ReturnType<typeof createMockTheme>;
-  let renderer: DefaultGeometryRenderer;
 
   beforeEach(() => {
     builder = new GeometryBuilder<TestConfig>(new DefaultGeometryRenderer());
     svg = createMockSVG();
     store = createMockGeometryStore();
     theme = createMockTheme();
-    renderer = new DefaultGeometryRenderer();
   });
 
   // ========================================================================
@@ -83,10 +82,10 @@ describe("Non-visual geometry filtering", () => {
     const p2 = builder.pointInCs("p2", cs2, p2_x.value, p2_y.value);
 
     // Line - VISUAL
-    const line1 = builder.line("line1", p1, p2);
+    builder.line("line1", p1, p2);
 
     // Distance - NON-VISUAL
-    const dist = builder.distance("dist_p1_p2", p1, p2);
+    builder.distance("dist_p1_p2", p1, p2);
 
     return builder.compile();
   }
@@ -96,7 +95,12 @@ describe("Non-visual geometry filtering", () => {
   // ========================================================================
 
   function executeAndGetStore(steps: ReturnType<typeof buildTestSteps>, numSteps: number) {
-    const ctx = createStepExecutionContext({ svg, store, theme });
+    const ctx = createStepExecutionContext({
+      svg,
+      store,
+      theme,
+      renderer: new TestGeometryRenderer(),
+    });
     executeSteps(steps, numSteps, ctx, defaultConfig);
     return store.items;
   }

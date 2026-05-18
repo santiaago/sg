@@ -41,6 +41,7 @@ Step interface (existing, has isVisual)
 **Description:** Create pure utility functions for visual step navigation. No React, no hooks. Testable independently.
 
 **Acceptance criteria:**
+
 - [ ] `findNextVisualStep(steps: Step[], fromIndex: number): number` implemented
 - [ ] `findPrevVisualStep(steps: Step[], fromIndex: number): number` implemented
 - [ ] `getVisualStepIndex(steps: Step[], actualIndex: number): number` implemented
@@ -49,12 +50,14 @@ Step interface (existing, has isVisual)
 - [ ] All functions handle edge cases (first/last step, all non-visual, all visual)
 
 **Verification:**
+
 - [ ] Tests pass: `pnpm test -- stepperUtils.test`
 - [ ] Build succeeds: `pnpm build`
 
 **Dependencies:** None
 
 **Files likely touched:**
+
 - `app2/src/geometry/utils/stepperUtils.ts` (NEW)
 - `app2/tests/geometry/utils/stepperUtils.test.ts` (NEW)
 
@@ -67,17 +70,20 @@ Step interface (existing, has isVisual)
 **Description:** Write comprehensive tests for stepper utility functions. Tests must FAIL before implementation (Task 1).
 
 **Acceptance criteria:**
+
 - [ ] Test file exists with describe blocks for each function
 - [ ] Tests cover: normal navigation, edge cases (first, last, boundaries), empty arrays, all visual, all non-visual
 - [ ] Tests use TypeScript types matching actual Step interface
 - [ ] All tests FAIL when run against non-existent implementation
 
 **Verification:**
+
 - [ ] Tests fail: `pnpm test -- stepperUtils.test` (expected)
 
 **Dependencies:** None
 
 **Files likely touched:**
+
 - `app2/tests/geometry/utils/stepperUtils.test.ts` (NEW)
 
 **Estimated scope:** S
@@ -102,6 +108,7 @@ Step interface (existing, has isVisual)
 **Description:** Implement React hook that wraps stepper utilities for use in components. Manages visual step index, maps to actual step index, provides navigation functions.
 
 **Acceptance criteria:**
+
 - [ ] Hook exports: `currentVisualIndex`, `visualStepCount`, `stepsUpToIndex`, `goToNext`, `goToPrev`, `goToStep`, `canGoNext`, `canGoPrev`
 - [ ] Hook accepts `steps: Step[]` and optional `initialVisualIndex`
 - [ ] Navigation functions respect boundaries (can't go below 0 or above visualStepCount-1)
@@ -109,12 +116,14 @@ Step interface (existing, has isVisual)
 - [ ] Hook re-computes when steps array changes
 
 **Verification:**
+
 - [ ] Tests pass: `pnpm test -- useSmartStepper.test`
 - [ ] Build succeeds: `pnpm build`
 
 **Dependencies:** Task 1 (stepper utilities)
 
 **Files likely touched:**
+
 - `app2/src/hooks/useSmartStepper.ts` (NEW)
 - `app2/tests/hooks/useSmartStepper.test.ts` (NEW)
 
@@ -127,17 +136,20 @@ Step interface (existing, has isVisual)
 **Description:** Write React hook tests using `@testing-library/react-hooks` or similar. Tests must FAIL before implementation (Task 3).
 
 **Acceptance criteria:**
+
 - [ ] Tests cover: initial state, navigation (next/prev), direct step access, boundary conditions
 - [ ] Tests verify hook returns correct values at each state
 - [ ] Tests verify navigation doesn't go out of bounds
 - [ ] All tests FAIL when run against non-existent implementation
 
 **Verification:**
+
 - [ ] Tests fail: `pnpm test -- useSmartStepper.test` (expected)
 
 **Dependencies:** None (can be done in parallel with Task 3)
 
 **Files likely touched:**
+
 - `app2/tests/hooks/useSmartStepper.test.ts` (NEW)
 
 **Estimated scope:** S
@@ -162,6 +174,7 @@ Step interface (existing, has isVisual)
 **Description:** Replace current stepper logic in SixFoldDslV1Svg with useSmartStepper. Remove hardcoded DSL_SIXFOLD_V1_STEPS_LENGTH.
 
 **Acceptance criteria:**
+
 - [ ] Component uses `useSmartStepper` with `sixfoldDslV1Steps`
 - [ ] executeSteps called with `stepsUpToIndex` (not visual index)
 - [ ] UI displays visual step index: "Step {currentVisualIndex + 1}/{visualStepCount}"
@@ -170,6 +183,7 @@ Step interface (existing, has isVisual)
 - [ ] All existing rendering still works
 
 **Verification:**
+
 - [ ] Build succeeds: `pnpm build`
 - [ ] TypeScript compiles without errors
 - [ ] Manual check: SixFold DSL v1 steps through without ghost steps
@@ -177,6 +191,7 @@ Step interface (existing, has isVisual)
 **Dependencies:** Task 3 (useSmartStepper hook)
 
 **Files likely touched:**
+
 - `app2/src/components/SixFoldDslV1Svg.tsx`
 - `app2/src/geometry/sixfoldDslV1Steps.ts` (remove constant)
 
@@ -202,6 +217,7 @@ Step interface (existing, has isVisual)
 **Description:** Apply same changes as Task 5 to SixFoldDslSvg component.
 
 **Acceptance criteria:**
+
 - [ ] Component uses `useSmartStepper` with `sixFoldDslSteps`
 - [ ] executeSteps called with `stepsUpToIndex`
 - [ ] UI displays visual step index
@@ -210,12 +226,14 @@ Step interface (existing, has isVisual)
 - [ ] All existing rendering still works
 
 **Verification:**
+
 - [ ] Build succeeds: `pnpm build`
 - [ ] Manual check: SixFold DSL v0 steps through without ghost steps
 
 **Dependencies:** Task 3 (useSmartStepper hook)
 
 **Files likely touched:**
+
 - `app2/src/components/SixFoldDslSvg.tsx`
 - `app2/src/geometry/sixFoldDslSteps.ts` (remove constant)
 
@@ -240,6 +258,7 @@ Step interface (existing, has isVisual)
 **Description:** Apply same changes as Task 5 to SquareDslSvg component.
 
 **Acceptance criteria:**
+
 - [ ] Component uses `useSmartStepper` with `squareDslSteps`
 - [ ] executeSteps called with `stepsUpToIndex`
 - [ ] UI displays visual step index
@@ -248,12 +267,14 @@ Step interface (existing, has isVisual)
 - [ ] All existing rendering still works
 
 **Verification:**
+
 - [ ] Build succeeds: `pnpm build`
 - [ ] Manual check: Square DSL steps through without ghost steps
 
 **Dependencies:** Task 3 (useSmartStepper hook)
 
 **Files likely touched:**
+
 - `app2/src/components/SquareDslSvg.tsx`
 - `app2/src/geometry/squareDslSteps.ts` (remove constant)
 
@@ -279,6 +300,7 @@ Step interface (existing, has isVisual)
 **Description:** Create integration tests that verify smart stepper works correctly with real DSL steps.
 
 **Acceptance criteria:**
+
 - [ ] Test SixFoldDslV1Svg stepper navigation
 - [ ] Test SixFoldDslSvg stepper navigation
 - [ ] Test SquareDslSvg stepper navigation
@@ -286,11 +308,13 @@ Step interface (existing, has isVisual)
 - [ ] Tests verify step counts are correct
 
 **Verification:**
+
 - [ ] Tests pass: `pnpm test -- smartStepper.integration.test`
 
 **Dependencies:** Tasks 5, 6, 7 (all integrations)
 
 **Files likely touched:**
+
 - `app2/tests/components/smartStepper.integration.test.ts` (NEW)
 
 **Estimated scope:** M
@@ -302,16 +326,19 @@ Step interface (existing, has isVisual)
 **Description:** Review and update any existing tests that may reference hardcoded step counts or expect ghost steps.
 
 **Acceptance criteria:**
+
 - [ ] All existing tests pass with new stepper logic
 - [ ] Any tests referencing step counts updated to use dynamic values
 - [ ] No tests broken by smart stepper changes
 
 **Verification:**
+
 - [ ] All tests pass: `pnpm test`
 
 **Dependencies:** Tasks 5, 6, 7, 8
 
 **Files likely touched:**
+
 - Various test files (if any reference step counts)
 
 **Estimated scope:** S
@@ -320,22 +347,24 @@ Step interface (existing, has isVisual)
 
 ## Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Breaking existing DSL rendering | High | Keep executeSteps logic unchanged, only change stepper UI navigation |
-| Non-visual steps not executing | High | Verify all steps 0..stepsUpToIndex execute, not just visual ones |
-| Hook re-renders excessively | Medium | Use useMemo for derived values in hook |
-| Hardcoded constants referenced elsewhere | Medium | Grep for all `_STEPS_LENGTH` usages before removal |
-| Index mapping off-by-one errors | Medium | Comprehensive unit tests for all edge cases |
+| Risk                                     | Impact | Mitigation                                                           |
+| ---------------------------------------- | ------ | -------------------------------------------------------------------- |
+| Breaking existing DSL rendering          | High   | Keep executeSteps logic unchanged, only change stepper UI navigation |
+| Non-visual steps not executing           | High   | Verify all steps 0..stepsUpToIndex execute, not just visual ones     |
+| Hook re-renders excessively              | Medium | Use useMemo for derived values in hook                               |
+| Hardcoded constants referenced elsewhere | Medium | Grep for all `_STEPS_LENGTH` usages before removal                   |
+| Index mapping off-by-one errors          | Medium | Comprehensive unit tests for all edge cases                          |
 
 ## Parallelization Opportunities
 
 **Safe to parallelize (independent):**
+
 - Task 1 (utilities) + Task 2 (utility tests) - foundational, can be done first
 - Task 3 (hook) + Task 4 (hook tests) - can start after utilities or in parallel
 - Task 5, 6, 7 (DSL component updates) - independent of each other, can be parallelized
 
 **Must be sequential:**
+
 - Task 1 → Task 3 (utilities needed for hook)
 - Tasks 5/6/7 → Task 8 (components must be updated before integration tests)
 
@@ -354,6 +383,7 @@ Pass 5 (Polish): Tasks 8-9 (integration tests + updates)
 ### Pass 1: Tests First (Tasks 2, 4)
 
 Create all failing tests before implementation. Ensures:
+
 - Clear acceptance criteria
 - Can verify fixes work
 - Documentation of expected behavior
@@ -361,12 +391,14 @@ Create all failing tests before implementation. Ensures:
 ### Pass 2: Foundation (Tasks 1, 3)
 
 Implement core utilities and hook:
+
 - Stepper utility functions (Task 1)
 - useSmartStepper hook (Task 3)
 
 ### Pass 3: Parallel Integration (Tasks 5, 6, 7)
 
 Update all three DSL SVG components in parallel:
+
 - SixFoldDslV1Svg (Task 5)
 - SixFoldDslSvg (Task 6)
 - SquareDslSvg (Task 7)
@@ -374,6 +406,7 @@ Update all three DSL SVG components in parallel:
 ### Pass 4: Polish (Tasks 8, 9)
 
 Final verification and test updates:
+
 - Integration tests (Task 8)
 - Update existing tests (Task 9)
 

@@ -453,11 +453,11 @@ export default function App(): JSX.Element {
 
   // Build DSL sixfold v1 steps once
   const sixfoldDslV1Steps = useMemo(() => buildSixfoldDslV1Steps(), []);
-  
+
   // Smart stepper for SixFold DSL v1 - manages visual step navigation
-  const { 
-    currentVisualIndex: currentVisualIndexV1, 
-    visualStepCount: visualStepCountV1, 
+  const {
+    currentVisualIndex: currentVisualIndexV1,
+    visualStepCount: visualStepCountV1,
     stepsUpToIndex: stepsUpToIndexV1,
     goToNext: goToNextV1,
     goToPrev: goToPrevV1,
@@ -679,7 +679,6 @@ export default function App(): JSX.Element {
       goToPrevV1();
     }
   };
-
 
   const handleFirstStepSixfoldDslV1 = (): void => {
     // Stop playing when jumping to first step
@@ -1070,7 +1069,8 @@ export default function App(): JSX.Element {
         <div className="mb-4">
           <small className="block text-gray-400 mb-2">05/14/2026</small>
           <p className="text-gray-300 mb-4">
-            SixFold v1 construction using DSL with cs2 coordinate system ({visualStepCountV1} visual steps).
+            SixFold v1 construction using DSL with cs2 coordinate system ({visualStepCountV1} visual
+            steps).
           </p>
         </div>
         <div className="grid grid-cols-12 gap-8">

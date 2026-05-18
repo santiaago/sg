@@ -5,6 +5,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { DefaultGeometryRenderer } from "@/geometry/dsl/renderers/DefaultRenderer";
 import { createMockGeometryStore, createMockSVG, createMockTheme } from "../../dsl-test-utils";
 import { point, line, circle, polygon, coordinateSystem } from "@/types/geometry";
+import type { GeometryValue } from "@/types/geometry";
 
 describe("DefaultRenderer - type validation", () => {
   let renderer: DefaultGeometryRenderer;
@@ -21,7 +22,7 @@ describe("DefaultRenderer - type validation", () => {
 
   describe("drawPoint validation", () => {
     it("throws when geometry not found", () => {
-      const values = new Map<string, unknown>([]);
+      const values = new Map<string, GeometryValue>([]);
 
       expect(() => {
         renderer.drawPoint(svg, values, "missing", store, theme);
@@ -29,7 +30,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is line", () => {
-      const values = new Map<string, unknown>([["line-as-point", line(0, 0, 100, 100)]]);
+      const values = new Map<string, GeometryValue>([["line-as-point", line(0, 0, 100, 100)]]);
 
       expect(() => {
         renderer.drawPoint(svg, values, "line-as-point", store, theme);
@@ -37,7 +38,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is circle", () => {
-      const values = new Map<string, unknown>([["circle-as-point", circle(50, 50, 25)]]);
+      const values = new Map<string, GeometryValue>([["circle-as-point", circle(50, 50, 25)]]);
 
       expect(() => {
         renderer.drawPoint(svg, values, "circle-as-point", store, theme);
@@ -45,7 +46,9 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is coordinate_system", () => {
-      const values = new Map<string, unknown>([["cs-as-point", coordinateSystem(0, 0, 100, 0)]]);
+      const values = new Map<string, GeometryValue>([
+        ["cs-as-point", coordinateSystem(0, 0, 100, 0)],
+      ]);
 
       expect(() => {
         renderer.drawPoint(svg, values, "cs-as-point", store, theme);
@@ -53,7 +56,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("accepts valid point geometry", () => {
-      const values = new Map<string, unknown>([["valid-point", point(50, 50)]]);
+      const values = new Map<string, GeometryValue>([["valid-point", point(50, 50)]]);
 
       expect(() => {
         renderer.drawPoint(svg, values, "valid-point", store, theme);
@@ -63,7 +66,7 @@ describe("DefaultRenderer - type validation", () => {
 
   describe("drawLine validation", () => {
     it("throws when geometry not found", () => {
-      const values = new Map<string, unknown>([]);
+      const values = new Map<string, GeometryValue>([]);
 
       expect(() => {
         renderer.drawLine(svg, values, "missing", store, theme);
@@ -71,7 +74,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is point", () => {
-      const values = new Map<string, unknown>([["point-as-line", point(50, 50)]]);
+      const values = new Map<string, GeometryValue>([["point-as-line", point(50, 50)]]);
 
       expect(() => {
         renderer.drawLine(svg, values, "point-as-line", store, theme);
@@ -79,7 +82,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is circle", () => {
-      const values = new Map<string, unknown>([["circle-as-line", circle(50, 50, 25)]]);
+      const values = new Map<string, GeometryValue>([["circle-as-line", circle(50, 50, 25)]]);
 
       expect(() => {
         renderer.drawLine(svg, values, "circle-as-line", store, theme);
@@ -87,7 +90,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("accepts valid line geometry", () => {
-      const values = new Map<string, unknown>([["valid-line", line(0, 0, 100, 100)]]);
+      const values = new Map<string, GeometryValue>([["valid-line", line(0, 0, 100, 100)]]);
 
       expect(() => {
         renderer.drawLine(svg, values, "valid-line", store, theme);
@@ -97,7 +100,7 @@ describe("DefaultRenderer - type validation", () => {
 
   describe("drawCircle validation", () => {
     it("throws when geometry not found", () => {
-      const values = new Map<string, unknown>([]);
+      const values = new Map<string, GeometryValue>([]);
 
       expect(() => {
         renderer.drawCircle(svg, values, "missing", store, theme);
@@ -105,7 +108,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is point", () => {
-      const values = new Map<string, unknown>([["point-as-circle", point(50, 50)]]);
+      const values = new Map<string, GeometryValue>([["point-as-circle", point(50, 50)]]);
 
       expect(() => {
         renderer.drawCircle(svg, values, "point-as-circle", store, theme);
@@ -113,7 +116,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is line", () => {
-      const values = new Map<string, unknown>([["line-as-circle", line(0, 0, 100, 100)]]);
+      const values = new Map<string, GeometryValue>([["line-as-circle", line(0, 0, 100, 100)]]);
 
       expect(() => {
         renderer.drawCircle(svg, values, "line-as-circle", store, theme);
@@ -121,7 +124,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("accepts valid circle geometry", () => {
-      const values = new Map<string, unknown>([["valid-circle", circle(50, 50, 25)]]);
+      const values = new Map<string, GeometryValue>([["valid-circle", circle(50, 50, 25)]]);
 
       expect(() => {
         renderer.drawCircle(svg, values, "valid-circle", store, theme);
@@ -131,7 +134,7 @@ describe("DefaultRenderer - type validation", () => {
 
   describe("drawPolygon validation", () => {
     it("throws when geometry not found", () => {
-      const values = new Map<string, unknown>([]);
+      const values = new Map<string, GeometryValue>([]);
 
       expect(() => {
         renderer.drawPolygon(svg, values, "missing", store, theme);
@@ -139,7 +142,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is point", () => {
-      const values = new Map<string, unknown>([["point-as-polygon", point(50, 50)]]);
+      const values = new Map<string, GeometryValue>([["point-as-polygon", point(50, 50)]]);
 
       expect(() => {
         renderer.drawPolygon(svg, values, "point-as-polygon", store, theme);
@@ -147,7 +150,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is line", () => {
-      const values = new Map<string, unknown>([["line-as-polygon", line(0, 0, 100, 100)]]);
+      const values = new Map<string, GeometryValue>([["line-as-polygon", line(0, 0, 100, 100)]]);
 
       expect(() => {
         renderer.drawPolygon(svg, values, "line-as-polygon", store, theme);
@@ -155,7 +158,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("accepts valid polygon geometry", () => {
-      const values = new Map<string, unknown>([
+      const values = new Map<string, GeometryValue>([
         [
           "valid-polygon",
           polygon([
@@ -174,7 +177,7 @@ describe("DefaultRenderer - type validation", () => {
 
   describe("drawCoordinateSystem validation", () => {
     it("throws when geometry not found", () => {
-      const values = new Map<string, unknown>([]);
+      const values = new Map<string, GeometryValue>([]);
 
       expect(() => {
         renderer.drawCoordinateSystem(svg, values, "missing", store, theme);
@@ -182,7 +185,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is point", () => {
-      const values = new Map<string, unknown>([["point-as-cs", point(50, 50)]]);
+      const values = new Map<string, GeometryValue>([["point-as-cs", point(50, 50)]]);
 
       expect(() => {
         renderer.drawCoordinateSystem(svg, values, "point-as-cs", store, theme);
@@ -192,7 +195,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("throws when geometry is line", () => {
-      const values = new Map<string, unknown>([["line-as-cs", line(0, 0, 100, 100)]]);
+      const values = new Map<string, GeometryValue>([["line-as-cs", line(0, 0, 100, 100)]]);
 
       expect(() => {
         renderer.drawCoordinateSystem(svg, values, "line-as-cs", store, theme);
@@ -200,7 +203,7 @@ describe("DefaultRenderer - type validation", () => {
     });
 
     it("accepts valid coordinate_system geometry", () => {
-      const values = new Map<string, unknown>([["valid-cs", coordinateSystem(0, 0, 100, 0)]]);
+      const values = new Map<string, GeometryValue>([["valid-cs", coordinateSystem(0, 0, 100, 0)]]);
 
       expect(() => {
         renderer.drawCoordinateSystem(svg, values, "valid-cs", store, theme);

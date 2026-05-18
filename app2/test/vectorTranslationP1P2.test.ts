@@ -46,7 +46,7 @@ describe("Vector Translation for p1/p2", () => {
     const p1_y = builder.add("p1_y", builder.param("p1y"), vec_cs2_to_cs.dy);
 
     // Create p1 using .value
-    const p1 = builder.pointInCs("p1", cs2, p1_x.value, p1_y.value);
+    builder.pointInCs("p1", cs2, p1_x.value, p1_y.value);
 
     const steps = builder.compile();
     const result = executeStepsUtil(steps, { config });
@@ -83,7 +83,7 @@ describe("Vector Translation for p1/p2", () => {
     const p2_y = builder.add("p2_y", builder.param("p2y"), vec_cs2_to_cs.dy);
 
     // Create p2 using .value
-    const p2 = builder.pointInCs("p2", cs2, p2_x.value, p2_y.value);
+    builder.pointInCs("p2", cs2, p2_x.value, p2_y.value);
 
     const steps = builder.compile();
     const result = executeStepsUtil(steps, { config });
@@ -116,11 +116,11 @@ describe("Vector Translation for p1/p2", () => {
 
     const p1_x = builder.add("p1_x", builder.param("p1x"), vec_cs2_to_cs.dx);
     const p1_y = builder.add("p1_y", builder.param("p1y"), vec_cs2_to_cs.dy);
-    const p1 = builder.pointInCs("p1", cs2, p1_x.value, p1_y.value);
+    builder.pointInCs("p1", cs2, p1_x.value, p1_y.value);
 
     const p2_x = builder.add("p2_x", builder.param("p2x"), vec_cs2_to_cs.dx);
     const p2_y = builder.add("p2_y", builder.param("p2y"), vec_cs2_to_cs.dy);
-    const p2 = builder.pointInCs("p2", cs2, p2_x.value, p2_y.value);
+    builder.pointInCs("p2", cs2, p2_x.value, p2_y.value);
 
     const steps = builder.compile();
     const result = executeStepsUtil(steps, { config });

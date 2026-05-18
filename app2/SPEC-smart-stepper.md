@@ -7,6 +7,7 @@ Eliminate ghost steps in DSL construction stepper. Currently, when user clicks "
 **User pain point:** Confusing UX when stepping through construction — empty steps appear, total step count mismatches visible progress.
 
 **Success looks like:**
+
 - Stepper only lands on visual steps (steps with `isVisual !== false`)
 - No ghost steps in UI
 - Step length dynamically calculated from actual visual steps
@@ -99,15 +100,15 @@ Stepper must skip non-visual steps during navigation:
 
 ```ts
 // Current (BAD):
-const nextStep = currentStepIndex + 1
+const nextStep = currentStepIndex + 1;
 
 // Required (GOOD):
-const nextStep = findNextVisualStep(steps, currentStepIndex)
+const nextStep = findNextVisualStep(steps, currentStepIndex);
 function findNextVisualStep(steps: Step[], fromIndex: number): number {
   for (let i = fromIndex + 1; i < steps.length; i++) {
-    if (steps[i].isVisual !== false) return i
+    if (steps[i].isVisual !== false) return i;
   }
-  return fromIndex
+  return fromIndex;
 }
 ```
 
@@ -119,13 +120,13 @@ Replace hardcoded constants with dynamic calculation:
 
 ```ts
 // Current (BAD):
-export const DSL_SIXFOLD_V1_STEPS_LENGTH = 97
+export const DSL_SIXFOLD_V1_STEPS_LENGTH = 97;
 
 // Required (GOOD):
-export const DSL_SIXFOLD_V1_STEPS_LENGTH = steps.filter(s => s.isVisual !== false).length
+export const DSL_SIXFOLD_V1_STEPS_LENGTH = steps.filter((s) => s.isVisual !== false).length;
 
 // Or computed at runtime:
-const visualStepCount = steps.filter(s => s.isVisual !== false).length
+const visualStepCount = steps.filter((s) => s.isVisual !== false).length;
 ```
 
 ### 3. Execute All Steps, Display Only Visual
@@ -142,6 +143,7 @@ Non-visual steps must still execute for dependency calculations:
 ### 4. Mapping Between Indices
 
 Need to handle two index spaces:
+
 - **Actual step index:** Position in full steps array (0..totalSteps-1)
 - **Visual step index:** Position among visual steps only (0..visualCount-1)
 
@@ -160,26 +162,27 @@ Match existing patterns in codebase:
 
 ```ts
 // BAD - hardcoded length
-export const DSL_SIXFOLD_V1_STEPS_LENGTH = 97
+export const DSL_SIXFOLD_V1_STEPS_LENGTH = 97;
 
 // GOOD - dynamic, computed from source of truth
-const visualSteps = steps.filter(s => s.isVisual !== false)
-export const DSL_SIXFOLD_V1_VISUAL_STEPS_LENGTH = visualSteps.length
+const visualSteps = steps.filter((s) => s.isVisual !== false);
+export const DSL_SIXFOLD_V1_VISUAL_STEPS_LENGTH = visualSteps.length;
 
 // BAD - stepper lands on any step
-setCurrentStep(current + 1)
+setCurrentStep(current + 1);
 
 // GOOD - stepper lands only on visual steps
-const nextVisual = findNextVisualStep(steps, currentStep)
-if (nextVisual !== currentStep) setCurrentStep(nextVisual)
+const nextVisual = findNextVisualStep(steps, currentStep);
+if (nextVisual !== currentStep) setCurrentStep(nextVisual);
 
 // Helper functions for navigation
-function findNextVisualStep(steps: Step[], fromIndex: number): number
-function findPrevVisualStep(steps: Step[], fromIndex: number): number
-function getVisualStepIndex(steps: Step[], actualIndex: number): number
+function findNextVisualStep(steps: Step[], fromIndex: number): number;
+function findPrevVisualStep(steps: Step[], fromIndex: number): number;
+function getVisualStepIndex(steps: Step[], actualIndex: number): number;
 ```
 
 **Naming:**
+
 - `findNextVisualStep`, `findPrevVisualStep` for navigation
 - `getVisualStepIndex`, `getActualStepIndex` for mapping
 - `VISUAL_STEPS_LENGTH` or `VISUAL_STEP_COUNT` for constants
@@ -188,13 +191,13 @@ function getVisualStepIndex(steps: Step[], actualIndex: number): number
 
 ### Test Levels
 
-| Concern | Test Level | Location |
-|---------|-----------|----------|
-| Stepper skips non-visual steps | Unit | `tests/components/stepper.test.ts` (NEW) |
-| Dynamic step length calculation | Unit | `tests/geometry/stepLength.test.ts` (NEW) |
-| Index mapping correctness | Unit | `tests/geometry/stepMapping.test.ts` (NEW) |
-| All DSL components navigate correctly | Integration | Manual + existing tests |
-| Visual geometry still renders at each step | Integration | Manual verification |
+| Concern                                    | Test Level  | Location                                   |
+| ------------------------------------------ | ----------- | ------------------------------------------ |
+| Stepper skips non-visual steps             | Unit        | `tests/components/stepper.test.ts` (NEW)   |
+| Dynamic step length calculation            | Unit        | `tests/geometry/stepLength.test.ts` (NEW)  |
+| Index mapping correctness                  | Unit        | `tests/geometry/stepMapping.test.ts` (NEW) |
+| All DSL components navigate correctly      | Integration | Manual + existing tests                    |
+| Visual geometry still renders at each step | Integration | Manual verification                        |
 
 ### Coverage Expectations
 
@@ -214,22 +217,22 @@ describe("Smart stepper navigation", () => {
     { id: "s4", isVisual: true },
     { id: "s5", isVisual: false },
     { id: "s6", isVisual: true },
-  ]
+  ];
 
   it("finds next visual step", () => {
-    expect(findNextVisualStep(steps, 0)).toBe(1)
-    expect(findNextVisualStep(steps, 1)).toBe(3)
-    expect(findNextVisualStep(steps, 3)).toBe(5)
-    expect(findNextVisualStep(steps, 5)).toBe(5) // at end
-  })
+    expect(findNextVisualStep(steps, 0)).toBe(1);
+    expect(findNextVisualStep(steps, 1)).toBe(3);
+    expect(findNextVisualStep(steps, 3)).toBe(5);
+    expect(findNextVisualStep(steps, 5)).toBe(5); // at end
+  });
 
   it("finds previous visual step", () => {
-    expect(findPrevVisualStep(steps, 5)).toBe(3)
-    expect(findPrevVisualStep(steps, 3)).toBe(1)
-    expect(findPrevVisualStep(steps, 1)).toBe(0)
-    expect(findPrevVisualStep(steps, 0)).toBe(0) // at start
-  })
-})
+    expect(findPrevVisualStep(steps, 5)).toBe(3);
+    expect(findPrevVisualStep(steps, 3)).toBe(1);
+    expect(findPrevVisualStep(steps, 1)).toBe(0);
+    expect(findPrevVisualStep(steps, 0)).toBe(0); // at start
+  });
+});
 
 // tests/geometry/stepLength.test.ts
 describe("Dynamic step length", () => {
@@ -238,10 +241,10 @@ describe("Dynamic step length", () => {
       { id: "s1", isVisual: true },
       { id: "s2", isVisual: false },
       { id: "s3", isVisual: true },
-    ]
-    expect(getVisualStepCount(steps)).toBe(2)
-  })
-})
+    ];
+    expect(getVisualStepCount(steps)).toBe(2);
+  });
+});
 ```
 
 ## Boundaries
@@ -287,15 +290,18 @@ describe("Dynamic step length", () => {
 ### Files to Modify
 
 **Stepper Logic (NEW or UPDATE):**
+
 - `app2/src/components/StepperControls.tsx` (if exists) or create new stepper hook
 - `app2/src/hooks/useSmartStepper.ts` (NEW - recommended)
 
 **DSL SVG Components:**
+
 - `app2/src/components/SixFoldDslV1Svg.tsx` - update stepper, remove hardcoded length
 - `app2/src/components/SixFoldDslSvg.tsx` - update stepper, remove hardcoded length
 - `app2/src/components/SquareDslSvg.tsx` - update stepper, remove hardcoded length
 
 **Step Definitions:**
+
 - `app2/src/geometry/sixfoldDslV1Steps.ts` - remove `DSL_SIXFOLD_V1_STEPS_LENGTH` constant
 - `app2/src/geometry/sixFoldDslSteps.ts` - remove `DSL_SIXFOLD_STEPS_LENGTH` constant
 - `app2/src/geometry/squareDslSteps.ts` - remove `DSL_SQUARE_STEPS_LENGTH` constant
@@ -307,19 +313,19 @@ Create a reusable hook for smart stepping:
 ```ts
 // app2/src/hooks/useSmartStepper.ts
 interface UseSmartStepperProps {
-  steps: Step[]
-  initialStep?: number
+  steps: Step[];
+  initialStep?: number;
 }
 
 interface UseSmartStepperResult {
-  currentVisualIndex: number
-  visualStepCount: number
-  stepsUpToIndex: number
-  goToNext: () => void
-  goToPrev: () => void
-  goToStep: (visualIndex: number) => void
-  canGoNext: boolean
-  canGoPrev: boolean
+  currentVisualIndex: number;
+  visualStepCount: number;
+  stepsUpToIndex: number;
+  goToNext: () => void;
+  goToPrev: () => void;
+  goToStep: (visualIndex: number) => void;
+  canGoNext: boolean;
+  canGoPrev: boolean;
 }
 
 export function useSmartStepper({
@@ -331,6 +337,7 @@ export function useSmartStepper({
 ```
 
 This hook handles:
+
 - Navigation between visual steps
 - Index mapping (visual ↔ actual)
 - Step count calculation
