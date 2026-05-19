@@ -74,8 +74,9 @@ export async function toggleTypeFilter(page: Page, type: string, section?: strin
 /**
  * Get the filtered count text
  */
-export async function getFilteredCountText(page: Page): Promise<string> {
-  const geometryList = page.locator(".geometry-list").first();
+export async function getFilteredCountText(page: Page, section?: string): Promise<string> {
+  const selector = section ? `${section} .geometry-list` : ".geometry-list";
+  const geometryList = page.locator(selector).first();
   return (await geometryList.locator("p").first().textContent()) || "";
 }
 

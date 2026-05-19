@@ -19,6 +19,7 @@ export class CoordinateSystemExpression<TConfig> implements GeometryExpression<
 > {
   readonly id: string;
   readonly type = "coordinate_system" as const;
+  readonly isVisual = true;
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[];
 

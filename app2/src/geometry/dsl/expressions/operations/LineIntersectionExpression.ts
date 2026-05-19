@@ -19,6 +19,7 @@ export interface LineIntersectionOptions {}
 export class LineIntersectionExpression<TConfig> implements GeometryExpression<TConfig, "point"> {
   readonly id: string;
   readonly type = "point" as const;
+  readonly isVisual = true;
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[];
 

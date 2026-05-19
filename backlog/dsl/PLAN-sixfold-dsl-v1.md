@@ -56,17 +56,20 @@ Phase 4: Testing
 **Description**: Get human approval on `SPEC-sixfold-dsl-v1.md` before implementation. Ensure all requirements understood, open questions resolved.
 
 **Acceptance criteria:**
+
 - [ ] Human has reviewed SPEC document
 - [ ] All open questions resolved or deferred
 - [ ] Decisions table approved
 - [ ] Spec saved to repository
 
 **Verification:**
+
 - [ ] Human confirmation received
 
 **Dependencies**: None
 
 **Files:**
+
 - `backlog/dsl/SPEC-sixfold-dsl-v1.md` (REVIEW)
 
 **Estimated scope**: XS
@@ -78,17 +81,20 @@ Phase 4: Testing
 **Description**: Get human approval on this implementation plan. Confirm task breakdown, dependencies, and approach.
 
 **Acceptance criteria:**
+
 - [ ] Human has reviewed PLAN document
 - [ ] Task breakdown approved
 - [ ] No missing tasks identified
 - [ ] Plan saved to repository
 
 **Verification:**
+
 - [ ] Human confirmation received
 
 **Dependencies**: Task 1
 
 **Files:**
+
 - `backlog/dsl/PLAN-sixfold-dsl-v1.md` (REVIEW)
 
 **Estimated scope**: XS
@@ -111,6 +117,7 @@ Phase 4: Testing
 **Description**: Create new DSL v1 file with all required imports, matching style of sixfoldDslSteps.ts.
 
 **Acceptance criteria:**
+
 - [ ] File created at `app2/src/geometry/sixfoldDslV1Steps.ts`
 - [ ] Exports: `buildSixfoldDslV1Steps(): Step<SixFoldV0Config>[]`
 - [ ] Exports: `DSL_SIXFOLD_V1_STEPS_LENGTH: number`
@@ -119,6 +126,7 @@ Phase 4: Testing
 - [ ] File passes format check
 
 **Verification:**
+
 - [ ] `pnpm type-check:app2` passes
 - [ ] No import errors
 - [ ] File format correct (`pnpm format`)
@@ -126,6 +134,7 @@ Phase 4: Testing
 **Dependencies**: Task 2
 
 **Files:**
+
 - `app2/src/geometry/sixfoldDslV1Steps.ts` (NEW)
 
 **Estimated scope**: XS
@@ -137,18 +146,21 @@ Phase 4: Testing
 **Description**: Copy Step 0 from `sixfoldDslSteps.ts` unchanged. Root coordinate system at origin.
 
 **Acceptance criteria:**
+
 - [ ] cs created with id "cs"
 - [ ] cs at (0, 0) with config-based arrowLength
 - [ ] Geometry ID: cs
 - [ ] Matches v0 exactly
 
 **Verification:**
+
 - [ ] `pnpm type-check:app2` passes
 - [ ] Compiled step has correct ID and parameters
 
 **Dependencies**: Task 3
 
 **Files:**
+
 - `app2/src/geometry/sixfoldDslV1Steps.ts` (MODIFY)
 
 **Estimated scope**: XS
@@ -160,6 +172,7 @@ Phase 4: Testing
 **Description**: Create cs2 coordinate system at (p1x, p1y) from config. This is "based on cs" since cs is at origin.
 
 **Acceptance criteria:**
+
 - [ ] cs2 created with id "cs2"
 - [ ] cs2 x-position = builder.param("p1x")
 - [ ] cs2 y-position = builder.param("p1y")
@@ -168,12 +181,14 @@ Phase 4: Testing
 - [ ] Geometry ID: cs2
 
 **Verification:**
+
 - [ ] `pnpm type-check:app2` passes
 - [ ] cs2 at correct absolute position (p1x, p1y)
 
 **Dependencies**: Task 4
 
 **Files:**
+
 - `app2/src/geometry/sixfoldDslV1Steps.ts` (MODIFY)
 
 **Estimated scope**: XS
@@ -185,6 +200,7 @@ Phase 4: Testing
 **Description**: Create p1 in cs2 at (0, 0). This gives p1 absolute position (p1x, p1y) matching v0.
 
 **Reference (MODIFIED from v0):**
+
 ```typescript
 // Original v0: const p1 = builder.pointInCs("p1", cs, builder.param("p1x"), builder.param("p1y"));
 // v1: p1 at origin of cs2
@@ -192,6 +208,7 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 ```
 
 **Acceptance criteria:**
+
 - [ ] p1 created with id "p1"
 - [ ] p1 in cs2 coordinate system
 - [ ] p1 at local coordinates (0, 0) in cs2
@@ -199,12 +216,14 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 - [ ] Geometry ID: p1
 
 **Verification:**
+
 - [ ] `pnpm type-check:app2` passes
 - [ ] p1 position correct
 
 **Dependencies**: Task 5
 
 **Files:**
+
 - `app2/src/geometry/sixfoldDslV1Steps.ts` (MODIFY)
 
 **Estimated scope**: XS
@@ -228,6 +247,7 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Description**: Copy all remaining steps from `sixfoldDslSteps.ts` but change coordinate system references from `cs` to `cs2` for all `pointInCs` calls. This is the bulk of the work.
 
 **Key Changes:**
+
 - Step 3: `p2 = builder.pointInCs("p2", cs2, builder.param("p2x"), builder.param("p2y"))` (was cs)
 - All subsequent `pointInCs` calls use cs2 instead of cs
 - Lines, circles, intersections, and other geometries keep their definitions unchanged
@@ -235,6 +255,7 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 - **Direction choices**: Must be computed relative to cs2 (requires framework support or workaround)
 
 **Acceptance criteria:**
+
 - [ ] All geometries from original v0 steps 2-93 present (now steps 3-94)
 - [ ] All `pointInCs` calls use cs2 as coordinate system
 - [ ] Geometry IDs match original order
@@ -242,6 +263,7 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 - [ ] Direction options use cs2 as reference frame
 
 **Verification:**
+
 - [ ] `pnpm type-check:app2` passes
 - [ ] All steps compile
 - [ ] No type errors
@@ -249,11 +271,13 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Dependencies**: Task 6
 
 **Files:**
+
 - `app2/src/geometry/sixfoldDslV1Steps.ts` (MODIFY)
 
 **Estimated scope**: L (can be broken down)
 
 **Note**: This is the largest task. Consider breaking into smaller batches:
+
 - Batch A: Steps 3-30 (28 steps)
 - Batch B: Steps 31-60 (30 steps)
 - Batch C: Steps 61-90 (30 steps)
@@ -266,16 +290,19 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Description**: Add step count constant export. 95 total steps (94 v0 steps + 1 cs2).
 
 **Acceptance criteria:**
+
 - [ ] `export const DSL_SIXFOLD_V1_STEPS_LENGTH = 95;` added
 - [ ] Constant exported from file
 
 **Verification:**
+
 - [ ] `pnpm type-check:app2` passes
 - [ ] Constant value is correct (95)
 
 **Dependencies**: Task 7
 
 **Files:**
+
 - `app2/src/geometry/sixfoldDslV1Steps.ts` (MODIFY)
 
 **Estimated scope**: XS
@@ -301,6 +328,7 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Description**: Create test file for DSL v1 variant with all required imports.
 
 **Acceptance criteria:**
+
 - [ ] Test file created at `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts`
 - [ ] Imports `buildSixfoldDslV1Steps` and `DSL_SIXFOLD_V1_STEPS_LENGTH`
 - [ ] Imports `executeSteps` from step execution engine
@@ -308,12 +336,14 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 - [ ] Uses Vitest testing framework
 
 **Verification:**
+
 - [ ] Test file compiles
 - [ ] No import errors
 
 **Dependencies**: Task 8
 
 **Files:**
+
 - `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts` (NEW)
 
 **Estimated scope**: XS
@@ -325,16 +355,19 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Description**: Verify cs2 coordinate system at absolute position from config params.
 
 **Acceptance criteria:**
+
 - [ ] Test verifies cs2.x = config.p1x, cs2.y = config.p1y
 - [ ] Uses `approx` for floating point comparison
 - [ ] Test passes
 
 **Verification:**
+
 - [ ] `pnpm test sixfoldDslV1Steps` passes
 
 **Dependencies**: Task 9
 
 **Files:**
+
 - `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts` (MODIFY)
 
 **Estimated scope**: S
@@ -346,17 +379,20 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Description**: Verify p1 is at origin of cs2 with correct absolute position.
 
 **Acceptance criteria:**
+
 - [ ] Test verifies p1.x = cs2.x, p1.y = cs2.y (p1 at cs2 origin)
 - [ ] Test verifies p1.x = config.p1x, p1.y = config.p1y
 - [ ] Uses `approx` for floating point comparison
 - [ ] Test passes
 
 **Verification:**
+
 - [ ] `pnpm test sixfoldDslV1Steps` passes
 
 **Dependencies**: Task 10
 
 **Files:**
+
 - `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts` (MODIFY)
 
 **Estimated scope**: S
@@ -368,6 +404,7 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Description**: Verify that all pointInCs expressions use cs2.
 
 **Acceptance criteria:**
+
 - [ ] Test inspects compiled steps
 - [ ] Verifies all `pointInCs` calls use cs2 (not cs) for steps after step 1
 - [ ] Note: Not all geometries have direct cs2 dependency (e.g., line intersection)
@@ -375,11 +412,13 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 - [ ] Test passes
 
 **Verification:**
+
 - [ ] `pnpm test sixfoldDslV1Steps` passes
 
 **Dependencies**: Task 11
 
 **Files:**
+
 - `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts` (MODIFY)
 
 **Estimated scope**: S
@@ -393,17 +432,20 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Description**: Verify that direction-based operations compute directions relative to cs2. Critical test for rotation support.
 
 **Acceptance criteria:**
+
 - [ ] Create config with cs2 rotation (e.g., 90 degrees)
 - [ ] Execute steps with rotated cs2
 - [ ] Verify direction-based geometries have recomputed positions relative to cs2's new orientation
 - [ ] Test passes with zero code changes to geometry definitions
 
 **Verification:**
+
 - [ ] `pnpm test sixfoldDslV1Steps` passes
 
 **Dependencies**: Task 12
 
 **Files:**
+
 - `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts` (MODIFY)
 
 **Estimated scope**: M
@@ -417,16 +459,19 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Description**: Verify that transformations to cs2 affect all geometries in cs2 hierarchy.
 
 **Acceptance criteria:**
+
 - [ ] Test verifies translation and rotation of cs2
 - [ ] Verifies child geometries (points, lines, circles) reflect cs2 transformation
 - [ ] Test passes
 
 **Verification:**
+
 - [ ] `pnpm test sixfoldDslV1Steps` passes
 
 **Dependencies**: Task 13
 
 **Files:**
+
 - `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts` (MODIFY)
 
 **Estimated scope**: M
@@ -438,16 +483,19 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 **Description**: Verify correct number of steps.
 
 **Acceptance criteria:**
+
 - [ ] Test asserts `steps.length === DSL_SIXFOLD_V1_STEPS_LENGTH`
 - [ ] Test asserts value is 95 (94 v0 steps + 1 cs2)
 - [ ] Test passes
 
 **Verification:**
+
 - [ ] `pnpm test sixfoldDslV1Steps` passes
 
 **Dependencies**: Task 14
 
 **Files:**
+
 - `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts` (MODIFY)
 
 **Estimated scope**: XS
@@ -471,34 +519,36 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 
 ## File Summary
 
-| File | Action | Lines | Status | Est. Scope |
-|------|--------|-------|--------|-----------|
-| `backlog/dsl/SPEC-sixfold-dsl-v1.md` | NEW | ~400 | ✅ Created | XS |
-| `backlog/dsl/PLAN-sixfold-dsl-v1.md` | NEW | ~400 | ✅ Created | XS |
-| `app2/src/geometry/sixfoldDslV1Steps.ts` | NEW | ~340 | pending | L |
-| `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts` | NEW | ~150 | pending | M |
+| File                                                    | Action | Lines | Status     | Est. Scope |
+| ------------------------------------------------------- | ------ | ----- | ---------- | ---------- |
+| `backlog/dsl/SPEC-sixfold-dsl-v1.md`                    | NEW    | ~400  | ✅ Created | XS         |
+| `backlog/dsl/PLAN-sixfold-dsl-v1.md`                    | NEW    | ~400  | ✅ Created | XS         |
+| `app2/src/geometry/sixfoldDslV1Steps.ts`                | NEW    | ~340  | pending    | L          |
+| `app2/src/geometry/__tests__/sixfoldDslV1Steps.test.ts` | NEW    | ~150  | pending    | M          |
 
 **Total estimated scope**: M (mostly in DSL file with many similar steps)
 
 ## Risks and Mitigations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| Direction computation not supported by framework | High | Investigate framework first. May need to extend IntersectionExpression/CircleIntersectionExpression to support relativeTo option, or implement workaround using cs2's transformation matrix |
-| Too many manual changes to step definitions | Medium | Use search/replace to change `cs` to `cs2` for pointInCs calls. Break Task 7 into smaller batches. |
-| Step numbering off by one | Low | cs2 is step 1, original v0 step 1 (p1) becomes step 2. All subsequent steps shift by +1. Document clearly. |
-| cs2 transformations don't propagate | Medium | Verify via dependency graph. If cs2 is in dependency chain, transformations should propagate automatically. |
-| Large task scope (Task 7) | Medium | Break into 4 smaller batches (A-D) as noted in Task 7 |
+| Risk                                             | Impact | Mitigation                                                                                                                                                                                  |
+| ------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Direction computation not supported by framework | High   | Investigate framework first. May need to extend IntersectionExpression/CircleIntersectionExpression to support relativeTo option, or implement workaround using cs2's transformation matrix |
+| Too many manual changes to step definitions      | Medium | Use search/replace to change `cs` to `cs2` for pointInCs calls. Break Task 7 into smaller batches.                                                                                          |
+| Step numbering off by one                        | Low    | cs2 is step 1, original v0 step 1 (p1) becomes step 2. All subsequent steps shift by +1. Document clearly.                                                                                  |
+| cs2 transformations don't propagate              | Medium | Verify via dependency graph. If cs2 is in dependency chain, transformations should propagate automatically.                                                                                 |
+| Large task scope (Task 7)                        | Medium | Break into 4 smaller batches (A-D) as noted in Task 7                                                                                                                                       |
 
 ## Verification Checkpoints
 
 ### Checkpoint 1: Planning (After Tasks 1-2)
+
 - [ ] SPEC reviewed and approved
 - [ ] PLAN reviewed and approved
 - [ ] All open questions resolved or documented
 - [ ] Human confirmation received
 
 ### Checkpoint 2: Core Structure (After Tasks 3-6)
+
 - [ ] DSL file created with correct structure
 - [ ] Steps 0-2 (cs, cs2, p1) implemented
 - [ ] `pnpm type-check:app2` passes
@@ -507,6 +557,7 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 - [ ] Review with human
 
 ### Checkpoint 3: DSL Complete (After Tasks 7-8)
+
 - [ ] All 95 steps implemented
 - [ ] `pnpm type-check:app2` passes
 - [ ] `pnpm lint` passes
@@ -514,6 +565,7 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 - [ ] Review with human
 
 ### Checkpoint 4: Testing Complete (After Tasks 9-15)
+
 - [ ] All tests pass
 - [ ] `pnpm test` exits with code 0
 - [ ] No regressions in existing tests
@@ -530,16 +582,16 @@ const p1 = builder.pointInCs("p1", cs2, 0, 0);
 
 ## Decisions Log
 
-| Date | Decision | Rationale | Author | Status |
-|------|----------|-----------|--------|--------|
-| TBD | File naming | Use v1 version naming | `sixfoldDslV1Steps.ts` | **RESOLVED** |
-| TBD | cs2 position | At (p1x, p1y) from config | cs2 based on cs, uses config params | **RESOLVED** |
-| TBD | p1 position | In cs2 at (0, 0) | Matches requirement | **RESOLVED** |
-| TBD | Direction choices | Hardcoded / Computed relative to cs2 | **Computed relative to cs2** - ensures rotation works with zero changes | **RESOLVED** |
-| TBD | Step numbering shift | Acceptable? | **Yes - shift ok** | **RESOLVED** |
-| TBD | cs2 inherit from cs | Should cs2 inherit? | **Yes - inherit** | **RESOLVED** |
-| TBD | Direction reference | Absolute / Relative to cs2 | **Relative to cs2 position** | **RESOLVED** |
-| TBD | New file, not modify original | Preserves v0 for comparison | Pending | **RESOLVED** |
+| Date | Decision                      | Rationale                            | Author                                                                  | Status       |
+| ---- | ----------------------------- | ------------------------------------ | ----------------------------------------------------------------------- | ------------ |
+| TBD  | File naming                   | Use v1 version naming                | `sixfoldDslV1Steps.ts`                                                  | **RESOLVED** |
+| TBD  | cs2 position                  | At (p1x, p1y) from config            | cs2 based on cs, uses config params                                     | **RESOLVED** |
+| TBD  | p1 position                   | In cs2 at (0, 0)                     | Matches requirement                                                     | **RESOLVED** |
+| TBD  | Direction choices             | Hardcoded / Computed relative to cs2 | **Computed relative to cs2** - ensures rotation works with zero changes | **RESOLVED** |
+| TBD  | Step numbering shift          | Acceptable?                          | **Yes - shift ok**                                                      | **RESOLVED** |
+| TBD  | cs2 inherit from cs           | Should cs2 inherit?                  | **Yes - inherit**                                                       | **RESOLVED** |
+| TBD  | Direction reference           | Absolute / Relative to cs2           | **Relative to cs2 position**                                            | **RESOLVED** |
+| TBD  | New file, not modify original | Preserves v0 for comparison          | Pending                                                                 | **RESOLVED** |
 
 ## Next Steps
 
@@ -563,11 +615,13 @@ This ensures p1 has the same absolute position in both v0 and v1, just organized
 ### About Direction Computation
 
 **Critical requirement**: Directions must be computed relative to cs2's orientation, not hardcoded. When cs2 rotates:
+
 - All direction-based geometry (circleIntersection with "north", intersection with "left", etc.) must automatically recompute
 - Zero code changes to geometry definitions
 - The direction computation must handle cs2's current rotation matrix
 
 Current DSL uses hardcoded strings like `{ select: "north" }` which are relative to global coordinate system. For v1, we need either:
+
 - Framework extension: Add `relativeTo: cs2` option to direction-based expressions
 - Workaround: Compute direction vectors based on cs2's rotation at compute time
 
@@ -576,6 +630,7 @@ This is the key technical challenge for this feature.
 ### Comparison with Original v0
 
 The main difference between `sixfoldDslSteps.ts` (v0) and `sixfoldDslV1Steps.ts`:
+
 - cs2 inserted at step 1 at absolute (p1x, p1y) from config
 - p1 moved to step 2, defined in cs2 at (0, 0) instead of in cs at (p1x, p1y)
 - All `pointInCs` calls after step 2 use `cs2` instead of `cs`

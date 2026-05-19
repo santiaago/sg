@@ -26,6 +26,7 @@ export interface LineStyleOptions {
 export class LineExpression<TConfig> implements GeometryExpression<TConfig, "line"> {
   readonly id: string;
   readonly type = "line" as const;
+  readonly isVisual = true;
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[];
 

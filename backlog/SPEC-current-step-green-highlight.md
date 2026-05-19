@@ -55,12 +55,14 @@ app2/
 ## Code Style
 
 Match existing patterns:
+
 - Short, descriptive function names
 - Type-safe with no `any`
 - JSDoc comments for public APIs
 - Oxlint/Oxfmt compliant
 
 Example modification pattern:
+
 ```typescript
 // Before
 drawPoint(svg, values, geomId, radius, store, theme);
@@ -74,11 +76,13 @@ drawPoint(svg, values, geomId, radius, store, theme, { currentStep });
 Framework: Vitest
 
 Test levels:
+
 - Unit: `svgElements.ts` draw functions apply correct color based on step match
 - Integration: Step navigation triggers color update for all geometry types
 - Snapshot: SVG output matches expected structure with color attributes
 
 Test locations:
+
 - `app2/src/components/*.test.tsx` - component integration tests
 - `app2/src/svgElements.test.ts` - new unit tests for draw functions
 
@@ -116,10 +120,11 @@ Specific, testable conditions:
 ### Step-to-Geometry Mapping
 
 Pattern in all SVG components (`SquareSvg.tsx`, `SixFoldV0Svg.tsx`, etc.):
+
 ```typescript
 // After executeSteps(), update store with step metadata
 for (const [id, _] of allValues) {
-  const step = stepForOutput.get(id);  // Step that produces this geometry
+  const step = stepForOutput.get(id); // Step that produces this geometry
   const stepId = step?.id ?? "";
   store.update(id, { dependsOn: deps, stepId, parameterValues: paramValues });
 }
@@ -130,6 +135,7 @@ Each geometry's `stepId` = its creating step's `id`.
 ### Required Changes
 
 **1. Theme Extension** (`themes.ts`):
+
 ```typescript
 export interface Theme {
   // Existing...
@@ -145,6 +151,7 @@ COLOR_CURRENT_STEP: "#00ff00",  // Pure green
 
 **2. Highlight Helper** (`geometryHighlighting.ts`):
 Add new function:
+
 ```typescript
 export function applyCurrentStepHighlight(
   svg: SVGSVGElement,
@@ -171,6 +178,7 @@ export function applyCurrentStepHighlight(
 
 **3. SVG Components** (all 6 components):
 In each `*Svg.tsx`, after step execution and store update:
+
 ```typescript
 // Compute current step ID
 const currentStepId = currentStep > 0 ? STEPS[currentStep - 1].id : "";
@@ -182,6 +190,7 @@ if (currentStepId && svgRef.current) {
 ```
 
 **4. Files to Modify**:
+
 - `app2/src/themes.ts` - add COLOR_CURRENT_STEP
 - `app2/src/utils/geometryHighlighting.ts` - add applyCurrentStepHighlight
 - `app2/src/components/SquareSvg.tsx`
@@ -213,9 +222,9 @@ if (currentStepId && svgRef.current) {
 
 ## Decision Log
 
-| Date | Decision | Rationale |
-|------|----------|-----------|
-| 2025-XX-XX | Use existing `stepId` on GeometryItem | Already available in react-store.ts:29. No schema changes needed. |
-| 2025-XX-XX | Add `COLOR_CURRENT_STEP` to Theme interface | Semantic naming, consistent with existing COLOR_INPUT_HIGHLIGHT, COLOR_SELECTED. |
-| 2025-XX-XX | Post-draw highlight application | SVG elements recreated on every step change. Apply green after draw via store iteration. Cleaner than modifying draw function signatures. |
-| 2025-XX-XX | Include coordinate_system | Step 0 outputs should be highlighted when currentStep=1. All geometry types supported. |
+| Date       | Decision                                    | Rationale                                                                                                                                 |
+| ---------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 2025-XX-XX | Use existing `stepId` on GeometryItem       | Already available in react-store.ts:29. No schema changes needed.                                                                         |
+| 2025-XX-XX | Add `COLOR_CURRENT_STEP` to Theme interface | Semantic naming, consistent with existing COLOR_INPUT_HIGHLIGHT, COLOR_SELECTED.                                                          |
+| 2025-XX-XX | Post-draw highlight application             | SVG elements recreated on every step change. Apply green after draw via store iteration. Cleaner than modifying draw function signatures. |
+| 2025-XX-XX | Include coordinate_system                   | Step 0 outputs should be highlighted when currentStep=1. All geometry types supported.                                                    |

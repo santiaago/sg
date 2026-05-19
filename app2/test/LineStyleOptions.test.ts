@@ -7,6 +7,7 @@ import { GeometryBuilder } from "@/geometry/dsl/GeometryBuilder";
 import { DefaultGeometryRenderer } from "@/geometry/dsl/renderers/DefaultRenderer";
 import { TestGeometryRenderer, createTestContext, executeSteps } from "./dsl-test-utils";
 import { GOLDEN_RATIO } from "@/geometry/operations";
+import type { GeometryValue } from "@/types/geometry";
 import type { LineStyleOptions } from "@/geometry/dsl/expressions/LineExpression";
 import { LineExpression, LineTowardsExpression, PointExpression } from "@/geometry/dsl/expressions";
 
@@ -274,16 +275,26 @@ describe("LineStyleOptions", () => {
         strokeColor: "#ff0000",
       };
 
+      // Provide valid line geometry
+      const values = new Map<string, GeometryValue>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
+
       // This should not throw
       expect(() => {
-        renderer.drawLine(ctx.svg, new Map(), "L1", ctx.store, ctx.theme, style);
+        renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme, style);
       }).not.toThrow();
     });
 
     it("drawLine works without style options", () => {
+      // Provide valid line geometry
+      const values = new Map<string, GeometryValue>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
+
       // This should not throw (backward compatibility)
       expect(() => {
-        renderer.drawLine(ctx.svg, new Map(), "L1", ctx.store, ctx.theme);
+        renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme);
       }).not.toThrow();
     });
 
@@ -293,7 +304,11 @@ describe("LineStyleOptions", () => {
         strokeColor: "#00ff00",
       };
 
-      renderer.drawLine(ctx.svg, new Map(), "L1", ctx.store, ctx.theme, style);
+      const values = new Map<string, GeometryValue>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
+
+      renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme, style);
 
       expect(renderer.drawnLines).toContain("L1");
     });
@@ -318,16 +333,26 @@ describe("LineStyleOptions", () => {
         strokeColor: "#ff0000",
       };
 
+      // Provide valid line geometry
+      const values = new Map<string, GeometryValue>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
+
       // This should not throw
       expect(() => {
-        renderer.drawLine(ctx.svg, new Map(), "L1", ctx.store, ctx.theme, style);
+        renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme, style);
       }).not.toThrow();
     });
 
     it("drawLine works without style options", () => {
+      // Provide valid line geometry
+      const values = new Map<string, GeometryValue>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
+
       // This should not throw (backward compatibility)
       expect(() => {
-        renderer.drawLine(ctx.svg, new Map(), "L1", ctx.store, ctx.theme);
+        renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme);
       }).not.toThrow();
     });
 
@@ -501,8 +526,13 @@ describe("LineStyleOptions", () => {
       const renderer = new DefaultGeometryRenderer();
       const ctx = createTestContext();
 
+      // Provide valid line geometry
+      const values = new Map<string, GeometryValue>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
+
       expect(() => {
-        renderer.drawLine(ctx.svg, new Map(), "L1", ctx.store, ctx.theme);
+        renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme);
       }).not.toThrow();
     });
 
@@ -510,8 +540,13 @@ describe("LineStyleOptions", () => {
       const renderer = new TestGeometryRenderer();
       const ctx = createTestContext();
 
+      // TestGeometryRenderer doesn't validate, but provide valid geometry for consistency
+      const values = new Map<string, GeometryValue>([
+        ["L1", { type: "line" as const, x1: 0, y1: 0, x2: 100, y2: 100 }],
+      ]);
+
       expect(() => {
-        renderer.drawLine(ctx.svg, new Map(), "L1", ctx.store, ctx.theme);
+        renderer.drawLine(ctx.svg, values, "L1", ctx.store, ctx.theme);
       }).not.toThrow();
     });
   });

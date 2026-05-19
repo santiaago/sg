@@ -18,6 +18,7 @@ import { resolveParameter } from "../utils";
 export class CircleExpression<TConfig> implements GeometryExpression<TConfig, "circle"> {
   readonly id: string;
   readonly type = "circle" as const;
+  readonly isVisual = true;
   readonly dependencies: string[];
   readonly parameters: (keyof TConfig)[];
 
