@@ -20,6 +20,7 @@ export interface GeometryRenderer {
    * @param geomId - The ID of the geometry to draw
    * @param store - The geometry store for tracking
    * @param theme - The theme for styling
+   * @param stepId - The ID of the current step being drawn
    */
   drawPoint: (
     svg: SVGSVGElement,
@@ -27,6 +28,7 @@ export interface GeometryRenderer {
     geomId: string,
     store: GeometryStore,
     theme: Theme,
+    stepId?: string,
   ) => void;
 
   /**
@@ -37,6 +39,7 @@ export interface GeometryRenderer {
    * @param store - The geometry store for tracking
    * @param theme - The theme for styling
    * @param options - Optional style options (strokeWidth, strokeColor)
+   * @param stepId - The ID of the current step being drawn
    */
   drawLine: (
     svg: SVGSVGElement,
@@ -45,6 +48,7 @@ export interface GeometryRenderer {
     store: GeometryStore,
     theme: Theme,
     options?: LineStyleOptions,
+    stepId?: string,
   ) => void;
 
   /**
@@ -54,6 +58,7 @@ export interface GeometryRenderer {
    * @param geomId - The ID of the geometry to draw
    * @param store - The geometry store for tracking
    * @param theme - The theme for styling
+   * @param stepId - The ID of the current step being drawn
    */
   drawCircle: (
     svg: SVGSVGElement,
@@ -61,6 +66,7 @@ export interface GeometryRenderer {
     geomId: string,
     store: GeometryStore,
     theme: Theme,
+    stepId?: string,
   ) => void;
 
   /**
@@ -71,6 +77,7 @@ export interface GeometryRenderer {
    * @param store - The geometry store for tracking
    * @param theme - The theme for styling
    * @param options - Optional style options (strokeWidth, strokeColor)
+   * @param stepId - The ID of the current step being drawn
    */
   drawPolygon: (
     svg: SVGSVGElement,
@@ -79,6 +86,7 @@ export interface GeometryRenderer {
     store: GeometryStore,
     theme: Theme,
     options?: PolygonStyleOptions,
+    stepId?: string,
   ) => void;
 
   /**
@@ -88,6 +96,7 @@ export interface GeometryRenderer {
    * @param geomId - The ID of the geometry to draw
    * @param store - The geometry store for tracking
    * @param theme - The theme for styling
+   * @param stepId - The ID of the current step being drawn
    */
   drawCoordinateSystem: (
     svg: SVGSVGElement,
@@ -95,5 +104,6 @@ export interface GeometryRenderer {
     geomId: string,
     store: GeometryStore,
     theme: Theme,
+    stepId?: string,
   ) => void;
 }
