@@ -6,6 +6,7 @@
 
 import { GeometryBuilder } from "./dsl/GeometryBuilder";
 import { DefaultGeometryRenderer } from "./dsl/renderers/DefaultRenderer";
+import type { GeometryRenderer } from "./dsl/renderers/types";
 import { GOLDEN_RATIO } from "./operations";
 import type { SquareConfig } from "./operations";
 import type { PolygonStyleOptions } from "./dsl/expressions/PolygonExpression";
@@ -15,10 +16,12 @@ import type { Step } from "../types/geometry";
  * Build the square construction steps using the DSL.
  * Returns an array of Steps that can be executed by the standard step execution engine.
  *
+ * @param renderer - Optional custom renderer for drawing geometry
  * @returns Array of Steps for the square construction
  */
-export function buildSquareDslSteps(): Step<SquareConfig>[] {
-  const builder = new GeometryBuilder<SquareConfig>(new DefaultGeometryRenderer());
+export function buildSquareDslSteps(renderer?: GeometryRenderer): Step<SquareConfig>[] {
+  const actualRenderer = renderer || new DefaultGeometryRenderer("");
+  const builder = new GeometryBuilder<SquareConfig>(actualRenderer);
 
   // Step 1: Coordinate system - arrowLength references height via coordinateSystemArrowLength
   const cs = builder.coordinateSystem("cs", 0, 0, "coordinateSystemArrowLength" as const, 0);

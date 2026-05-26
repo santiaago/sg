@@ -3,6 +3,7 @@
 
 import { GeometryBuilder } from "./dsl/GeometryBuilder";
 import { DefaultGeometryRenderer } from "./dsl/renderers/DefaultRenderer";
+import type { GeometryRenderer } from "./dsl/renderers/types";
 import type { Step } from "@/types/geometry";
 import type { SixFoldV0Config } from "./sixFold/operations";
 import { GOLDEN_RATIO } from "./operations";
@@ -13,9 +14,12 @@ import type { LineStyleOptions } from "./dsl/expressions/LineExpression";
  * cs2 created at (p1x, p1y) from config. p1 at (0, 0) in cs2.
  * All subsequent geometries use cs2 as parent coordinate system.
  * Returns an array of Steps that can be executed by the standard step execution engine.
+ *
+ * @param renderer - Optional custom renderer for drawing geometry
  */
-export function buildSixfoldDslV1Steps(): Step<SixFoldV0Config>[] {
-  const builder = new GeometryBuilder<SixFoldV0Config>(new DefaultGeometryRenderer());
+export function buildSixfoldDslV1Steps(renderer?: GeometryRenderer): Step<SixFoldV0Config>[] {
+  const actualRenderer = renderer || new DefaultGeometryRenderer("");
+  const builder = new GeometryBuilder<SixFoldV0Config>(actualRenderer);
 
   // Outline style - same as square polygon style in squareDslSteps.ts
   const outlineStyle: LineStyleOptions = {
