@@ -30,7 +30,11 @@ export interface Theme {
   COLOR_INPUT_HIGHLIGHT: string;
   COLOR_HOVER_DETAILS: string;
   COLOR_SELECTED: string;
+  COLOR_CURRENT_STEP: string;
 }
+
+// Color constants for consistency
+const COLOR_CURRENT_STEP_VALUE = "#00ff00";
 
 // Light theme - EXACT original colors
 export const lightTheme: Theme = {
@@ -49,6 +53,7 @@ export const lightTheme: Theme = {
   COLOR_INPUT_HIGHLIGHT: "orange",
   COLOR_HOVER_DETAILS: "cyan",
   COLOR_SELECTED: "red",
+  COLOR_CURRENT_STEP: COLOR_CURRENT_STEP_VALUE,
 };
 
 // Dark theme - slate-based colors
@@ -68,4 +73,5 @@ export const darkTheme: Theme = {
   COLOR_INPUT_HIGHLIGHT: "orange",
   COLOR_HOVER_DETAILS: "cyan",
   COLOR_SELECTED: "red",
+  COLOR_CURRENT_STEP: COLOR_CURRENT_STEP_VALUE,
 };
