@@ -9,7 +9,7 @@ import type { LineLikeExpression } from "../types";
 import { GeometryFeatureReference } from "../../GeometryFeatureReference";
 import type { ParameterValue } from "../../types";
 import { isGeometryFeatureReference } from "../../types";
-import { resolveParameter } from "../../utils";
+import { createStepId, resolveParameter } from "../../utils";
 
 /**
  * Expression for a point at a ratio along a line.
@@ -69,8 +69,9 @@ export class PointAtExpression<TConfig> implements GeometryExpression<TConfig, "
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const stepId = createStepId(this.id);
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -78,7 +79,7 @@ export class PointAtExpression<TConfig> implements GeometryExpression<TConfig, "
         inputs: Map<string, GeometryValue>,
         params: TConfig,
       ): Map<string, GeometryValue> => {
-        const lineVal = getGeometry(inputs, this.lineId, isLine, "Line", `step_${this.id}`);
+        const lineVal = getGeometry(inputs, this.lineId, isLine, "Line", stepId);
 
         const ratio = resolveParameter(inputs, params, this.ratioParam, "ratio");
 
@@ -89,7 +90,7 @@ export class PointAtExpression<TConfig> implements GeometryExpression<TConfig, "
         return new Map([[this.id, point(x, y)]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawPoint(svg, values, this.id, store, theme);
+        renderer.drawPoint(svg, values, this.id, store, theme, stepId);
       },
     };
   }

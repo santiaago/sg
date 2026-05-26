@@ -10,7 +10,7 @@ import type { PointLikeExpression } from "../types";
 import { GeometryFeatureReference } from "../../GeometryFeatureReference";
 import type { ParameterValue } from "../../types";
 import { isGeometryFeatureReference } from "../../types";
-import { resolveParameter } from "../../utils";
+import { createStepId, resolveParameter } from "../../utils";
 import type { LineWithLength } from "../types";
 import type { LineStyleOptions } from "../LineExpression";
 
@@ -112,9 +112,10 @@ export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfi
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
     const styleOptions = this.styleOptions;
+    const stepId = createStepId(this.id);
 
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -122,8 +123,8 @@ export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfi
         inputs: Map<string, GeometryValue>,
         params: TConfig,
       ): Map<string, GeometryValue> => {
-        const startVal = getGeometry(inputs, this.startId, isPoint, "Point", `step_${this.id}`);
-        const endVal = getGeometry(inputs, this.endId, isPoint, "Point", `step_${this.id}`);
+        const startVal = getGeometry(inputs, this.startId, isPoint, "Point", stepId);
+        const endVal = getGeometry(inputs, this.endId, isPoint, "Point", stepId);
 
         const len = resolveParameter(inputs, params, this.lengthParam, "length");
 
@@ -139,7 +140,7 @@ export class LineTowardsExpression<TConfig> implements GeometryExpression<TConfi
         return new Map([[this.id, line(startVal.x, startVal.y, x2, y2)]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawLine(svg, values, this.id, store, theme, styleOptions);
+        renderer.drawLine(svg, values, this.id, store, theme, styleOptions, stepId);
       },
     };
   }

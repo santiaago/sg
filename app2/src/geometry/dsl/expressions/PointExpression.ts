@@ -5,6 +5,7 @@ import type { Step, GeometryValue, Point } from "@/types/geometry";
 import { point } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
 import { GeometryFeatureReference } from "../GeometryFeatureReference";
+import { createStepId } from "../utils";
 
 /**
  * Expression for a primitive point geometry.
@@ -56,8 +57,9 @@ export class PointExpression<TConfig> implements GeometryExpression<TConfig, "po
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const stepId = createStepId(this.id);
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -65,7 +67,7 @@ export class PointExpression<TConfig> implements GeometryExpression<TConfig, "po
         return new Map([[this.id, point(this.xCoord, this.yCoord)]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawPoint(svg, values, this.id, store, theme);
+        renderer.drawPoint(svg, values, this.id, store, theme, stepId);
       },
     };
   }

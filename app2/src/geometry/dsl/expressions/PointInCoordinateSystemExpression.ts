@@ -10,7 +10,7 @@ import type { CoordinateSystemExpression } from "./CoordinateSystemExpression";
 import { GeometryFeatureReference } from "../GeometryFeatureReference";
 import type { ParameterValue } from "../types";
 import { isGeometryFeatureReference } from "../types";
-import { resolveParameter } from "../utils";
+import { createStepId, resolveParameter } from "../utils";
 
 /**
  * Expression for a point defined in a coordinate system.
@@ -92,8 +92,9 @@ export class PointInCoordinateSystemExpression<TConfig> implements GeometryExpre
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const stepId = createStepId(this.id);
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -103,7 +104,7 @@ export class PointInCoordinateSystemExpression<TConfig> implements GeometryExpre
           this.csId,
           isCoordinateSystem,
           "CoordinateSystem",
-          `step_${this.id}`,
+          stepId,
         );
 
         // Resolve parameterized coordinates
@@ -124,7 +125,7 @@ export class PointInCoordinateSystemExpression<TConfig> implements GeometryExpre
         return new Map([[this.id, point(globalX, globalY)]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawPoint(svg, values, this.id, store, theme);
+        renderer.drawPoint(svg, values, this.id, store, theme, stepId);
       },
     };
   }

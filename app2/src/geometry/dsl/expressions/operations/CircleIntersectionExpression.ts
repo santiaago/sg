@@ -8,6 +8,7 @@ import { getGeometry } from "@/geometry/operations";
 import { pointFromCircles } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { CircleLikeExpression } from "../types";
+import { createStepId } from "../../utils";
 
 /** Options for circle-circle intersection */
 export interface CircleIntersectionOptions {
@@ -53,8 +54,9 @@ export class CircleIntersectionExpression<TConfig> implements GeometryExpression
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const stepId = createStepId(this.id);
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -62,8 +64,8 @@ export class CircleIntersectionExpression<TConfig> implements GeometryExpression
         inputs: Map<string, GeometryValue>,
         _config: TConfig,
       ): Map<string, GeometryValue> => {
-        const c1Val = getGeometry(inputs, this.c1Id, isCircle, "Circle", `step_${this.id}`);
-        const c2Val = getGeometry(inputs, this.c2Id, isCircle, "Circle", `step_${this.id}`);
+        const c1Val = getGeometry(inputs, this.c1Id, isCircle, "Circle", stepId);
+        const c2Val = getGeometry(inputs, this.c2Id, isCircle, "Circle", stepId);
 
         const result = pointFromCircles(c1Val, c2Val, {
           select: this.options.select,
@@ -71,7 +73,7 @@ export class CircleIntersectionExpression<TConfig> implements GeometryExpression
 
         if (!result) {
           throw new GeometryError(
-            `step_${this.id}`,
+            stepId,
             this.id,
             "No intersection found between circles",
           );
@@ -80,7 +82,7 @@ export class CircleIntersectionExpression<TConfig> implements GeometryExpression
         return new Map([[this.id, result]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawPoint(svg, values, this.id, store, theme);
+        renderer.drawPoint(svg, values, this.id, store, theme, stepId);
       },
     };
   }

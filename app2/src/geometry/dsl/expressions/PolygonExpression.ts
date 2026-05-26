@@ -5,6 +5,7 @@ import type { Step, GeometryValue, Theme } from "@/types/geometry";
 import { polygon, isPoint } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
 import type { PointLikeExpression } from "./types";
+import { createStepId } from "../utils";
 
 /**
  * Style options for polygon geometry.
@@ -56,9 +57,10 @@ export class PolygonExpression<TConfig> implements GeometryExpression<TConfig, "
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
     const styleOptions = this.styleOptions;
+    const stepId = createStepId(this.id);
 
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -82,7 +84,7 @@ export class PolygonExpression<TConfig> implements GeometryExpression<TConfig, "
         return new Map([[this.id, polygon(polygonPoints)]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawPolygon(svg, values, this.id, store, theme, styleOptions);
+        renderer.drawPolygon(svg, values, this.id, store, theme, styleOptions, stepId);
       },
     };
   }
