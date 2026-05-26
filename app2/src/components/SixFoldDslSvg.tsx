@@ -5,6 +5,7 @@ import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
 import { setupSvg } from "../svg";
 import { buildSixfoldDslSteps } from "../geometry/sixfoldDslSteps";
+import { DefaultGeometryRenderer } from "../geometry/dsl/renderers/DefaultRenderer";
 import { executeSteps } from "../geometry/stepExecution";
 import { computeSixFoldV0Config, type SixFoldV0Config } from "../geometry/sixFold/operations";
 import { useThemeAwareSteps } from "../hooks/useThemeAwareSteps";
@@ -119,8 +120,15 @@ export const SixFoldDslSvg = forwardRef(function SixFoldDslSvg(
     if (currentStep <= 0) return;
 
     try {
-      // Build steps using DSL
-      const allSteps = buildSixfoldDslSteps();
+      // Create renderer and build steps once
+      const renderer = new DefaultGeometryRenderer("");
+      const allSteps = buildSixfoldDslSteps(renderer);
+      
+      // Set current step ID for highlighting
+      const currentStepId = currentStep > 0 ? allSteps[currentStep - 1]?.id : "";
+      if (currentStepId) {
+        renderer.setCurrentStepId(currentStepId);
+      }
 
       // Build step maps for dependency tracking and parameter values
       const { stepDependencies, stepForOutput } = buildStepMaps(allSteps, currentStep);

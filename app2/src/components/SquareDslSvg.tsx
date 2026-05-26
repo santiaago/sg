@@ -5,6 +5,7 @@ import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
 import { setupSvg } from "../svg";
 import { buildSquareDslSteps } from "../geometry/squareDslSteps";
+import { DefaultGeometryRenderer } from "../geometry/dsl/renderers/DefaultRenderer";
 import { executeSteps } from "../geometry/stepExecution";
 import { computeSquareConfig, type SquareConfig } from "../geometry/operations";
 import { useThemeAwareSteps } from "../hooks/useThemeAwareSteps";
@@ -119,8 +120,15 @@ export const SquareDslSvg = forwardRef(function SquareDslSvg(
     if (currentStep <= 0) return;
 
     try {
-      // Build steps using DSL
-      const allSteps = buildSquareDslSteps();
+      // Create renderer and build steps once
+      const renderer = new DefaultGeometryRenderer("");
+      const allSteps = buildSquareDslSteps(renderer);
+      
+      // Set current step ID for highlighting
+      const currentStepId = currentStep > 0 ? allSteps[currentStep - 1]?.id : "";
+      if (currentStepId) {
+        renderer.setCurrentStepId(currentStepId);
+      }
 
       // Build step maps for dependency tracking and parameter values
       const { stepDependencies, stepForOutput } = buildStepMaps(allSteps, currentStep);
