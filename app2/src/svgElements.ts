@@ -111,6 +111,7 @@ export function clearGeometryFromSvg(svg: SVGSVGElement): void {
 
 /**
  * Draw a dot (circle) SVG element
+ * @param fillColor - Optional fill color override (defaults to theme.COLOR_DOT)
  */
 export function dot(
   svg: SVGSVGElement,
@@ -118,13 +119,14 @@ export function dot(
   y: number,
   radius: number,
   theme: Theme,
+  fillColor?: string,
 ): SVGCircleElement {
   const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   circle.setAttribute("class", "dot");
   circle.setAttribute("cx", x.toString());
   circle.setAttribute("cy", y.toString());
   circle.setAttribute("r", radius.toString());
-  circle.setAttribute("fill", theme.COLOR_DOT);
+  circle.setAttribute("fill", fillColor ?? theme.COLOR_DOT);
   circle.setAttribute("opacity", "1");
   svg.appendChild(circle);
   return circle;
@@ -155,6 +157,7 @@ export function line(
 
 /**
  * Draw a circle SVG element with stroke
+ * @param strokeColor - Optional stroke color override (defaults to theme.COLOR_SECONDARY)
  */
 export function circle(
   svg: SVGSVGElement,
@@ -163,9 +166,10 @@ export function circle(
   r: number,
   strokeWidth: number = 1,
   theme: Theme,
+  strokeColor?: string,
 ): SVGCircleElement {
   const circleEl = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  circleEl.setAttribute("stroke", theme.COLOR_SECONDARY);
+  circleEl.setAttribute("stroke", strokeColor ?? theme.COLOR_SECONDARY);
   circleEl.setAttribute("stroke-width", strokeWidth.toString());
   circleEl.setAttribute("fill", "none");
   circleEl.setAttribute("cx", cx.toString());
@@ -320,6 +324,7 @@ export function coordinateSystemArrows(
  * @param radius - The radius of the dot
  * @param store - Optional store for managing SVG elements
  * @param theme - Theme to use for colors
+ * @param fillColor - Optional fill color override (defaults to theme.COLOR_DOT)
  */
 export function drawPoint(
   svg: SVGSVGElement,
@@ -328,10 +333,11 @@ export function drawPoint(
   radius: number,
   store: GeometryStore,
   theme: Theme,
+  fillColor?: string,
 ): void {
   const p = values.get(geomId);
   if (!p || !isPoint(p)) return;
-  dotWithTooltip(svg, p.x, p.y, geomId, radius, store, theme);
+  dotWithTooltip(svg, p.x, p.y, geomId, radius, store, theme, fillColor);
 }
 
 /**
@@ -366,6 +372,7 @@ export function drawLine(
  * @param strokeWidth - The width of the circle stroke
  * @param store - Optional store for managing SVG elements
  * @param theme - Theme to use for colors
+ * @param strokeColor - Optional stroke color override (defaults to theme.COLOR_SECONDARY)
  */
 export function drawCircle(
   svg: SVGSVGElement,
@@ -374,10 +381,11 @@ export function drawCircle(
   strokeWidth: number,
   store: GeometryStore,
   theme: Theme,
+  strokeColor?: string,
 ): void {
   const c = values.get(geomId);
   if (!c || !isCircle(c)) return;
-  circleWithTooltip(svg, c.cx, c.cy, c.r, geomId, strokeWidth, store, theme);
+  circleWithTooltip(svg, c.cx, c.cy, c.r, geomId, strokeWidth, store, theme, strokeColor);
 }
 
 /**
@@ -449,6 +457,7 @@ function polygonWithTooltip(
 
 /**
  * Draw a dot with tooltip support
+ * @param fillColor - Optional fill color override (defaults to theme.COLOR_DOT)
  */
 export function dotWithTooltip(
   svg: SVGSVGElement,
@@ -458,8 +467,9 @@ export function dotWithTooltip(
   radius: number,
   store: GeometryStore,
   theme: Theme,
+  fillColor?: string,
 ): SVGCircleElement {
-  const dotElement = dot(svg, x, y, radius, theme);
+  const dotElement = dot(svg, x, y, radius, theme, fillColor);
   dotElement.setAttribute("data-tooltip", name);
   dotElement.style.cursor = "pointer";
 
@@ -515,6 +525,7 @@ export function lineWithTooltip(
 
 /**
  * Draw a circle with tooltip support
+ * @param strokeColor - Optional stroke color override (defaults to theme.COLOR_SECONDARY)
  */
 export function circleWithTooltip(
   svg: SVGSVGElement,
@@ -525,8 +536,10 @@ export function circleWithTooltip(
   strokeWidth: number,
   store: GeometryStore,
   theme: Theme,
+  strokeColor?: string,
 ): SVGCircleElement {
-  const circleEl = circle(svg, cx, cy, r, strokeWidth, theme);
+  const circleEl = circle(svg, cx, cy, r, strokeWidth, theme, strokeColor);
+  circleEl.setAttribute("data-tooltip", name);
   circleEl.style.cursor = "pointer";
 
   // Create tooltip element (positioned to the right of the circle)
