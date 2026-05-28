@@ -64,6 +64,7 @@ app2/
 ## Main Blocks & Their Responsibilities
 
 ### Block 1: Entry & Provider Layer
+
 - **Files:** `main.tsx`, `QueryProvider.tsx`
 - **Purpose:** App initialization, React Query setup
 - **Complexity:** ⭐ (Very easy - straightforward React setup)
@@ -71,6 +72,7 @@ app2/
 - **Dependencies:** React, React Query
 
 ### Block 2: App Orchestration (Root Component)
+
 - **Files:** `App.tsx` (~1200 lines)
 - **Purpose:** Main container with all geometry demonstration sections
 - **Responsibility:**
@@ -84,9 +86,10 @@ app2/
   - ~400 lines of duplicated play/next/prev/restart handler logic (6 sections × ~65 lines each)
   - State management could be extracted into a custom hook or component
   - Consider creating a `<GeometrySection>` wrapper component
-- **Duplication Pattern:** Each section has identical state (currentStep, restartKey, isPlaying, playInterval, svgRef) and handlers (handleNextClick*, handlePrevClick*, handlePlayClick*, handleFirstStep*, handleLastStep*)
+- **Duplication Pattern:** Each section has identical state (currentStep, restartKey, isPlaying, playInterval, svgRef) and handlers (handleNextClick*, handlePrevClick*, handlePlayClick*, handleFirstStep*, handleLastStep\*)
 
 ### Block 3: State Management (React Store)
+
 - **Files:** `react-store.ts` (~280 lines)
 - **Purpose:** Custom store for managing SVG geometry elements and their dependencies
 - **Responsibility:**
@@ -101,6 +104,7 @@ app2/
   - Some utility functions could be extracted
 
 ### Block 4: UI Components
+
 - **Files:** 12 component files in `components/`
 - **Purpose:** Reusable UI elements
 - **Complexity Breakdown:**
@@ -110,16 +114,17 @@ app2/
   - ⭐⭐ GeometryPlayer.tsx - Player controls + SVG container (~200 lines)
   - ⭐⭐ GeometryList.tsx - Filterable list with type filters (~300 lines)
   - ⭐⭐ GeometryDetails.tsx - Step details display
-  - ⭐⭐ *Svg.tsx files (6 files) - SVG rendering components, each ~100-200 lines
+  - ⭐⭐ \*Svg.tsx files (6 files) - SVG rendering components, each ~100-200 lines
 - **Refactor Need:** ⚠️ MEDIUM for SVG components
   - SVG components have duplicated rendering logic
   - Could extract common SVG rendering into a shared component or hook
 
 ### Block 5: Geometry Core
+
 - **Files:** 14 files in `geometry/` (~2000+ lines total)
 - **Purpose:** Geometry computation, step definitions, DSL implementation
 - **Sub-blocks:**
-  
+
   #### 5a: Step Definitions
   - **Files:** `squareSteps.ts`, `rotatedSquareSteps.ts`, `sixFoldV0Steps.ts`, `squareDslSteps.ts`, `sixfoldDslSteps.ts`, `sixfoldDslV1Steps.ts`
   - **Purpose:** Define the steps for each geometric construction
@@ -128,7 +133,7 @@ app2/
     - Step definitions are verbose and repetitive
     - DSL version (v1) is more declarative and cleaner
     - Could benefit from more code generation or shared builders
-  
+
   #### 5b: DSL Implementation
   - **Files:** `dsl/` directory with 20+ files
   - **Purpose:** Declarative DSL for defining geometry constructions
@@ -143,7 +148,7 @@ app2/
     - Expression files have duplicated boilerplate
     - Some expressions could be simplified or merged
     - Renderer types could be more consistent
-  
+
   #### 5c: Operations & Constructors
   - **Files:** `operations.ts`, `constructors.ts`, `stepBuilders.ts`, `stepExecution.ts`
   - **Purpose:** Low-level geometry operations and helpers
@@ -151,12 +156,14 @@ app2/
   - **Refactor Need:** ❌ None - clean and focused
 
 ### Block 6: Configuration & Types
+
 - **Files:** `config/`, `themes.ts`, `types/geometry.ts`
 - **Purpose:** Shared configuration and type definitions
 - **Complexity:** ⭐ (Easy)
 - **Refactor Need:** ❌ None
 
 ### Block 7: Hooks & Utilities
+
 - **Files:** `hooks/`, `utils/`
 - **Purpose:** Custom hooks and utility functions
 - **Complexity:** ⭐ (Easy)
@@ -205,17 +212,17 @@ app2/
 
 ## Block Health Summary
 
-| Block | Files | Lines | Complexity | Refactor Priority | Notes |
-|-------|-------|-------|------------|-------------------|-------|
-| Entry | 2 | ~30 | ⭐ | None | Clean |
-| App Orchestration | 1 | ~1200 | ⭐⭐⭐⭐ | **HIGH** | Massive duplication |
-| React Store | 1 | ~280 | ⭐⭐ | Medium | Could be split |
-| UI Components | 12 | ~1500 | ⭐⭐ | Medium | SVG components need consolidation |
-| Geometry Steps | 6 | ~1500 | ⭐⭐⭐ | Medium | DSL versions cleaner |
-| DSL Implementation | 20+ | ~2000 | ⭐⭐⭐⭐ | **HIGH** | Complex, needs simplification |
-| Operations | 4 | ~500 | ⭐⭐ | None | Clean |
-| Config/Types | 4 | ~300 | ⭐ | None | Clean |
-| Hooks/Utils | 3 | ~200 | ⭐ | None | Clean |
+| Block              | Files | Lines | Complexity | Refactor Priority | Notes                             |
+| ------------------ | ----- | ----- | ---------- | ----------------- | --------------------------------- |
+| Entry              | 2     | ~30   | ⭐         | None              | Clean                             |
+| App Orchestration  | 1     | ~1200 | ⭐⭐⭐⭐   | **HIGH**          | Massive duplication               |
+| React Store        | 1     | ~280  | ⭐⭐       | Medium            | Could be split                    |
+| UI Components      | 12    | ~1500 | ⭐⭐       | Medium            | SVG components need consolidation |
+| Geometry Steps     | 6     | ~1500 | ⭐⭐⭐     | Medium            | DSL versions cleaner              |
+| DSL Implementation | 20+   | ~2000 | ⭐⭐⭐⭐   | **HIGH**          | Complex, needs simplification     |
+| Operations         | 4     | ~500  | ⭐⭐       | None              | Clean                             |
+| Config/Types       | 4     | ~300  | ⭐         | None              | Clean                             |
+| Hooks/Utils        | 3     | ~200  | ⭐         | None              | Clean                             |
 
 ## Critical Issues
 
@@ -248,6 +255,7 @@ app2/
 ## Next Steps
 
 To deep dive into specific blocks, run:
+
 - `cat app2/docs/architecture/01-APP-ORCHESTRATION.md` - Detailed App.tsx analysis
 - `cat app2/docs/architecture/02-REACT-STORE.md` - Store analysis
 - `cat app2/docs/architecture/03-GEOMETRY-CORE.md` - Geometry core analysis

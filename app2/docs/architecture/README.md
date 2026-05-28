@@ -6,6 +6,7 @@
 ## Purpose
 
 This folder contains architectural analysis of the app2 codebase, documenting:
+
 - Main code blocks and their responsibilities
 - Interactions between components
 - Complexity assessments
@@ -28,14 +29,14 @@ app2/docs/architecture/
 
 ## Quick Links
 
-| Document | Focus | Last Analyzed |
-|----------|-------|---------------|
-| [00-GLOBAL-VIEW.md](./00-GLOBAL-VIEW.md) | Overall architecture, block overview | 2025-05-17 |
-| 01-APP-ORCHESTRATION.md | App.tsx deep dive | Not yet analyzed |
-| 02-REACT-STORE.md | react-store.ts deep dive | Not yet analyzed |
-| 03-GEOMETRY-CORE.md | geometry/ directory | Not yet analyzed |
-| 04-DSL.md | geometry/dsl/ directory | Not yet analyzed |
-| 05-UI-COMPONENTS.md | components/ directory | Not yet analyzed |
+| Document                                 | Focus                                | Last Analyzed    |
+| ---------------------------------------- | ------------------------------------ | ---------------- |
+| [00-GLOBAL-VIEW.md](./00-GLOBAL-VIEW.md) | Overall architecture, block overview | 2025-05-17       |
+| 01-APP-ORCHESTRATION.md                  | App.tsx deep dive                    | Not yet analyzed |
+| 02-REACT-STORE.md                        | react-store.ts deep dive             | Not yet analyzed |
+| 03-GEOMETRY-CORE.md                      | geometry/ directory                  | Not yet analyzed |
+| 04-DSL.md                                | geometry/dsl/ directory              | Not yet analyzed |
+| 05-UI-COMPONENTS.md                      | components/ directory                | Not yet analyzed |
 
 ## Current Status
 
@@ -51,6 +52,7 @@ app2/docs/architecture/
 ## Analysis Metadata
 
 Each document includes:
+
 - **Last Analyzed:** Date of most recent analysis
 - **Analyst:** (to be added)
 - **Status:** Initial / In Progress / Complete
