@@ -129,6 +129,7 @@ export const SixFoldDslV1Svg = forwardRef(function SixFoldDslV1Svg(
       
       // Set current step ID for highlighting
       const currentStepId = currentStep > 0 ? allSteps[currentStep - 1]?.id : "";
+      console.log(`[SixFoldDslV1Svg] currentStep=${currentStep}, currentStepId=${currentStepId}, allSteps[0]?.id=${allSteps[0]?.id}, allSteps[1]?.id=${allSteps[1]?.id}`);
       if (currentStepId) {
         renderer.setCurrentStepId(currentStepId);
       }

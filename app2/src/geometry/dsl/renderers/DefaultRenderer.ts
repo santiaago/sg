@@ -16,7 +16,6 @@ import {
 } from "@/svgElements";
 import { POINT_RADIUS_MEDIUM, STROKE_WIDTH_THIN } from "@/config/geometryConfig";
 
-
 /**
  * Default geometry renderer using existing SVG draw functions.
  * Applies consistent styling (POINT_RADIUS_MEDIUM, STROKE_WIDTH_THIN)
@@ -85,12 +84,11 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     if (!isPoint(p)) {
       throw new Error(`drawPoint: geometry '${geomId}' is ${p.type}, expected point`);
     }
-    
+
     // Determine fill color based on current step highlighting
-    const fillColor = (stepId && stepId === this.currentStepId) 
-      ? theme.COLOR_CURRENT_STEP 
-      : undefined;
-    
+    const fillColor =
+      stepId && stepId === this.currentStepId ? theme.COLOR_CURRENT_STEP : undefined;
+
     svgDrawPoint(svg, values, geomId, POINT_RADIUS_MEDIUM, store, theme, fillColor);
   }
 
@@ -118,11 +116,11 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     }
 
     const { strokeWidth, strokeColor: baseStrokeColor } = this.resolveStrokeOptions(theme, options);
-    
+
     // Check if this line should be highlighted
     const shouldHighlight = stepId && stepId === this.currentStepId;
     const strokeColor = shouldHighlight ? theme.COLOR_CURRENT_STEP : baseStrokeColor;
-    
+
     svgDrawLine(svg, values, geomId, strokeWidth, store, theme, strokeColor);
   }
 
@@ -146,12 +144,11 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     if (!isCircle(c)) {
       throw new Error(`drawCircle: geometry '${geomId}' is ${c.type}, expected circle`);
     }
-    
+
     // Check if this circle should be highlighted
-    const strokeColor = (stepId && stepId === this.currentStepId) 
-      ? theme.COLOR_CURRENT_STEP 
-      : undefined;
-    
+    const strokeColor =
+      stepId && stepId === this.currentStepId ? theme.COLOR_CURRENT_STEP : undefined;
+
     svgDrawCircle(svg, values, geomId, STROKE_WIDTH_THIN, store, theme, strokeColor);
   }
 
@@ -178,11 +175,11 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     }
 
     const { strokeWidth, strokeColor: baseStrokeColor } = this.resolveStrokeOptions(theme, options);
-    
+
     // Check if this polygon should be highlighted
     const shouldHighlight = stepId && stepId === this.currentStepId;
     const strokeColor = shouldHighlight ? theme.COLOR_CURRENT_STEP : baseStrokeColor;
-    
+
     svgDrawPolygon(svg, values, geomId, strokeWidth, store, theme, strokeColor);
   }
 
@@ -208,27 +205,13 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
         `drawCoordinateSystem: geometry '${geomId}' is ${cs.type}, expected coordinate_system`,
       );
     }
-    
+
     // Check if this coordinate system should be highlighted
     const shouldHighlight = stepId && stepId === this.currentStepId;
+    console.log(`[DefaultRenderer.drawCoordinateSystem] geomId=${geomId}, stepId=${stepId}, currentStepId=${this.currentStepId}, shouldHighlight=${shouldHighlight}`);
     const strokeColor = shouldHighlight ? theme.COLOR_CURRENT_STEP : theme.COLOR_PRIMARY;
-    
-    svgDrawCoordinateSystem(
-      svg,
-      values,
-      geomId,
-      STROKE_WIDTH_THIN,
-      store,
-      theme,
-      strokeColor,
-    );
-    
-    // Update arrowhead marker color if highlighted
-    if (shouldHighlight) {
-      const arrowhead = svg.querySelector("#arrowhead-cs polygon");
-      if (arrowhead) {
-        arrowhead.setAttribute("fill", theme.COLOR_CURRENT_STEP);
-      }
-    }
+    console.log(`[DefaultRenderer.drawCoordinateSystem] strokeColor=${strokeColor}`);
+
+    svgDrawCoordinateSystem(svg, values, geomId, STROKE_WIDTH_THIN, store, theme, strokeColor);
   }
 }
