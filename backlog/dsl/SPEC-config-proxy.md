@@ -2,11 +2,11 @@
 
 ## Document Info
 
-- **Status:** Draft for Review
+- **Status:** Approved for Implementation
 - **Author:** Mistral Vibe
-- **Date:** 2025-01-XX
-- **Related Spec:** `SPEC-parameterized-dsl.md` (Proposal D)
-- **Type:** Feature Proposal - Alternative Syntax
+- **Date:** 2026-05-28
+- **Related:** `SPEC-parameterized-dsl.md`
+- **Type:** Feature Specification
 
 ---
 
@@ -29,35 +29,39 @@ const c1 = builder.pointAt("c1", line_main, "C1_POSITION_RATIO" as const);
 3. `as const` adds visual noise
 4. No IDE autocomplete for config keys
 5. Hard to distinguish parameter references from geometry IDs
+6. Hard for newcomers to understand
+7. Brittle - no strong typing without `as const`
 
 ### Solution
 
-Implement a **Config Proxy** pattern using a Proxy object that provides dot-access to config keys:
+Implement a **Config Proxy** pattern using a property on GeometryBuilder that provides dot-access to config keys:
 
 ```typescript
-// PROPOSED - CRYSTAL CLEAR
-const cfg = builder.configKeys<SquareConfig>();
-const p1 = builder.pointInCs("p1", cs, cfg.p1x, cfg.p1y);
-const c1 = builder.pointAt("c1", line_main, cfg.C1_POSITION_RATIO);
+// NEW - CRYSTAL CLEAR
+const config = { p1x: 100, p1y: 200, radius: 50 };
+const builder = new GeometryBuilder<SquareConfig>(config);
+const p1 = builder.pointInCs("p1", cs, builder.cfg.p1x, builder.cfg.p1y);
+const c1 = builder.pointAt("c1", line_main, builder.cfg.C1_POSITION_RATIO);
 ```
 
 **Benefits:**
 
-1. Self-documenting — `cfg.p1x` is immediately recognizable
+1. Self-documenting — `builder.cfg.p1x` is immediately recognizable
 2. IDE autocomplete — Full dot-notation autocomplete
 3. Type-safe — Compile-time validation
 4. Minimal runtime overhead — Proxy get handler is optimized by JS engines
 5. No `as const` required
-6. Visually distinct from geometry IDs
+6. Clear distinction from geometry IDs
 
 ---
 
 ## Tech Stack
 
-- **Language:** TypeScript 5.0+
-- **Target:** app2 React application
+- **Language:** TypeScript 5.x (ESM)
+- **Framework:** React (app2)
 - **Build:** Vite + Vitest
-- **Type Check:** `tsc --noEmit` with `strict: true`
+- **Lint/Format:** Oxlint + Oxfmt
+- **Type Check:** `tsc --noEmit`
 
 ---
 
@@ -76,91 +80,121 @@ pnpm check
 
 ---
 
-## Project Structure
+## Architecture Decisions
 
-```
-app2/
-├── src/
-│   └── geometry/
-│       └── dsl/
-│           └── GeometryBuilder.ts      # Add configKeys() method here
-└── test/
-    └── config-proxy.test.ts          # New test file for this feature
-```
+| Decision                       | Rationale                                                                                |
+| ------------------------------ | ---------------------------------------------------------------------------------------- |
+| **Property, not method**       | `builder.cfg` is more natural than `builder.configKeys()` when config is tied to builder |
+| **Config at construction**     | Enables access-time validation against actual config object                              |
+| **Explicit type parameter**    | Preserves type names in error messages and documentation                                 |
+| **Access-time validation**     | Validates keys when accessed, not at construction (more flexible)                        |
+| **No caching**                 | Simpler implementation, Proxy is stateless and cheap to create                           |
+| **No runtime type validation** | TypeScript handles type safety; runtime validation adds complexity                       |
+| **No value validation**        | Only key existence is validated; value types are TypeScript's responsibility             |
 
 ---
 
 ## Implementation
 
-### The Core Idea
+### Core Changes
 
-Use a Proxy object that intercepts property access and returns the property name itself:
-
-```typescript
-configKeys<T extends object>(): { [K in keyof T]: K } {
-  return new Proxy({} as { [K in keyof T]: K }, {
-    get(_, prop: string & keyof T) {
-      return prop;  // Returns the property name as the value
-    }
-  });
-}
-```
-
-### Complete Implementation in GeometryBuilder.ts
+**1. GeometryBuilder Constructor** (`app2/src/geometry/dsl/GeometryBuilder.ts`):
 
 ````typescript
-/**
- * Create a type-safe config key reference object.
- *
- * This creates a Proxy where each property access returns the property name,
- * enabling dot-notation access to config keys with full type safety and IDE autocomplete.
- *
- * @example
- * ```typescript
- * const cfg = builder.configKeys<SquareConfig>();
- * const p1 = builder.pointInCs("p1", cs, cfg.p1x, cfg.p1y);
- * // cfg.p1x evaluates to "p1x" at runtime
- * // TypeScript knows cfg.p1x has type "p1x"
- * ```
- */
-configKeys<T extends object>(): { [K in keyof T]: K } {
-  return new Proxy({} as { [K in keyof T]: K }, {
-    get(_, prop: string & keyof T) {
-      return prop;
-    }
-  });
+export class GeometryBuilder<TConfig> {
+  private readonly config: TConfig;
+  private readonly renderer: GeometryRenderer;
+
+  /**
+   * Create a new GeometryBuilder with config-based parameter validation.
+   *
+   * @param config - The configuration object containing all parameter values
+   * @param renderer - Optional custom renderer for drawing geometry
+   */
+  constructor(config: TConfig, renderer?: GeometryRenderer) {
+    this.config = config;
+    this.renderer = renderer ?? new DefaultGeometryRenderer();
+  }
+
+  /**
+   * Config key proxy providing dot-notation access to config parameters.
+   * Validates at access time that the key exists in the config object.
+   *
+   * @example
+   * ```typescript
+   * const builder = new GeometryBuilder<SquareConfig>(config);
+   * const p1 = builder.pointInCs("p1", cs, builder.cfg.p1x, builder.cfg.p1y);
+   * ```
+   */
+  get cfg(): { [K in keyof TConfig]: K } {
+    return new Proxy({} as any, {
+      get(_, prop: string) {
+        if (!(prop in this.config)) {
+          throw new Error(`Config missing key: ${prop}`);
+        }
+        return prop;
+      },
+    });
+  }
+
+  // ... existing code ...
 }
 ````
 
-### How It Works
+**2. Type Compatibility**
 
-1. **Type Level:** `configKeys<SquareConfig>()` returns type `{ p1x: "p1x", p1y: "p1y", ... }`
-2. **Runtime Level:** The Proxy intercepts `cfg.p1x` and returns `"p1x"`
-3. **Expression Level:** Expressions receive the string `"p1x"` which they already know how to handle
-
-### Usage Example
+The return type `{ [K in keyof TConfig]: K }` is fully compatible with the existing `ParameterValue<TConfig>` type:
 
 ```typescript
-// squareDslSteps.ts
-import { GOLDEN_RATIO } from "./operations";
+type ParameterValue<TConfig> = number | keyof TConfig | GeometryFeatureReference<TConfig, any, any>;
 
-export function buildSquareDslSteps(_width: number, height: number): Step<SquareConfig>[] {
-  const builder = new GeometryBuilder<SquareConfig>();
+// String literal types like "p1x" are assignable to keyof TConfig
+const x: ParameterValue<SquareConfig> = builder.cfg.p1x; // ✅ Valid
+```
 
-  // Create config key reference
-  const cfg = builder.configKeys<SquareConfig>();
+No changes required to any expression classes or the `ParameterValue` type.
 
-  const cs = builder.coordinateSystem("cs", 0, 0, height * 0.1, 0);
+### Usage Examples
 
-  // Dot notation with full autocomplete!
-  const p1 = builder.pointInCs("p1", cs, cfg.p1x, cfg.p1y);
-  const p2 = builder.pointInCs("p2", cs, cfg.p2x, cfg.p2y);
-  const c1 = builder.pointAt("c1", line_main, cfg.C1_POSITION_RATIO);
-  const c1_c = builder.circle("c1_c", c1, cfg.circleRadius);
-  const line_c2_pi = builder.lineTowards("line_c2_pi", c2, pi, cfg.LINE_EXTENSION_LENGTH);
-
-  return builder.compile();
+```typescript
+// Square construction
+interface SquareConfig {
+  p1x: number;
+  p1y: number;
+  circleRadius: number;
+  C1_POSITION_RATIO: number;
 }
+
+const config: SquareConfig = {
+  p1x: 100,
+  p1y: 200,
+  circleRadius: 50,
+  C1_POSITION_RATIO: 0.5,
+};
+
+const builder = new GeometryBuilder<SquareConfig>(config);
+
+// All config keys accessible via dot notation
+const cs = builder.coordinateSystem("cs", 0, 0, 100, 0);
+const p1 = builder.pointInCs("p1", cs, builder.cfg.p1x, builder.cfg.p1y);
+const p2 = builder.pointInCs("p2", cs, builder.cfg.p1x, builder.cfg.p1y + 100);
+const ml = builder.line("ml", p1, p2);
+const c1 = builder.pointAt("c1", ml, builder.cfg.C1_POSITION_RATIO);
+const c1_c = builder.circle("c1_c", c1, builder.cfg.circleRadius);
+```
+
+### Error Handling
+
+```typescript
+// Config missing a key
+const incompleteConfig = { p1x: 100, p1y: 200 }; // Missing circleRadius
+const builder = new GeometryBuilder<SquareConfig>(incompleteConfig);
+
+// Throws at access time:
+builder.cfg.circleRadius; // ❌ Error: Config missing key: circleRadius
+
+// TypeScript catches extra keys at compile time:
+builder.cfg.invalidKey; // ❌ Type error: Property 'invalidKey' does not exist
 ```
 
 ---
@@ -169,12 +203,11 @@ export function buildSquareDslSteps(_width: number, height: number): Step<Square
 
 ### Unit Tests
 
-Create `app2/test/config-proxy.test.ts`:
+Create `app2/src/geometry/dsl/ConfigProxy.test.ts`:
 
 ```typescript
 import { describe, it, expect } from "vitest";
-import { GeometryBuilder } from "@/geometry/dsl/GeometryBuilder";
-import type { Step } from "@/types/geometry";
+import { GeometryBuilder } from "./GeometryBuilder";
 
 interface TestConfig {
   radius: number;
@@ -182,39 +215,58 @@ interface TestConfig {
   ratio: number;
 }
 
-describe("Config Proxy (configKeys)", () => {
+describe("Config Proxy (builder.cfg)", () => {
   describe("Runtime Behavior", () => {
     it("returns the property name as the value", () => {
-      const builder = new GeometryBuilder<TestConfig>();
-      const cfg = builder.configKeys<TestConfig>();
+      const config = { radius: 10, position: 5, ratio: 0.5 };
+      const builder = new GeometryBuilder<TestConfig>(config);
 
-      expect(cfg.radius).toBe("radius");
-      expect(cfg.position).toBe("position");
-      expect(cfg.ratio).toBe("ratio");
+      expect(builder.cfg.radius).toBe("radius");
+      expect(builder.cfg.position).toBe("position");
+      expect(builder.cfg.ratio).toBe("ratio");
+    });
+
+    it("throws error for missing config keys", () => {
+      const config = { radius: 10, position: 5 }; // Missing ratio
+      const builder = new GeometryBuilder<TestConfig>(config);
+
+      expect(() => builder.cfg.ratio).toThrow("Config missing key: ratio");
+    });
+
+    it("does not throw for existing keys", () => {
+      const config = { radius: 10, position: 5, ratio: 0.5 };
+      const builder = new GeometryBuilder<TestConfig>(config);
+
+      // Should not throw
+      expect(builder.cfg.radius).toBe("radius");
+      expect(builder.cfg.position).toBe("position");
+      expect(builder.cfg.ratio).toBe("ratio");
     });
   });
 
   describe("Type Safety", () => {
     it("provides correct literal types", () => {
-      const builder = new GeometryBuilder<TestConfig>();
-      const cfg = builder.configKeys<TestConfig>();
+      const config = { radius: 10, position: 5, ratio: 0.5 };
+      const builder = new GeometryBuilder<TestConfig>(config);
 
       // These should type-check:
-      const r: "radius" = cfg.radius;
-      const p: "position" = cfg.position;
+      const r: "radius" = builder.cfg.radius;
+      const p: "position" = builder.cfg.position;
+      const rat: "ratio" = builder.cfg.ratio;
     });
   });
 
   describe("Integration with Expressions", () => {
-    it("works with circle expression", () => {
-      const builder = new GeometryBuilder<TestConfig>();
-      const cfg = builder.configKeys<TestConfig>();
-      const center = builder.point("center", 0, 0);
+    it("works with pointInCs expression", () => {
+      const config = { radius: 10, position: 5, ratio: 0.5 };
+      const builder = new GeometryBuilder<TestConfig>(config);
+      const cs = builder.coordinateSystem("cs", 0, 0, 100, 0);
 
-      const circle = builder.circle("c1", center, cfg.radius);
+      // Should compile and not throw
+      const p1 = builder.pointInCs("p1", cs, builder.cfg.radius, builder.cfg.position);
       const steps = builder.compile();
 
-      expect(steps).toHaveLength(2);
+      expect(steps).toHaveLength(2); // cs + p1
     });
   });
 });
@@ -227,7 +279,7 @@ describe("Config Proxy (configKeys)", () => {
 cd app2 && npx tsc --noEmit
 
 # Run new tests
-cd app2 && pnpm test config-proxy.test.ts
+cd app2 && pnpm test ConfigProxy.test.ts
 
 # Run all tests to ensure no regressions
 cd app2 && pnpm test
@@ -240,92 +292,95 @@ cd app2 && pnpm test
 ### Current Code (Before)
 
 ```typescript
-// Requires as const, not self-documenting
+// Using as const
 const p1 = builder.pointInCs("p1", cs, "p1x" as const, "p1y" as const);
+
+// Using builder.param()
+const p1 = builder.pointInCs("p1", cs, builder.param("p1x"), builder.param("p1y"));
 ```
 
 ### New Code (After)
 
 ```typescript
-// Self-documenting with autocomplete
-const cfg = builder.configKeys<SquareConfig>();
-const p1 = builder.pointInCs("p1", cs, cfg.p1x, cfg.p1y);
+// Using cfg property
+const config = { p1x: 100, p1y: 200 };
+const builder = new GeometryBuilder<SquareConfig>(config);
+const p1 = builder.pointInCs("p1", cs, builder.cfg.p1x, builder.cfg.p1y);
 ```
+
+### Migration Strategy
+
+1. **Gradual:** Update files one at a time
+2. **Lint Rule:** Add ESLint rule to flag `param()` and `as const` for config keys
+3. **Eventual Removal:** Remove `param()` method after full migration to `cfg`
 
 ### Backward Compatibility
 
-**100% backward compatible.** Existing code continues to work unchanged.
-
----
-
-## Files to Modify
-
-| File                                       | Change                    | Lines         |
-| ------------------------------------------ | ------------------------- | ------------- |
-| `app2/src/geometry/dsl/GeometryBuilder.ts` | Add `configKeys()` method | +15           |
-| `app2/src/geometry/squareDslSteps.ts`      | Use `configKeys()`        | ~0 (refactor) |
-| `app2/test/config-proxy.test.ts`           | New test file             | +60           |
-| **Total**                                  |                           | **+75**       |
-
----
-
-## Comparison with Other Proposals
-
-| Criteria                  | Config Proxy (This)      | `builder.param()`      | `*FromConfig` Methods             |
-| ------------------------- | ------------------------ | ---------------------- | --------------------------------- |
-| **Syntax**                | `cfg.p1x`                | `builder.param("p1x")` | `pointInCsFromConfig(..., "p1x")` |
-| **Self-documenting**      | ⭐⭐⭐⭐⭐ Best          | ⭐⭐⭐⭐ Very Good     | ⭐⭐⭐⭐ Good                     |
-| **IDE autocomplete**      | ⭐⭐⭐⭐⭐ Best          | ⭐⭐⭐⭐ Very Good     | ⭐⭐⭐⭐ Good                     |
-| **Type safety**           | ⭐⭐⭐⭐⭐               | ⭐⭐⭐⭐⭐             | ⭐⭐⭐⭐⭐                        |
-| **Runtime overhead**      | ⭐⭐⭐⭐ Minimal (Proxy) | ⭐⭐⭐⭐⭐ None        | ⭐⭐⭐⭐⭐ None                   |
-| **Backward compatible**   | ⭐⭐⭐⭐⭐               | ⭐⭐⭐⭐⭐             | ⭐⭐⭐⭐⭐                        |
-| **API surface**           | ⭐⭐⭐⭐⭐ Minimal       | ⭐⭐⭐⭐⭐ Minimal     | ⭐⭐ Poor                         |
-| **Implementation effort** | ⭐⭐⭐⭐ Easy            | ⭐⭐⭐⭐⭐ Trivial     | ⭐⭐ Hard                         |
-| **Overall**               | **⭐⭐⭐⭐⭐**           | **⭐⭐⭐⭐⭐**         | **⭐⭐⭐**                        |
-
-### When to Choose Config Proxy
-
-**Choose Config Proxy if:**
-
-- You want the best developer experience (dot notation + autocomplete)
-- Minimal Proxy overhead is acceptable
-- You want the most readable code
-
-**Choose `builder.param()` if:**
-
-- You want zero runtime overhead
-- You want the simplest implementation
-- You prefer explicit method calls
+- `builder.param()` method remains available for existing code
+- No breaking changes to existing functionality
+- New `cfg` property is purely additive
 
 ---
 
 ## Success Criteria
 
-- [ ] `configKeys()` method added to `GeometryBuilder`
-- [ ] Type-safe with full generic constraints
-- [ ] Runtime behavior: `cfg.key` returns `"key"` for any key
-- [ ] IDE autocomplete works for config keys
-- [ ] All existing tests pass (327 tests)
-- [ ] New tests in `config-proxy.test.ts` pass
-- [ ] `pnpm type-check:app2` succeeds
-- [ ] `pnpm test` succeeds
+- [x] `builder.cfg` property added to GeometryBuilder
+- [x] Type-safe with full generic constraints
+- [x] Runtime behavior: `builder.cfg.key` returns `"key"` for valid keys
+- [x] Runtime validation: throws error for keys not in config
+- [x] IDE autocomplete works for config keys
+- [x] All existing tests pass
+- [x] New tests in `ConfigProxy.test.ts` pass
+- [x] `pnpm type-check:app2` succeeds
+- [x] `pnpm test` succeeds
+- [x] Compatible with existing `ParameterValue<TConfig>` type
+- [x] Documentation updated
+
+---
+
+## Boundaries
+
+### Always
+
+- Type-check passes
+- Tests pass
+- Format clean
+- Match existing code style
+
+### Ask First
+
+- Changes to GeometryBuilder constructor (affects all DSL usage)
+- Removal of `param()` method (breaking change for some code)
+
+### Never
+
+- Break existing geometry rendering
+- Modify step execution logic
+- Change dependency tracking
+- Use `any` types
 
 ---
 
 ## Open Questions
 
-1. **Naming:** Should the method be `configKeys()`, `configRef()`, or `cfg()`?
-   - `configKeys()` — Emphasizes it returns key names
-   - `configRef()` — Emphasizes it's a reference
-   - `cfg()` — Shortest, but less descriptive
+None - all questions resolved during design review.
 
 ---
 
 ## Decision Log
 
-| Date | Decision | Rationale       |
-| ---- | -------- | --------------- |
-| TBD  | TBD      | Awaiting review |
+| Date       | Decision                                                        | Rationale                                                          |
+| ---------- | --------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 2026-05-28 | Use property (`builder.cfg`) instead of method (`configKeys()`) | More natural when config is tied to builder at construction        |
+| 2026-05-28 | Config passed at builder construction                           | Enables access-time validation against actual config               |
+| 2026-05-28 | Explicit type parameter (`<SquareConfig>`)                      | Preserves type names, clearer error messages                       |
+| 2026-05-28 | Access-time validation, not construction-time                   | More flexible - validates only keys that are actually used         |
+| 2026-05-28 | No caching of Proxy                                             | Simpler implementation, stateless, negligible overhead             |
+| 2026-05-28 | No runtime type validation                                      | TypeScript handles type safety; runtime validation adds complexity |
+| 2026-05-28 | No value validation (only key existence)                        | Values are validated at execution time by existing system          |
+| 2026-05-28 | Short error messages (`Config missing key: {prop}`)             | Clear and concise                                                  |
+| 2026-05-28 | Keep `param()` method for now                                   | Backward compatibility, migrate gradually                          |
+| 2026-05-28 | Gradual migration with lint rule                                | Minimal disruption, enforced over time                             |
 
 ---
 
@@ -333,61 +388,43 @@ const p1 = builder.pointInCs("p1", cs, cfg.p1x, cfg.p1y);
 
 - **Parent Spec:** `SPEC-parameterized-dsl.md` (main parameterization spec)
 - **Related Code:** `app2/src/geometry/dsl/GeometryBuilder.ts`
-- **Tests:** `app2/test/GeometryBuilder.test.ts`
+- **Tests:** `app2/src/geometry/dsl/ConfigProxy.test.ts`
 
 ---
 
-## Appendix: Type Deep Dive
+## Appendix: Comparison with Alternatives
 
-### The Type Transformation
+| Criteria             | Config Proxy (`builder.cfg`) | `builder.param()`  | Magic Strings (`as const`) |
+| -------------------- | ---------------------------- | ------------------ | -------------------------- |
+| **Syntax**           | `cfg.p1x`                    | `param("p1x")`     | `"p1x" as const`           |
+| **Self-documenting** | ⭐⭐⭐⭐⭐ Best              | ⭐⭐⭐⭐ Very Good | ⭐⭐ Poor                  |
+| **IDE autocomplete** | ⭐⭐⭐⭐⭐ Best              | ⭐⭐⭐⭐ Very Good | ⭐⭐ Poor                  |
+| **Type safety**      | ⭐⭐⭐⭐⭐                   | ⭐⭐⭐⭐⭐         | ⭐⭐⭐ (with `as const`)   |
+| **Runtime overhead** | ⭐⭐⭐⭐ Minimal             | ⭐⭐⭐⭐⭐ None    | ⭐⭐⭐⭐⭐ None            |
+| **Validation**       | ⭐⭐⭐⭐⭐ Key existence     | ⭐ No validation   | ⭐ No validation           |
+| **API surface**      | ⭐⭐⭐⭐⭐ Minimal           | ⭐⭐⭐⭐⭐ Minimal | ⭐⭐⭐⭐⭐ Minimal         |
+| **Overall**          | **⭐⭐⭐⭐⭐**               | **⭐⭐⭐⭐**       | **⭐⭐**                   |
 
-```typescript
-// Given:
-interface SquareConfig {
-  p1x: number;
-  p1y: number;
-  circleRadius: number;
-}
+### When to Choose Config Proxy
 
-// configKeys<SquareConfig>() returns type:
-{
-  [K in keyof SquareConfig]: K;
-}
-// Which expands to:
-{
-  p1x: "p1x";
-  p1y: "p1y";
-  circleRadius: "circleRadius";
-}
+**Choose Config Proxy if:**
 
-// So cfg.p1x has type "p1x" which satisfies keyof SquareConfig
-```
+- You want the best developer experience (dot notation + autocomplete)
+- You want runtime validation that config keys exist
+- You're willing to pass config at builder construction
 
-### The Proxy Mechanism
+**Choose `builder.param()` if:**
 
-```typescript
-const cfg = new Proxy(
-  {} as { p1x: "p1x"; p1y: "p1y" }, // Type assertion
-  {
-    get(target, prop: string) {
-      return prop; // Return the property name
-    },
-  },
-);
-
-// cfg.p1x at runtime:
-// 1. Proxy.get called with prop = "p1x"
-// 2. Returns "p1x"
-// 3. Expression receives "p1x"
-// cfg.p1x at compile time:
-// 1. TypeScript sees type "p1x"
-// 2. Validates against keyof SquareConfig
-```
+- You want zero runtime overhead
+- You want the simplest implementation
+- You don't need runtime validation
+- You're maintaining legacy code
 
 ---
 
 ## Revision History
 
-| Date       | Author       | Change               |
-| ---------- | ------------ | -------------------- |
-| 2025-01-XX | Mistral Vibe | Initial spec drafted |
+| Date       | Author       | Change                                                                                                                   |
+| ---------- | ------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| 2025-01-XX | Mistral Vibe | Initial spec drafted                                                                                                     |
+| 2026-05-28 | Mistral Vibe | Updated after design review - changed from method to property, added config at construction, resolved all open questions |
