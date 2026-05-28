@@ -208,9 +208,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
 
     // Check if this coordinate system should be highlighted
     const shouldHighlight = stepId && stepId === this.currentStepId;
-    console.log(`[DefaultRenderer.drawCoordinateSystem] geomId=${geomId}, stepId=${stepId}, currentStepId=${this.currentStepId}, shouldHighlight=${shouldHighlight}`);
     const strokeColor = shouldHighlight ? theme.COLOR_CURRENT_STEP : theme.COLOR_PRIMARY;
-    console.log(`[DefaultRenderer.drawCoordinateSystem] strokeColor=${strokeColor}`);
 
     svgDrawCoordinateSystem(svg, values, geomId, STROKE_WIDTH_THIN, store, theme, strokeColor);
   }

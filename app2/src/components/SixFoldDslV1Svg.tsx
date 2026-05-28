@@ -95,6 +95,9 @@ export const SixFoldDslV1Svg = forwardRef(function SixFoldDslV1Svg(
     return computeSixFoldV0Config(svgConfig.width, svgConfig.height);
   }, [svgConfig.width, svgConfig.height]);
 
+  // Memoize renderer to avoid recreating on every render
+  const renderer = useMemo(() => new DefaultGeometryRenderer(""), []);
+
   // Effect 1: SVG container setup - ONLY when dimensions or theme change
   useEffect(() => {
     if (!svgRef.current) return;
@@ -123,15 +126,13 @@ export const SixFoldDslV1Svg = forwardRef(function SixFoldDslV1Svg(
     if (currentStep <= 0) return;
 
     try {
-      // Create renderer and build steps once
-      const renderer = new DefaultGeometryRenderer("");
+      // Build steps using memoized renderer
       const allSteps = buildSixfoldDslV1Steps(renderer);
       
       // Set current step ID for highlighting
       const currentStepId = currentStep > 0 && currentStep < allSteps.length
         ? allSteps[currentStep - 1]?.id
         : "";
-      console.log(`[SixFoldDslV1Svg] currentStep=${currentStep}, currentStepId=${currentStepId}, allSteps[0]?.id=${allSteps[0]?.id}, allSteps[1]?.id=${allSteps[1]?.id}`);
       renderer.setCurrentStepId(currentStepId);
 
       // Build step maps for dependency tracking and parameter values

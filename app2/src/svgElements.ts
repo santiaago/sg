@@ -192,12 +192,9 @@ function ensureArrowheadMarker(
   strokeColor: string,
   markerId: string = "arrowhead-cs",
 ): void {
-  console.log(`[ensureArrowheadMarker] markerId=${markerId}, strokeColor=${strokeColor}`);
-  
   // Clean up any duplicate defs elements and duplicate markers first
   const allDefs = svg.querySelectorAll("defs");
   if (allDefs.length > 1) {
-    console.log(`[ensureArrowheadMarker] Found ${allDefs.length} defs elements, cleaning up duplicates`);
     for (let i = 1; i < allDefs.length; i++) {
       svg.removeChild(allDefs[i]);
     }
@@ -206,7 +203,6 @@ function ensureArrowheadMarker(
   // Also remove any duplicate markers with the same ID in different defs
   const allMarkers = svg.querySelectorAll(`marker#${markerId}`);
   if (allMarkers.length > 1) {
-    console.log(`[ensureArrowheadMarker] Found ${allMarkers.length} markers with id=${markerId}, removing duplicates`);
     for (let i = 1; i < allMarkers.length; i++) {
       allMarkers[i].parentNode?.removeChild(allMarkers[i]);
     }
@@ -216,15 +212,12 @@ function ensureArrowheadMarker(
   if (!defs) {
     defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     svg.insertBefore(defs, svg.firstChild);
-    console.log(`[ensureArrowheadMarker] Created shared <defs> element`);
   }
   
   let arrowhead = svg.querySelector(`#${markerId}`);
-  console.log(`[ensureArrowheadMarker] marker exists=${!!arrowhead}`);
   
   if (!arrowhead) {
     // Create new marker in the shared defs
-    console.log(`[ensureArrowheadMarker] Creating new marker ${markerId} with color ${strokeColor}`);
     arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "marker");
     arrowhead.setAttribute("id", markerId);
     arrowhead.setAttribute("markerWidth", ARROWHEAD_MARKER_WIDTH.toString());
@@ -237,7 +230,6 @@ function ensureArrowheadMarker(
     arrowPolygon.setAttribute("fill", strokeColor);
     arrowhead.appendChild(arrowPolygon);
     defs.appendChild(arrowhead);
-    console.log(`[ensureArrowheadMarker] Created marker ${markerId}`);
   } else {
     // Update existing marker's color to match current strokeColor
     // Use CSS style which has lower priority than fill attribute in SVG
@@ -245,11 +237,7 @@ function ensureArrowheadMarker(
     arrowhead = svg.querySelector(`#${markerId}`);
     const arrowPolygon = arrowhead?.querySelector("polygon");
     if (arrowPolygon) {
-      console.log(`[ensureArrowheadMarker] Updating existing marker ${markerId} to color ${strokeColor}, current=${arrowPolygon.getAttribute("fill")}`);
       arrowPolygon.setAttribute("fill", strokeColor);
-      console.log(`[ensureArrowheadMarker] Updated marker ${markerId}, fill=${arrowPolygon.getAttribute("fill")}`);
-    } else {
-      console.log(`[ensureArrowheadMarker] ERROR: polygon not found in marker ${markerId}`);
     }
   }
 }
@@ -285,7 +273,6 @@ export function coordinateSystemArrows(
 
   // Ensure arrowhead marker exists for this coordinate system
   const markerId = `arrowhead-${geomId}`;
-  console.log(`[coordinateSystemArrows] geomId=${geomId}, markerId=${markerId}, strokeColor=${strokeColor}`);
   ensureArrowheadMarker(svg, strokeColor, markerId);
 
   // Draw X axis arrow (pointing right/east - positive X direction)
@@ -303,7 +290,6 @@ export function coordinateSystemArrows(
   xArrow.setAttribute("marker-end", `url(#${markerId})`);
   xArrow.setAttribute("data-cs-arrow", "true");
   xArrow.setAttribute("data-original-stroke", strokeColor);
-  console.log(`[coordinateSystemArrows] xArrow marker-end=url(#${markerId})`);
   group.appendChild(xArrow);
 
   // X axis label - positioned along the X arrow line
@@ -338,7 +324,6 @@ export function coordinateSystemArrows(
   yArrow.setAttribute("marker-end", `url(#${markerId})`);
   yArrow.setAttribute("data-cs-arrow", "true");
   yArrow.setAttribute("data-original-stroke", strokeColor);
-  console.log(`[coordinateSystemArrows] yArrow marker-end=url(#${markerId})`);
   group.appendChild(yArrow);
 
   // Y axis label - positioned along the Y arrow line
@@ -623,16 +608,13 @@ export function drawCoordinateSystem(
   theme: Theme,
   strokeColor: string,
 ): void {
-  console.log(`[drawCoordinateSystem] geomId=${geomId}, strokeColor=${strokeColor}`);
   const cs = values.get(geomId);
   if (!cs || !isCoordinateSystem(cs)) return;
 
   // Remove existing coordinate system with matching geomId to prevent duplicates
   const existingCs = svg.querySelector(`[data-geom-id="${geomId}"]`);
-  console.log(`[drawCoordinateSystem] existingCs for ${geomId}: ${!!existingCs}, removing=${!!existingCs}`);
   if (existingCs) {
     svg.removeChild(existingCs);
-    console.log(`[drawCoordinateSystem] Removed existing ${geomId} group`);
   }
 
   const rotation = cs.rotation ?? 0;
