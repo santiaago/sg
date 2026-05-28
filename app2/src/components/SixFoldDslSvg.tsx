@@ -125,10 +125,10 @@ export const SixFoldDslSvg = forwardRef(function SixFoldDslSvg(
       const allSteps = buildSixfoldDslSteps(renderer);
       
       // Set current step ID for highlighting
-      const currentStepId = currentStep > 0 ? allSteps[currentStep - 1]?.id : "";
-      if (currentStepId) {
-        renderer.setCurrentStepId(currentStepId);
-      }
+      const currentStepId = currentStep > 0 && currentStep < allSteps.length
+        ? allSteps[currentStep - 1]?.id
+        : "";
+      renderer.setCurrentStepId(currentStepId);
 
       // Build step maps for dependency tracking and parameter values
       const { stepDependencies, stepForOutput } = buildStepMaps(allSteps, currentStep);

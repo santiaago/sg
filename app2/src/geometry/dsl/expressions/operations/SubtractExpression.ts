@@ -7,7 +7,7 @@ import type { GeometryExpression } from "../GeometryExpression";
 import type { ParameterValue } from "../../types";
 import { GeometryFeatureReference } from "../../GeometryFeatureReference";
 import { isGeometryFeatureReference } from "../../types";
-import { resolveParameter } from "../../utils";
+import { createStepId, resolveParameter } from "../../utils";
 
 /**
  * Expression that computes the difference of two numeric values (a - b).
@@ -70,7 +70,7 @@ export class SubtractExpression<TConfig> implements GeometryExpression<TConfig, 
    */
   compile(_renderer: GeometryRenderer): Step<TConfig> {
     return {
-      id: `step_${this.id}`,
+      id: createStepId(this.id),
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,

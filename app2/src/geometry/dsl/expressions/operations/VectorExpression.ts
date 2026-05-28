@@ -6,6 +6,7 @@ import { point, isPoint, isCoordinateSystem } from "@/types/geometry";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { PointLikeExpression, CoordinateSystemLikeExpression } from "../types";
 import { GeometryFeatureReference } from "../../GeometryFeatureReference";
+import { createStepId } from "../../utils";
 
 /**
  * Expression that computes the vector (dx, dy) between two geometry objects.
@@ -65,7 +66,7 @@ export class VectorExpression<TConfig> implements GeometryExpression<TConfig, "p
    */
   compile(_renderer: GeometryRenderer): Step<TConfig> {
     return {
-      id: `step_${this.id}`,
+      id: createStepId(this.id),
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,

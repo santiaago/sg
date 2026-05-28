@@ -128,11 +128,11 @@ export const SixFoldDslV1Svg = forwardRef(function SixFoldDslV1Svg(
       const allSteps = buildSixfoldDslV1Steps(renderer);
       
       // Set current step ID for highlighting
-      const currentStepId = currentStep > 0 ? allSteps[currentStep - 1]?.id : "";
+      const currentStepId = currentStep > 0 && currentStep < allSteps.length
+        ? allSteps[currentStep - 1]?.id
+        : "";
       console.log(`[SixFoldDslV1Svg] currentStep=${currentStep}, currentStepId=${currentStepId}, allSteps[0]?.id=${allSteps[0]?.id}, allSteps[1]?.id=${allSteps[1]?.id}`);
-      if (currentStepId) {
-        renderer.setCurrentStepId(currentStepId);
-      }
+      renderer.setCurrentStepId(currentStepId);
 
       // Build step maps for dependency tracking and parameter values
       const { stepDependencies, stepForOutput } = buildStepMaps(allSteps, currentStep);
