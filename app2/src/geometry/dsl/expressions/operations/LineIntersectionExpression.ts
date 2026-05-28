@@ -68,11 +68,7 @@ export class LineIntersectionExpression<TConfig> implements GeometryExpression<T
         );
 
         if (!result) {
-          throw new GeometryError(
-            stepId,
-            this.id,
-            "No intersection found between lines",
-          );
+          throw new GeometryError(stepId, this.id, "No intersection found between lines");
         }
 
         return new Map([[this.id, point(result[0], result[1])]]);

@@ -72,11 +72,7 @@ export class CircleIntersectionExpression<TConfig> implements GeometryExpression
         });
 
         if (!result) {
-          throw new GeometryError(
-            stepId,
-            this.id,
-            "No intersection found between circles",
-          );
+          throw new GeometryError(stepId, this.id, "No intersection found between circles");
         }
 
         return new Map([[this.id, result]]);

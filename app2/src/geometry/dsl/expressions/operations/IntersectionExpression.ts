@@ -97,13 +97,7 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
         // Build exclude point if provided
         let excludePoint: Point | undefined;
         if (this.options.excludeId) {
-          const excludeVal = getGeometry(
-            inputs,
-            this.options.excludeId,
-            isPoint,
-            "Point",
-            stepId,
-          );
+          const excludeVal = getGeometry(inputs, this.options.excludeId, isPoint, "Point", stepId);
           excludePoint = point(excludeVal.x, excludeVal.y);
         }
 
@@ -116,11 +110,7 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
         const result = pointFromCircleAndLine(circleVal, lineVal, computeOptions);
 
         if (!result) {
-          throw new GeometryError(
-            stepId,
-            this.id,
-            "No intersection found between circle and line",
-          );
+          throw new GeometryError(stepId, this.id, "No intersection found between circle and line");
         }
 
         return new Map([[this.id, result]]);

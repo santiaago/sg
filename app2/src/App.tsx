@@ -740,7 +740,7 @@ export default function App(): JSX.Element {
         // Use refs to get latest state and avoid stale closure
         const currentIndex = currentVisualIndexV1Ref.current;
         const totalVisualSteps = visualStepCountV1Ref.current;
-        
+
         if (currentIndex >= 0 && currentIndex < totalVisualSteps - 1) {
           goToNextV1();
         } else {

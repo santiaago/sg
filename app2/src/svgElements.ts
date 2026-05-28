@@ -199,7 +199,7 @@ function ensureArrowheadMarker(
       svg.removeChild(allDefs[i]);
     }
   }
-  
+
   // Also remove any duplicate markers with the same ID in different defs
   const allMarkers = svg.querySelectorAll(`marker#${markerId}`);
   if (allMarkers.length > 1) {
@@ -207,15 +207,15 @@ function ensureArrowheadMarker(
       allMarkers[i].parentNode?.removeChild(allMarkers[i]);
     }
   }
-  
+
   let defs = svg.querySelector("defs");
   if (!defs) {
     defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
     svg.insertBefore(defs, svg.firstChild);
   }
-  
+
   let arrowhead = svg.querySelector(`#${markerId}`);
-  
+
   if (!arrowhead) {
     // Create new marker in the shared defs
     arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "marker");

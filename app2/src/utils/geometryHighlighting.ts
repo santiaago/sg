@@ -35,7 +35,9 @@ function updateArrowheadMarkerColor(
   if (geomId) {
     // Update only the specific coordinate system's arrowhead marker
     const marker = svg.querySelector(`#arrowhead-${geomId} polygon`);
-    console.log(`[updateArrowheadMarkerColor] marker found=${!!marker}, selector=#arrowhead-${geomId} polygon`);
+    console.log(
+      `[updateArrowheadMarkerColor] marker found=${!!marker}, selector=#arrowhead-${geomId} polygon`,
+    );
     if (marker) {
       console.log(`[updateArrowheadMarkerColor] Setting marker fill to ${color}`);
       marker.setAttribute("fill", color);
@@ -73,10 +75,12 @@ function getSvgFromElement(element: HighlightElement): SVGSVGElement | null {
 function applyToCsArrows(element: HighlightElement, strokeColor: string, fillColor?: string): void {
   if (!element) return;
   const color = fillColor ?? strokeColor;
-  
+
   // Apply to the group itself
-  console.log(`[applyToCsArrows] Applying to group element, tag=${element.tagName}, stroke=${strokeColor}, fill=${fillColor}`);
-  
+  console.log(
+    `[applyToCsArrows] Applying to group element, tag=${element.tagName}, stroke=${strokeColor}, fill=${fillColor}`,
+  );
+
   // Also apply to child arrow lines and axis labels
   const csElements = element.querySelectorAll
     ? element.querySelectorAll("[data-cs-arrow], [data-cs-label]")
@@ -87,7 +91,7 @@ function applyToCsArrows(element: HighlightElement, strokeColor: string, fillCol
     const isArrow = el.getAttribute("data-cs-arrow") !== null;
     const isLabel = el.getAttribute("data-cs-label") !== null;
     console.log(`[applyToCsArrows] Processing ${tagName}, isArrow=${isArrow}, isLabel=${isLabel}`);
-    
+
     if (tagName === "line" || isArrow) {
       console.log(`[applyToCsArrows] Setting stroke=${strokeColor} on line/arrow`);
       el.setAttribute("stroke", strokeColor);
@@ -162,7 +166,8 @@ export function restoreInitialState(element: HighlightElement, shape: GeometryIt
         // Restore original colors from data attributes
         const tagName = el.tagName.toLowerCase();
         if (tagName === "line" || el.getAttribute("data-cs-arrow") !== null) {
-          const originalStroke = el.getAttribute("data-original-stroke") || el.getAttribute("stroke");
+          const originalStroke =
+            el.getAttribute("data-original-stroke") || el.getAttribute("stroke");
           if (originalStroke) {
             el.setAttribute("stroke", originalStroke);
           }
@@ -216,7 +221,9 @@ export function selectGeometry(
     console.log(`[selectGeometry] Item not found for ${geometryName}`);
     return;
   }
-  console.log(`[selectGeometry] Item found, type=${item.type}, currently selected=${item.selected}`);
+  console.log(
+    `[selectGeometry] Item found, type=${item.type}, currently selected=${item.selected}`,
+  );
 
   // Deselect all first
   Object.keys(store.items).forEach((key) => {
@@ -270,7 +277,9 @@ export function applyVisualFeedback(
           element.tooltipBg.setAttribute("opacity", "1");
         }
       } else if (shape.type === "coordinate_system") {
-        console.log(`[applyVisualFeedback] SELECTING coordinate_system, geomId=${element.getAttribute("data-geom-id")}`);
+        console.log(
+          `[applyVisualFeedback] SELECTING coordinate_system, geomId=${element.getAttribute("data-geom-id")}`,
+        );
         applyToCsArrows(element, COLOR_SELECTED, COLOR_SELECTED);
         // Also update arrowhead marker color
         const svg = getSvgFromElement(element);
@@ -295,20 +304,26 @@ export function applyVisualFeedback(
 
       // For coordinate system, also restore arrowhead marker and arrow strokes to original color
       if (shape.type === "coordinate_system") {
-        console.log(`[applyVisualFeedback] DESELECTING coordinate_system, geomId=${element.getAttribute("data-geom-id")}`);
+        console.log(
+          `[applyVisualFeedback] DESELECTING coordinate_system, geomId=${element.getAttribute("data-geom-id")}`,
+        );
         if (element && element.querySelector) {
           const xArrow = element.querySelector("[data-cs-arrow]");
           if (xArrow) {
             const originalStroke =
               xArrow.getAttribute("data-original-stroke") || xArrow.getAttribute("stroke");
-            console.log(`[applyVisualFeedback] originalStroke=${originalStroke}, data-original-stroke=${xArrow.getAttribute("data-original-stroke")}, stroke=${xArrow.getAttribute("stroke")}`);
+            console.log(
+              `[applyVisualFeedback] originalStroke=${originalStroke}, data-original-stroke=${xArrow.getAttribute("data-original-stroke")}, stroke=${xArrow.getAttribute("stroke")}`,
+            );
             if (originalStroke) {
               // Restore stroke color to all arrow lines and fill to labels
               applyToCsArrows(element, originalStroke, originalStroke);
               // Restore arrowhead marker color
               const svg = getSvgFromElement(element);
               const geomId = element.getAttribute("data-geom-id");
-              console.log(`[applyVisualFeedback] Will restore arrowhead for geomId=${geomId} to color=${originalStroke}`);
+              console.log(
+                `[applyVisualFeedback] Will restore arrowhead for geomId=${geomId} to color=${originalStroke}`,
+              );
               updateArrowheadMarkerColor(svg, originalStroke, geomId || undefined);
             } else {
               console.log(`[applyVisualFeedback] No originalStroke found!`);

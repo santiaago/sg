@@ -99,13 +99,7 @@ export class PointInCoordinateSystemExpression<TConfig> implements GeometryExpre
       outputs: [this.id],
       parameters: this.parameters,
       compute: (inputs, params): Map<string, GeometryValue> => {
-        const cs = getGeometry(
-          inputs,
-          this.csId,
-          isCoordinateSystem,
-          "CoordinateSystem",
-          stepId,
-        );
+        const cs = getGeometry(inputs, this.csId, isCoordinateSystem, "CoordinateSystem", stepId);
 
         // Resolve parameterized coordinates
         const x = resolveParameter(inputs, params, this.localX, "localX");
