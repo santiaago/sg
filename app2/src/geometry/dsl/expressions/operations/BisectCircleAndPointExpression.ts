@@ -8,6 +8,7 @@ import { bisectCircleAndPoint } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { CircleLikeExpression, PointLikeExpression } from "../types";
 import { GeometryFeatureReference } from "../../GeometryFeatureReference";
+import { createStepId } from "../../utils";
 
 /**
  * Expression for a point computed by bisecting a circle through a given point.
@@ -67,8 +68,9 @@ export class BisectCircleAndPointExpression<TConfig> implements GeometryExpressi
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const stepId = createStepId(this.id);
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -76,8 +78,8 @@ export class BisectCircleAndPointExpression<TConfig> implements GeometryExpressi
         inputs: Map<string, GeometryValue>,
         _params: TConfig,
       ): Map<string, GeometryValue> => {
-        const circleVal = getGeometry(inputs, this.circleId, isCircle, "Circle", `step_${this.id}`);
-        const pointVal = getGeometry(inputs, this.pointId, isPoint, "Point", `step_${this.id}`);
+        const circleVal = getGeometry(inputs, this.circleId, isCircle, "Circle", stepId);
+        const pointVal = getGeometry(inputs, this.pointId, isPoint, "Point", stepId);
 
         // Use the local bisectCircleAndPoint which already uses our Circle/Point types
         // Circle: { type: "circle", cx: number, cy: number, r: number }
@@ -87,7 +89,7 @@ export class BisectCircleAndPointExpression<TConfig> implements GeometryExpressi
         return new Map([[this.id, result]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawPoint(svg, values, this.id, store, theme);
+        renderer.drawPoint(svg, values, this.id, store, theme, stepId);
       },
     };
   }

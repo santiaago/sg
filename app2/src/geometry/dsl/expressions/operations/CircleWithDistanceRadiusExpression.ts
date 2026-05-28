@@ -6,6 +6,7 @@ import { circle, isPoint } from "@/types/geometry";
 import { distance } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { PointLikeExpression } from "../types";
+import { createStepId } from "../../utils";
 
 /**
  * Expression for a circle with radius computed as distance between two points.
@@ -46,9 +47,10 @@ export class CircleWithDistanceRadiusExpression<TConfig> implements GeometryExpr
     this.dependencies = [center.id, p1.id, p2.id];
   }
 
-  compile(_renderer: GeometryRenderer): Step<TConfig> {
+  compile(renderer: GeometryRenderer): Step<TConfig> {
+    const stepId = createStepId(this.id);
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -81,7 +83,7 @@ export class CircleWithDistanceRadiusExpression<TConfig> implements GeometryExpr
       },
       draw: (svg, values, store, theme): void => {
         // Default draw for circles
-        _renderer.drawCircle(svg, values, this.id, store, theme);
+        renderer.drawCircle(svg, values, this.id, store, theme, stepId);
       },
     };
   }

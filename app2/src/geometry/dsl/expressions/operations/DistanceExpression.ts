@@ -6,6 +6,7 @@ import { isPoint } from "@/types/geometry";
 import { distance as computeDistance } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { PointLikeExpression } from "../types";
+import { createStepId } from "../../utils";
 
 export class DistanceExpression<TConfig> implements GeometryExpression<TConfig, "point"> {
   readonly id: string;
@@ -34,7 +35,7 @@ export class DistanceExpression<TConfig> implements GeometryExpression<TConfig, 
 
   compile(_renderer: GeometryRenderer): Step<TConfig> {
     return {
-      id: `step_${this.id}`,
+      id: createStepId(this.id),
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,

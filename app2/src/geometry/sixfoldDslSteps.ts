@@ -3,6 +3,7 @@
 
 import { GeometryBuilder } from "./dsl/GeometryBuilder";
 import { DefaultGeometryRenderer } from "./dsl/renderers/DefaultRenderer";
+import type { GeometryRenderer } from "./dsl/renderers/types";
 import type { Step } from "@/types/geometry";
 import type { SixFoldV0Config } from "./sixFold/operations";
 import { GOLDEN_RATIO } from "./operations";
@@ -12,9 +13,12 @@ import type { LineStyleOptions } from "./dsl/expressions/LineExpression";
  * Build the SixFold v0 construction steps using the DSL.
  * Returns an array of Steps that can be executed by the standard step execution engine.
  * Produces geometrically identical results to the manual sixFoldV0Steps.ts implementation.
+ *
+ * @param renderer - Optional custom renderer for drawing geometry
  */
-export function buildSixfoldDslSteps(): Step<SixFoldV0Config>[] {
-  const builder = new GeometryBuilder<SixFoldV0Config>(new DefaultGeometryRenderer());
+export function buildSixfoldDslSteps(renderer?: GeometryRenderer): Step<SixFoldV0Config>[] {
+  const actualRenderer = renderer || new DefaultGeometryRenderer("");
+  const builder = new GeometryBuilder<SixFoldV0Config>(actualRenderer);
 
   // Outline style - same as square polygon style in squareDslSteps.ts
   const outlineStyle: LineStyleOptions = {

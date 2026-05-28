@@ -7,7 +7,7 @@ import type { GeometryExpression } from "./GeometryExpression";
 import { GeometryFeatureReference } from "../GeometryFeatureReference";
 import type { ParameterValue } from "../types";
 import { isGeometryFeatureReference } from "../types";
-import { resolveParameter } from "../utils";
+import { createStepId, resolveParameter } from "../utils";
 
 /**
  * Expression for a coordinate system geometry.
@@ -95,8 +95,9 @@ export class CoordinateSystemExpression<TConfig> implements GeometryExpression<
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const stepId = createStepId(this.id);
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -111,7 +112,7 @@ export class CoordinateSystemExpression<TConfig> implements GeometryExpression<
         return new Map([[this.id, coordinateSystem(x, y, arrowLength, rotation)]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawCoordinateSystem(svg, values, this.id, store, theme);
+        renderer.drawCoordinateSystem(svg, values, this.id, store, theme, stepId);
       },
     };
   }

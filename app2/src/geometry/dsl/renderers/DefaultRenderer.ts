@@ -20,8 +20,33 @@ import { POINT_RADIUS_MEDIUM, STROKE_WIDTH_THIN } from "@/config/geometryConfig"
  * Default geometry renderer using existing SVG draw functions.
  * Applies consistent styling (POINT_RADIUS_MEDIUM, STROKE_WIDTH_THIN)
  * and theme colors (COLOR_PRIMARY) for all geometry types.
+ * Supports current step highlighting via currentStepId.
  */
 export class DefaultGeometryRenderer implements GeometryRenderer {
+  private currentStepId: string;
+
+  /**
+   * Create a new DefaultGeometryRenderer.
+   * @param currentStepId - The ID of the current step to highlight
+   */
+  constructor(currentStepId: string = "") {
+    this.currentStepId = currentStepId;
+  }
+
+  /**
+   * Set the current step ID for highlighting.
+   * @param stepId - The ID of the current step to highlight
+   */
+  setCurrentStepId(stepId: string): void {
+    this.currentStepId = stepId;
+  }
+
+  /**
+   * Get the current step ID being highlighted.
+   */
+  getCurrentStepId(): string {
+    return this.currentStepId;
+  }
   /**
    * Resolve stroke options from style options or defaults.
    */
@@ -42,6 +67,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
   /**
    * Draw a point geometry using the configured point radius.
    * Validates that the geometry is a Point before drawing.
+   * Applies current step highlight if stepId matches currentStepId.
    */
   drawPoint(
     svg: SVGSVGElement,
@@ -49,6 +75,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     geomId: string,
     store: GeometryStore,
     theme: Theme,
+    stepId?: string,
   ): void {
     const p = values.get(geomId);
     if (!p) {
@@ -57,13 +84,19 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     if (!isPoint(p)) {
       throw new Error(`drawPoint: geometry '${geomId}' is ${p.type}, expected point`);
     }
-    svgDrawPoint(svg, values, geomId, POINT_RADIUS_MEDIUM, store, theme);
+
+    // Determine fill color based on current step highlighting
+    const fillColor =
+      stepId && stepId === this.currentStepId ? theme.COLOR_CURRENT_STEP : undefined;
+
+    svgDrawPoint(svg, values, geomId, POINT_RADIUS_MEDIUM, store, theme, fillColor);
   }
 
   /**
    * Draw a line geometry using the configured stroke width and primary theme color.
    * Validates that the geometry is a Line before drawing.
    * Uses custom stroke width/color if provided in options.
+   * Applies current step highlight if stepId matches currentStepId.
    */
   drawLine(
     svg: SVGSVGElement,
@@ -72,6 +105,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     store: GeometryStore,
     theme: Theme,
     options?: LineStyleOptions,
+    stepId?: string,
   ): void {
     const l = values.get(geomId);
     if (!l) {
@@ -81,13 +115,19 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
       throw new Error(`drawLine: geometry '${geomId}' is ${l.type}, expected line`);
     }
 
-    const { strokeWidth, strokeColor } = this.resolveStrokeOptions(theme, options);
+    const { strokeWidth, strokeColor: baseStrokeColor } = this.resolveStrokeOptions(theme, options);
+
+    // Check if this line should be highlighted
+    const shouldHighlight = stepId && stepId === this.currentStepId;
+    const strokeColor = shouldHighlight ? theme.COLOR_CURRENT_STEP : baseStrokeColor;
+
     svgDrawLine(svg, values, geomId, strokeWidth, store, theme, strokeColor);
   }
 
   /**
    * Draw a circle geometry using the configured stroke width.
    * Validates that the geometry is a Circle before drawing.
+   * Applies current step highlight if stepId matches currentStepId.
    */
   drawCircle(
     svg: SVGSVGElement,
@@ -95,6 +135,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     geomId: string,
     store: GeometryStore,
     theme: Theme,
+    stepId?: string,
   ): void {
     const c = values.get(geomId);
     if (!c) {
@@ -103,12 +144,18 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     if (!isCircle(c)) {
       throw new Error(`drawCircle: geometry '${geomId}' is ${c.type}, expected circle`);
     }
-    svgDrawCircle(svg, values, geomId, STROKE_WIDTH_THIN, store, theme);
+
+    // Check if this circle should be highlighted
+    const strokeColor =
+      stepId && stepId === this.currentStepId ? theme.COLOR_CURRENT_STEP : undefined;
+
+    svgDrawCircle(svg, values, geomId, STROKE_WIDTH_THIN, store, theme, strokeColor);
   }
 
   /**
    * Draw a polygon geometry using the configured stroke width and primary theme color.
    * Validates that the geometry is a Polygon before drawing.
+   * Applies current step highlight if stepId matches currentStepId.
    */
   drawPolygon(
     svg: SVGSVGElement,
@@ -117,6 +164,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     store: GeometryStore,
     theme: Theme,
     options?: PolygonStyleOptions,
+    stepId?: string,
   ): void {
     const p = values.get(geomId);
     if (!p) {
@@ -126,13 +174,19 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
       throw new Error(`drawPolygon: geometry '${geomId}' is ${p.type}, expected polygon`);
     }
 
-    const { strokeWidth, strokeColor } = this.resolveStrokeOptions(theme, options);
+    const { strokeWidth, strokeColor: baseStrokeColor } = this.resolveStrokeOptions(theme, options);
+
+    // Check if this polygon should be highlighted
+    const shouldHighlight = stepId && stepId === this.currentStepId;
+    const strokeColor = shouldHighlight ? theme.COLOR_CURRENT_STEP : baseStrokeColor;
+
     svgDrawPolygon(svg, values, geomId, strokeWidth, store, theme, strokeColor);
   }
 
   /**
    * Draw a coordinate system using the configured stroke width and primary theme color.
    * Validates that the geometry is a CoordinateSystem before drawing.
+   * Applies current step highlight if stepId matches currentStepId.
    */
   drawCoordinateSystem(
     svg: SVGSVGElement,
@@ -140,6 +194,7 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
     geomId: string,
     store: GeometryStore,
     theme: Theme,
+    stepId?: string,
   ): void {
     const cs = values.get(geomId);
     if (!cs) {
@@ -150,14 +205,11 @@ export class DefaultGeometryRenderer implements GeometryRenderer {
         `drawCoordinateSystem: geometry '${geomId}' is ${cs.type}, expected coordinate_system`,
       );
     }
-    svgDrawCoordinateSystem(
-      svg,
-      values,
-      geomId,
-      STROKE_WIDTH_THIN,
-      store,
-      theme,
-      theme.COLOR_PRIMARY,
-    );
+
+    // Check if this coordinate system should be highlighted
+    const shouldHighlight = stepId && stepId === this.currentStepId;
+    const strokeColor = shouldHighlight ? theme.COLOR_CURRENT_STEP : theme.COLOR_PRIMARY;
+
+    svgDrawCoordinateSystem(svg, values, geomId, STROKE_WIDTH_THIN, store, theme, strokeColor);
   }
 }

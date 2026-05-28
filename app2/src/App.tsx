@@ -450,6 +450,9 @@ export default function App(): JSX.Element {
   const [isPlayingSixfoldDslV1, setIsPlayingSixfoldDslV1] = useState<boolean>(false);
   const sixfoldDslV1SvgRef = useRef<SVGSVGElement>(null);
   const playIntervalSixfoldDslV1 = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Refs to track latest stepper state for interval callbacks
+  const currentVisualIndexV1Ref = useRef<number>(0);
+  const visualStepCountV1Ref = useRef<number>(0);
 
   // Build DSL sixfold v1 steps once
   const sixfoldDslV1Steps = useMemo(() => buildSixfoldDslV1Steps(), []);
@@ -465,6 +468,15 @@ export default function App(): JSX.Element {
     canGoNext: canGoNextV1,
     canGoPrev: canGoPrevV1,
   } = useSmartStepper({ steps: sixfoldDslV1Steps });
+
+  // Keep refs in sync with latest stepper state
+  useEffect(() => {
+    currentVisualIndexV1Ref.current = currentVisualIndexV1;
+  }, [currentVisualIndexV1]);
+
+  useEffect(() => {
+    visualStepCountV1Ref.current = visualStepCountV1;
+  }, [visualStepCountV1]);
 
   const handleNextClickSquareDsl = (): void => {
     // Stop playing if user manually clicks
@@ -725,8 +737,11 @@ export default function App(): JSX.Element {
       // Start playing
       setIsPlayingSixfoldDslV1(true);
       playIntervalSixfoldDslV1.current = setInterval(() => {
-        // Check if we can go next
-        if (canGoNextV1) {
+        // Use refs to get latest state and avoid stale closure
+        const currentIndex = currentVisualIndexV1Ref.current;
+        const totalVisualSteps = visualStepCountV1Ref.current;
+
+        if (currentIndex >= 0 && currentIndex < totalVisualSteps - 1) {
           goToNextV1();
         } else {
           // Stop when reaching the end

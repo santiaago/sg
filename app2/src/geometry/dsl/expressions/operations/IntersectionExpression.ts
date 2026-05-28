@@ -8,6 +8,7 @@ import { getGeometry } from "@/geometry/operations";
 import { pointFromCircleAndLine, interceptCircleLineSegHelper } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { CircleLikeExpression, LineLikeExpression } from "../types";
+import { createStepId } from "../../utils";
 
 /** Options for circle-line intersection */
 export interface IntersectionOptions {
@@ -66,9 +67,10 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
     // Determine index based on position option
     // left = 0, right = 1 (matching interceptCircleLineDirHelper semantics)
     const positionIndex = this.options.position === "right" ? 1 : 0;
+    const stepId = createStepId(this.id);
 
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -76,15 +78,15 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
         inputs: Map<string, GeometryValue>,
         config: TConfig,
       ): Map<string, GeometryValue> => {
-        const circleVal = getGeometry(inputs, this.circleId, isCircle, "Circle", `step_${this.id}`);
-        const lineVal = getGeometry(inputs, this.lineId, isLine, "Line", `step_${this.id}`);
+        const circleVal = getGeometry(inputs, this.circleId, isCircle, "Circle", stepId);
+        const lineVal = getGeometry(inputs, this.lineId, isLine, "Line", stepId);
 
         // If position is specified, use interceptCircleLineSegHelper with index
         if (this.options.position === "left" || this.options.position === "right") {
           const result = interceptCircleLineSegHelper(circleVal, lineVal, positionIndex);
           if (!result) {
             throw new GeometryError(
-              `step_${this.id}`,
+              stepId,
               this.id,
               "No intersection found between circle and line",
             );
@@ -95,13 +97,7 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
         // Build exclude point if provided
         let excludePoint: Point | undefined;
         if (this.options.excludeId) {
-          const excludeVal = getGeometry(
-            inputs,
-            this.options.excludeId,
-            isPoint,
-            "Point",
-            `step_${this.id}`,
-          );
+          const excludeVal = getGeometry(inputs, this.options.excludeId, isPoint, "Point", stepId);
           excludePoint = point(excludeVal.x, excludeVal.y);
         }
 
@@ -114,17 +110,13 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
         const result = pointFromCircleAndLine(circleVal, lineVal, computeOptions);
 
         if (!result) {
-          throw new GeometryError(
-            `step_${this.id}`,
-            this.id,
-            "No intersection found between circle and line",
-          );
+          throw new GeometryError(stepId, this.id, "No intersection found between circle and line");
         }
 
         return new Map([[this.id, result]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawPoint(svg, values, this.id, store, theme);
+        renderer.drawPoint(svg, values, this.id, store, theme, stepId);
       },
     };
   }

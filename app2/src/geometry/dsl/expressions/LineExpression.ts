@@ -6,6 +6,7 @@ import { line, isPoint } from "@/types/geometry";
 import type { GeometryExpression } from "./GeometryExpression";
 import type { PointLikeExpression } from "./types";
 import { GeometryFeatureReference } from "../GeometryFeatureReference";
+import { createStepId } from "../utils";
 import type { LineWithLength } from "./types";
 
 /**
@@ -166,9 +167,10 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
     const styleOptions = this.styleOptions;
+    const stepId = createStepId(this.id);
 
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -202,7 +204,7 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
         throw new Error(`LineExpression ${this.id}: invalid construction`);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawLine(svg, values, this.id, store, theme, styleOptions);
+        renderer.drawLine(svg, values, this.id, store, theme, styleOptions, stepId);
       },
     };
   }

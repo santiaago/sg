@@ -111,6 +111,7 @@ export function clearGeometryFromSvg(svg: SVGSVGElement): void {
 
 /**
  * Draw a dot (circle) SVG element
+ * @param fillColor - Optional fill color override (defaults to theme.COLOR_DOT)
  */
 export function dot(
   svg: SVGSVGElement,
@@ -118,13 +119,14 @@ export function dot(
   y: number,
   radius: number,
   theme: Theme,
+  fillColor?: string,
 ): SVGCircleElement {
   const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   circle.setAttribute("class", "dot");
   circle.setAttribute("cx", x.toString());
   circle.setAttribute("cy", y.toString());
   circle.setAttribute("r", radius.toString());
-  circle.setAttribute("fill", theme.COLOR_DOT);
+  circle.setAttribute("fill", fillColor ?? theme.COLOR_DOT);
   circle.setAttribute("opacity", "1");
   svg.appendChild(circle);
   return circle;
@@ -155,6 +157,7 @@ export function line(
 
 /**
  * Draw a circle SVG element with stroke
+ * @param strokeColor - Optional stroke color override (defaults to theme.COLOR_SECONDARY)
  */
 export function circle(
   svg: SVGSVGElement,
@@ -163,9 +166,10 @@ export function circle(
   r: number,
   strokeWidth: number = 1,
   theme: Theme,
+  strokeColor?: string,
 ): SVGCircleElement {
   const circleEl = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  circleEl.setAttribute("stroke", theme.COLOR_SECONDARY);
+  circleEl.setAttribute("stroke", strokeColor ?? theme.COLOR_SECONDARY);
   circleEl.setAttribute("stroke-width", strokeWidth.toString());
   circleEl.setAttribute("fill", "none");
   circleEl.setAttribute("cx", cx.toString());
@@ -178,13 +182,44 @@ export function circle(
 /**
  * Ensure arrowhead marker definition exists in SVG
  * Creates a reusable arrowhead marker for coordinate system arrows
+ * Uses a single shared <defs> element for all markers.
+ * @param svg - The SVG element
+ * @param strokeColor - Color for the arrowhead polygon
+ * @param markerId - Unique ID for the marker (default: "arrowhead-cs")
  */
-function ensureArrowheadMarker(svg: SVGSVGElement, strokeColor: string): void {
-  let arrowhead = svg.querySelector("#arrowhead-cs");
+function ensureArrowheadMarker(
+  svg: SVGSVGElement,
+  strokeColor: string,
+  markerId: string = "arrowhead-cs",
+): void {
+  // Clean up any duplicate defs elements and duplicate markers first
+  const allDefs = svg.querySelectorAll("defs");
+  if (allDefs.length > 1) {
+    for (let i = 1; i < allDefs.length; i++) {
+      svg.removeChild(allDefs[i]);
+    }
+  }
+
+  // Also remove any duplicate markers with the same ID in different defs
+  const allMarkers = svg.querySelectorAll(`marker#${markerId}`);
+  if (allMarkers.length > 1) {
+    for (let i = 1; i < allMarkers.length; i++) {
+      allMarkers[i].parentNode?.removeChild(allMarkers[i]);
+    }
+  }
+
+  let defs = svg.querySelector("defs");
+  if (!defs) {
+    defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    svg.insertBefore(defs, svg.firstChild);
+  }
+
+  let arrowhead = svg.querySelector(`#${markerId}`);
+
   if (!arrowhead) {
-    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    // Create new marker in the shared defs
     arrowhead = document.createElementNS("http://www.w3.org/2000/svg", "marker");
-    arrowhead.setAttribute("id", "arrowhead-cs");
+    arrowhead.setAttribute("id", markerId);
     arrowhead.setAttribute("markerWidth", ARROWHEAD_MARKER_WIDTH.toString());
     arrowhead.setAttribute("markerHeight", ARROWHEAD_MARKER_HEIGHT.toString());
     arrowhead.setAttribute("refX", ARROWHEAD_REF_X.toString());
@@ -195,10 +230,12 @@ function ensureArrowheadMarker(svg: SVGSVGElement, strokeColor: string): void {
     arrowPolygon.setAttribute("fill", strokeColor);
     arrowhead.appendChild(arrowPolygon);
     defs.appendChild(arrowhead);
-    svg.insertBefore(defs, svg.firstChild);
   } else {
     // Update existing marker's color to match current strokeColor
-    const arrowPolygon = arrowhead.querySelector("polygon");
+    // Use CSS style which has lower priority than fill attribute in SVG
+    // So we must clear the fill attribute first
+    arrowhead = svg.querySelector(`#${markerId}`);
+    const arrowPolygon = arrowhead?.querySelector("polygon");
     if (arrowPolygon) {
       arrowPolygon.setAttribute("fill", strokeColor);
     }
@@ -218,6 +255,7 @@ const AXIS_LABEL_FONT_SIZE = 8;
  * @param strokeWidth - Width of the arrow lines
  * @param strokeColor - Color of the arrow lines
  * @param rotation - Rotation angle in radians (default: 0 = X right, Y down)
+ * @param geomId - Unique identifier for this coordinate system (used for marker ID)
  * @returns SVG group element containing the coordinate system
  */
 export function coordinateSystemArrows(
@@ -228,12 +266,14 @@ export function coordinateSystemArrows(
   strokeWidth: number,
   strokeColor: string,
   rotation: number = 0,
+  geomId: string = "cs",
 ): SVGGElement {
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("data-coordinate-system", "true");
 
-  // Ensure arrowhead marker exists
-  ensureArrowheadMarker(svg, strokeColor);
+  // Ensure arrowhead marker exists for this coordinate system
+  const markerId = `arrowhead-${geomId}`;
+  ensureArrowheadMarker(svg, strokeColor, markerId);
 
   // Draw X axis arrow (pointing right/east - positive X direction)
   // With rotation: X arrow points at angle `rotation` from horizontal
@@ -247,7 +287,7 @@ export function coordinateSystemArrows(
   xArrow.setAttribute("y2", y2.toString());
   xArrow.setAttribute("stroke", strokeColor);
   xArrow.setAttribute("stroke-width", strokeWidth.toString());
-  xArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
+  xArrow.setAttribute("marker-end", `url(#${markerId})`);
   xArrow.setAttribute("data-cs-arrow", "true");
   xArrow.setAttribute("data-original-stroke", strokeColor);
   group.appendChild(xArrow);
@@ -261,6 +301,7 @@ export function coordinateSystemArrows(
   xLabel.setAttribute("y", labelY.toString());
   xLabel.setAttribute("font-size", AXIS_LABEL_FONT_SIZE.toString());
   xLabel.setAttribute("fill", strokeColor);
+  xLabel.setAttribute("data-original-fill", strokeColor);
   xLabel.setAttribute("text-anchor", "middle");
   xLabel.setAttribute("dominant-baseline", "middle");
   xLabel.setAttribute("data-cs-label", "true");
@@ -280,7 +321,7 @@ export function coordinateSystemArrows(
   yArrow.setAttribute("y2", y2_y.toString());
   yArrow.setAttribute("stroke", strokeColor);
   yArrow.setAttribute("stroke-width", strokeWidth.toString());
-  yArrow.setAttribute("marker-end", "url(#arrowhead-cs)");
+  yArrow.setAttribute("marker-end", `url(#${markerId})`);
   yArrow.setAttribute("data-cs-arrow", "true");
   yArrow.setAttribute("data-original-stroke", strokeColor);
   group.appendChild(yArrow);
@@ -294,6 +335,7 @@ export function coordinateSystemArrows(
   yLabel.setAttribute("y", yLabelY.toString());
   yLabel.setAttribute("font-size", AXIS_LABEL_FONT_SIZE.toString());
   yLabel.setAttribute("fill", strokeColor);
+  yLabel.setAttribute("data-original-fill", strokeColor);
   yLabel.setAttribute("text-anchor", "middle");
   yLabel.setAttribute("dominant-baseline", "middle");
   yLabel.setAttribute("data-cs-label", "true");
@@ -320,6 +362,7 @@ export function coordinateSystemArrows(
  * @param radius - The radius of the dot
  * @param store - Optional store for managing SVG elements
  * @param theme - Theme to use for colors
+ * @param fillColor - Optional fill color override (defaults to theme.COLOR_DOT)
  */
 export function drawPoint(
   svg: SVGSVGElement,
@@ -328,10 +371,11 @@ export function drawPoint(
   radius: number,
   store: GeometryStore,
   theme: Theme,
+  fillColor?: string,
 ): void {
   const p = values.get(geomId);
   if (!p || !isPoint(p)) return;
-  dotWithTooltip(svg, p.x, p.y, geomId, radius, store, theme);
+  dotWithTooltip(svg, p.x, p.y, geomId, radius, store, theme, fillColor);
 }
 
 /**
@@ -366,6 +410,7 @@ export function drawLine(
  * @param strokeWidth - The width of the circle stroke
  * @param store - Optional store for managing SVG elements
  * @param theme - Theme to use for colors
+ * @param strokeColor - Optional stroke color override (defaults to theme.COLOR_SECONDARY)
  */
 export function drawCircle(
   svg: SVGSVGElement,
@@ -374,10 +419,11 @@ export function drawCircle(
   strokeWidth: number,
   store: GeometryStore,
   theme: Theme,
+  strokeColor?: string,
 ): void {
   const c = values.get(geomId);
   if (!c || !isCircle(c)) return;
-  circleWithTooltip(svg, c.cx, c.cy, c.r, geomId, strokeWidth, store, theme);
+  circleWithTooltip(svg, c.cx, c.cy, c.r, geomId, strokeWidth, store, theme, strokeColor);
 }
 
 /**
@@ -449,6 +495,7 @@ function polygonWithTooltip(
 
 /**
  * Draw a dot with tooltip support
+ * @param fillColor - Optional fill color override (defaults to theme.COLOR_DOT)
  */
 export function dotWithTooltip(
   svg: SVGSVGElement,
@@ -458,8 +505,9 @@ export function dotWithTooltip(
   radius: number,
   store: GeometryStore,
   theme: Theme,
+  fillColor?: string,
 ): SVGCircleElement {
-  const dotElement = dot(svg, x, y, radius, theme);
+  const dotElement = dot(svg, x, y, radius, theme, fillColor);
   dotElement.setAttribute("data-tooltip", name);
   dotElement.style.cursor = "pointer";
 
@@ -515,6 +563,7 @@ export function lineWithTooltip(
 
 /**
  * Draw a circle with tooltip support
+ * @param strokeColor - Optional stroke color override (defaults to theme.COLOR_SECONDARY)
  */
 export function circleWithTooltip(
   svg: SVGSVGElement,
@@ -525,8 +574,10 @@ export function circleWithTooltip(
   strokeWidth: number,
   store: GeometryStore,
   theme: Theme,
+  strokeColor?: string,
 ): SVGCircleElement {
-  const circleEl = circle(svg, cx, cy, r, strokeWidth, theme);
+  const circleEl = circle(svg, cx, cy, r, strokeWidth, theme, strokeColor);
+  circleEl.setAttribute("data-tooltip", name);
   circleEl.style.cursor = "pointer";
 
   // Create tooltip element (positioned to the right of the circle)
@@ -575,6 +626,7 @@ export function drawCoordinateSystem(
     strokeWidth,
     strokeColor,
     rotation,
+    geomId,
   );
 
   // Store geomId on the group for proper cleanup

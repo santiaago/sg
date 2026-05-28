@@ -20,14 +20,39 @@ type SvgWithTooltips = SVGCircleElement | SVGLineElement | SVGGElement;
 type HighlightElement = SvgWithTooltips | null;
 
 /**
- * Update the arrowhead marker color for coordinate system
+ * Update the arrowhead marker color for a specific coordinate system or all
+ * @param svg - The SVG element
+ * @param color - The color to set
+ * @param geomId - Optional geometry ID to target specific marker (e.g., "cs", "cs2")
  */
-function updateArrowheadMarkerColor(svg: SVGSVGElement | null, color: string): void {
+function updateArrowheadMarkerColor(
+  svg: SVGSVGElement | null,
+  color: string,
+  geomId?: string,
+): void {
+  console.log(`[updateArrowheadMarkerColor] color=${color}, geomId=${geomId}, svg=${!!svg}`);
   if (!svg) return;
-  const arrowhead = svg.querySelector("#arrowhead-cs polygon");
-  if (arrowhead) {
-    arrowhead.setAttribute("fill", color);
+  if (geomId) {
+    // Update only the specific coordinate system's arrowhead marker
+    const marker = svg.querySelector(`#arrowhead-${geomId} polygon`);
+    console.log(
+      `[updateArrowheadMarkerColor] marker found=${!!marker}, selector=#arrowhead-${geomId} polygon`,
+    );
+    if (marker) {
+      console.log(`[updateArrowheadMarkerColor] Setting marker fill to ${color}`);
+      marker.setAttribute("fill", color);
+      return;
+    }
+    // If specific marker not found, fall through to update all
+    console.log(`[updateArrowheadMarkerColor] Specific marker not found, will try all`);
   }
+  // Fallback: update all arrowhead markers (for backward compatibility or when geomId not provided)
+  const arrowheads = svg.querySelectorAll("[id^='arrowhead-'] polygon");
+  console.log(`[updateArrowheadMarkerColor] Found ${arrowheads.length} arrowheads to update`);
+  arrowheads.forEach((a) => {
+    console.log(`[updateArrowheadMarkerColor] Setting arrowhead fill to ${color}`);
+    a.setAttribute("fill", color);
+  });
 }
 
 /**
@@ -44,17 +69,37 @@ function getSvgFromElement(element: HighlightElement): SVGSVGElement | null {
 }
 
 /**
- * Apply stroke styling to coordinate system arrow and label child elements
+ * Apply styling to coordinate system arrow and label child elements.
+ * Lines use stroke, text labels use fill.
  */
-function applyToCsArrows(element: HighlightElement, callback: (el: Element) => void): void {
+function applyToCsArrows(element: HighlightElement, strokeColor: string, fillColor?: string): void {
   if (!element) return;
+  const color = fillColor ?? strokeColor;
+
   // Apply to the group itself
-  callback(element);
+  console.log(
+    `[applyToCsArrows] Applying to group element, tag=${element.tagName}, stroke=${strokeColor}, fill=${fillColor}`,
+  );
+
   // Also apply to child arrow lines and axis labels
   const csElements = element.querySelectorAll
     ? element.querySelectorAll("[data-cs-arrow], [data-cs-label]")
     : [];
-  csElements.forEach((el: Element) => callback(el));
+  console.log(`[applyToCsArrows] Found ${csElements.length} child elements`);
+  csElements.forEach((el: Element) => {
+    const tagName = el.tagName.toLowerCase();
+    const isArrow = el.getAttribute("data-cs-arrow") !== null;
+    const isLabel = el.getAttribute("data-cs-label") !== null;
+    console.log(`[applyToCsArrows] Processing ${tagName}, isArrow=${isArrow}, isLabel=${isLabel}`);
+
+    if (tagName === "line" || isArrow) {
+      console.log(`[applyToCsArrows] Setting stroke=${strokeColor} on line/arrow`);
+      el.setAttribute("stroke", strokeColor);
+    } else if (tagName === "text" || isLabel) {
+      console.log(`[applyToCsArrows] Setting fill=${color} on text/label`);
+      el.setAttribute("fill", color);
+    }
+  });
 }
 
 /**
@@ -75,13 +120,11 @@ export function applyInputVisualFeedback(
       element.setAttribute("stroke", COLOR_INPUT_HIGHLIGHT);
       element.setAttribute("stroke-width", scale.toString());
     } else if (shape.type === "coordinate_system") {
-      applyToCsArrows(element, (el: Element) => {
-        el.setAttribute("stroke", COLOR_INPUT_HIGHLIGHT);
-        // Don't change stroke-width to keep arrowhead triangle size consistent
-      });
+      applyToCsArrows(element, COLOR_INPUT_HIGHLIGHT, COLOR_INPUT_HIGHLIGHT);
       // Also update arrowhead marker color
       const svg = getSvgFromElement(element);
-      updateArrowheadMarkerColor(svg, COLOR_INPUT_HIGHLIGHT);
+      const geomId = element.getAttribute("data-geom-id");
+      updateArrowheadMarkerColor(svg, COLOR_INPUT_HIGHLIGHT, geomId || undefined);
     }
 
     // Show tooltip and background for highlighted inputs
@@ -120,6 +163,20 @@ export function restoreInitialState(element: HighlightElement, shape: GeometryIt
             el.setAttribute(attr, value);
           });
         }
+        // Restore original colors from data attributes
+        const tagName = el.tagName.toLowerCase();
+        if (tagName === "line" || el.getAttribute("data-cs-arrow") !== null) {
+          const originalStroke =
+            el.getAttribute("data-original-stroke") || el.getAttribute("stroke");
+          if (originalStroke) {
+            el.setAttribute("stroke", originalStroke);
+          }
+        } else if (tagName === "text" || el.getAttribute("data-cs-label") !== null) {
+          const originalFill = el.getAttribute("data-original-fill") || el.getAttribute("fill");
+          if (originalFill) {
+            el.setAttribute("fill", originalFill);
+          }
+        }
       });
       // Restore arrowhead marker to original stroke color
       if (element && element.querySelector) {
@@ -129,7 +186,8 @@ export function restoreInitialState(element: HighlightElement, shape: GeometryIt
             xArrow.getAttribute("data-original-stroke") || xArrow.getAttribute("stroke");
           if (originalStroke) {
             const svg = getSvgFromElement(element);
-            updateArrowheadMarkerColor(svg, originalStroke);
+            const geomId = element.getAttribute("data-geom-id");
+            updateArrowheadMarkerColor(svg, originalStroke, geomId || undefined);
           }
         }
       }
@@ -157,20 +215,30 @@ export function selectGeometry(
   geometryName: string,
   strokeBig: number,
 ): void {
+  console.log(`[selectGeometry] Selecting ${geometryName}`);
   const item = store.items[geometryName] as GeometryItem | undefined;
-  if (!item || !item.element) return;
+  if (!item || !item.element) {
+    console.log(`[selectGeometry] Item not found for ${geometryName}`);
+    return;
+  }
+  console.log(
+    `[selectGeometry] Item found, type=${item.type}, currently selected=${item.selected}`,
+  );
 
   // Deselect all first
   Object.keys(store.items).forEach((key) => {
     const existingItem = store.items[key] as GeometryItem | undefined;
     if (existingItem && existingItem.element) {
+      console.log(`[selectGeometry] Deselecting ${key}, type=${existingItem.type}`);
       store.update(key, { selected: false });
       applyVisualFeedback(existingItem.element, { ...existingItem, selected: false }, strokeBig);
     }
   });
 
-  // Select the clicked one
+  // Select the clicked one - use original element but with fresh selected state
   store.update(geometryName, { selected: true });
+  // Use item.element (known valid) with fresh selected - avoid stale properties from async store
+  console.log(`[selectGeometry] Re-selecting ${geometryName}, type=${item.type}`);
   applyVisualFeedback(item.element, { ...item, selected: true }, strokeBig);
 }
 
@@ -209,13 +277,15 @@ export function applyVisualFeedback(
           element.tooltipBg.setAttribute("opacity", "1");
         }
       } else if (shape.type === "coordinate_system") {
-        applyToCsArrows(element, (el: Element) => {
-          // Don't change stroke-width to keep arrowhead triangle size consistent
-          el.setAttribute("stroke", COLOR_SELECTED);
-        });
+        console.log(
+          `[applyVisualFeedback] SELECTING coordinate_system, geomId=${element.getAttribute("data-geom-id")}`,
+        );
+        applyToCsArrows(element, COLOR_SELECTED, COLOR_SELECTED);
         // Also update arrowhead marker color
         const svg = getSvgFromElement(element);
-        updateArrowheadMarkerColor(svg, COLOR_SELECTED);
+        const geomId = element.getAttribute("data-geom-id");
+        console.log(`[applyVisualFeedback] Will update arrowhead for geomId=${geomId}`);
+        updateArrowheadMarkerColor(svg, COLOR_SELECTED, geomId || undefined);
         // Show tooltip and background when selected
         if (element.tooltip) {
           element.tooltip.setAttribute("opacity", "1");
@@ -230,6 +300,38 @@ export function applyVisualFeedback(
         Object.entries(shape.initialState).forEach(([attr, value]) => {
           element.setAttribute(attr, value);
         });
+      }
+
+      // For coordinate system, also restore arrowhead marker and arrow strokes to original color
+      if (shape.type === "coordinate_system") {
+        console.log(
+          `[applyVisualFeedback] DESELECTING coordinate_system, geomId=${element.getAttribute("data-geom-id")}`,
+        );
+        if (element && element.querySelector) {
+          const xArrow = element.querySelector("[data-cs-arrow]");
+          if (xArrow) {
+            const originalStroke =
+              xArrow.getAttribute("data-original-stroke") || xArrow.getAttribute("stroke");
+            console.log(
+              `[applyVisualFeedback] originalStroke=${originalStroke}, data-original-stroke=${xArrow.getAttribute("data-original-stroke")}, stroke=${xArrow.getAttribute("stroke")}`,
+            );
+            if (originalStroke) {
+              // Restore stroke color to all arrow lines and fill to labels
+              applyToCsArrows(element, originalStroke, originalStroke);
+              // Restore arrowhead marker color
+              const svg = getSvgFromElement(element);
+              const geomId = element.getAttribute("data-geom-id");
+              console.log(
+                `[applyVisualFeedback] Will restore arrowhead for geomId=${geomId} to color=${originalStroke}`,
+              );
+              updateArrowheadMarkerColor(svg, originalStroke, geomId || undefined);
+            } else {
+              console.log(`[applyVisualFeedback] No originalStroke found!`);
+            }
+          } else {
+            console.log(`[applyVisualFeedback] No xArrow found!`);
+          }
+        }
       }
 
       // Hide tooltips for all geometry types when unselected
@@ -295,13 +397,11 @@ export function applyHoverHighlight(
       element.setAttribute("stroke", color);
       element.setAttribute("stroke-width", scale.toString());
     } else if (shape.type === "coordinate_system") {
-      applyToCsArrows(element, (el: Element) => {
-        // Don't change stroke-width to keep arrowhead triangle size consistent
-        el.setAttribute("stroke", color);
-      });
+      applyToCsArrows(element, color, color);
       // Also update arrowhead marker color
       const svg = getSvgFromElement(element);
-      updateArrowheadMarkerColor(svg, color);
+      const geomId = element.getAttribute("data-geom-id");
+      updateArrowheadMarkerColor(svg, color, geomId || undefined);
     }
 
     // Show tooltip and background for hovered items

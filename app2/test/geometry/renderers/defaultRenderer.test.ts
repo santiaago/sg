@@ -1,5 +1,7 @@
-// Unit tests for DefaultRenderer type validation
+// Unit tests for DefaultRenderer type validation and current step highlighting
 // Tests verify loud failures on wrong/missing geometry types
+// Tests verify green highlight applied when stepId matches currentStepId
+// TODO: Add integration tests for DSL SVG components to verify done-state behavior
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { DefaultGeometryRenderer } from "@/geometry/dsl/renderers/DefaultRenderer";
@@ -208,6 +210,195 @@ describe("DefaultRenderer - type validation", () => {
       expect(() => {
         renderer.drawCoordinateSystem(svg, values, "valid-cs", store, theme);
       }).not.toThrow();
+    });
+  });
+
+  // ==========================================================================
+  // Current Step Highlighting Tests
+  // ==========================================================================
+
+  describe("currentStepId management", () => {
+    it("should have empty currentStepId by default", () => {
+      const renderer = new DefaultGeometryRenderer();
+      expect(renderer.getCurrentStepId()).toBe("");
+    });
+
+    it("should set and get currentStepId", () => {
+      const renderer = new DefaultGeometryRenderer();
+      renderer.setCurrentStepId("step_foo");
+      expect(renderer.getCurrentStepId()).toBe("step_foo");
+    });
+
+    it("should clear currentStepId when set to empty string", () => {
+      const renderer = new DefaultGeometryRenderer();
+      renderer.setCurrentStepId("step_foo");
+      renderer.setCurrentStepId("");
+      expect(renderer.getCurrentStepId()).toBe("");
+    });
+  });
+
+  describe("current step highlighting - point", () => {
+    it("should apply green fill when stepId matches currentStepId", () => {
+      renderer.setCurrentStepId("step_testPoint");
+      const values = new Map<string, GeometryValue>([["testPoint", point(50, 50)]]);
+
+      renderer.drawPoint(svg, values, "testPoint", store, theme, "step_testPoint");
+
+      const circle = svg.querySelector("circle");
+      expect(circle).not.toBeNull();
+      expect(circle?.getAttribute("fill")).toBe(theme.COLOR_CURRENT_STEP);
+    });
+
+    it("should NOT apply green fill when stepId does NOT match", () => {
+      renderer.setCurrentStepId("step_other");
+      const values = new Map<string, GeometryValue>([["testPoint", point(50, 50)]]);
+
+      renderer.drawPoint(svg, values, "testPoint", store, theme, "step_testPoint");
+
+      const circle = svg.querySelector("circle");
+      expect(circle).not.toBeNull();
+      expect(circle?.getAttribute("fill")).not.toBe(theme.COLOR_CURRENT_STEP);
+    });
+
+    it("should NOT apply green fill when currentStepId is empty", () => {
+      renderer.setCurrentStepId("");
+      const values = new Map<string, GeometryValue>([["testPoint", point(50, 50)]]);
+
+      renderer.drawPoint(svg, values, "testPoint", store, theme, "step_testPoint");
+
+      const circle = svg.querySelector("circle");
+      expect(circle).not.toBeNull();
+      expect(circle?.getAttribute("fill")).not.toBe(theme.COLOR_CURRENT_STEP);
+    });
+
+    it("should NOT apply green fill when stepId is undefined", () => {
+      renderer.setCurrentStepId("step_other");
+      const values = new Map<string, GeometryValue>([["testPoint", point(50, 50)]]);
+
+      renderer.drawPoint(svg, values, "testPoint", store, theme, undefined);
+
+      const circle = svg.querySelector("circle");
+      expect(circle).not.toBeNull();
+      expect(circle?.getAttribute("fill")).not.toBe(theme.COLOR_CURRENT_STEP);
+    });
+  });
+
+  describe("current step highlighting - line", () => {
+    it("should apply green stroke when stepId matches currentStepId", () => {
+      renderer.setCurrentStepId("step_testLine");
+      const values = new Map<string, GeometryValue>([["testLine", line(0, 0, 100, 100)]]);
+
+      renderer.drawLine(svg, values, "testLine", store, theme, undefined, "step_testLine");
+
+      const lineEl = svg.querySelector("line");
+      expect(lineEl).not.toBeNull();
+      expect(lineEl?.getAttribute("stroke")).toBe(theme.COLOR_CURRENT_STEP);
+    });
+
+    it("should NOT apply green stroke when stepId does NOT match", () => {
+      renderer.setCurrentStepId("step_other");
+      const values = new Map<string, GeometryValue>([["testLine", line(0, 0, 100, 100)]]);
+
+      renderer.drawLine(svg, values, "testLine", store, theme, undefined, "step_testLine");
+
+      const lineEl = svg.querySelector("line");
+      expect(lineEl).not.toBeNull();
+      expect(lineEl?.getAttribute("stroke")).not.toBe(theme.COLOR_CURRENT_STEP);
+    });
+  });
+
+  describe("current step highlighting - circle", () => {
+    it("should apply green stroke when stepId matches currentStepId", () => {
+      renderer.setCurrentStepId("step_testCircle");
+      const values = new Map<string, GeometryValue>([["testCircle", circle(50, 50, 25)]]);
+
+      renderer.drawCircle(svg, values, "testCircle", store, theme, "step_testCircle");
+
+      const circleEl = svg.querySelector("circle");
+      expect(circleEl).not.toBeNull();
+      expect(circleEl?.getAttribute("stroke")).toBe(theme.COLOR_CURRENT_STEP);
+    });
+
+    it("should NOT apply green stroke when stepId does NOT match", () => {
+      renderer.setCurrentStepId("step_other");
+      const values = new Map<string, GeometryValue>([["testCircle", circle(50, 50, 25)]]);
+
+      renderer.drawCircle(svg, values, "testCircle", store, theme, "step_testCircle");
+
+      const circleEl = svg.querySelector("circle");
+      expect(circleEl).not.toBeNull();
+      expect(circleEl?.getAttribute("stroke")).not.toBe(theme.COLOR_CURRENT_STEP);
+    });
+  });
+
+  describe("current step highlighting - polygon", () => {
+    it("should apply green stroke when stepId matches currentStepId", () => {
+      renderer.setCurrentStepId("step_testPoly");
+      const values = new Map<string, GeometryValue>([
+        [
+          "testPoly",
+          polygon([
+            { x: 0, y: 0 },
+            { x: 10, y: 0 },
+            { x: 5, y: 10 },
+          ]),
+        ],
+      ]);
+
+      renderer.drawPolygon(svg, values, "testPoly", store, theme, undefined, "step_testPoly");
+
+      const polygonEl = svg.querySelector("polygon");
+      expect(polygonEl).not.toBeNull();
+      expect(polygonEl?.getAttribute("stroke")).toBe(theme.COLOR_CURRENT_STEP);
+    });
+
+    it("should NOT apply green stroke when stepId does NOT match", () => {
+      renderer.setCurrentStepId("step_other");
+      const values = new Map<string, GeometryValue>([
+        [
+          "testPoly",
+          polygon([
+            { x: 0, y: 0 },
+            { x: 10, y: 0 },
+            { x: 5, y: 10 },
+          ]),
+        ],
+      ]);
+
+      renderer.drawPolygon(svg, values, "testPoly", store, theme, undefined, "step_testPoly");
+
+      const polygonEl = svg.querySelector("polygon");
+      expect(polygonEl).not.toBeNull();
+      expect(polygonEl?.getAttribute("stroke")).not.toBe(theme.COLOR_CURRENT_STEP);
+    });
+  });
+
+  describe("current step highlighting - coordinate system", () => {
+    it("should apply green stroke when stepId matches currentStepId", () => {
+      renderer.setCurrentStepId("step_testCs");
+      const values = new Map<string, GeometryValue>([["testCs", coordinateSystem(0, 0, 100, 0)]]);
+
+      renderer.drawCoordinateSystem(svg, values, "testCs", store, theme, "step_testCs");
+
+      const g = svg.querySelector("g");
+      expect(g).not.toBeNull();
+      // CS draws lines with stroke - check first line child
+      const lineEl = g?.querySelector("line");
+      expect(lineEl).not.toBeNull();
+      expect(lineEl?.getAttribute("stroke")).toBe(theme.COLOR_CURRENT_STEP);
+    });
+
+    it("should NOT apply green stroke when stepId does NOT match", () => {
+      renderer.setCurrentStepId("step_other");
+      const values = new Map<string, GeometryValue>([["testCs", coordinateSystem(0, 0, 100, 0)]]);
+
+      renderer.drawCoordinateSystem(svg, values, "testCs", store, theme, "step_testCs");
+
+      const g = svg.querySelector("g");
+      expect(g).not.toBeNull();
+      const lineEl = g?.querySelector("line");
+      expect(lineEl).not.toBeNull();
+      expect(lineEl?.getAttribute("stroke")).not.toBe(theme.COLOR_CURRENT_STEP);
     });
   });
 });

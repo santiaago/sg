@@ -5,6 +5,7 @@ import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
 import { setupSvg } from "../svg";
 import { buildSquareDslSteps } from "../geometry/squareDslSteps";
+import { DefaultGeometryRenderer } from "../geometry/dsl/renderers/DefaultRenderer";
 import { executeSteps } from "../geometry/stepExecution";
 import { computeSquareConfig, type SquareConfig } from "../geometry/operations";
 import { useThemeAwareSteps } from "../hooks/useThemeAwareSteps";
@@ -91,6 +92,9 @@ export const SquareDslSvg = forwardRef(function SquareDslSvg(
     return computeSquareConfig(svgConfig.width, svgConfig.height);
   }, [svgConfig.width, svgConfig.height]);
 
+  // Memoize renderer to avoid recreating on every render
+  const renderer = useMemo(() => new DefaultGeometryRenderer(""), []);
+
   // Effect 1: SVG container setup - ONLY when dimensions or theme change
   useEffect(() => {
     if (!svgRef.current) return;
@@ -119,8 +123,13 @@ export const SquareDslSvg = forwardRef(function SquareDslSvg(
     if (currentStep <= 0) return;
 
     try {
-      // Build steps using DSL
-      const allSteps = buildSquareDslSteps();
+      // Build steps using memoized renderer
+      const allSteps = buildSquareDslSteps(renderer);
+
+      // Set current step ID for highlighting
+      const currentStepId =
+        currentStep > 0 && currentStep < allSteps.length ? allSteps[currentStep - 1]?.id : "";
+      renderer.setCurrentStepId(currentStepId);
 
       // Build step maps for dependency tracking and parameter values
       const { stepDependencies, stepForOutput } = buildStepMaps(allSteps, currentStep);

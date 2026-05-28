@@ -8,6 +8,7 @@ import { GeometryError } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { LineLikeExpression } from "../types";
+import { createStepId } from "../../utils";
 
 /** Options for line-line intersection */
 export interface LineIntersectionOptions {}
@@ -42,8 +43,9 @@ export class LineIntersectionExpression<TConfig> implements GeometryExpression<T
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
+    const stepId = createStepId(this.id);
     return {
-      id: `step_${this.id}`,
+      id: stepId,
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,
@@ -51,8 +53,8 @@ export class LineIntersectionExpression<TConfig> implements GeometryExpression<T
         inputs: Map<string, GeometryValue>,
         _config: TConfig,
       ): Map<string, GeometryValue> => {
-        const line1Val = getGeometry(inputs, this.line1Id, isLine, "Line", `step_${this.id}`);
-        const line2Val = getGeometry(inputs, this.line2Id, isLine, "Line", `step_${this.id}`);
+        const line1Val = getGeometry(inputs, this.line1Id, isLine, "Line", stepId);
+        const line2Val = getGeometry(inputs, this.line2Id, isLine, "Line", stepId);
 
         const result = lineIntersect(
           line1Val.x1,
@@ -66,17 +68,13 @@ export class LineIntersectionExpression<TConfig> implements GeometryExpression<T
         );
 
         if (!result) {
-          throw new GeometryError(
-            `step_${this.id}`,
-            this.id,
-            "No intersection found between lines",
-          );
+          throw new GeometryError(stepId, this.id, "No intersection found between lines");
         }
 
         return new Map([[this.id, point(result[0], result[1])]]);
       },
       draw: (svg, values, store, theme): void => {
-        renderer.drawPoint(svg, values, this.id, store, theme);
+        renderer.drawPoint(svg, values, this.id, store, theme, stepId);
       },
     };
   }

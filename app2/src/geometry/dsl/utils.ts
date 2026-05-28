@@ -5,6 +5,17 @@ import type { ParameterValue } from "./types";
 import { isGeometryFeatureReference } from "./types";
 
 /**
+ * Create a step ID from a geometry expression ID.
+ * All steps follow the naming convention: step_<expressionId>
+ *
+ * @param id - The geometry expression ID
+ * @returns The corresponding step ID
+ */
+export function createStepId(id: string): string {
+  return `step_${id}`;
+}
+
+/**
  * Resolve a parameter value to a number.
  * Handles all three parameter sources: literal numbers, config parameters, and feature references.
  *

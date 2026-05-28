@@ -5,6 +5,7 @@ import type { GeometryStore } from "../react-store";
 import { rect, clearGeometryFromSvg } from "../svgElements";
 import { setupSvg } from "../svg";
 import { buildSixfoldDslSteps } from "../geometry/sixfoldDslSteps";
+import { DefaultGeometryRenderer } from "../geometry/dsl/renderers/DefaultRenderer";
 import { executeSteps } from "../geometry/stepExecution";
 import { computeSixFoldV0Config, type SixFoldV0Config } from "../geometry/sixFold/operations";
 import { useThemeAwareSteps } from "../hooks/useThemeAwareSteps";
@@ -103,6 +104,9 @@ export const SixFoldDslSvg = forwardRef(function SixFoldDslSvg(
     rect(svg, svgConfig.width, svgConfig.height, theme);
   }, [svgConfig.width, svgConfig.height, svgConfig.viewBox, theme]);
 
+  // Memoize renderer to avoid recreating on every render
+  const renderer = useMemo(() => new DefaultGeometryRenderer(""), []);
+
   // Effect 2: DSL construction and step execution - ONLY when step, restart, config, or theme changes
   useEffect(() => {
     if (!svgRef.current) return;
@@ -119,8 +123,13 @@ export const SixFoldDslSvg = forwardRef(function SixFoldDslSvg(
     if (currentStep <= 0) return;
 
     try {
-      // Build steps using DSL
-      const allSteps = buildSixfoldDslSteps();
+      // Build steps using memoized renderer
+      const allSteps = buildSixfoldDslSteps(renderer);
+
+      // Set current step ID for highlighting
+      const currentStepId =
+        currentStep > 0 && currentStep < allSteps.length ? allSteps[currentStep - 1]?.id : "";
+      renderer.setCurrentStepId(currentStepId);
 
       // Build step maps for dependency tracking and parameter values
       const { stepDependencies, stepForOutput } = buildStepMaps(allSteps, currentStep);
