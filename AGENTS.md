@@ -57,7 +57,8 @@ git commit -m"<type>(<scope>): <description>" \
 
 ## Pull Request Guidelines
 
-- **Create PR via GitHub CLI:** After pushing a branch, use `gh pr create --title "<title>" --body "<description>" --base main --head <branch-name>`
+- **Set upstream on first push:** Use `git push -u origin <branch-name>` to push and set tracking in one step. Without `-u`, `git status` won't show ahead/behind status.
+- **Create PR via GitHub CLI:** After pushing, use `gh pr create --title "<title>" --body "<description>" --base main --head <branch-name>`
 - **PR title:** Follow same format as commit messages: `<type>(<scope>): <description>`
 - **PR body:** Include key changes, breaking changes (if any), and reference relevant backlog documents
 - **Target branch:** PRs should target `main`
