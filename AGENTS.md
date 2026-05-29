@@ -55,6 +55,15 @@ git commit -m"<type>(<scope>): <description>" \
 - Group related changes; avoid bundling unrelated refactors.
 - You can be author of commit messages
 
+## Pull Request Guidelines
+
+- **Create PR via GitHub CLI:** After pushing a branch, use `gh pr create --title "<title>" --body "<description>" --base main --head <branch-name>`
+- **PR title:** Follow same format as commit messages: `<type>(<scope>): <description>`
+- **PR body:** Include key changes, breaking changes (if any), and reference relevant backlog documents
+- **Target branch:** PRs should target `main`
+- **Draft PRs:** Use `--draft` flag for work-in-progress: `gh pr create --draft ...`
+- **View existing PRs:** `gh pr list` or `gh pr view <number>`
+
 ## Coding Style & Naming Conventions
 
 - Language: TypeScript (ESM). Prefer strict typing; avoid `any`.
