@@ -28,8 +28,7 @@
     /* Source Map */
     "sourceMap": true,
 
-    /* Base URL */
-    "baseUrl": ".",
+    /* Paths */
     "paths": {
       "@/*": ["./src/*"],
       "@sg/geometry": ["../packages/geometry/src/index.ts"]
