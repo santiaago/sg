@@ -15,7 +15,7 @@ Git worktree management for SG monorepo.
 | `create <name> <branch>`              | Create worktree, install deps, build |
 | `create <name> <branch> --no-install` | Create without installing deps       |
 | `create <name> <branch> --no-build`   | Create without building              |
-| `dev <name> [app2]`                   | Start dev server (default: app)      |
+| `dev <name> [app2]`                   | Start dev server (default: app2)     |
 | `build <name>`                        | Build project                        |
 | `install <name>`                      | Install deps only                    |
 | `remove <name>`                       | Remove worktree                      |
@@ -35,7 +35,7 @@ Git worktree management for SG monorepo.
 # Start React dev server
 ./worktree-manager.sh dev experiment app2
 
-# Start Svelte dev server (default)
+# Start React dev server (default)
 ./worktree-manager.sh dev experiment
 
 # List all worktrees

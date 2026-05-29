@@ -10,8 +10,6 @@ pnpm-lock.yaml
 **/node_modules/.bin/
 
 # Ignore test coverage files
-app/.nyc_output/
-app/coverage/
 packages/geometry/coverage/
 
 # Ignore package-lock.json
