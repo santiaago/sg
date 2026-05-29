@@ -2,6 +2,11 @@
  * Smart stepper hook for navigating DSL construction steps.
  * Skips non-visual steps (those with isVisual === false) during navigation.
  * Maintains both visual step index (for UI) and stepsUpToIndex (for execution boundary).
+ *
+ * Uses display-ready indexing where:
+ * - currentVisualIndex = 0 means "before first step" (no geometries executed)
+ * - currentVisualIndex = N means "at Nth visual step" (1-indexed from caller perspective)
+ * - Range: 0 to visualStepCount (inclusive)
  */
 
 import { useState, useMemo, useCallback } from "react";
@@ -14,15 +19,14 @@ import { getActualStepIndex, getVisualStepCount } from "../geometry/utils/steppe
 export interface UseSmartStepperProps<TConfig = unknown> {
   /** All steps in the DSL construction */
   steps: Step<TConfig>[];
-  /** Initial visual step index (0-based among visual steps only) */
-  initialVisualIndex?: number;
 }
 
 /**
  * Result of the useSmartStepper hook.
+ * All visual indices are display-ready: 0 = before first step, 1..N = visual steps.
  */
 export interface UseSmartStepperResult {
-  /** Current visual step index (0-based among visual steps only) */
+  /** Current visual step index (display-ready: 0 = before first, 1..N = visual steps) */
   currentVisualIndex: number;
   /** Total number of visual steps */
   visualStepCount: number;
@@ -32,7 +36,7 @@ export interface UseSmartStepperResult {
   goToNext: () => void;
   /** Navigate to previous visual step */
   goToPrev: () => void;
-  /** Navigate to specific visual step index */
+  /** Navigate to specific visual step index (display-ready: 0 = before first) */
   goToStep: (visualIndex: number) => void;
   /** Whether there is a next visual step available */
   canGoNext: boolean;
@@ -44,72 +48,78 @@ export interface UseSmartStepperResult {
  * Hook for smart stepping through DSL construction steps.
  * Skips non-visual steps and maintains mapping between visual and actual indices.
  *
- * @param props - Hook props including steps array and optional initial visual index
- * @returns Object with navigation state and functions
+ * Uses display-ready indexing internally. The hook always starts at "before first step" (0).
+ * Navigation uses 0-based display indices where 0 = before first step.
+ *
+ * @param props - Hook props including steps array
+ * @returns Object with navigation state and functions using display-ready indexing
  */
 export function useSmartStepper<TConfig = unknown>({
   steps,
-  initialVisualIndex = 0,
 }: UseSmartStepperProps<TConfig>): UseSmartStepperResult {
   // Calculate derived values
   const visualStepCount = useMemo(() => getVisualStepCount(steps), [steps]);
 
-  // Clamp initial visual index to valid range (-1 is allowed as "before first step")
-  const clampedInitial = useMemo(() => {
-    if (visualStepCount === 0) return -1;
-    // Allow -1 as a valid initial state (before first step)
-    if (initialVisualIndex === -1) return -1;
-    return Math.max(0, Math.min(initialVisualIndex, visualStepCount - 1));
-  }, [initialVisualIndex, visualStepCount]);
+  // Internal state uses -1-based indexing (-1 = before first, 0..N-1 = visual steps)
+  // This is an implementation detail; the hook exposes display-ready 0-based indexing
+  const [internalVisualIndex, setInternalVisualIndex] = useState<number>(-1);
 
-  // State for current visual index
-  const [currentVisualIndex, setCurrentVisualIndex] = useState<number>(clampedInitial);
+  // Transform internal index to display-ready index for output
+  // Display: 0 = before first, 1..visualStepCount = visual steps
+  // Internal: -1 = before first, 0..visualStepCount-1 = visual steps
+  const currentVisualIndex = useMemo(() => internalVisualIndex + 1, [internalVisualIndex]);
 
-  // Calculate execution boundary from visual index
+  // Calculate execution boundary from internal visual index
   // executeSteps uses exclusive upper bound (executes steps 0..N-1 for upToIndex=N)
   const stepsUpToIndex = useMemo(() => {
-    if (currentVisualIndex < 0) return 0;
-    return getActualStepIndex(steps, currentVisualIndex) + 1;
-  }, [steps, currentVisualIndex]);
+    if (internalVisualIndex < 0) return 0;
+    return getActualStepIndex(steps, internalVisualIndex) + 1;
+  }, [steps, internalVisualIndex]);
 
-  // Calculate navigation boundaries
+  // Calculate navigation boundaries using display-ready indices
+  // canGoNext: true when display index < visualStepCount (can advance to next visual step)
+  // canGoPrev: true when display index > 0 (can go back, including to before first)
   const canGoNext = useMemo(() => {
-    return currentVisualIndex >= -1 && currentVisualIndex < visualStepCount - 1;
+    return currentVisualIndex < visualStepCount;
   }, [currentVisualIndex, visualStepCount]);
 
   const canGoPrev = useMemo(() => {
-    return currentVisualIndex > -1;
+    return currentVisualIndex > 0;
   }, [currentVisualIndex]);
 
-  // Navigation functions
+  // Navigation functions - work with internal indices
   const goToNext = useCallback(() => {
     if (canGoNext) {
-      setCurrentVisualIndex((prev) => prev + 1);
+      setInternalVisualIndex((prev) => prev + 1);
     }
   }, [canGoNext]);
 
   const goToPrev = useCallback(() => {
     if (canGoPrev) {
-      setCurrentVisualIndex((prev) => prev - 1);
+      setInternalVisualIndex((prev) => prev - 1);
     }
   }, [canGoPrev]);
 
   const goToStep = useCallback(
-    (visualIndex: number) => {
-      // Clamp to valid range (-1 is allowed as "before first step")
+    (displayVisualIndex: number) => {
+      // Convert display index to internal index
+      // Display: 0..visualStepCount -> Internal: -1..visualStepCount-1
       if (visualStepCount === 0) {
-        setCurrentVisualIndex(-1);
+        setInternalVisualIndex(-1);
         return;
       }
 
-      // Allow -1 as a valid state (before first step)
-      let clamped = visualIndex;
-      if (visualIndex < -1) {
-        clamped = -1;
-      } else if (visualIndex >= visualStepCount) {
-        clamped = visualStepCount - 1;
+      // Clamp display index to valid range [0, visualStepCount]
+      let clampedDisplay = displayVisualIndex;
+      if (displayVisualIndex < 0) {
+        clampedDisplay = 0;
+      } else if (displayVisualIndex > visualStepCount) {
+        clampedDisplay = visualStepCount;
       }
-      setCurrentVisualIndex(clamped);
+
+      // Convert to internal index
+      const internalIndex = clampedDisplay - 1;
+      setInternalVisualIndex(internalIndex);
     },
     [visualStepCount],
   );

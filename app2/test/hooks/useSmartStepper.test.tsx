@@ -21,7 +21,7 @@ function createMockStep<TConfig>(id: string, isVisual = true): Step<TConfig> {
 
 // ============================================================================
 // useSmartStepper Tests
-// These tests document expected behavior and will FAIL until implementation exists
+// Tests use display-ready indexing: 0 = before first step, 1..N = visual steps
 // ============================================================================
 
 describe("useSmartStepper", () => {
@@ -35,7 +35,7 @@ describe("useSmartStepper", () => {
   ];
 
   describe("initial state", () => {
-    it("returns initial visual index 0", () => {
+    it("returns initial visual index 0 (before first step)", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       expect(result.current.currentVisualIndex).toBe(0);
     });
@@ -45,58 +45,89 @@ describe("useSmartStepper", () => {
       expect(result.current.visualStepCount).toBe(4);
     });
 
-    it("returns correct stepsUpToIndex for visual index 0", () => {
+    it("returns stepsUpToIndex 0 when at before first step", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
-      expect(result.current.stepsUpToIndex).toBe(1);
-    });
-
-    it("allows custom initial visual index", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: 2 }));
-      expect(result.current.currentVisualIndex).toBe(2);
-      expect(result.current.stepsUpToIndex).toBe(4);
-    });
-
-    it("allows -1 as initial visual index (before first step)", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: -1 }));
-      expect(result.current.currentVisualIndex).toBe(-1);
       expect(result.current.stepsUpToIndex).toBe(0);
+    });
+
+    it("canGoNext is true at before first step when there are visual steps", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
       expect(result.current.canGoNext).toBe(true);
+    });
+
+    it("canGoPrev is false at before first step", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
       expect(result.current.canGoPrev).toBe(false);
     });
   });
 
   describe("navigation - goToNext", () => {
-    it("increments visual index", () => {
+    it("advances from before first (0) to first visual step (1)", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       act(() => {
         result.current.goToNext();
       });
       expect(result.current.currentVisualIndex).toBe(1);
+      expect(result.current.stepsUpToIndex).toBe(1);
+    });
+
+    it("advances to second visual step (2)", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      act(() => {
+        result.current.goToNext();
+        result.current.goToNext();
+      });
+      expect(result.current.currentVisualIndex).toBe(2);
       expect(result.current.stepsUpToIndex).toBe(2);
     });
 
-    it("skips non-visual steps", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: 1 }));
-      act(() => {
-        result.current.goToNext();
-      });
-      // From visual index 1 (stepsUpToIndex 2), next visual is index 2 (stepsUpToIndex 4)
+    it("skips non-visual steps when advancing", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      // Start at 0 (before first)
+      // goToNext -> 1 (s1, actual index 0)
+      act(() => result.current.goToNext());
+      expect(result.current.currentVisualIndex).toBe(1);
+      expect(result.current.stepsUpToIndex).toBe(1);
+
+      // goToNext -> 2 (s2, actual index 1)
+      act(() => result.current.goToNext());
       expect(result.current.currentVisualIndex).toBe(2);
+      expect(result.current.stepsUpToIndex).toBe(2);
+
+      // goToNext -> 3 (s4, actual index 3, skips s3 which is non-visual)
+      act(() => result.current.goToNext());
+      expect(result.current.currentVisualIndex).toBe(3);
       expect(result.current.stepsUpToIndex).toBe(4);
     });
 
     it("does nothing at last visual step", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: 3 }));
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      // Navigate to last visual step (4)
+      act(() => {
+        result.current.goToNext();
+        result.current.goToNext();
+        result.current.goToNext();
+        result.current.goToNext();
+      });
+      expect(result.current.currentVisualIndex).toBe(4);
+      expect(result.current.stepsUpToIndex).toBe(6);
+
+      // Try to go next - should stay at 4
       act(() => {
         result.current.goToNext();
       });
-      expect(result.current.currentVisualIndex).toBe(3);
+      expect(result.current.currentVisualIndex).toBe(4);
     });
 
     it("updates canGoNext correctly", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: 2 }));
+      const { result } = renderHook(() => useSmartStepper({ steps }));
       expect(result.current.canGoNext).toBe(true);
+
+      // Navigate to last visual step
       act(() => {
+        result.current.goToNext();
+        result.current.goToNext();
+        result.current.goToNext();
         result.current.goToNext();
       });
       expect(result.current.canGoNext).toBe(false);
@@ -104,106 +135,157 @@ describe("useSmartStepper", () => {
   });
 
   describe("navigation - goToPrev", () => {
-    it("decrements visual index", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: 2 }));
-      act(() => {
-        result.current.goToPrev();
-      });
-      expect(result.current.currentVisualIndex).toBe(1);
-      expect(result.current.stepsUpToIndex).toBe(2);
-    });
-
-    it("skips non-visual steps backward", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: 2 }));
-      act(() => {
-        result.current.goToPrev();
-      });
-      // From visual index 2 (stepsUpToIndex 4), prev visual is index 1 (stepsUpToIndex 2)
-      expect(result.current.currentVisualIndex).toBe(1);
-      expect(result.current.stepsUpToIndex).toBe(2);
-    });
-
-    it("goes to -1 from first visual step", () => {
+    it("goes from first visual step (1) to before first (0)", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       act(() => {
+        result.current.goToNext(); // now at 1
+      });
+      act(() => {
         result.current.goToPrev();
       });
-      expect(result.current.currentVisualIndex).toBe(-1);
+      expect(result.current.currentVisualIndex).toBe(0);
       expect(result.current.stepsUpToIndex).toBe(0);
     });
 
+    it("goes from second visual step (2) to first (1)", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      act(() => {
+        result.current.goToNext();
+        result.current.goToNext();
+      });
+      act(() => {
+        result.current.goToPrev();
+      });
+      expect(result.current.currentVisualIndex).toBe(1);
+      expect(result.current.stepsUpToIndex).toBe(1);
+    });
+
+    it("skips non-visual steps when going backward", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      // Navigate to third visual step (3 = s4)
+      act(() => {
+        result.current.goToNext();
+        result.current.goToNext();
+        result.current.goToNext();
+      });
+      expect(result.current.currentVisualIndex).toBe(3);
+      expect(result.current.stepsUpToIndex).toBe(4);
+
+      // Go prev -> should go to second visual step (2 = s2)
+      act(() => {
+        result.current.goToPrev();
+      });
+      expect(result.current.currentVisualIndex).toBe(2);
+      expect(result.current.stepsUpToIndex).toBe(2);
+    });
+
+    it("does nothing at before first step (0)", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      expect(result.current.currentVisualIndex).toBe(0);
+      act(() => {
+        result.current.goToPrev();
+      });
+      expect(result.current.currentVisualIndex).toBe(0);
+    });
+
     it("updates canGoPrev correctly", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: 2 }));
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      // At 0 (before first), canGoPrev is false
+      expect(result.current.canGoPrev).toBe(false);
+
+      // Go to first visual step
+      act(() => {
+        result.current.goToNext();
+      });
+      // At 1, canGoPrev is true
       expect(result.current.canGoPrev).toBe(true);
+
+      // Go back to before first
       act(() => {
         result.current.goToPrev();
       });
-      act(() => {
-        result.current.goToPrev();
-      });
-      // At index 0, can still go to -1
-      expect(result.current.canGoPrev).toBe(true);
-      act(() => {
-        result.current.goToPrev();
-      });
-      // Now at -1, can't go prev
+      // At 0, canGoPrev is false
       expect(result.current.canGoPrev).toBe(false);
     });
   });
 
   describe("navigation - goToStep", () => {
-    it("navigates to specific visual index", () => {
+    it("navigates to first visual step (1)", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       act(() => {
-        result.current.goToStep(2);
+        result.current.goToStep(1);
       });
-      expect(result.current.currentVisualIndex).toBe(2);
-      expect(result.current.stepsUpToIndex).toBe(4);
+      expect(result.current.currentVisualIndex).toBe(1);
+      expect(result.current.stepsUpToIndex).toBe(1);
     });
 
-    it("maps visual index to correct stepsUpToIndex", () => {
+    it("navigates to third visual step (3)", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       act(() => {
         result.current.goToStep(3);
       });
       expect(result.current.currentVisualIndex).toBe(3);
-      expect(result.current.stepsUpToIndex).toBe(6);
+      expect(result.current.stepsUpToIndex).toBe(4);
     });
 
-    it("clamps to last visual index when out of bounds", () => {
+    it("navigates to before first step (0)", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      act(() => {
+        result.current.goToStep(2);
+      });
+      act(() => {
+        result.current.goToStep(0);
+      });
+      expect(result.current.currentVisualIndex).toBe(0);
+      expect(result.current.stepsUpToIndex).toBe(0);
+    });
+
+    it("clamps to last visual index when out of bounds above", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       act(() => {
         result.current.goToStep(10);
       });
-      expect(result.current.currentVisualIndex).toBe(3);
+      expect(result.current.currentVisualIndex).toBe(4);
       expect(result.current.stepsUpToIndex).toBe(6);
     });
 
-    it("clamps to -1 (before first step) when negative", () => {
+    it("clamps to before first step (0) when negative", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       act(() => {
         result.current.goToStep(-5);
       });
-      expect(result.current.currentVisualIndex).toBe(-1);
+      expect(result.current.currentVisualIndex).toBe(0);
       expect(result.current.stepsUpToIndex).toBe(0);
     });
 
-    it("clamps to valid range", () => {
+    it("clamps to valid range [0, visualStepCount]", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       act(() => {
         result.current.goToStep(-100);
       });
-      expect(result.current.currentVisualIndex).toBe(-1);
+      expect(result.current.currentVisualIndex).toBe(0);
       act(() => {
         result.current.goToStep(100);
       });
-      expect(result.current.currentVisualIndex).toBe(3);
+      expect(result.current.currentVisualIndex).toBe(4);
+    });
+
+    it("navigates to last visual step using visualStepCount", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      act(() => {
+        result.current.goToStep(result.current.visualStepCount);
+      });
+      expect(result.current.currentVisualIndex).toBe(4);
+      expect(result.current.stepsUpToIndex).toBe(6);
     });
   });
 
   describe("boundary flags", () => {
     it("canGoNext is false at last visual step", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: 3 }));
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      act(() => {
+        result.current.goToStep(4);
+      });
       expect(result.current.canGoNext).toBe(false);
     });
 
@@ -212,26 +294,40 @@ describe("useSmartStepper", () => {
       expect(result.current.canGoNext).toBe(true);
     });
 
-    it("canGoPrev is true at first visual step (can go to -1)", () => {
+    it("canGoPrev is true at first visual step (can go to 0)", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
+      act(() => {
+        result.current.goToStep(1);
+      });
       expect(result.current.canGoPrev).toBe(true);
     });
 
-    it("canGoPrev is false at -1 (before first step)", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: -1 }));
+    it("canGoPrev is false at before first step (0)", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps }));
       expect(result.current.canGoPrev).toBe(false);
     });
 
     it("canGoPrev is true when not at first", () => {
-      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: 2 }));
+      const { result } = renderHook(() => useSmartStepper({ steps }));
+      act(() => {
+        result.current.goToStep(2);
+      });
       expect(result.current.canGoPrev).toBe(true);
     });
 
-    it("canGoNext false and canGoPrev true for single step at index 0", () => {
+    it("canGoNext false and canGoPrev true for single step at display index 1", () => {
       const singleStep: Step[] = [createMockStep("s1", true)];
       const { result } = renderHook(() => useSmartStepper({ steps: singleStep }));
+      // At before first (0), canGoNext is true
+      expect(result.current.canGoNext).toBe(true);
+      expect(result.current.canGoPrev).toBe(false);
+
+      // Navigate to the only visual step (1)
+      act(() => {
+        result.current.goToNext();
+      });
+      // At last visual step (1), canGoNext is false, canGoPrev is true
       expect(result.current.canGoNext).toBe(false);
-      // canGoPrev is true because you can go to -1 (before first step)
       expect(result.current.canGoPrev).toBe(true);
     });
   });
@@ -240,8 +336,7 @@ describe("useSmartStepper", () => {
     it("handles empty steps array", () => {
       const { result } = renderHook(() => useSmartStepper({ steps: [] }));
       expect(result.current.visualStepCount).toBe(0);
-      expect(result.current.currentVisualIndex).toBe(-1);
-      // stepsUpToIndex is 0 for -1 (before first step) to show no geometries
+      expect(result.current.currentVisualIndex).toBe(0);
       expect(result.current.stepsUpToIndex).toBe(0);
       expect(result.current.canGoNext).toBe(false);
       expect(result.current.canGoPrev).toBe(false);
@@ -255,8 +350,7 @@ describe("useSmartStepper", () => {
       ];
       const { result } = renderHook(() => useSmartStepper({ steps: allNonVisual }));
       expect(result.current.visualStepCount).toBe(0);
-      expect(result.current.currentVisualIndex).toBe(-1);
-      // stepsUpToIndex is 0 for -1 (before first step) to show no geometries
+      expect(result.current.currentVisualIndex).toBe(0);
       expect(result.current.stepsUpToIndex).toBe(0);
       expect(result.current.canGoNext).toBe(false);
       expect(result.current.canGoPrev).toBe(false);
@@ -267,9 +361,17 @@ describe("useSmartStepper", () => {
       const { result } = renderHook(() => useSmartStepper({ steps: singleStep }));
       expect(result.current.visualStepCount).toBe(1);
       expect(result.current.currentVisualIndex).toBe(0);
+      expect(result.current.stepsUpToIndex).toBe(0);
+      expect(result.current.canGoNext).toBe(true);
+      expect(result.current.canGoPrev).toBe(false);
+
+      // Navigate to the only visual step
+      act(() => {
+        result.current.goToNext();
+      });
+      expect(result.current.currentVisualIndex).toBe(1);
       expect(result.current.stepsUpToIndex).toBe(1);
       expect(result.current.canGoNext).toBe(false);
-      // canGoPrev is true because you can go to -1 (before first step)
       expect(result.current.canGoPrev).toBe(true);
     });
 
@@ -282,7 +384,7 @@ describe("useSmartStepper", () => {
       const { result } = renderHook(() => useSmartStepper({ steps: allVisual }));
       expect(result.current.visualStepCount).toBe(3);
       expect(result.current.currentVisualIndex).toBe(0);
-      expect(result.current.stepsUpToIndex).toBe(1);
+      expect(result.current.stepsUpToIndex).toBe(0);
     });
 
     it("treats undefined isVisual as true", () => {
@@ -298,47 +400,54 @@ describe("useSmartStepper", () => {
     it("navigates through mixed visual/non-visual steps", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
 
-      // Initial: visual 0, stepsUpToIndex 1 (+1 for executeSteps exclusive bound)
+      // Initial: display 0 (before first), stepsUpToIndex 0
       expect(result.current.currentVisualIndex).toBe(0);
-      expect(result.current.stepsUpToIndex).toBe(1);
+      expect(result.current.stepsUpToIndex).toBe(0);
+      expect(result.current.canGoNext).toBe(true);
+      expect(result.current.canGoPrev).toBe(false);
 
-      // Next: visual 1, stepsUpToIndex 2
+      // Next: display 1 (s1, actual index 0), stepsUpToIndex 1
       act(() => result.current.goToNext());
       expect(result.current.currentVisualIndex).toBe(1);
-      expect(result.current.stepsUpToIndex).toBe(2);
+      expect(result.current.stepsUpToIndex).toBe(1);
 
-      // Next: visual 2, stepsUpToIndex 4 (skips NV at 2)
+      // Next: display 2 (s2, actual index 1), stepsUpToIndex 2
       act(() => result.current.goToNext());
       expect(result.current.currentVisualIndex).toBe(2);
-      expect(result.current.stepsUpToIndex).toBe(4);
+      expect(result.current.stepsUpToIndex).toBe(2);
 
-      // Next: visual 3, stepsUpToIndex 6 (skips NV at 4)
+      // Next: display 3 (s4, actual index 3, skips s3), stepsUpToIndex 4
       act(() => result.current.goToNext());
       expect(result.current.currentVisualIndex).toBe(3);
+      expect(result.current.stepsUpToIndex).toBe(4);
+
+      // Next: display 4 (s6, actual index 5, skips s5), stepsUpToIndex 6
+      act(() => result.current.goToNext());
+      expect(result.current.currentVisualIndex).toBe(4);
       expect(result.current.stepsUpToIndex).toBe(6);
 
       // Can't go next
       expect(result.current.canGoNext).toBe(false);
 
-      // Prev: visual 2, stepsUpToIndex 4
+      // Prev: display 3 (s4), stepsUpToIndex 4
       act(() => result.current.goToPrev());
-      expect(result.current.currentVisualIndex).toBe(2);
+      expect(result.current.currentVisualIndex).toBe(3);
       expect(result.current.stepsUpToIndex).toBe(4);
 
-      // Prev: visual 1, stepsUpToIndex 2
+      // Prev: display 2 (s2), stepsUpToIndex 2
       act(() => result.current.goToPrev());
-      expect(result.current.currentVisualIndex).toBe(1);
+      expect(result.current.currentVisualIndex).toBe(2);
       expect(result.current.stepsUpToIndex).toBe(2);
 
-      // Prev: visual 0, stepsUpToIndex 1
+      // Prev: display 1 (s1), stepsUpToIndex 1
       act(() => result.current.goToPrev());
-      expect(result.current.currentVisualIndex).toBe(0);
+      expect(result.current.currentVisualIndex).toBe(1);
       expect(result.current.stepsUpToIndex).toBe(1);
 
-      // Can still go prev to -1 (before first step)
+      // Can still go prev to 0 (before first step)
       expect(result.current.canGoPrev).toBe(true);
       act(() => result.current.goToPrev());
-      expect(result.current.currentVisualIndex).toBe(-1);
+      expect(result.current.currentVisualIndex).toBe(0);
       expect(result.current.stepsUpToIndex).toBe(0);
       // Now can't go prev
       expect(result.current.canGoPrev).toBe(false);
