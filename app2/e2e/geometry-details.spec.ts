@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE_DSL_DSL, SECTION_SIXFOLD_DSL_V1, SQUARE_DSL_GEOMETRY } from "./fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1, SQUARE_DSL_GEOMETRY } from "./fixtures";
 import { goToSection, goToStep } from "./utils/navigation";
 import { selectGeometry, waitForPageLoad, getGeometryCount } from "./utils/helpers";
 
