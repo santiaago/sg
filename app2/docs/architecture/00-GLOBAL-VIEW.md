@@ -5,7 +5,7 @@
 
 ## Overview
 
-App2 is a React-based geometry visualization application that demonstrates geometric constructions through step-by-step animations. The app renders SVG-based geometric patterns (squares, sixfold patterns) with a DSL (Domain-Specific Language) for declarative geometry definitions.
+App2 is a React-based geometry visualization application that demonstrates geometric constructions through step-by-step animations. The app renders SVG-based geometric patterns (squares, sixfold patterns) using the DSL (Declarative Geometry Framework). The DSL is an improved version that requires significantly less code from developers while providing equivalent functionality compared to the previous imperative step-based approach.
 
 ## Directory Structure
 
@@ -17,28 +17,31 @@ app2/
 │   ├── QueryProvider.tsx        # React Query provider wrapper
 │   ├── react-store.ts           # Custom store for managing SVG geometry elements
 │   │
-│   ├── components/             # UI Components (12 components)
+│   ├── components/             # UI Components (9 components)
 │   │   ├── Navigation.tsx       # Top navigation bar
 │   │   ├── GeometryPlayer.tsx   # Step navigation controls + SVG container
 │   │   ├── GeometryList.tsx     # Lists all geometry elements with filters
 │   │   ├── GeometryDetails.tsx  # Shows details of current step
 │   │   ├── CopyUrlButton.tsx    # Copies current URL to clipboard
 │   │   ├── CopySvgButton.tsx    # Copies SVG to clipboard
-│   │   └── *Svg.tsx files       # 6 SVG rendering components
+│   │   ├── SquareDslSvg.tsx     # Square construction using DSL
+│   │   ├── SixFoldDslSvg.tsx    # SixFold pattern using DSL
+│   │   └── SixFoldDslV1Svg.tsx  # SixFold pattern v1 with cs2 using DSL
 │   │
-│   ├── geometry/                # Core geometry logic (14 files, ~1600 lines)
+│   ├── geometry/                # Core geometry logic (11 files)
 │   │   ├── types/               # Geometry value types (Point, Line, Circle, Polygon, CoordinateSystem)
 │   │   ├── operations.ts        # Geometry operations (distance, intersection, etc.)
 │   │   ├── constructors.ts      # Geometry constructors
-│   │   ├── stepBuilders.ts      # Step construction helpers
 │   │   ├── stepExecution.ts     # Step execution logic
-│   │   ├── *Steps.ts files       # Step definitions for each pattern (6 files)
+│   │   ├── squareDslSteps.ts    # DSL square construction steps
+│   │   ├── sixfoldDslSteps.ts   # DSL sixfold construction steps
+│   │   ├── sixfoldDslV1Steps.ts # DSL sixfold v1 construction steps with cs2
 │   │   └── dsl/                  # DSL implementation (20+ files)
 │   │       ├── types.ts         # DSL types
-│       ├── GeometryBuilder.ts  # Builder for DSL expressions
-│       ├── expressions/        # Expression types (Circle, Line, Point, Polygon, etc.)
-│       │   └── operations/      # Expression operations (intersection, bisect, etc.)
-│       └── renderers/           # Rendering logic for DSL
+│   │       ├── GeometryBuilder.ts  # Builder for DSL expressions
+│   │       ├── expressions/     # Expression types (Circle, Line, Point, Polygon, etc.)
+│   │       │   └── operations/   # Expression operations (intersection, bisect, etc.)
+│   │       └── renderers/        # Rendering logic for DSL
 │   │
 │   ├── config/                  # Configuration files
 │   │   ├── svgConfig.ts         # SVG configuration constants
@@ -76,17 +79,18 @@ app2/
 - **Files:** `App.tsx` (~1200 lines)
 - **Purpose:** Main container with all geometry demonstration sections
 - **Responsibility:**
-  - Manages 6 geometry sections (sixfold-v0, square, square-dsl, sixfold-dsl, sixfold-dsl-v1, rotated-square)
+  - Manages 3 DSL geometry sections (square-dsl, sixfold-dsl, sixfold-dsl-v1)
   - Handles theme toggling (light/dark)
   - Manages navigation and URL hash-based routing
   - Controls step-by-step animation for each section
   - Orchestrates SVG rendering via store integration
-- **Complexity:** ⭐⭐⭐⭐ (Hard - duplicated state management for each section)
-- **Refactor Need:** ⚠️ **HIGH PRIORITY**
-  - ~400 lines of duplicated play/next/prev/restart handler logic (6 sections × ~65 lines each)
+- **Complexity:** ⭐⭐⭐ (Moderate - duplicated state management for each section)
+- **Refactor Need:** ⚠️ **MEDIUM PRIORITY**
+  - ~200 lines of duplicated play/next/prev/restart handler logic (3 sections × ~65 lines each)
   - State management could be extracted into a custom hook or component
   - Consider creating a `<GeometrySection>` wrapper component
 - **Duplication Pattern:** Each section has identical state (currentStep, restartKey, isPlaying, playInterval, svgRef) and handlers (handleNextClick*, handlePrevClick*, handlePlayClick*, handleFirstStep*, handleLastStep\*)
+- **Note:** Non-DSL sections (sixfold-v0, square, rotated-square) have been removed. DSL is an improved version that requires significantly less code from developers while providing equivalent functionality.
 
 ### Block 3: State Management (React Store)
 
@@ -114,7 +118,7 @@ app2/
   - ⭐⭐ GeometryPlayer.tsx - Player controls + SVG container (~200 lines)
   - ⭐⭐ GeometryList.tsx - Filterable list with type filters (~300 lines)
   - ⭐⭐ GeometryDetails.tsx - Step details display
-  - ⭐⭐ \*Svg.tsx files (6 files) - SVG rendering components, each ~100-200 lines
+  - ⭐⭐ \SquareDslSvg.tsx, SixFoldDslSvg.tsx, SixFoldDslV1Svg.tsx (3 files) - SVG rendering components, each ~100-200 lines
 - **Refactor Need:** ⚠️ MEDIUM for SVG components
   - SVG components have duplicated rendering logic
   - Could extract common SVG rendering into a shared component or hook
@@ -126,7 +130,7 @@ app2/
 - **Sub-blocks:**
 
   #### 5a: Step Definitions
-  - **Files:** `squareSteps.ts`, `rotatedSquareSteps.ts`, `sixFoldV0Steps.ts`, `squareDslSteps.ts`, `sixfoldDslSteps.ts`, `sixfoldDslV1Steps.ts`
+  - **Files:** `squareDslSteps.ts`, `sixfoldDslSteps.ts`, `sixfoldDslV1Steps.ts`
   - **Purpose:** Define the steps for each geometric construction
   - **Complexity:** ⭐⭐⭐ (Moderate - repetitive step definitions)
   - **Refactor Need:** ⚠️ MEDIUM
@@ -143,8 +147,8 @@ app2/
     - `expressions/` - Expression nodes (Circle, Line, Point, Polygon, operations)
     - `renderers/` - Rendering logic for DSL expressions
     - `utils.ts` - Utility functions
-  - **Complexity:** ⭐⭐⭐⭐ (Hard - complex type system, expression tree)
-  - **Refactor Need:** ⚠️ HIGH PRIORITY
+  - **Complexity:** ⭐⭐⭐ (Hard - complex type system, expression tree)
+  - **Refactor Need:** ⚠️ MEDIUM PRIORITY
     - Expression files have duplicated boilerplate
     - Some expressions could be simplified or merged
     - Renderer types could be more consistent
@@ -215,11 +219,11 @@ app2/
 | Block              | Files | Lines | Complexity | Refactor Priority | Notes                             |
 | ------------------ | ----- | ----- | ---------- | ----------------- | --------------------------------- |
 | Entry              | 2     | ~30   | ⭐         | None              | Clean                             |
-| App Orchestration  | 1     | ~1200 | ⭐⭐⭐⭐   | **HIGH**          | Massive duplication               |
+| App Orchestration  | 1     | ~1200 | ⭐⭐⭐     | **HIGH**          | Massive duplication               |
 | React Store        | 1     | ~280  | ⭐⭐       | Medium            | Could be split                    |
 | UI Components      | 12    | ~1500 | ⭐⭐       | Medium            | SVG components need consolidation |
 | Geometry Steps     | 6     | ~1500 | ⭐⭐⭐     | Medium            | DSL versions cleaner              |
-| DSL Implementation | 20+   | ~2000 | ⭐⭐⭐⭐   | **HIGH**          | Complex, needs simplification     |
+| DSL Implementation | 20+   | ~2000 | ⭐⭐⭐     | **HIGH**          | Complex, needs simplification     |
 | Operations         | 4     | ~500  | ⭐⭐       | None              | Clean                             |
 | Config/Types       | 4     | ~300  | ⭐         | None              | Clean                             |
 | Hooks/Utils        | 3     | ~200  | ⭐         | None              | Clean                             |

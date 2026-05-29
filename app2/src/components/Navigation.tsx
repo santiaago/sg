@@ -2,13 +2,7 @@ import type { JSX } from "react";
 import type { Theme } from "../themes";
 import { darkTheme } from "../themes";
 
-type SectionId =
-  | "sixfold-v0"
-  | "square"
-  | "square-dsl"
-  | "sixfold-dsl"
-  | "sixfold-dsl-v1"
-  | "rotated-square";
+type SectionId = "square-dsl" | "sixfold-dsl" | "sixfold-dsl-v1";
 
 interface NavigationProps {
   onNavigate: (sectionId: SectionId) => void;
@@ -34,32 +28,6 @@ export function Navigation({
     <nav className="mb-8 bg-gray-800 rounded-lg p-4 sticky top-4 z-10">
       <div className="flex flex-wrap gap-4 justify-center items-center">
         <ul className="flex flex-wrap gap-4 justify-center">
-          <li>
-            <button
-              onClick={() => handleNavigate("sixfold-v0")}
-              className={`px-4 py-2 rounded transition-colors ${
-                activeSection === "sixfold-v0"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
-              data-testid="nav-sixfold-v0"
-            >
-              SixFold v0
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleNavigate("square")}
-              className={`px-4 py-2 rounded transition-colors ${
-                activeSection === "square"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
-              data-testid="nav-square"
-            >
-              Square
-            </button>
-          </li>
           <li>
             <button
               onClick={() => handleNavigate("square-dsl")}
@@ -97,19 +65,6 @@ export function Navigation({
               data-testid="nav-sixfold-dsl-v1"
             >
               SixFold DSL v1
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleNavigate("rotated-square")}
-              className={`px-4 py-2 rounded transition-colors ${
-                activeSection === "rotated-square"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
-              data-testid="nav-rotated-square"
-            >
-              Rotated Square
             </button>
           </li>
         </ul>

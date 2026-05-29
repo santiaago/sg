@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from "./fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1 } from "./fixtures";
 import { goToSection } from "./utils/navigation";
 import { waitForPageLoad } from "./utils/helpers";
 
@@ -50,7 +50,7 @@ test.describe("Accessibility", () => {
       expect(count).toBeGreaterThan(0);
 
       // Check a few key elements are visible (using test IDs to avoid ambiguity)
-      const navButtons = page.getByRole("button", { name: /SixFold v0|Square/ });
+      const navButtons = page.getByRole("button", { name: /SixFold DSL|Square DSL/ });
       await expect(navButtons.first()).toBeVisible();
 
       const themeButton = page.getByTestId("theme-toggle");
@@ -65,7 +65,7 @@ test.describe("Accessibility", () => {
 
     test("Focus indicators are visible on all interactive elements", async ({ page }) => {
       // Focus on navigation button
-      const navButton = page.getByRole("button", { name: "SixFold v0" });
+      const navButton = page.getByRole("button", { name: "SixFold DSL v1" });
       await navButton.focus();
 
       // Check that focus is visible (either via outline or custom focus styles)
@@ -116,7 +116,7 @@ test.describe("Accessibility", () => {
 
     test("Section navigation announces active section", async ({ page }) => {
       // Check that active section button has aria-current or similar
-      const activeButton = page.getByRole("button", { name: "SixFold v0" });
+      const activeButton = page.getByRole("button", { name: "SixFold DSL v1" });
       const ariaCurrent = await activeButton.getAttribute("aria-current");
 
       // The active button should have some indication
@@ -127,16 +127,16 @@ test.describe("Accessibility", () => {
 
     test("Step navigation announces current step", async ({ page }) => {
       // The current step is displayed as text
-      const stepText = page.locator("#sixfold-v0").getByText(/Current step \d+\/\d+/);
+      const stepText = page.locator("#sixfold-dsl-v1").getByText(/Current step \d+\/\d+/);
       await expect(stepText).toBeVisible();
     });
   });
 
   test.describe("SVG", () => {
     test.skip("SVG aria labels not implemented in app yet", async ({ page }) => {
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const svg = page.getByTestId("sixfoldv0-svg");
+      const svg = page.getByTestId("sixfold-dsl-v1-svg");
       await expect(svg).toBeVisible();
 
       // Check that SVG has a role or aria-label
@@ -148,9 +148,9 @@ test.describe("Accessibility", () => {
     test.skip("Geometry items use CSS classes for selection, not aria-selected", async ({
       page,
     }) => {
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const geometryList = page.locator(".geometry-list");
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list");
       const firstItem = geometryList.locator("li").first();
 
       // Select the item
@@ -176,27 +176,27 @@ test.describe("Accessibility", () => {
     });
 
     test("Can activate buttons with Enter key", async ({ page }) => {
-      // Focus on SixFold v0 button
-      const navButton = page.getByRole("button", { name: "SixFold v0" });
+      // Focus on SixFold DSL v1 button
+      const navButton = page.getByRole("button", { name: "SixFold DSL v1" });
       await navButton.focus();
 
       // Press Enter
       await page.keyboard.press("Enter");
 
       // Button should be activated (section should still be visible)
-      await expect(page.locator("#sixfold-v0")).toBeVisible();
+      await expect(page.locator("#sixfold-dsl-v1")).toBeVisible();
     });
 
     test("Can activate buttons with Space key", async ({ page }) => {
       // Focus on Square button
-      const navButton = page.getByTestId("nav-square");
+      const navButton = page.getByTestId("nav-square-dsl");
       await navButton.focus();
 
       // Press Space
       await page.keyboard.press(" ");
 
       // Button should be activated
-      await expect(page.locator("#square")).toBeVisible();
+      await expect(page.locator("#square-dsl")).toBeVisible();
     });
   });
 
@@ -211,9 +211,9 @@ test.describe("Accessibility", () => {
     });
 
     test("Sections have proper headings", async ({ page }) => {
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const sectionHeading = page.getByRole("heading", { name: /Six fold pattern/ });
+      const sectionHeading = page.getByRole("heading", { name: /SixFold v1 DSL/ });
       await expect(sectionHeading).toBeVisible();
     });
   });

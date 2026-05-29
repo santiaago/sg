@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE, SECTION_SIXFOLD_V0, SVG_CONFIG } from "./fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1, SVG_CONFIG } from "./fixtures";
 import { goToSection } from "./utils/navigation";
 import { assertSVGValid } from "./utils/assertions";
 import { assertClipboardContains, getSVGContent } from "./utils/clipboard";
@@ -18,11 +18,11 @@ test.describe("Copy SVG Functionality", () => {
     await waitForPageLoad(page);
   });
 
-  test("Copy SVG button copies SVG element to clipboard (SixFold v0)", async ({ page }) => {
-    await goToSection(page, SECTION_SIXFOLD_V0);
+  test("Copy SVG button copies SVG element to clipboard (SixFold DSL v1)", async ({ page }) => {
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
     // Click Copy SVG button (scoped to section)
-    await page.locator("#sixfold-v0").getByTestId("copy-svg-btn").click();
+    await page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn").click();
 
     // Get clipboard content
     const clipboardText = await page.evaluate(async () => {
@@ -34,10 +34,10 @@ test.describe("Copy SVG Functionality", () => {
     expect(clipboardText).toContain("</svg>");
   });
 
-  test("Copy SVG button copies SVG element to clipboard (Square)", async ({ page }) => {
-    await goToSection(page, SECTION_SQUARE);
+  test("Copy SVG button copies SVG element to clipboard (Square DSL)", async ({ page }) => {
+    await goToSection(page, SECTION_SQUARE_DSL);
 
-    const copySvgBtn = page.locator("#square").getByTestId("copy-svg-btn");
+    const copySvgBtn = page.locator("#square-dsl").getByTestId("copy-svg-btn");
     await copySvgBtn.click();
 
     const clipboardText = await page.evaluate(async () => {
@@ -49,21 +49,21 @@ test.describe("Copy SVG Functionality", () => {
   });
 
   test('Copy SVG button shows "Copied!" feedback temporarily', async ({ page }) => {
-    await page.locator("#sixfold-v0").getByTestId("copy-svg-btn").click();
+    await page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn").click();
 
     // Verify feedback is visible
-    await expect(page.locator('#sixfold-v0 [data-testid="copy-feedback"]')).toBeVisible();
+    await expect(page.locator('#sixfold-dsl-v1 [data-testid="copy-feedback"]')).toBeVisible();
 
     // Wait for feedback to disappear
-    await expect(page.locator('#sixfold-v0 [data-testid="copy-feedback"]')).not.toBeVisible({
+    await expect(page.locator('#sixfold-dsl-v1 [data-testid="copy-feedback"]')).not.toBeVisible({
       timeout: 3000,
     });
   });
 
   test("Copied SVG contains xmlns attribute", async ({ page }) => {
-    await goToSection(page, SECTION_SIXFOLD_V0);
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-    const copySvgBtn = page.locator("#sixfold-v0").getByTestId("copy-svg-btn");
+    const copySvgBtn = page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn");
     await copySvgBtn.click();
 
     const clipboardText = await page.evaluate(async () => {
@@ -76,9 +76,9 @@ test.describe("Copy SVG Functionality", () => {
   });
 
   test("Copied SVG contains viewBox attribute", async ({ page }) => {
-    await goToSection(page, SECTION_SIXFOLD_V0);
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-    const copySvgBtn = page.locator("#sixfold-v0").getByTestId("copy-svg-btn");
+    const copySvgBtn = page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn");
     await copySvgBtn.click();
 
     const clipboardText = await page.evaluate(async () => {
@@ -90,9 +90,9 @@ test.describe("Copy SVG Functionality", () => {
   });
 
   test("Copied SVG passes validation without parse errors", async ({ page }) => {
-    await goToSection(page, SECTION_SIXFOLD_V0);
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-    const copySvgBtn = page.locator("#sixfold-v0").getByTestId("copy-svg-btn");
+    const copySvgBtn = page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn");
     await copySvgBtn.click();
 
     const clipboardText = await page.evaluate(async () => {
@@ -104,13 +104,13 @@ test.describe("Copy SVG Functionality", () => {
   });
 
   test("Copied SVG contains all <g> child elements from original", async ({ page }) => {
-    await goToSection(page, SECTION_SIXFOLD_V0);
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
     // Get original SVG content
-    const originalSvg = await getSVGContent(page, SECTION_SIXFOLD_V0);
+    const originalSvg = await getSVGContent(page, SECTION_SIXFOLD_DSL_V1);
 
     // Copy SVG
-    const copySvgBtn = page.locator("#sixfold-v0").getByTestId("copy-svg-btn");
+    const copySvgBtn = page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn");
     await copySvgBtn.click();
 
     const clipboardText = await page.evaluate(async () => {
@@ -129,10 +129,10 @@ test.describe("Copy SVG Functionality", () => {
   });
 
   test("Copy SVG works at different steps", async ({ page }) => {
-    await goToSection(page, SECTION_SIXFOLD_V0);
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
     // Copy at step 1
-    const copySvgBtn = page.locator("#sixfold-v0").getByTestId("copy-svg-btn");
+    const copySvgBtn = page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn");
     await copySvgBtn.click();
     let clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
@@ -141,7 +141,7 @@ test.describe("Copy SVG Functionality", () => {
 
     // Navigate to step 5
     for (let i = 0; i < 4; i++) {
-      await page.locator("#sixfold-v0").getByTestId("step-next").click();
+      await page.locator("#sixfold-dsl-v1").getByTestId("step-next").click();
     }
 
     // Copy at step 5
@@ -153,19 +153,19 @@ test.describe("Copy SVG Functionality", () => {
   });
 
   test("Copy SVG button is visible in both sections", async ({ page }) => {
-    // Check SixFold v0 section
-    await goToSection(page, SECTION_SIXFOLD_V0);
-    await expect(page.locator("#sixfold-v0").getByTestId("copy-svg-btn")).toBeVisible();
+    // Check SixFold DSL v1 section
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
+    await expect(page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn")).toBeVisible();
 
-    // Check Square section
-    await goToSection(page, SECTION_SQUARE);
-    await expect(page.locator("#square").getByTestId("copy-svg-btn")).toBeVisible();
+    // Check Square DSL section
+    await goToSection(page, SECTION_SQUARE_DSL);
+    await expect(page.locator("#square-dsl").getByTestId("copy-svg-btn")).toBeVisible();
   });
 
   test("Copied SVG has correct dimensions", async ({ page }) => {
-    await goToSection(page, SECTION_SIXFOLD_V0);
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-    const copySvgBtn = page.locator("#sixfold-v0").getByTestId("copy-svg-btn");
+    const copySvgBtn = page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn");
     await copySvgBtn.click();
 
     const clipboardText = await page.evaluate(async () => {

@@ -9,10 +9,17 @@ export async function waitForPageLoad(page: Page, timeout: number = 10000): Prom
   await page.waitForSelector("main", { state: "visible", timeout: 10000 });
   // Wait for navigation to be ready
   await page.waitForSelector("nav", { state: "visible", timeout: 10000 });
-  // Wait for first section to be visible
-  await page.waitForSelector("#sixfold-v0", { state: "visible", timeout: 10000 });
+  // Ensure we're on the default section by navigating to it explicitly
+  await page.evaluate(() => {
+    window.location.hash = "";
+  });
+  // Wait for default section to be visible and active
+  await page.waitForSelector("#sixfold-dsl-v1", { state: "visible", timeout: 10000 });
   // Wait for SVG to be ready
-  await page.waitForSelector("[data-testid='sixfoldv0-svg']", { state: "visible", timeout: 10000 });
+  await page.waitForSelector("[data-testid='sixfold-dsl-v1-svg']", {
+    state: "visible",
+    timeout: 10000,
+  });
   // Wait for geometry list to be ready
   await page.waitForSelector(".geometry-list", { state: "visible", timeout: 10000 });
 }

@@ -1,8 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { GeometryDetails } from "../src/components/GeometryDetails";
-import { SQUARE_STEPS } from "../src/geometry/squareSteps";
+import { buildSquareDslSteps } from "../src/geometry/squareDslSteps";
 import type { GeometryStore, GeometryItem, SvgGeometryElement } from "../src/react-store";
+
+// Build DSL square steps once for tests
+const SQUARE_DSL_STEPS = buildSquareDslSteps();
 
 // Helper to create a mock SVG circle element
 function createMockSvgElement(type: string): SVGCircleElement {
@@ -198,17 +201,17 @@ describe("GeometryDetails", () => {
   });
 
   it("displays outputs from the same step", () => {
-    // step_main_line outputs ["line_main"]
+    // step_line_main outputs ["line_main"]
     const store = createMockStore({
       line_main: createMockGeometryItem({
         name: "line_main",
         selected: true,
         type: "line",
-        stepId: "step_main_line",
+        stepId: "step_line_main",
       }),
     });
 
-    render(<GeometryDetails store={store} steps={SQUARE_STEPS} />);
+    render(<GeometryDetails store={store} steps={SQUARE_DSL_STEPS} />);
 
     expect(screen.getByText("Outputs")).toBeInTheDocument();
     // Check in the Outputs section specifically
@@ -218,7 +221,7 @@ describe("GeometryDetails", () => {
 
   it("displays multiple outputs from same step", () => {
     // Find a step with multiple outputs to test
-    const stepWithMultiple = SQUARE_STEPS.find((s) => s.outputs && s.outputs.length > 1);
+    const stepWithMultiple = SQUARE_DSL_STEPS.find((s) => s.outputs && s.outputs.length > 1);
 
     if (stepWithMultiple) {
       const outputs = stepWithMultiple.outputs.map((name) =>

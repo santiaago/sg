@@ -71,8 +71,8 @@ This v2 construction serves as both a **demonstration of flip capability** and a
 **Decision 2: Transformation formula for flipped coordinate systems**
 
 - For a coordinate system with position (x, y), rotation θ, flipX, and flipY, a local point (x_l, y_l) maps to global coordinates:
-  - x_global = x + (x_l _ (flipX ? -1 : 1) _ cos(θ)) - (y_l \* sin(θ))
-  - y_global = y + (x_l _ (flipX ? -1 : 1) _ sin(θ)) + (y_l _ cos(θ)) _ (flipY ? -1 : 1)
+  - x*global = x + (x_l * (flipX ? -1 : 1) \_ cos(θ)) - (y_l \* sin(θ))
+  - y*global = y + (x_l * (flipX ? -1 : 1) _ sin(θ)) + (y_l _ cos(θ)) \_ (flipY ? -1 : 1)
 - Rationale: This formula correctly handles the composition of translation, rotation, and flip transformations in SVG coordinate space (where y increases downward).
 
 **Decision 3: Add relativeTo option to intersection expressions**

@@ -1,24 +1,26 @@
 # E2E Tests for Geometry Components
 
-This directory contains Playwright end-to-end tests for the Square and SixFoldV0 geometry components.
+This directory contains Playwright end-to-end tests for the DSL geometry components (Square DSL, SixFold DSL v1).
 
 ## Test Coverage
 
-Each component has 4 tests:
+Each component has tests for:
 
-### Square Component (16 steps)
+### Square DSL Component
 
-- Starts at step 1
+- Starts at step 0
 - Can navigate to end with next button
 - Last button (>>) jumps to end
 - First button (<<) resets to start
 
-### SixFoldV0 Component (93 steps)
+### SixFold DSL v1 Component
 
-- Starts at step 1
+- Starts at step 0
 - Can navigate to end with next button
 - Last button (>>) jumps to end
 - First button (<<) resets to start
+
+Note: DSL is an improved version that requires significantly less code from developers while providing equivalent functionality.
 
 ## Setup
 

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from "./fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1 } from "./fixtures";
 import { goToSection, goToStep } from "./utils/navigation";
 import { selectGeometry, waitForPageLoad, getGeometryCount } from "./utils/helpers";
 
@@ -17,7 +17,7 @@ test.describe("Input Highlighting", () => {
 
   test.describe("Toggle", () => {
     test("Inputs button toggles highlight mode on/off", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 1);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 1);
 
       // There are multiple inputs buttons (one per section), use the first one
       const inputsButton = page.getByTestId("inputs-toggle").first();
@@ -44,7 +44,7 @@ test.describe("Input Highlighting", () => {
     });
 
     test("Inputs button stays blue when active", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 1);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 1);
 
       const inputsButton = page.getByTestId("inputs-toggle").first();
 
@@ -60,7 +60,7 @@ test.describe("Input Highlighting", () => {
     });
 
     test("Inputs button is gray when inactive", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 1);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 1);
 
       const inputsButton = page.getByTestId("inputs-toggle").first();
 
@@ -79,9 +79,9 @@ test.describe("Input Highlighting", () => {
   test.describe("Visual feedback", () => {
     test("Selecting geometry highlights its dependencies in orange", async ({ page }) => {
       // Go to a step where geometries have dependencies
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -110,9 +110,9 @@ test.describe("Input Highlighting", () => {
 
     test("Deselecting geometry clears orange highlights", async ({ page }) => {
       // Go to a step where geometries have dependencies
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -142,9 +142,9 @@ test.describe("Input Highlighting", () => {
       page,
     }) => {
       // Go to a step with various dependency types
-      await goToStep(page, SECTION_SIXFOLD_V0, 20);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 20);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -166,9 +166,9 @@ test.describe("Input Highlighting", () => {
 
     test("Toggle off clears all orange highlights", async ({ page }) => {
       // Go to a step with dependencies
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -198,9 +198,9 @@ test.describe("Input Highlighting", () => {
 
     test("Highlighted elements have correct CSS class/attribute", async ({ page }) => {
       // Go to a step with dependencies
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -225,9 +225,9 @@ test.describe("Input Highlighting", () => {
     });
   });
 
-  test.describe("Square section", () => {
-    test("Input highlighting works in Square section", async ({ page }) => {
-      await goToStep(page, SECTION_SQUARE, 10);
+  test.describe("Square DSL section", () => {
+    test("Input highlighting works in Square DSL section", async ({ page }) => {
+      await goToStep(page, SECTION_SQUARE_DSL, 10);
 
       const inputsButton = page.getByTestId("inputs-toggle").first();
       await expect(inputsButton).toBeVisible();

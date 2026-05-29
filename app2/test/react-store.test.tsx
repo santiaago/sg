@@ -1,10 +1,6 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
-import {
-  useGeometryStoreSquare,
-  useGeometryStore,
-  useGeometryValueStore,
-} from "../src/react-store";
+import { useGeometryStore, useGeometryValueStore } from "../src/react-store";
 
 /**
  * Tests to prevent infinite render loops caused by unstable store references.
@@ -16,8 +12,8 @@ import {
  */
 
 describe("Geometry Store Hooks - Reference Stability", () => {
-  it("useGeometryStoreSquare should return stable reference across renders", () => {
-    const { result, rerender } = renderHook(() => useGeometryStoreSquare());
+  it("useGeometryStore should return stable reference across renders", () => {
+    const { result, rerender } = renderHook(() => useGeometryStore());
 
     const firstStore = result.current;
     rerender();

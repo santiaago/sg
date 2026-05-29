@@ -1,18 +1,20 @@
 /**
- * Regression tests for squareSteps dependency tracking.
+ * Regression tests for DSL square steps dependency tracking.
  *
  * These tests verify that each geometry correctly declares its dependencies
  * so that when a user selects a geometry, the correct inputs highlight.
- *
- * Each test corresponds to one of the 12 user-reported issues.
  */
 
 import { describe, it, expect } from "vitest";
-import { SQUARE_STEPS, GEOM } from "../src/geometry/squareSteps";
+import { buildSquareDslSteps } from "../src/geometry/squareDslSteps";
+import { GEOM } from "../src/geometry/operations";
+
+// Build DSL square steps once
+const SQUARE_DSL_STEPS = buildSquareDslSteps();
 
 // Helper to find a step by its output geometry
-function findStepByOutput(outputId: string) {
-  for (const step of SQUARE_STEPS) {
+function findStepByOutput(outputId: string): any {
+  for (const step of SQUARE_DSL_STEPS) {
     if (step.outputs.includes(outputId)) {
       return step;
     }
@@ -51,10 +53,11 @@ describe("Square Steps - Dependency Tracking", () => {
   });
 
   describe("Step 7: INTERSECTION_CIRCLE (ci) dependencies", () => {
-    it("issue #3: ci should depend on INTERSECTION_POINT (pi)", () => {
+    it("issue #3: ci should depend on INTERSECTION_POINT (pi) and C1_CIRCLE (c1_c)", () => {
       const inputs = getInputsForGeometry(GEOM.INTERSECTION_CIRCLE);
       expect(inputs).toContain(GEOM.INTERSECTION_POINT);
-      expect(inputs).toHaveLength(1);
+      expect(inputs).toContain(GEOM.C1_CIRCLE);
+      expect(inputs).toHaveLength(2);
     });
   });
 
@@ -68,13 +71,13 @@ describe("Square Steps - Dependency Tracking", () => {
   });
 
   describe("Step 9: P3 dependencies", () => {
-    it("issue #5: p3 should depend on LINE_C2_PI and INTERSECTION_CIRCLE (ci)", () => {
+    it("issue #5: p3 should depend on LINE_C2_PI, INTERSECTION_CIRCLE (ci), and C2", () => {
       const inputs = getInputsForGeometry(GEOM.P3);
       expect(inputs).toContain(GEOM.LINE_C2_PI);
       expect(inputs).toContain(GEOM.INTERSECTION_CIRCLE);
-      // Should NOT include C2 (it's derived from LINE_C2_PI)
-      expect(inputs).not.toContain(GEOM.C2);
-      expect(inputs).toHaveLength(2);
+      // DSL tracks C2 as a dependency
+      expect(inputs).toContain(GEOM.C2);
+      expect(inputs).toHaveLength(3);
     });
   });
 
@@ -88,13 +91,13 @@ describe("Square Steps - Dependency Tracking", () => {
   });
 
   describe("Step 11: P4 dependencies", () => {
-    it("issue #7: p4 should depend on LINE_C1_PI and INTERSECTION_CIRCLE (ci)", () => {
+    it("issue #7: p4 should depend on LINE_C1_PI, INTERSECTION_CIRCLE (ci), and C1", () => {
       const inputs = getInputsForGeometry(GEOM.P4);
       expect(inputs).toContain(GEOM.LINE_C1_PI);
       expect(inputs).toContain(GEOM.INTERSECTION_CIRCLE);
-      // Should NOT include C1 (it's derived from LINE_C1_PI)
-      expect(inputs).not.toContain(GEOM.C1);
-      expect(inputs).toHaveLength(2);
+      // DSL tracks C1 as a dependency
+      expect(inputs).toContain(GEOM.C1);
+      expect(inputs).toHaveLength(3);
     });
   });
 
@@ -157,7 +160,7 @@ describe("Square Steps - Dependency Tracking", () => {
   describe("All steps have consistent inputs and outputs", () => {
     it("every output geometry should have exactly one producing step", () => {
       const outputToStep = new Map<string, string>();
-      for (const step of SQUARE_STEPS) {
+      for (const step of SQUARE_DSL_STEPS) {
         for (const output of step.outputs) {
           if (outputToStep.has(output)) {
             throw new Error(
@@ -195,7 +198,7 @@ describe("Square Steps - Dependency Tracking", () => {
 
     it("all inputs should reference previously defined geometries", () => {
       const allOutputs = new Set<string>();
-      for (const step of SQUARE_STEPS) {
+      for (const step of SQUARE_DSL_STEPS) {
         for (const output of step.outputs) {
           allOutputs.add(output);
         }
@@ -217,7 +220,7 @@ describe("Square Steps - Dependency Tracking", () => {
 describe("Square Steps - Input/Output Consistency", () => {
   it("each step should have unique outputs", () => {
     const allOutputs = new Set<string>();
-    for (const step of SQUARE_STEPS) {
+    for (const step of SQUARE_DSL_STEPS) {
       for (const output of step.outputs) {
         expect(allOutputs.has(output), `Duplicate output: ${output}`).toBe(false);
         allOutputs.add(output);
@@ -227,7 +230,7 @@ describe("Square Steps - Input/Output Consistency", () => {
 
   it("all GEOM constants should be used in steps", () => {
     const usedGeometries = new Set<string>();
-    for (const step of SQUARE_STEPS) {
+    for (const step of SQUARE_DSL_STEPS) {
       step.inputs.forEach((i) => usedGeometries.add(i));
       step.outputs.forEach((o) => usedGeometries.add(o));
     }

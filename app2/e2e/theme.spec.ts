@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SIXFOLD_V0, SECTION_SQUARE, THEME } from "./fixtures";
+import { SECTION_SIXFOLD_DSL_V1, SECTION_SQUARE_DSL, THEME } from "./fixtures";
 import { goToSection } from "./utils/navigation";
 import { assertTheme, toggleTheme } from "./utils/assertions";
 import { waitForPageLoad } from "./utils/helpers";
@@ -68,14 +68,14 @@ test.describe("Theme Toggling", () => {
       await toggleTheme(page);
       await assertTheme(page, THEME.LIGHT);
 
-      // Navigate to Square section
-      await goToSection(page, SECTION_SQUARE);
+      // Navigate to Square DSL section
+      await goToSection(page, SECTION_SQUARE_DSL);
 
       // Theme should still be light
       await assertTheme(page, THEME.LIGHT);
 
-      // Navigate back to SixFold v0
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      // Navigate back to SixFold DSL v1
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       // Theme should still be light
       await assertTheme(page, THEME.LIGHT);
@@ -111,7 +111,7 @@ test.describe("Theme Toggling", () => {
 
   test.describe("Visual feedback", () => {
     test("Theme toggle updates SVG background color", async ({ page }) => {
-      const svg = page.getByTestId("sixfoldv0-svg");
+      const svg = page.getByTestId("sixfold-dsl-v1-svg");
 
       // Get initial background color (dark theme)
       const initialBg = await svg.evaluate((el) => {
@@ -154,8 +154,8 @@ test.describe("Theme Toggling", () => {
 
     test("All UI elements adapt to theme change", async ({ page }) => {
       // Go to step 1 to ensure geometry list has items
-      await goToSection(page, SECTION_SIXFOLD_V0);
-      await page.locator("#sixfold-v0").getByTestId("step-next").click();
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
+      await page.locator("#sixfold-dsl-v1").getByTestId("step-next").click();
       await page.waitForTimeout(500);
 
       // Toggle theme
@@ -166,11 +166,11 @@ test.describe("Theme Toggling", () => {
       await expect(nav).toBeVisible();
 
       // Check that SVG container adapts
-      const svgContainer = page.locator("#sixfold-v0");
+      const svgContainer = page.locator("#sixfold-dsl-v1");
       await expect(svgContainer).toBeVisible();
 
       // Check that geometry list adapts (use first to avoid multiple matches)
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       await expect(geometryList).toBeVisible();
     });
   });
@@ -192,8 +192,8 @@ test.describe("Theme Toggling", () => {
       await assertTheme(page, THEME.DARK);
     });
 
-    test("Theme toggle works from Square section", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+    test("Theme toggle works from Square DSL section", async ({ page }) => {
+      await goToSection(page, SECTION_SQUARE_DSL);
 
       // Toggle theme
       await toggleTheme(page);

@@ -34,11 +34,13 @@ The React application UI is organized around visualizing and interacting with **
 - Wraps the SVG Canvas component
 - Optional: play/pause for animated stepping
 
-### SVG Canvas (SixFoldV0Svg, SquareSvg, etc.)
+### SVG Canvas (SquareDslSvg, SixFoldDslSvg, SixFoldDslV1Svg)
 
-**Purpose:** Visualizes **Primitives** (Point, Line, Circle, Polygon, Coordinate System).
+**Purpose:** Visualizes **Primitives** (Point, Line, Circle, Polygon, Coordinate System) using the DSL (Declarative Geometry Framework).
 **Domain mapping:**
 
 - Renders each **Primitive** based on its **Geometric Construction** definition
+- Uses DSL expressions for declarative geometry construction
 - Responds to highlight events from GeometryDetails
 - Shows the current state of all **Step**s up to the current position
+- DSL is an improved version that requires significantly less code from developers while providing equivalent functionality

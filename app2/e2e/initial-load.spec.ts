@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SIXFOLD_V0, SECTION_SQUARE, THEME, SVG_CONFIG } from "./fixtures";
+import { SECTION_SIXFOLD_DSL_V1, SECTION_SQUARE_DSL, THEME, SVG_CONFIG } from "./fixtures";
 import { goToSection, getCurrentStep } from "./utils/navigation";
 import { assertTheme } from "./utils/assertions";
 import { waitForPageLoad } from "./utils/helpers";
@@ -43,21 +43,21 @@ test.describe("Initial Page Load", () => {
 
   test("Defaults to first section in navigation order", async ({ page }) => {
     // The first section should be visible
-    await expect(page.locator("#sixfold-v0")).toBeVisible();
+    await expect(page.locator("#sixfold-dsl-v1")).toBeVisible();
   });
 
   test("First section starts at step 0 (initial state)", async ({ page }) => {
-    const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
+    const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_DSL_V1);
     // The app starts at step 0, not step 1
     expect(currentStep).toBe(0);
   });
 
-  test("SixFold v0 section is the active section initially", async ({ page }) => {
-    // The default section is sixfold-v0
-    await expect(page.locator("#sixfold-v0")).toBeVisible();
-    // Square section exists in DOM but may or may not be visible depending on viewport
-    // Instead, check that SixFold v0 is the active section
-    const sixfoldNav = page.getByTestId("nav-sixfold-v0");
+  test("SixFold DSL v1 section is the active section initially", async ({ page }) => {
+    // The default section is sixfold-dsl-v1
+    await expect(page.locator("#sixfold-dsl-v1")).toBeVisible();
+    // Square DSL section exists in DOM but may or may not be visible depending on viewport
+    // Instead, check that SixFold DSL v1 is the active section
+    const sixfoldNav = page.getByTestId("nav-sixfold-dsl-v1");
     const classList = await sixfoldNav.getAttribute("class");
     expect(classList).toContain("bg-blue-600");
   });
@@ -71,15 +71,16 @@ test.describe("Initial Page Load", () => {
     await expect(nav).toBeVisible();
 
     // Check navigation buttons exist
-    await expect(page.getByTestId("nav-sixfold-v0")).toBeVisible();
-    await expect(page.getByTestId("nav-square")).toBeVisible();
+    await expect(page.getByTestId("nav-sixfold-dsl-v1")).toBeVisible();
+    await expect(page.getByTestId("nav-sixfold-dsl")).toBeVisible();
+    await expect(page.getByTestId("nav-square-dsl")).toBeVisible();
 
     // Check theme toggle exists
     await expect(page.getByTestId("theme-toggle")).toBeVisible();
   });
 
-  test("SixFold v0 SVG has correct dimensions", async ({ page }) => {
-    const svg = page.getByTestId("sixfoldv0-svg");
+  test("SixFold DSL v1 SVG has correct dimensions", async ({ page }) => {
+    const svg = page.getByTestId("sixfold-dsl-v1-svg");
     await expect(svg).toBeVisible();
 
     const width = await svg.getAttribute("width");
@@ -94,10 +95,10 @@ test.describe("Initial Page Load", () => {
     expect(viewBox).toContain(SVG_CONFIG.VIEWBOX.split(" ")[0]);
   });
 
-  test("Square SVG has correct dimensions", async ({ page }) => {
-    await goToSection(page, SECTION_SQUARE);
+  test("Square DSL SVG has correct dimensions", async ({ page }) => {
+    await goToSection(page, SECTION_SQUARE_DSL);
 
-    const svg = page.getByTestId("square-svg");
+    const svg = page.getByTestId("square-dsl-svg");
     await expect(svg).toBeVisible();
 
     const width = await svg.getAttribute("width");
@@ -108,7 +109,7 @@ test.describe("Initial Page Load", () => {
   });
 
   test("Geometry List is visible for current section", async ({ page }) => {
-    const geometryList = page.locator(".geometry-list").first();
+    const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
     await expect(geometryList).toBeVisible();
 
     // Note: At step 0, the geometry list may be empty (no items drawn yet)
