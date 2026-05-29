@@ -43,6 +43,7 @@ pnpm test:watch         # Watch mode
 # E2E Tests (Playwright)
 cd app2 && pnpm test:e2e          # Run E2E tests
 cd app2 && pnpm test:e2e:headed  # Run with visible browser
+PORT=3000 pnpm test:e2e          # Run on custom port (default: 5174)
 
 # Dev
 pnpm dev            # Start React app

@@ -30,7 +30,7 @@
 - Tests (all): `pnpm test` (vitest for geometry + app2); coverage: `pnpm test:coverage`
 - Tests (geometry only): `cd packages/geometry && pnpm test`
 - Tests (app2 only): `cd app2 && pnpm test`
-- E2E tests (Playwright): `cd app2 && pnpm exec playwright install --with-deps` (setup), then `pnpm test:e2e`; headed: `pnpm test:e2e:headed`; see `.claude/skills/playwright-cli/SKILL.md` for CLI usage
+- E2E tests (Playwright): `cd app2 && pnpm exec playwright install --with-deps` (setup), then `pnpm test:e2e`; headed: `pnpm test:e2e:headed`; custom port: `PORT=3000 pnpm test:e2e`; see `.claude/skills/playwright-cli/SKILL.md` for CLI usage
 - CI workflows: `.github/workflows/` (GitHub Actions; app2 PR workflow runs lint, format check, type-check, build, and tests on PR to main)
 
 - When user says "check app": run `pnpm lint && pnpm fmt:check && pnpm type-check && pnpm test && pnpm test:e2e` to verify lint, format, TypeScript, tests, and e2e. Verify exit code is 0 and no warnings are present.
