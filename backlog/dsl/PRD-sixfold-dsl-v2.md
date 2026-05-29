@@ -61,6 +61,7 @@ This v2 construction serves as both a **demonstration of flip capability** and a
 ### Framework Extensions
 
 **Decision 1: Add flipX and flipY to CoordinateSystem type**
+
 - The `CoordinateSystem` type will be extended with optional boolean properties `flipX?: boolean` and `flipY?: boolean`
 - When `flipX=true`, the x-axis of the coordinate system is mirrored (local x increases to the left in global space)
 - When `flipY=true`, the y-axis of the coordinate system is mirrored (local y increases upward in global space)
@@ -68,12 +69,14 @@ This v2 construction serves as both a **demonstration of flip capability** and a
 - Rationale: This is the minimal, explicit way to support coordinate system flipping. A `scaleX`/`scaleY` approach was considered but rejected as less intuitive for the mirroring use case.
 
 **Decision 2: Transformation formula for flipped coordinate systems**
+
 - For a coordinate system with position (x, y), rotation θ, flipX, and flipY, a local point (x_l, y_l) maps to global coordinates:
-  - x_global = x + (x_l * (flipX ? -1 : 1) * cos(θ)) - (y_l * sin(θ))
-  - y_global = y + (x_l * (flipX ? -1 : 1) * sin(θ)) + (y_l * cos(θ)) * (flipY ? -1 : 1)
+  - x_global = x + (x_l _ (flipX ? -1 : 1) _ cos(θ)) - (y_l \* sin(θ))
+  - y_global = y + (x_l _ (flipX ? -1 : 1) _ sin(θ)) + (y_l _ cos(θ)) _ (flipY ? -1 : 1)
 - Rationale: This formula correctly handles the composition of translation, rotation, and flip transformations in SVG coordinate space (where y increases downward).
 
 **Decision 3: Add relativeTo option to intersection expressions**
+
 - `IntersectionOptions` will be extended with `relativeTo?: string` (coordinate system ID)
 - `CircleIntersectionOptions` will be extended with `relativeTo?: string` (coordinate system ID)
 - When `relativeTo` is specified, direction-based selection ("left", "right", "north", "south", "east", "west") is interpreted in the specified coordinate system's local space
@@ -81,22 +84,26 @@ This v2 construction serves as both a **demonstration of flip capability** and a
 - Rationale: This allows direction selections to work correctly when the coordinate system is flipped or rotated, without requiring manual adjustment of direction parameters.
 
 **Decision 4: Create separate SixFoldV2Config type**
+
 - A new `SixFoldV2Config` interface will be created that extends `SixFoldV0Config`
 - Rationale: This provides type safety and clarity, even though v2 hardcodes its flip parameters, it may evolve to need additional configuration in the future.
 
 ### SixFold v2 Construction
 
 **Decision 5: v2 cs2 positioning and flipping**
+
 - cs2 is positioned at the global coordinates of v1's p2: (p2x, p2y)
 - cs2 has `flipX: true`, `flipY: false`, `rotation: 0`
 - Rationale: This places v2 in a position that will eventually form part of the rosa pattern, with the x-axis flip creating the mirrored effect.
 
 **Decision 6: v2 p1 and p2 placement**
+
 - p1 is at (0, 0) in cs2's local space → global position = (p2x, p2y) = v1's p2 position
 - p2 is at (p2x - p1x, p1y - p2y) in cs2's local space → global position = (p1x, p1y) = v1's p1 position
 - Rationale: This swaps the positions of p1 and p2, which is the expected result of mirroring v1 on the x-axis.
 
 **Decision 7: Direction-based selections in v2**
+
 - All intersection expressions in v2 that use direction-based selection will include `relativeTo: "cs2"`
 - Affected steps: 7 (cp2), 9 (pic12), 23 (pic14), 35 (pi3), 36 (pi4), 70 (pic23), 76 (pc34e)
 - Rationale: This ensures that direction selections work correctly in the flipped coordinate system.
@@ -104,16 +111,19 @@ This v2 construction serves as both a **demonstration of flip capability** and a
 ### Architecture
 
 **Decision 8: Modular implementation in phases**
+
 - Implementation will proceed in 7 phases: Framework foundation (flip), Direction relativity, Config, v2 DSL file, UI integration, Tests, Exports
 - Each phase will have its own commit with verification checks
 - Rationale: This allows incremental delivery and easier debugging.
 
 **Decision 9: File organization**
+
 - New files: `transformations.ts` (DSL utilities), `sixfoldDslV2Steps.ts` (v2 construction), `SixFoldDslV2Svg.tsx` (v2 component), `sixfoldDslV2Steps.test.ts` (v2 tests)
 - Modified files: Core geometry types, DSL expressions, builders, UI components
 - Rationale: New files for new functionality, modifications to existing files for framework extensions.
 
 **Decision 10: UI ordering**
+
 - v2 section will appear before v1 section in `App.tsx` scroll order
 - v2 nav item will appear before v1 nav item in the navigation bar
 - Rationale: User requirement to showcase the more advanced variant first.
@@ -123,11 +133,13 @@ This v2 construction serves as both a **demonstration of flip capability** and a
 ## Testing Decisions
 
 ### Testing Philosophy
+
 - Tests focus on **external behavior** (what the module does), not **implementation details** (how it does it)
 - Each deep module will have unit tests that verify its contract
 - Integration tests verify that modules work together correctly
 
 ### Modules to Test
+
 1. **CoordinateSystem flip transformation** - Verify that points defined in a flipped coordinate system have correct global positions
 2. **PointInCoordinateSystemExpression with flip** - Verify transformation formula correctness
 3. **IntersectionExpression with relativeTo** - Verify direction selection works in relative coordinate systems
@@ -136,12 +148,14 @@ This v2 construction serves as both a **demonstration of flip capability** and a
 6. **SixFold v2 construction** - Verify v2 produces expected mirrored geometry
 
 ### Prior Art
+
 - Existing tests in `app2/test/` use Vitest
 - `squareDslSteps.test.ts` tests DSL step construction
 - `sixfoldDslV1Steps.test.ts` tests v1 construction
 - Pattern: Test file per construction, plus unit tests for framework utilities
 
 ### Test Approach
+
 - For transformation tests: Provide known inputs (local point, CS with flip), verify global output
 - For relativeTo tests: Provide known geometry and CS, verify correct intersection point is selected
 - For v2 construction: Verify key geometry positions match expected mirrored values
@@ -162,7 +176,9 @@ This v2 construction serves as both a **demonstration of flip capability** and a
 ## Further Notes
 
 ### Domain Terminology
+
 This PRD uses the established domain language from `CONTEXT.md`:
+
 - **Geometric Construction**: Composite structure with inputs and outputs
 - **Coordinate System**: Reference frame with origin, orientation, and scale
 - **Step**: Single operation creating one Geometric Construction
@@ -170,17 +186,21 @@ This PRD uses the established domain language from `CONTEXT.md`:
 - **Intersection**: Point(s) where geometric entities meet
 
 ### Relationship to Existing Work
+
 - v2 builds on v1 (`sixfoldDslV1Steps.ts`), which introduced multi-coordinate-system support
 - v2 builds on the DSL framework (`GeometryBuilder`, `GeometryExpression`)
 - v2 is a prerequisite for the eventual rosa sixfold pattern
 
 ### Future Work
+
 After v2 is complete, the next steps will be:
+
 1. Create the remaining 3 mirrored constructions for the rosa pattern
 2. Combine all 4 constructions in a single canvas
 3. Add UI controls for dynamic flip/rotation configuration
 
 ### Success Criteria
+
 - All type checks pass (`pnpm type-check:app2`)
 - All lint checks pass (`pnpm lint`)
 - All format checks pass (`pnpm format`)
