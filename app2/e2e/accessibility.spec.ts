@@ -150,7 +150,7 @@ test.describe("Accessibility", () => {
     }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const geometryList = page.locator(".geometry-list");
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list");
       const firstItem = geometryList.locator("li").first();
 
       // Select the item

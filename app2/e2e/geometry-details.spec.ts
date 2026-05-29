@@ -173,9 +173,8 @@ test.describe("Geometry Details Panel", () => {
     });
 
     test('Shows "No parameters" when geometry has no parameters', async ({ page }) => {
-      // Go to step 4 where LINE1 is created (has no parameters)
-      // LINE1 is created at STEP_3 (index 3), which executes when currentStep >= 4
-      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 4);
+      // Go to step 5 where line1 is created (has no parameters)
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 5);
 
       const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list");
       // LINE1 should be one of the items

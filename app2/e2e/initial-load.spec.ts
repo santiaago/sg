@@ -109,7 +109,7 @@ test.describe("Initial Page Load", () => {
   });
 
   test("Geometry List is visible for current section", async ({ page }) => {
-    const geometryList = page.locator(".geometry-list").first();
+    const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
     await expect(geometryList).toBeVisible();
 
     // Note: At step 0, the geometry list may be empty (no items drawn yet)

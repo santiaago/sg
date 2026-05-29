@@ -170,7 +170,7 @@ test.describe("Theme Toggling", () => {
       await expect(svgContainer).toBeVisible();
 
       // Check that geometry list adapts (use first to avoid multiple matches)
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       await expect(geometryList).toBeVisible();
     });
   });

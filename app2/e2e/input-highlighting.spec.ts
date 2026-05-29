@@ -81,7 +81,7 @@ test.describe("Input Highlighting", () => {
       // Go to a step where geometries have dependencies
       await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -112,7 +112,7 @@ test.describe("Input Highlighting", () => {
       // Go to a step where geometries have dependencies
       await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -144,7 +144,7 @@ test.describe("Input Highlighting", () => {
       // Go to a step with various dependency types
       await goToStep(page, SECTION_SIXFOLD_DSL_V1, 20);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -168,7 +168,7 @@ test.describe("Input Highlighting", () => {
       // Go to a step with dependencies
       await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -200,7 +200,7 @@ test.describe("Input Highlighting", () => {
       // Go to a step with dependencies
       await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(".geometry-list").first();
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list").first();
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
