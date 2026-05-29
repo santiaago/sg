@@ -54,9 +54,11 @@ export function useSmartStepper<TConfig = unknown>({
   // Calculate derived values
   const visualStepCount = useMemo(() => getVisualStepCount(steps), [steps]);
 
-  // Clamp initial visual index to valid range
+  // Clamp initial visual index to valid range (-1 is allowed as "before first step")
   const clampedInitial = useMemo(() => {
     if (visualStepCount === 0) return -1;
+    // Allow -1 as a valid initial state (before first step)
+    if (initialVisualIndex === -1) return -1;
     return Math.max(0, Math.min(initialVisualIndex, visualStepCount - 1));
   }, [initialVisualIndex, visualStepCount]);
 
@@ -66,17 +68,17 @@ export function useSmartStepper<TConfig = unknown>({
   // Calculate execution boundary from visual index
   // executeSteps uses exclusive upper bound (executes steps 0..N-1 for upToIndex=N)
   const stepsUpToIndex = useMemo(() => {
-    if (currentVisualIndex < 0) return -1;
+    if (currentVisualIndex < 0) return 0;
     return getActualStepIndex(steps, currentVisualIndex) + 1;
   }, [steps, currentVisualIndex]);
 
   // Calculate navigation boundaries
   const canGoNext = useMemo(() => {
-    return currentVisualIndex >= 0 && currentVisualIndex < visualStepCount - 1;
+    return currentVisualIndex >= -1 && currentVisualIndex < visualStepCount - 1;
   }, [currentVisualIndex, visualStepCount]);
 
   const canGoPrev = useMemo(() => {
-    return currentVisualIndex > 0;
+    return currentVisualIndex > -1;
   }, [currentVisualIndex]);
 
   // Navigation functions
@@ -94,13 +96,19 @@ export function useSmartStepper<TConfig = unknown>({
 
   const goToStep = useCallback(
     (visualIndex: number) => {
-      // Clamp to valid range
+      // Clamp to valid range (-1 is allowed as "before first step")
       if (visualStepCount === 0) {
         setCurrentVisualIndex(-1);
         return;
       }
 
-      const clamped = Math.max(0, Math.min(visualIndex, visualStepCount - 1));
+      // Allow -1 as a valid state (before first step)
+      let clamped = visualIndex;
+      if (visualIndex < -1) {
+        clamped = -1;
+      } else if (visualIndex >= visualStepCount) {
+        clamped = visualStepCount - 1;
+      }
       setCurrentVisualIndex(clamped);
     },
     [visualStepCount],

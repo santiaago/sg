@@ -55,6 +55,14 @@ describe("useSmartStepper", () => {
       expect(result.current.currentVisualIndex).toBe(2);
       expect(result.current.stepsUpToIndex).toBe(4);
     });
+
+    it("allows -1 as initial visual index (before first step)", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: -1 }));
+      expect(result.current.currentVisualIndex).toBe(-1);
+      expect(result.current.stepsUpToIndex).toBe(0);
+      expect(result.current.canGoNext).toBe(true);
+      expect(result.current.canGoPrev).toBe(false);
+    });
   });
 
   describe("navigation - goToNext", () => {
@@ -115,12 +123,13 @@ describe("useSmartStepper", () => {
       expect(result.current.stepsUpToIndex).toBe(2);
     });
 
-    it("does nothing at first visual step", () => {
+    it("goes to -1 from first visual step", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       act(() => {
         result.current.goToPrev();
       });
-      expect(result.current.currentVisualIndex).toBe(0);
+      expect(result.current.currentVisualIndex).toBe(-1);
+      expect(result.current.stepsUpToIndex).toBe(0);
     });
 
     it("updates canGoPrev correctly", () => {
@@ -132,6 +141,12 @@ describe("useSmartStepper", () => {
       act(() => {
         result.current.goToPrev();
       });
+      // At index 0, can still go to -1
+      expect(result.current.canGoPrev).toBe(true);
+      act(() => {
+        result.current.goToPrev();
+      });
+      // Now at -1, can't go prev
       expect(result.current.canGoPrev).toBe(false);
     });
   });
@@ -164,13 +179,13 @@ describe("useSmartStepper", () => {
       expect(result.current.stepsUpToIndex).toBe(6);
     });
 
-    it("clamps to first visual index when negative", () => {
+    it("clamps to -1 (before first step) when negative", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
       act(() => {
         result.current.goToStep(-5);
       });
-      expect(result.current.currentVisualIndex).toBe(0);
-      expect(result.current.stepsUpToIndex).toBe(1);
+      expect(result.current.currentVisualIndex).toBe(-1);
+      expect(result.current.stepsUpToIndex).toBe(0);
     });
 
     it("clamps to valid range", () => {
@@ -178,7 +193,7 @@ describe("useSmartStepper", () => {
       act(() => {
         result.current.goToStep(-100);
       });
-      expect(result.current.currentVisualIndex).toBe(0);
+      expect(result.current.currentVisualIndex).toBe(-1);
       act(() => {
         result.current.goToStep(100);
       });
@@ -197,8 +212,13 @@ describe("useSmartStepper", () => {
       expect(result.current.canGoNext).toBe(true);
     });
 
-    it("canGoPrev is false at first visual step", () => {
+    it("canGoPrev is true at first visual step (can go to -1)", () => {
       const { result } = renderHook(() => useSmartStepper({ steps }));
+      expect(result.current.canGoPrev).toBe(true);
+    });
+
+    it("canGoPrev is false at -1 (before first step)", () => {
+      const { result } = renderHook(() => useSmartStepper({ steps, initialVisualIndex: -1 }));
       expect(result.current.canGoPrev).toBe(false);
     });
 
@@ -207,11 +227,12 @@ describe("useSmartStepper", () => {
       expect(result.current.canGoPrev).toBe(true);
     });
 
-    it("canGoNext and canGoPrev both false for single step", () => {
+    it("canGoNext false and canGoPrev true for single step at index 0", () => {
       const singleStep: Step[] = [createMockStep("s1", true)];
       const { result } = renderHook(() => useSmartStepper({ steps: singleStep }));
       expect(result.current.canGoNext).toBe(false);
-      expect(result.current.canGoPrev).toBe(false);
+      // canGoPrev is true because you can go to -1 (before first step)
+      expect(result.current.canGoPrev).toBe(true);
     });
   });
 
@@ -220,7 +241,8 @@ describe("useSmartStepper", () => {
       const { result } = renderHook(() => useSmartStepper({ steps: [] }));
       expect(result.current.visualStepCount).toBe(0);
       expect(result.current.currentVisualIndex).toBe(-1);
-      expect(result.current.stepsUpToIndex).toBe(-1);
+      // stepsUpToIndex is 0 for -1 (before first step) to show no geometries
+      expect(result.current.stepsUpToIndex).toBe(0);
       expect(result.current.canGoNext).toBe(false);
       expect(result.current.canGoPrev).toBe(false);
     });
@@ -234,7 +256,8 @@ describe("useSmartStepper", () => {
       const { result } = renderHook(() => useSmartStepper({ steps: allNonVisual }));
       expect(result.current.visualStepCount).toBe(0);
       expect(result.current.currentVisualIndex).toBe(-1);
-      expect(result.current.stepsUpToIndex).toBe(-1);
+      // stepsUpToIndex is 0 for -1 (before first step) to show no geometries
+      expect(result.current.stepsUpToIndex).toBe(0);
       expect(result.current.canGoNext).toBe(false);
       expect(result.current.canGoPrev).toBe(false);
     });
@@ -246,7 +269,8 @@ describe("useSmartStepper", () => {
       expect(result.current.currentVisualIndex).toBe(0);
       expect(result.current.stepsUpToIndex).toBe(1);
       expect(result.current.canGoNext).toBe(false);
-      expect(result.current.canGoPrev).toBe(false);
+      // canGoPrev is true because you can go to -1 (before first step)
+      expect(result.current.canGoPrev).toBe(true);
     });
 
     it("handles all visual steps", () => {
@@ -311,7 +335,12 @@ describe("useSmartStepper", () => {
       expect(result.current.currentVisualIndex).toBe(0);
       expect(result.current.stepsUpToIndex).toBe(1);
 
-      // Can't go prev
+      // Can still go prev to -1 (before first step)
+      expect(result.current.canGoPrev).toBe(true);
+      act(() => result.current.goToPrev());
+      expect(result.current.currentVisualIndex).toBe(-1);
+      expect(result.current.stepsUpToIndex).toBe(0);
+      // Now can't go prev
       expect(result.current.canGoPrev).toBe(false);
     });
   });

@@ -467,7 +467,7 @@ export default function App(): JSX.Element {
     goToStep: goToStepV1,
     canGoNext: canGoNextV1,
     canGoPrev: canGoPrevV1,
-  } = useSmartStepper({ steps: sixfoldDslV1Steps });
+  } = useSmartStepper({ steps: sixfoldDslV1Steps, initialVisualIndex: -1 });
 
   // Keep refs in sync with latest stepper state
   useEffect(() => {
@@ -700,7 +700,7 @@ export default function App(): JSX.Element {
       setIsPlayingSixfoldDslV1(false);
     }
     storeSixFoldDslV1.clear();
-    goToStepV1(0);
+    goToStepV1(-1);
     setRestartKeySixfoldDslV1(restartKeySixfoldDslV1 + 1);
   };
 
@@ -1093,9 +1093,9 @@ export default function App(): JSX.Element {
             <GeometryPlayer
               svgRef={sixfoldDslV1SvgRef}
               svgConfig={standardSvgConfig}
-              currentStep={currentVisualIndexV1}
+              currentStep={currentVisualIndexV1 + 1}
               totalSteps={visualStepCountV1}
-              onStepChange={(step) => goToStepV1(step)}
+              onStepChange={(step) => goToStepV1(step - 1)}
               onFirstStep={handleFirstStepSixfoldDslV1}
               onPrevStep={handlePrevClickSixfoldDslV1}
               onNextStep={handleNextClickSixfoldDslV1}
