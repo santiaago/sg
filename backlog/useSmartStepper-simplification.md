@@ -7,6 +7,7 @@ The `useSmartStepper` hook exposes an implementation detail to its callers: to s
 ## Solution
 
 Adopt display-ready indexing in `useSmartStepper` so that:
+
 - `currentVisualIndex = 0` means "before first step" (no geometries executed, displays as "Current step 0/N")
 - `currentVisualIndex = N` means "at Nth visual step" (displays as "Current step N/N")
 - Remove the `initialVisualIndex` parameter — the hook always starts at "before first step" by default

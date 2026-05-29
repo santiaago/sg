@@ -3,6 +3,7 @@
 ## Problem Statement
 
 The Svelte application in `app/` directory is deprecated. It was the first implementation, later superseded by the TypeScript React application (`app2/`) with a declarative DSL. The deprecated Svelte app:
+
 - Blocks **type system consolidation** between `@sg/geometry` and `app2` (see ADR-0003)
 - Adds unnecessary maintenance burden
 - Confuses repository structure and documentation
@@ -25,6 +26,7 @@ Complete removal of the Svelte application from the monorepo. Create a git tag (
 ## Implementation Decisions
 
 ### Modules to Modify
+
 - **Workspace configuration**: Remove `app` from pnpm workspace list
 - **Root package scripts**: Remove Svelte-specific scripts (`build:apps`, `test:apps`), update `dev` and `build` to reference only app2
 - **Worktree manager**: Remove Svelte app file copying logic
@@ -34,12 +36,14 @@ Complete removal of the Svelte application from the monorepo. Create a git tag (
 - **Backlog tracking**: Mark removal task as complete in backlog/12-05-26.md
 
 ### Technical Clarifications
+
 - Svelte app (`app/`) is entirely self-contained with no external dependencies from other repo packages (app2 only depends on @sg/geometry)
 - Removal is complete: entire `app/` directory deleted, not archived in-place
 - Type system consolidation between app2 and @sg/geometry is a separate, subsequent effort
 - Git history preserved via tag for recovery if needed
 
 ### Architectural Decisions
+
 - Single app architecture: After removal, app2 becomes the sole application in the monorepo
 - Workspace simplification: pnpm workspace reduced from 3 to 2 members (packages/geometry, app2)
 - Script simplification: Root package.json scripts reflect single-app reality
@@ -47,6 +51,7 @@ Complete removal of the Svelte application from the monorepo. Create a git tag (
 ## Testing Decisions
 
 ### Verification Strategy
+
 - **Install**: `pnpm install` completes without errors (cleans orphaned dependencies)
 - **Build**: `pnpm build` successfully builds packages and app2
 - **Type check**: `pnpm type-check` passes for all TypeScript code
@@ -54,9 +59,11 @@ Complete removal of the Svelte application from the monorepo. Create a git tag (
 - **Git status**: Only expected file changes present (no unexpected deletions)
 
 ### What Makes a Good Test
+
 Tests verify external behavior only: that the monorepo builds, type-checks, and tests pass without the Svelte app. No implementation details of the removal process are tested.
 
 ### Prior Art
+
 Existing CI workflow (app2-pr.yml) already tests app2 independently. This workflow will continue to function unchanged after removal.
 
 ## Out of Scope
