@@ -467,7 +467,7 @@ export default function App(): JSX.Element {
     goToStep: goToStepV1,
     canGoNext: canGoNextV1,
     canGoPrev: canGoPrevV1,
-  } = useSmartStepper({ steps: sixfoldDslV1Steps, initialVisualIndex: -1 });
+  } = useSmartStepper({ steps: sixfoldDslV1Steps });
 
   // Keep refs in sync with latest stepper state
   useEffect(() => {
@@ -700,7 +700,7 @@ export default function App(): JSX.Element {
       setIsPlayingSixfoldDslV1(false);
     }
     storeSixFoldDslV1.clear();
-    goToStepV1(-1);
+    goToStepV1(0);
     setRestartKeySixfoldDslV1(restartKeySixfoldDslV1 + 1);
   };
 
@@ -712,7 +712,7 @@ export default function App(): JSX.Element {
       setIsPlayingSixfoldDslV1(false);
     }
     storeSixFoldDslV1.clear();
-    goToStepV1(visualStepCountV1 - 1);
+    goToStepV1(visualStepCountV1);
     setRestartKeySixfoldDslV1(restartKeySixfoldDslV1 + 1);
   };
 
@@ -741,7 +741,7 @@ export default function App(): JSX.Element {
         const currentIndex = currentVisualIndexV1Ref.current;
         const totalVisualSteps = visualStepCountV1Ref.current;
 
-        if (currentIndex >= 0 && currentIndex < totalVisualSteps - 1) {
+        if (currentIndex > 0 && currentIndex < totalVisualSteps) {
           goToNextV1();
         } else {
           // Stop when reaching the end
@@ -1093,9 +1093,9 @@ export default function App(): JSX.Element {
             <GeometryPlayer
               svgRef={sixfoldDslV1SvgRef}
               svgConfig={standardSvgConfig}
-              currentStep={currentVisualIndexV1 + 1}
+              currentStep={currentVisualIndexV1}
               totalSteps={visualStepCountV1}
-              onStepChange={(step) => goToStepV1(step - 1)}
+              onStepChange={(step) => goToStepV1(step)}
               onFirstStep={handleFirstStepSixfoldDslV1}
               onPrevStep={handlePrevClickSixfoldDslV1}
               onNextStep={handleNextClickSixfoldDslV1}
@@ -1121,7 +1121,7 @@ export default function App(): JSX.Element {
           <div className="col-span-2">
             <h2 className="text-lg font-medium mb-4">Right pane</h2>
             <p className="text-gray-300 mb-4">
-              Current step {currentVisualIndexV1 + 1}/{visualStepCountV1}
+              Current step {currentVisualIndexV1}/{visualStepCountV1}
             </p>
             <GeometryDetails
               store={storeSixFoldDslV1}
