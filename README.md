@@ -13,7 +13,6 @@ pnpm dev
 ## 📦 Packages
 
 - `@sg/geometry` - TypeScript geometry library (Points, Lines, Circles, Intersections)
-- `app/` - Svelte application
 - `app2/` - React application
 
 ## 🤖 Agent Skills
@@ -34,7 +33,7 @@ This directory is ignored by git and will be automatically copied to new worktre
 # Build
 pnpm build          # Build all
 pnpm build:packages # Build packages only
-pnpm build:apps     # Build apps only
+pnpm build:app2     # Build app2
 
 # Test
 pnpm test               # Run all tests (Vitest)
@@ -46,8 +45,8 @@ cd app2 && pnpm test:e2e          # Run E2E tests
 cd app2 && pnpm test:e2e:headed  # Run with visible browser
 
 # Dev
-pnpm dev            # Start Svelte app
-pnpm dev:app2       # Start React app
+pnpm dev            # Start React app
+pnpm dev:app2       # Start React app (alias)
 
 # Clean
 pnpm clean          # Remove node_modules, dist, coverage

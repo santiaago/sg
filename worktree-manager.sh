@@ -176,7 +176,6 @@ install_deps() {
     
     # Copy updated package.json files to worktree (worktree has git versions without workspace:* references)
     cp "$REPO_ROOT"/package.json "$path/"/
-    cp "$REPO_ROOT"/app/package.json "$path/app/"
     cp "$REPO_ROOT"/app2/package.json "$path/app2/"
     cp -r "$REPO_ROOT"/packages "$path/"
     # Copy agent-skills directory if it exists (cloned from https://github.com/addyosmani/agent-skills.git)

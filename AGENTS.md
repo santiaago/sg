@@ -5,12 +5,12 @@
 - **Repo**: https://github.com/santiaago/sg
 - In chat replies, file references must be repo-root relative only (example: `app2/src/components/GeometryList.tsx`); never absolute paths or `~/...`.
 - **Structure**: TypeScript monorepo with shared geometry utilities
-- **Apps**: Svelte (`app/`), React (`app2/`)
+- **Apps**: React (`app2/`)
 - **Shared Package**: `@sg/geometry` (`packages/geometry/`)
 
 ## Project Structure
 
-- source code: (original svelte `app`, new react app `app2`, shared geometry package at `packages/geometry`)
+- source code: (react app `app2`, shared geometry package at `packages/geometry`)
 - docs: `README.md`
 - backlog: Code review documents and tracking (`backlog/`)
 - code reviews: Detailed review reports in `backlog/` (e.g., `GEOMETRY_STEP_SYSTEM_REVIEW.md`)
@@ -51,7 +51,7 @@ git commit -m"<type>(<scope>): <description>" \
   -m"<optional footer>"
 ```
 
-- Scope is **MANDATORY** - use repo-root relative paths (e.g., `app2/squares`, `packages/geometry`, `app`, `backlog`), never `src/` or directory-only scopes like `app2`
+- Scope is **MANDATORY** - use repo-root relative paths (e.g., `app2/squares`, `packages/geometry`, `backlog`), never `src/` or directory-only scopes like `app2`
 - Group related changes; avoid bundling unrelated refactors.
 - You can be author of commit messages
 
