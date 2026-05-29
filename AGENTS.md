@@ -38,6 +38,11 @@
 
 ## Agent Instructions
 
+- When starting a new Vibe session in Ghostty, rename the tab to the path relative to `dev/`:
+  ```bash
+  printf "\033]0;${PWD#$HOME/dev/}\007"
+  ```
+
 ## Commit Guidelines
 
 - **NEVER COMMIT WITHOUT EXPLICIT PERMISSION** - I will always say "commit" or "do it" or similar to authorize a commit
