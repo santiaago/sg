@@ -16,9 +16,10 @@ import type { LineStyleOptions } from "./dsl/expressions/LineExpression";
  * Returns an array of Steps that can be executed by the standard step execution engine.
  *
  * @param renderer - Optional custom renderer for drawing geometry
+ * @param namespace - Namespace for step ID generation (default: "sixfold-v1")
  */
-export function buildSixfoldDslV1Steps(renderer?: GeometryRenderer): Step<SixFoldV0Config>[] {
-  const actualRenderer = renderer || new DefaultGeometryRenderer("");
+export function buildSixfoldDslV1Steps(renderer?: GeometryRenderer, namespace: string = "sixfold-v1"): Step<SixFoldV0Config>[] {
+  const actualRenderer = renderer || new DefaultGeometryRenderer(namespace);
   const builder = new GeometryBuilder<SixFoldV0Config>(actualRenderer);
 
   // Outline style - same as square polygon style in squareDslSteps.ts

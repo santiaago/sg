@@ -55,7 +55,7 @@ export class GeometryBuilder<TConfig> {
    */
   constructor(renderer?: GeometryRenderer) {
     this.expressions = new Map();
-    this.renderer = renderer ?? new DefaultGeometryRenderer();
+    this.renderer = renderer ?? new DefaultGeometryRenderer("default");
   }
 
   /**

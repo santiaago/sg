@@ -14,6 +14,11 @@ import type { LineStyleOptions } from "../expressions/LineExpression";
  */
 export interface GeometryRenderer {
   /**
+   * The namespace for this renderer, used for step ID generation.
+   * Prevents ID collisions across different DSL constructions.
+   */
+  readonly namespace: string;
+  /**
    * Draw a point geometry.
    * @param svg - The SVG element to draw into
    * @param values - Map of all geometry values

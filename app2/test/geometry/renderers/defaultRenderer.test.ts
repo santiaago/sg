@@ -16,7 +16,7 @@ describe("DefaultRenderer - type validation", () => {
   let theme: ReturnType<typeof createMockTheme>;
 
   beforeEach(() => {
-    renderer = new DefaultGeometryRenderer();
+    renderer = new DefaultGeometryRenderer("test");
     svg = createMockSVG();
     store = createMockGeometryStore();
     theme = createMockTheme();
@@ -219,18 +219,18 @@ describe("DefaultRenderer - type validation", () => {
 
   describe("currentStepId management", () => {
     it("should have empty currentStepId by default", () => {
-      const renderer = new DefaultGeometryRenderer();
+      const renderer = new DefaultGeometryRenderer("test");
       expect(renderer.getCurrentStepId()).toBe("");
     });
 
     it("should set and get currentStepId", () => {
-      const renderer = new DefaultGeometryRenderer();
+      const renderer = new DefaultGeometryRenderer("test");
       renderer.setCurrentStepId("step_foo");
       expect(renderer.getCurrentStepId()).toBe("step_foo");
     });
 
     it("should clear currentStepId when set to empty string", () => {
-      const renderer = new DefaultGeometryRenderer();
+      const renderer = new DefaultGeometryRenderer("test");
       renderer.setCurrentStepId("step_foo");
       renderer.setCurrentStepId("");
       expect(renderer.getCurrentStepId()).toBe("");

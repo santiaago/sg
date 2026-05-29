@@ -57,7 +57,7 @@ export class PolygonExpression<TConfig> implements GeometryExpression<TConfig, "
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
     const styleOptions = this.styleOptions;
-    const stepId = createStepId(this.id);
+    const stepId = createStepId(renderer.namespace, this.id);
 
     return {
       id: stepId,

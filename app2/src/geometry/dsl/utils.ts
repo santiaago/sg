@@ -5,14 +5,20 @@ import type { ParameterValue } from "./types";
 import { isGeometryFeatureReference } from "./types";
 
 /**
- * Create a step ID from a geometry expression ID.
- * All steps follow the naming convention: step_<expressionId>
+ * Create a step ID from a namespace and geometry expression ID.
+ * All steps follow the naming convention: step_<namespace>.<id>
+ * This prevents ID collisions across different DSL constructions.
  *
+ * @param namespace - The construction namespace (e.g., "square", "sixfold", "sixfold-v1")
  * @param id - The geometry expression ID
  * @returns The corresponding step ID
+ * @throws Error if namespace is empty or undefined
  */
-export function createStepId(id: string): string {
-  return `step_${id}`;
+export function createStepId(namespace: string, id: string): string {
+  if (!namespace || namespace.trim() === "") {
+    throw new Error(`createStepId: namespace must be a non-empty string, received: ${namespace}`);
+  }
+  return `step_${namespace}.${id}`;
 }
 
 /**

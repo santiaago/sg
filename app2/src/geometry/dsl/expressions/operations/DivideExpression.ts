@@ -72,7 +72,7 @@ export class DivideExpression<TConfig> implements GeometryExpression<TConfig, "p
    */
   compile(_renderer: GeometryRenderer): Step<TConfig> {
     return {
-      id: createStepId(this.id),
+      id: createStepId(renderer.namespace, this.id),
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,

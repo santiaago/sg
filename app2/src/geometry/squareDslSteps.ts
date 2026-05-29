@@ -17,10 +17,11 @@ import type { Step } from "../types/geometry";
  * Returns an array of Steps that can be executed by the standard step execution engine.
  *
  * @param renderer - Optional custom renderer for drawing geometry
+ * @param namespace - Namespace for step ID generation (default: "square")
  * @returns Array of Steps for the square construction
  */
-export function buildSquareDslSteps(renderer?: GeometryRenderer): Step<SquareConfig>[] {
-  const actualRenderer = renderer || new DefaultGeometryRenderer("");
+export function buildSquareDslSteps(renderer?: GeometryRenderer, namespace: string = "square"): Step<SquareConfig>[] {
+  const actualRenderer = renderer || new DefaultGeometryRenderer(namespace);
   const builder = new GeometryBuilder<SquareConfig>(actualRenderer);
 
   // Step 1: Coordinate system - arrowLength references height via coordinateSystemArrowLength

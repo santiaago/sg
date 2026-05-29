@@ -24,12 +24,18 @@ import { POINT_RADIUS_MEDIUM, STROKE_WIDTH_THIN } from "@/config/geometryConfig"
  */
 export class DefaultGeometryRenderer implements GeometryRenderer {
   private currentStepId: string;
+  readonly namespace: string;
 
   /**
    * Create a new DefaultGeometryRenderer.
-   * @param currentStepId - The ID of the current step to highlight
+   * @param namespace - The namespace for step ID generation (e.g., "square", "sixfold")
+   * @param currentStepId - The ID of the current step to highlight (default: "")
    */
-  constructor(currentStepId: string = "") {
+  constructor(namespace: string, currentStepId: string = "") {
+    if (!namespace || namespace.trim() === "") {
+      throw new Error(`DefaultGeometryRenderer: namespace must be a non-empty string, received: ${namespace}`);
+    }
+    this.namespace = namespace;
     this.currentStepId = currentStepId;
   }
 

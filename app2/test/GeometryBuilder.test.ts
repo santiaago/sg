@@ -74,7 +74,7 @@ describe("GeometryBuilder", () => {
 
     it("uses DefaultGeometryRenderer by default", () => {
       const _p1 = builder.point("P1", 10, 20);
-      const step = _p1.compile(new DefaultGeometryRenderer());
+      const step = _p1.compile(new DefaultGeometryRenderer("test"));
 
       // Need to provide the computed value for draw to work
       const values = new Map<string, GeometryValue>([["P1", { type: "point", x: 10, y: 20 }]]);

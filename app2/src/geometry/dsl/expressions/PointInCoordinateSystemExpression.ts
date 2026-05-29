@@ -92,7 +92,7 @@ export class PointInCoordinateSystemExpression<TConfig> implements GeometryExpre
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
-    const stepId = createStepId(this.id);
+    const stepId = createStepId(renderer.namespace, this.id);
     return {
       id: stepId,
       inputs: this.dependencies,

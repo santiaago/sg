@@ -93,7 +93,7 @@ export const SquareDslSvg = forwardRef(function SquareDslSvg(
   }, [svgConfig.width, svgConfig.height]);
 
   // Memoize renderer to avoid recreating on every render
-  const renderer = useMemo(() => new DefaultGeometryRenderer(""), []);
+  const renderer = useMemo(() => new DefaultGeometryRenderer("square"), []);
 
   // Effect 1: SVG container setup - ONLY when dimensions or theme change
   useEffect(() => {
@@ -124,7 +124,7 @@ export const SquareDslSvg = forwardRef(function SquareDslSvg(
 
     try {
       // Build steps using memoized renderer
-      const allSteps = buildSquareDslSteps(renderer);
+      const allSteps = buildSquareDslSteps(renderer, "square");
 
       // Set current step ID for highlighting
       const currentStepId =

@@ -70,7 +70,7 @@ export class AddExpression<TConfig> implements GeometryExpression<TConfig, "poin
    */
   compile(_renderer: GeometryRenderer): Step<TConfig> {
     return {
-      id: createStepId(this.id),
+      id: createStepId(renderer.namespace, this.id),
       inputs: this.dependencies,
       outputs: [this.id],
       parameters: this.parameters,

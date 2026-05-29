@@ -57,7 +57,7 @@ export class PointExpression<TConfig> implements GeometryExpression<TConfig, "po
   }
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
-    const stepId = createStepId(this.id);
+    const stepId = createStepId(renderer.namespace, this.id);
     return {
       id: stepId,
       inputs: this.dependencies,

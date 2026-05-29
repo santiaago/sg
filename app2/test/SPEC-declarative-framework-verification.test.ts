@@ -1044,7 +1044,7 @@ describe("SC-10: Line Extension Separate - lineTowards method", () => {
 
 describe("Renderer Interface - Dependency Injection", () => {
   it("DefaultGeometryRenderer implements GeometryRenderer interface", () => {
-    const renderer = new DefaultGeometryRenderer();
+    const renderer = new DefaultGeometryRenderer("test");
     expect(typeof renderer.drawPoint).toBe("function");
     expect(typeof renderer.drawLine).toBe("function");
     expect(typeof renderer.drawCircle).toBe("function");
@@ -1053,14 +1053,14 @@ describe("Renderer Interface - Dependency Injection", () => {
   });
 
   it("DefaultGeometryRenderer can be passed to GeometryBuilder", () => {
-    const renderer = new DefaultGeometryRenderer();
+    const renderer = new DefaultGeometryRenderer("test");
     const builder = new GeometryBuilder<SquareConfig>(renderer);
     expect(builder).toBeDefined();
   });
 
   it("setRenderer returns this for chaining", () => {
     const builder = new GeometryBuilder<SquareConfig>();
-    const renderer = new DefaultGeometryRenderer();
+    const renderer = new DefaultGeometryRenderer("test");
     const result = builder.setRenderer(renderer);
     expect(result).toBe(builder);
   });

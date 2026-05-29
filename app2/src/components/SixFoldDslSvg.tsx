@@ -105,7 +105,7 @@ export const SixFoldDslSvg = forwardRef(function SixFoldDslSvg(
   }, [svgConfig.width, svgConfig.height, svgConfig.viewBox, theme]);
 
   // Memoize renderer to avoid recreating on every render
-  const renderer = useMemo(() => new DefaultGeometryRenderer(""), []);
+  const renderer = useMemo(() => new DefaultGeometryRenderer("sixfold"), []);
 
   // Effect 2: DSL construction and step execution - ONLY when step, restart, config, or theme changes
   useEffect(() => {
@@ -124,7 +124,7 @@ export const SixFoldDslSvg = forwardRef(function SixFoldDslSvg(
 
     try {
       // Build steps using memoized renderer
-      const allSteps = buildSixfoldDslSteps(renderer);
+      const allSteps = buildSixfoldDslSteps(renderer, "sixfold");
 
       // Set current step ID for highlighting
       const currentStepId =

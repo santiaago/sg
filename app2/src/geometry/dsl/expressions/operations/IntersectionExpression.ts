@@ -67,7 +67,7 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
     // Determine index based on position option
     // left = 0, right = 1 (matching interceptCircleLineDirHelper semantics)
     const positionIndex = this.options.position === "right" ? 1 : 0;
-    const stepId = createStepId(this.id);
+    const stepId = createStepId(renderer.namespace, this.id);
 
     return {
       id: stepId,

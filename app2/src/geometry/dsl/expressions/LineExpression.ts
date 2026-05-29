@@ -167,7 +167,7 @@ export class LineExpression<TConfig> implements GeometryExpression<TConfig, "lin
 
   compile(renderer: GeometryRenderer): Step<TConfig> {
     const styleOptions = this.styleOptions;
-    const stepId = createStepId(this.id);
+    const stepId = createStepId(renderer.namespace, this.id);
 
     return {
       id: stepId,

@@ -323,7 +323,7 @@ describe("LineStyleOptions", () => {
     let ctx: ReturnType<typeof createTestContext>;
 
     beforeEach(() => {
-      renderer = new DefaultGeometryRenderer();
+      renderer = new DefaultGeometryRenderer("test");
       ctx = createTestContext();
     });
 
@@ -523,7 +523,7 @@ describe("LineStyleOptions", () => {
     });
 
     it("renderer drawLine still works without style options", () => {
-      const renderer = new DefaultGeometryRenderer();
+      const renderer = new DefaultGeometryRenderer("test");
       const ctx = createTestContext();
 
       // Provide valid line geometry
