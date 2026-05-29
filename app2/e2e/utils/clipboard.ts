@@ -1,5 +1,5 @@
 import { type Page } from "@playwright/test";
-import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1 } from "../fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL, SECTION_SIXFOLD_DSL_V1 } from "../fixtures";
 
 /**
  * Clipboard helpers
@@ -10,9 +10,12 @@ import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1 } from "../fixtures";
  */
 export async function getSVGContent(
   page: Page,
-  section: typeof SECTION_SQUARE_DSL | typeof SECTION_SIXFOLD_DSL_V1,
+  section: typeof SECTION_SQUARE_DSL | typeof SECTION_SIXFOLD_DSL | typeof SECTION_SIXFOLD_DSL_V1,
 ): Promise<string> {
-  const svgTestId = section === SECTION_SQUARE_DSL ? "square-dsl-svg" : "sixfold-dsl-v1-svg";
+  const svgTestId =
+    section === SECTION_SQUARE_DSL ? "square-dsl-svg" :
+    section === SECTION_SIXFOLD_DSL ? "sixfold-dsl-svg" :
+    "sixfold-dsl-v1-svg";
   return await page.getByTestId(svgTestId).evaluate((svg) => {
     const serializer = new XMLSerializer();
     return serializer.serializeToString(svg);

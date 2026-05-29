@@ -24,11 +24,18 @@ test.describe("Navigation & URL Hash", () => {
   });
 
   test.describe("Direct navigation", () => {
-    test("Loading /#square-dsl-dsl scrolls to Square DSL section", async ({ page }) => {
-      await page.goto("/#square-dsl-dsl");
+    test("Loading /#square-dsl scrolls to Square DSL section", async ({ page }) => {
+      await page.goto("/#square-dsl");
       await waitForPageLoad(page);
 
-      await expect(page.locator("#square-dsl-dsl")).toBeVisible();
+      await expect(page.locator("#square-dsl")).toBeVisible();
+    });
+
+    test("Loading /#sixfold-dsl scrolls to SixFold DSL section", async ({ page }) => {
+      await page.goto("/#sixfold-dsl");
+      await waitForPageLoad(page);
+
+      await expect(page.locator("#sixfold-dsl")).toBeVisible();
     });
 
     test("Loading /#sixfold-dsl-v1 scrolls to SixFold DSL v1 section", async ({ page }) => {
@@ -38,8 +45,8 @@ test.describe("Navigation & URL Hash", () => {
       await expect(page.locator("#sixfold-dsl-v1")).toBeVisible();
     });
 
-    test("Loading /#square-dsl-dsl activates Square DSL nav button", async ({ page }) => {
-      await page.goto("/#square-dsl-dsl");
+    test("Loading /#square-dsl activates Square DSL nav button", async ({ page }) => {
+      await page.goto("/#square-dsl");
       await waitForPageLoad(page);
 
       const squareButton = page.getByTestId("nav-square-dsl");
@@ -68,13 +75,13 @@ test.describe("Navigation & URL Hash", () => {
         window.location.hash = "square-dsl";
       });
 
-      await expect(page.locator("#square-dsl-dsl")).toBeVisible();
+      await expect(page.locator("#square-dsl")).toBeVisible();
     });
 
     test('Manually setting window.location.hash = "sixfold-dsl-v1" navigates to SixFold DSL v1', async ({
       page,
     }) => {
-      await page.goto("/#square-dsl-dsl");
+      await page.goto("/#square-dsl");
       await waitForPageLoad(page);
 
       await page.evaluate(() => {
@@ -93,14 +100,14 @@ test.describe("Navigation & URL Hash", () => {
     });
 
     test("Hash with query parameters works correctly", async ({ page }) => {
-      await page.goto("/#square-dsl-dsl?test=1");
+      await page.goto("/#square-dsl?test=1");
       await waitForPageLoad(page);
 
-      await expect(page.locator("#square-dsl-dsl")).toBeVisible();
+      await expect(page.locator("#square-dsl")).toBeVisible();
     });
 
     test("Navigating back/forward in browser preserves hash state", async ({ page }) => {
-      await page.goto("/#square-dsl-dsl");
+      await page.goto("/#square-dsl");
       await waitForPageLoad(page);
 
       await page.goto("/#sixfold-dsl-v1");
@@ -110,7 +117,7 @@ test.describe("Navigation & URL Hash", () => {
       await page.goBack();
       await waitForPageLoad(page);
 
-      await expect(page.locator("#square-dsl-dsl")).toBeVisible();
+      await expect(page.locator("#square-dsl")).toBeVisible();
 
       // Go forward
       await page.goForward();
@@ -202,7 +209,7 @@ test.describe("Navigation & URL Hash", () => {
       expect(currentStep).toBe(0);
 
       // Prev button should be disabled at step 0
-      const prevButton = page.locator("#square-dsl-dsl").getByTestId("step-prev");
+      const prevButton = page.locator("#square-dsl").getByTestId("step-prev");
       await expect(prevButton).toBeDisabled();
     });
 
@@ -260,7 +267,7 @@ test.describe("Navigation & URL Hash", () => {
       expect(currentStep).toBe(0);
     });
 
-    test("Square: can navigate forward and backward multiple times", async ({ page }) => {
+    test("Square DSL: can navigate forward and backward multiple times", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
 
       // Note: App starts at step 0
@@ -289,7 +296,7 @@ test.describe("Navigation & URL Hash", () => {
       expect(currentStep).toBe(4);
     });
 
-    test("SixFold v0: can navigate forward and backward multiple times", async ({ page }) => {
+    test("SixFold DSL v1: can navigate forward and backward multiple times", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       // Note: App starts at step 0
@@ -318,7 +325,7 @@ test.describe("Navigation & URL Hash", () => {
       expect(currentStep).toBe(4);
     });
 
-    test("Square: can click next, then prev, then next again", async ({ page }) => {
+    test("Square DSL: can click next, then prev, then next again", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
 
       // Note: App starts at step 0
@@ -341,7 +348,7 @@ test.describe("Navigation & URL Hash", () => {
       expect(currentStep).toBe(1);
     });
 
-    test("SixFold v0: can click next, then prev, then next again", async ({ page }) => {
+    test("SixFold DSL v1: can click next, then prev, then next again", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       // Note: App starts at step 0
@@ -366,21 +373,21 @@ test.describe("Navigation & URL Hash", () => {
   });
 
   test.describe("First and Last button states", () => {
-    test("Square: First (<<) button is disabled at step 0", async ({ page }) => {
+    test("Square DSL: First (<<) button is disabled at step 0", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
 
       const firstButton = page.locator("#square-dsl").getByTestId("step-first");
       await expect(firstButton).toBeDisabled();
     });
 
-    test("Square: Last (>>) button is enabled at step 0", async ({ page }) => {
+    test("Square DSL: Last (>>) button is enabled at step 0", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
 
       const lastButton = page.locator("#square-dsl").getByTestId("step-last");
       await expect(lastButton).toBeEnabled();
     });
 
-    test("Square: First (<<) button is enabled at last step", async ({ page }) => {
+    test("Square DSL: First (<<) button is enabled at last step", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
       await clickLastButton(page, SECTION_SQUARE_DSL);
 
@@ -388,7 +395,7 @@ test.describe("Navigation & URL Hash", () => {
       await expect(firstButton).toBeEnabled();
     });
 
-    test("Square: Last (>>) button is disabled at last step", async ({ page }) => {
+    test("Square DSL: Last (>>) button is disabled at last step", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
       await clickLastButton(page, SECTION_SQUARE_DSL);
 
@@ -396,21 +403,21 @@ test.describe("Navigation & URL Hash", () => {
       await expect(lastButton).toBeDisabled();
     });
 
-    test("SixFold v0: First (<<) button is disabled at step 0", async ({ page }) => {
+    test("SixFold DSL v1: First (<<) button is disabled at step 0", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       const firstButton = page.locator("#sixfold-dsl-v1").getByTestId("step-first");
       await expect(firstButton).toBeDisabled();
     });
 
-    test("SixFold v0: Last (>>) button is enabled at step 0", async ({ page }) => {
+    test("SixFold DSL v1: Last (>>) button is enabled at step 0", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       const lastButton = page.locator("#sixfold-dsl-v1").getByTestId("step-last");
       await expect(lastButton).toBeEnabled();
     });
 
-    test("SixFold v0: First (<<) button is enabled at last step", async ({ page }) => {
+    test("SixFold DSL v1: First (<<) button is enabled at last step", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
       await clickLastButton(page, SECTION_SIXFOLD_DSL_V1);
 
@@ -418,7 +425,7 @@ test.describe("Navigation & URL Hash", () => {
       await expect(firstButton).toBeEnabled();
     });
 
-    test("SixFold v0: Last (>>) button is disabled at last step", async ({ page }) => {
+    test("SixFold DSL v1: Last (>>) button is disabled at last step", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
       await clickLastButton(page, SECTION_SIXFOLD_DSL_V1);
 
@@ -428,7 +435,7 @@ test.describe("Navigation & URL Hash", () => {
   });
 
   test.describe("Complete navigation cycle", () => {
-    test("Square: complete navigation cycle", async ({ page }) => {
+    test("Square DSL: complete navigation cycle", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
 
       // Start at step 0 (app starts at step 0)
@@ -460,7 +467,7 @@ test.describe("Navigation & URL Hash", () => {
       expect(currentStep).toBe(1);
     });
 
-    test("SixFold v0: complete navigation cycle", async ({ page }) => {
+    test("SixFold DSL v1: complete navigation cycle", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       // Start at step 0 (app starts at step 0, not step 1)

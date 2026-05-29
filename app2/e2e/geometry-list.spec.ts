@@ -19,7 +19,7 @@ import {
 /**
  * Geometry List Tests
  * Priority: High
- * Setup: Navigate to section with geometries (SixFold v0 step 1 or Square step 5)
+ * Setup: Navigate to section with geometries (SixFold DSL v1 step 1 or Square DSL step 5)
  */
 
 test.describe("Geometry List", () => {
@@ -283,7 +283,7 @@ test.describe("Geometry List", () => {
       // Apply a filter that matches nothing
       await filterByName(page, "nonexistent_geometry_xyz", `#${SECTION_SIXFOLD_DSL_V1}`);
 
-      // Check for "No items" or empty list - scope to sixfold-v0 section
+      // Check for "No items" or empty list - scope to SixFold DSL v1 section
       const items = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list li`);
       await expect(items).toHaveCount(0);
     });
@@ -303,12 +303,12 @@ test.describe("Geometry List", () => {
     });
   });
 
-  test.describe("Square section", () => {
-    test("Geometry list works in Square section", async ({ page }) => {
+  test.describe("Square DSL section", () => {
+    test("Geometry list works in Square DSL section", async ({ page }) => {
       // Step 3 has the first circle in Square
       await goToStep(page, SECTION_SQUARE_DSL, 3);
 
-      // Get the Square section's geometry list
+      // Get the Square DSL section's geometry list
       const squareSection = page.locator(`#${SECTION_SQUARE_DSL}`);
       const geometryList = squareSection.locator(".geometry-list");
       await expect(geometryList).toBeVisible();
@@ -318,10 +318,10 @@ test.describe("Geometry List", () => {
       expect(count).toBeGreaterThan(0);
     });
 
-    test("Filtering works in Square section", async ({ page }) => {
+    test("Filtering works in Square DSL section", async ({ page }) => {
       await goToStep(page, SECTION_SQUARE_DSL, 5);
 
-      // Get the Square section's geometry list
+      // Get the Square DSL section's geometry list
       const squareSection = page.locator(`#${SECTION_SQUARE_DSL}`);
       const geometryList = squareSection.locator(".geometry-list");
       const items = geometryList.locator("li");

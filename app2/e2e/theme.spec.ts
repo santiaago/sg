@@ -68,13 +68,13 @@ test.describe("Theme Toggling", () => {
       await toggleTheme(page);
       await assertTheme(page, THEME.LIGHT);
 
-      // Navigate to Square section
+      // Navigate to Square DSL section
       await goToSection(page, SECTION_SQUARE_DSL);
 
       // Theme should still be light
       await assertTheme(page, THEME.LIGHT);
 
-      // Navigate back to SixFold v0
+      // Navigate back to SixFold DSL v1
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       // Theme should still be light
@@ -111,7 +111,7 @@ test.describe("Theme Toggling", () => {
 
   test.describe("Visual feedback", () => {
     test("Theme toggle updates SVG background color", async ({ page }) => {
-      const svg = page.getByTestId("sixfoldv0-svg");
+      const svg = page.getByTestId("sixfold-dsl-v1-svg");
 
       // Get initial background color (dark theme)
       const initialBg = await svg.evaluate((el) => {
@@ -192,7 +192,7 @@ test.describe("Theme Toggling", () => {
       await assertTheme(page, THEME.DARK);
     });
 
-    test("Theme toggle works from Square section", async ({ page }) => {
+    test("Theme toggle works from Square DSL section", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
 
       // Toggle theme

@@ -17,7 +17,7 @@ test.describe("Copy URL Functionality", () => {
   });
 
   test("Copy URL button copies current URL with hash to clipboard", async ({ page }) => {
-    // Navigate to Square section
+    // Navigate to Square DSL section
     await goToSection(page, SECTION_SQUARE_DSL);
 
     // Click Copy URL button (use .first() since there may be multiple in different sections)
@@ -63,7 +63,7 @@ test.describe("Copy URL Functionality", () => {
     });
   });
 
-  test("Copy URL works from Square section", async ({ page }) => {
+  test("Copy URL works from Square DSL section", async ({ page }) => {
     await goToSection(page, SECTION_SQUARE_DSL);
 
     await page.locator("#square-dsl").getByTestId("copy-url-btn").click();
@@ -71,7 +71,7 @@ test.describe("Copy URL Functionality", () => {
     await assertClipboardContains(page, "square-dsl");
   });
 
-  test("Copy URL works from SixFold v0 section", async ({ page }) => {
+  test("Copy URL works from SixFold DSL v1 section", async ({ page }) => {
     await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
     await page.locator("#sixfold-dsl-v1").getByTestId("copy-url-btn").click();
@@ -108,17 +108,17 @@ test.describe("Copy URL Functionality", () => {
   });
 
   test("Copy URL button is visible in both sections", async ({ page }) => {
-    // Check SixFold v0 section
+    // Check SixFold DSL v1 section
     await goToSection(page, SECTION_SIXFOLD_DSL_V1);
     await expect(page.locator("#sixfold-dsl-v1").getByTestId("copy-url-btn")).toBeVisible();
 
-    // Check Square section
+    // Check Square DSL section
     await goToSection(page, SECTION_SQUARE_DSL);
     await expect(page.locator("#square-dsl").getByTestId("copy-url-btn")).toBeVisible();
   });
 
   test("Copy URL works after navigating between sections", async ({ page }) => {
-    // Start at SixFold v0
+    // Start at SixFold DSL v1
     await goToSection(page, SECTION_SIXFOLD_DSL_V1);
     await page.locator("#sixfold-dsl-v1").getByTestId("copy-url-btn").click();
     await assertClipboardContains(page, "sixfold-dsl-v1");

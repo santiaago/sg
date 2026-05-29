@@ -225,8 +225,8 @@ test.describe("Input Highlighting", () => {
     });
   });
 
-  test.describe("Square section", () => {
-    test("Input highlighting works in Square section", async ({ page }) => {
+  test.describe("Square DSL section", () => {
+    test("Input highlighting works in Square DSL section", async ({ page }) => {
       await goToStep(page, SECTION_SQUARE_DSL, 10);
 
       const inputsButton = page.getByTestId("inputs-toggle").first();

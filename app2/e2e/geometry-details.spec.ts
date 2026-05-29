@@ -250,8 +250,8 @@ test.describe("Geometry Details Panel", () => {
     });
   });
 
-  test.describe("Square section", () => {
-    test("Details panel works in Square section", async ({ page }) => {
+  test.describe("Square DSL section", () => {
+    test("Details panel works in Square DSL section", async ({ page }) => {
       await goToStep(page, SECTION_SQUARE_DSL, 1);
 
       const geometryList = page.locator("#square-dsl .geometry-list");

@@ -5,6 +5,7 @@
 
 // Section identifiers
 export const SECTION_SQUARE_DSL = "square-dsl";
+export const SECTION_SIXFOLD_DSL = "sixfold-dsl";
 export const SECTION_SIXFOLD_DSL_V1 = "sixfold-dsl-v1";
 
 // Square DSL section geometry names (from DSL construction)
@@ -61,6 +62,7 @@ export const GEOMETRY_TYPES = ["point", "line", "circle", "polygon"] as const;
 // Navigation button selectors
 export const NAV_BUTTONS = {
   SQUARE_DSL: "Square DSL",
+  SIXFOLD_DSL: "SixFold DSL",
   SIXFOLD_DSL_V1: "SixFold DSL v1",
 } as const;
 
