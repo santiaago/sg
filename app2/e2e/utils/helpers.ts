@@ -10,7 +10,7 @@ export async function waitForPageLoad(page: Page, timeout: number = 10000): Prom
   // Wait for navigation to be ready
   await page.waitForSelector("nav", { state: "visible", timeout: 10000 });
   // Wait for first section to be visible
-  await page.waitForSelector("#sixfold-v0", { state: "visible", timeout: 10000 });
+  await page.waitForSelector("#sixfold-dsl-v1", { state: "visible", timeout: 10000 });
   // Wait for SVG to be ready
   await page.waitForSelector("[data-testid='sixfoldv0-svg']", { state: "visible", timeout: 10000 });
   // Wait for geometry list to be ready

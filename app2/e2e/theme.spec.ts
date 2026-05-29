@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SIXFOLD_V0, SECTION_SQUARE, THEME } from "./fixtures";
+import { SECTION_SIXFOLD_DSL_V1, SECTION_SQUARE_DSL, THEME } from "./fixtures";
 import { goToSection } from "./utils/navigation";
 import { assertTheme, toggleTheme } from "./utils/assertions";
 import { waitForPageLoad } from "./utils/helpers";
@@ -69,13 +69,13 @@ test.describe("Theme Toggling", () => {
       await assertTheme(page, THEME.LIGHT);
 
       // Navigate to Square section
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
       // Theme should still be light
       await assertTheme(page, THEME.LIGHT);
 
       // Navigate back to SixFold v0
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       // Theme should still be light
       await assertTheme(page, THEME.LIGHT);
@@ -154,8 +154,8 @@ test.describe("Theme Toggling", () => {
 
     test("All UI elements adapt to theme change", async ({ page }) => {
       // Go to step 1 to ensure geometry list has items
-      await goToSection(page, SECTION_SIXFOLD_V0);
-      await page.locator("#sixfold-v0").getByTestId("step-next").click();
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
+      await page.locator("#sixfold-dsl-v1").getByTestId("step-next").click();
       await page.waitForTimeout(500);
 
       // Toggle theme
@@ -166,7 +166,7 @@ test.describe("Theme Toggling", () => {
       await expect(nav).toBeVisible();
 
       // Check that SVG container adapts
-      const svgContainer = page.locator("#sixfold-v0");
+      const svgContainer = page.locator("#sixfold-dsl-v1");
       await expect(svgContainer).toBeVisible();
 
       // Check that geometry list adapts (use first to avoid multiple matches)
@@ -193,7 +193,7 @@ test.describe("Theme Toggling", () => {
     });
 
     test("Theme toggle works from Square section", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
       // Toggle theme
       await toggleTheme(page);

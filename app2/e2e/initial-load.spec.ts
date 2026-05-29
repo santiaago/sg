@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SIXFOLD_V0, SECTION_SQUARE, THEME, SVG_CONFIG } from "./fixtures";
+import { SECTION_SIXFOLD_DSL_V1, SECTION_SQUARE_DSL, THEME, SVG_CONFIG } from "./fixtures";
 import { goToSection, getCurrentStep } from "./utils/navigation";
 import { assertTheme } from "./utils/assertions";
 import { waitForPageLoad } from "./utils/helpers";
@@ -43,18 +43,18 @@ test.describe("Initial Page Load", () => {
 
   test("Defaults to first section in navigation order", async ({ page }) => {
     // The first section should be visible
-    await expect(page.locator("#sixfold-v0")).toBeVisible();
+    await expect(page.locator("#sixfold-dsl-v1")).toBeVisible();
   });
 
   test("First section starts at step 0 (initial state)", async ({ page }) => {
-    const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
+    const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_DSL_V1);
     // The app starts at step 0, not step 1
     expect(currentStep).toBe(0);
   });
 
   test("SixFold v0 section is the active section initially", async ({ page }) => {
     // The default section is sixfold-v0
-    await expect(page.locator("#sixfold-v0")).toBeVisible();
+    await expect(page.locator("#sixfold-dsl-v1")).toBeVisible();
     // Square section exists in DOM but may or may not be visible depending on viewport
     // Instead, check that SixFold v0 is the active section
     const sixfoldNav = page.getByTestId("nav-sixfold-v0");
@@ -95,7 +95,7 @@ test.describe("Initial Page Load", () => {
   });
 
   test("Square SVG has correct dimensions", async ({ page }) => {
-    await goToSection(page, SECTION_SQUARE);
+    await goToSection(page, SECTION_SQUARE_DSL);
 
     const svg = page.getByTestId("square-svg");
     await expect(svg).toBeVisible();

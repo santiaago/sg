@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from "./fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1 } from "./fixtures";
 import { goToSection, getCurrentStep } from "./utils/navigation";
 import { waitForPageLoad } from "./utils/helpers";
 
@@ -16,16 +16,16 @@ test.describe("Slider Navigation", () => {
 
   test.describe("Square", () => {
     test("Slider exists for Square section", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
-      const slider = page.locator('#square input[type="range"]');
+      const slider = page.locator('#square-dsl input[type="range"]');
       await expect(slider).toBeVisible();
     });
 
     test("Slider min = 0, max = total steps for Square", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
-      const slider = page.locator('#square input[type="range"]');
+      const slider = page.locator('#square-dsl input[type="range"]');
 
       const min = await slider.getAttribute("min");
       const max = await slider.getAttribute("max");
@@ -37,20 +37,20 @@ test.describe("Slider Navigation", () => {
     });
 
     test("Slider value matches current step", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
-      const slider = page.locator('#square input[type="range"]');
-      const currentStep = await getCurrentStep(page, SECTION_SQUARE);
+      const slider = page.locator('#square-dsl input[type="range"]');
+      const currentStep = await getCurrentStep(page, SECTION_SQUARE_DSL);
 
       const value = await slider.getAttribute("value");
       expect(parseInt(value || "0", 10)).toBe(currentStep);
     });
 
     test("Dragging slider updates current step", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
-      const slider = page.locator('#square input[type="range"]');
-      const section = page.locator("#square");
+      const slider = page.locator('#square-dsl input[type="range"]');
+      const section = page.locator("#square-dsl");
 
       // Click at the 27.78% position (5/18) of the slider to go to step 5
       const box = await slider.boundingBox();
@@ -62,18 +62,18 @@ test.describe("Slider Navigation", () => {
       // Wait for React state to update and step to change
       await expect(section.getByText(/Current step 5\/\d+/)).toBeVisible({ timeout: 5000 });
 
-      const currentStep = await getCurrentStep(page, SECTION_SQUARE);
+      const currentStep = await getCurrentStep(page, SECTION_SQUARE_DSL);
       expect(currentStep).toBe(5);
     });
 
     test("Slider thumb position matches step percentage", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
-      const slider = page.locator('#square input[type="range"]');
+      const slider = page.locator('#square-dsl input[type="range"]');
 
       // Go to step 9 (50% of 18 steps, starting from step 0)
       for (let i = 0; i < 9; i++) {
-        await page.locator("#square").getByTestId("step-next").click();
+        await page.locator("#square-dsl").getByTestId("step-next").click();
       }
 
       // Check slider value
@@ -82,9 +82,9 @@ test.describe("Slider Navigation", () => {
     });
 
     test("Slider step labels show 0 and max", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
-      const labels = page.locator("#square .text-xs.text-gray-400 span");
+      const labels = page.locator("#square-dsl .text-xs.text-gray-400 span");
       const count = await labels.count();
 
       expect(count).toBe(2);
@@ -97,10 +97,10 @@ test.describe("Slider Navigation", () => {
     });
 
     test("Slider is keyboard accessible (arrow keys change value)", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
-      const slider = page.locator('#square input[type="range"]');
-      const section = page.locator("#square");
+      const slider = page.locator('#square-dsl input[type="range"]');
+      const section = page.locator("#square-dsl");
       await slider.focus();
 
       // Get initial value
@@ -123,16 +123,16 @@ test.describe("Slider Navigation", () => {
 
   test.describe("SixFold v0", () => {
     test("Slider exists for SixFold v0 section", async ({ page }) => {
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const slider = page.locator('#sixfold-v0 input[type="range"]');
+      const slider = page.locator('#sixfold-dsl-v1 input[type="range"]');
       await expect(slider).toBeVisible();
     });
 
     test("Slider min = 1, max = total steps (93)", async ({ page }) => {
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const slider = page.locator('#sixfold-v0 input[type="range"]');
+      const slider = page.locator('#sixfold-dsl-v1 input[type="range"]');
 
       const min = await slider.getAttribute("min");
       const max = await slider.getAttribute("max");
@@ -144,20 +144,20 @@ test.describe("Slider Navigation", () => {
     });
 
     test("Slider value matches current step", async ({ page }) => {
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const slider = page.locator('#sixfold-v0 input[type="range"]');
-      const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
+      const slider = page.locator('#sixfold-dsl-v1 input[type="range"]');
+      const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_DSL_V1);
 
       const value = await slider.getAttribute("value");
       expect(parseInt(value || "0", 10)).toBe(currentStep);
     });
 
     test("Dragging slider updates current step", async ({ page }) => {
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const slider = page.locator('#sixfold-v0 input[type="range"]');
-      const section = page.locator("#sixfold-v0");
+      const slider = page.locator('#sixfold-dsl-v1 input[type="range"]');
+      const section = page.locator("#sixfold-dsl-v1");
 
       // Click at the 48.39% position (45/93) of the slider to go to step 45
       const box = await slider.boundingBox();
@@ -169,18 +169,18 @@ test.describe("Slider Navigation", () => {
       // Wait for React state to update and step to change
       await expect(section.getByText(/Current step 45\/\d+/)).toBeVisible({ timeout: 5000 });
 
-      const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_V0);
+      const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_DSL_V1);
       expect(currentStep).toBe(45);
     });
 
     test("Slider thumb position matches step percentage", async ({ page }) => {
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const slider = page.locator('#sixfold-v0 input[type="range"]');
+      const slider = page.locator('#sixfold-dsl-v1 input[type="range"]');
 
       // Go to step 46 (roughly 50% of 93 steps, starting from step 0)
       for (let i = 0; i < 46; i++) {
-        await page.locator("#sixfold-v0").getByTestId("step-next").click();
+        await page.locator("#sixfold-dsl-v1").getByTestId("step-next").click();
       }
 
       // Check slider value
@@ -189,9 +189,9 @@ test.describe("Slider Navigation", () => {
     });
 
     test("Slider step labels show 0 and max", async ({ page }) => {
-      await goToSection(page, SECTION_SIXFOLD_V0);
+      await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const labels = page.locator("#sixfold-v0 .text-xs.text-gray-400 span");
+      const labels = page.locator("#sixfold-dsl-v1 .text-xs.text-gray-400 span");
       const count = await labels.count();
 
       expect(count).toBe(2);
@@ -207,42 +207,42 @@ test.describe("Slider Navigation", () => {
 
   test.describe("Edge cases", () => {
     test("Slider updates when clicking next/prev buttons", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
-      const slider = page.locator('#square input[type="range"]');
+      const slider = page.locator('#square-dsl input[type="range"]');
 
       // Click next (from step 0 to step 1)
-      await page.locator("#square").getByTestId("step-next").click();
+      await page.locator("#square-dsl").getByTestId("step-next").click();
 
       // Check slider value updated
       const value = await slider.getAttribute("value");
       expect(value).toBe("1");
 
       // Click prev (from step 1 to step 0)
-      await page.locator("#square").getByTestId("step-prev").click();
+      await page.locator("#square-dsl").getByTestId("step-prev").click();
 
       const valueAfterPrev = await slider.getAttribute("value");
       expect(valueAfterPrev).toBe("0");
     });
 
     test("Slider updates when clicking first/last buttons", async ({ page }) => {
-      await goToSection(page, SECTION_SQUARE);
+      await goToSection(page, SECTION_SQUARE_DSL);
 
-      const slider = page.locator('#square input[type="range"]');
+      const slider = page.locator('#square-dsl input[type="range"]');
 
       // Go to step 5 (from step 0, click next 5 times)
       for (let i = 0; i < 5; i++) {
-        await page.locator("#square").getByTestId("step-next").click();
+        await page.locator("#square-dsl").getByTestId("step-next").click();
       }
 
       // Click first (<<) - goes to step 0
-      await page.locator("#square").getByTestId("step-first").click();
+      await page.locator("#square-dsl").getByTestId("step-first").click();
 
       const valueAfterFirst = await slider.getAttribute("value");
       expect(valueAfterFirst).toBe("0");
 
       // Click last (>>) - goes to step 19 (end of Square, = SQUARE_STEPS.length)
-      await page.locator("#square").getByTestId("step-last").click();
+      await page.locator("#square-dsl").getByTestId("step-last").click();
 
       const valueAfterLast = await slider.getAttribute("value");
       expect(valueAfterLast).toBe("19");

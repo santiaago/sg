@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE, SECTION_SIXFOLD_V0, SQUARE_GEOMETRY, GEOMETRY_TYPES } from "./fixtures";
+import {
+  SECTION_SQUARE_DSL,
+  SECTION_SIXFOLD_DSL_V1,
+  SQUARE_DSL_GEOMETRY,
+  GEOMETRY_TYPES,
+} from "./fixtures";
 import { goToSection, goToStep } from "./utils/navigation";
 import { selectGeometry, assertGeometrySelected } from "./utils/assertions";
 import {
@@ -25,10 +30,10 @@ test.describe("Geometry List", () => {
 
   test.describe("Selection", () => {
     test("Clicking geometry item selects it (highlights red/yellow)", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 1);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 1);
 
       // Get first geometry item name
-      const geometryList = page.locator(`#${SECTION_SIXFOLD_V0} .geometry-list`);
+      const geometryList = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list`);
       const firstItem = geometryList.locator("li").first();
 
       // Ensure item has text content
@@ -46,9 +51,9 @@ test.describe("Geometry List", () => {
     });
 
     test("Clicking selected item deselects it", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 1);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 1);
 
-      const geometryList = page.locator(`#${SECTION_SIXFOLD_V0} .geometry-list`);
+      const geometryList = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list`);
       const firstItem = geometryList.locator("li").first();
 
       // Ensure item has text content
@@ -71,9 +76,9 @@ test.describe("Geometry List", () => {
 
     test("Clicking different item selects new, deselects previous", async ({ page }) => {
       // Use step 10 which has multiple geometries
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(`#${SECTION_SIXFOLD_V0} .geometry-list`);
+      const geometryList = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list`);
       const items = geometryList.locator("li");
 
       // Ensure we have enough items for this test
@@ -105,9 +110,9 @@ test.describe("Geometry List", () => {
     });
 
     test("Selected item count shown correctly in UI", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 1);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 1);
 
-      const geometryList = page.locator(`#${SECTION_SIXFOLD_V0} .geometry-list`);
+      const geometryList = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list`);
       const firstItem = geometryList.locator("li").first();
 
       // Ensure item has text content
@@ -127,48 +132,48 @@ test.describe("Geometry List", () => {
 
   test.describe("Filtering", () => {
     test("Name filter reduces list when typing", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const initialCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_V0}`);
+      const initialCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Filter by a common geometry name
-      await filterByName(page, "line", `#${SECTION_SIXFOLD_V0}`);
+      await filterByName(page, "line", `#${SECTION_SIXFOLD_DSL_V1}`);
 
-      const filteredCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_V0}`);
+      const filteredCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Filtered count should be less than or equal to initial count
       expect(filteredCount).toBeLessThanOrEqual(initialCount);
     });
 
     test("Name filter is case-insensitive", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
       // Filter with lowercase
-      await filterByName(page, "line", `#${SECTION_SIXFOLD_V0}`);
-      const lowerCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_V0}`);
+      await filterByName(page, "line", `#${SECTION_SIXFOLD_DSL_V1}`);
+      const lowerCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Clear and filter with uppercase
-      await clearFilters(page, `#${SECTION_SIXFOLD_V0}`);
-      await filterByName(page, "LINE", `#${SECTION_SIXFOLD_V0}`);
-      const upperCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_V0}`);
+      await clearFilters(page, `#${SECTION_SIXFOLD_DSL_V1}`);
+      await filterByName(page, "LINE", `#${SECTION_SIXFOLD_DSL_V1}`);
+      const upperCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Both should return the same count
       expect(upperCount).toBe(lowerCount);
     });
 
     test('Name filter clears with "Clear filters" button', async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const initialCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_V0}`);
+      const initialCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Apply filter
-      await filterByName(page, "line", `#${SECTION_SIXFOLD_V0}`);
-      const filteredCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_V0}`);
+      await filterByName(page, "line", `#${SECTION_SIXFOLD_DSL_V1}`);
+      const filteredCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Clear filters
-      await clearFilters(page, `#${SECTION_SIXFOLD_V0}`);
+      await clearFilters(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
-      const clearedCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_V0}`);
+      const clearedCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Count should be back to initial
       expect(clearedCount).toBe(initialCount);
@@ -177,29 +182,29 @@ test.describe("Geometry List", () => {
     test("Type filter buttons toggle correctly (point, line, circle, polygon)", async ({
       page,
     }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(`#${SECTION_SIXFOLD_V0} .geometry-list`);
+      const geometryList = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list`);
 
       // Toggle point filter
-      await toggleTypeFilter(page, "point", `#${SECTION_SIXFOLD_V0}`);
+      await toggleTypeFilter(page, "point", `#${SECTION_SIXFOLD_DSL_V1}`);
       await expect(geometryList.getByRole("button", { name: "point" })).toHaveClass(/bg-blue-500/);
 
       // Toggle it off
-      await toggleTypeFilter(page, "point", `#${SECTION_SIXFOLD_V0}`);
+      await toggleTypeFilter(page, "point", `#${SECTION_SIXFOLD_DSL_V1}`);
       await expect(geometryList.getByRole("button", { name: "point" })).not.toHaveClass(
         /bg-blue-500/,
       );
     });
 
     test("Multiple type filters can be active simultaneously", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(`#${SECTION_SIXFOLD_V0} .geometry-list`);
+      const geometryList = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list`);
 
       // Toggle multiple filters
-      await toggleTypeFilter(page, "point", `#${SECTION_SIXFOLD_V0}`);
-      await toggleTypeFilter(page, "line", `#${SECTION_SIXFOLD_V0}`);
+      await toggleTypeFilter(page, "point", `#${SECTION_SIXFOLD_DSL_V1}`);
+      await toggleTypeFilter(page, "line", `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Both should be active
       await expect(geometryList.getByRole("button", { name: "point" })).toHaveClass(/bg-blue-500/);
@@ -207,35 +212,35 @@ test.describe("Geometry List", () => {
     });
 
     test("Filtered count updates correctly (Showing X of Y items)", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const totalCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_V0}`);
+      const totalCount = await getGeometryCount(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Apply filter
-      await filterByName(page, "line", `#${SECTION_SIXFOLD_V0}`);
+      await filterByName(page, "line", `#${SECTION_SIXFOLD_DSL_V1}`);
 
-      const filteredCountText = await getFilteredCountText(page, `#${SECTION_SIXFOLD_V0}`);
+      const filteredCountText = await getFilteredCountText(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Should show "Showing X of Y items"
       expect(filteredCountText).toMatch(/Showing \d+ of \d+ items/);
     });
 
     test("Clear filters button resets all filters", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(`#${SECTION_SIXFOLD_V0} .geometry-list`);
+      const geometryList = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list`);
 
       // Apply name filter
-      await filterByName(page, "line", `#${SECTION_SIXFOLD_V0}`);
+      await filterByName(page, "line", `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Apply type filter
-      await toggleTypeFilter(page, "point", `#${SECTION_SIXFOLD_V0}`);
+      await toggleTypeFilter(page, "point", `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Verify filters are applied
       await expect(geometryList.getByRole("button", { name: "point" })).toHaveClass(/bg-blue-500/);
 
       // Clear all filters
-      await clearFilters(page, `#${SECTION_SIXFOLD_V0}`);
+      await clearFilters(page, `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Verify filters are cleared
       await expect(geometryList.getByRole("button", { name: "point" })).not.toHaveClass(
@@ -251,17 +256,17 @@ test.describe("Geometry List", () => {
 
   test.describe("Edge cases", () => {
     test("Empty filter state shows all items", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator("#sixfold-v0 .geometry-list");
+      const geometryList = page.locator("#sixfold-dsl-v1 .geometry-list");
       // Must wait for list to load before counting, or counts will not match.
       await geometryList.locator("li").first().waitFor();
       await page.waitForTimeout(200);
       const allCount = await geometryList.locator("li").count();
 
       // Apply and clear filter
-      await filterByName(page, "xyz123", "#sixfold-v0"); // Non-existent filter
-      await clearFilters(page, "#sixfold-v0");
+      await filterByName(page, "xyz123", "#sixfold-dsl-v1"); // Non-existent filter
+      await clearFilters(page, "#sixfold-dsl-v1");
 
       // Wait for filter to clear and list to stabilize
       await geometryList.locator("li").first().waitFor();
@@ -273,20 +278,20 @@ test.describe("Geometry List", () => {
     });
 
     test('Filter with no matches shows "No items" message', async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
       // Apply a filter that matches nothing
-      await filterByName(page, "nonexistent_geometry_xyz", `#${SECTION_SIXFOLD_V0}`);
+      await filterByName(page, "nonexistent_geometry_xyz", `#${SECTION_SIXFOLD_DSL_V1}`);
 
       // Check for "No items" or empty list - scope to sixfold-v0 section
-      const items = page.locator(`#${SECTION_SIXFOLD_V0} .geometry-list li`);
+      const items = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list li`);
       await expect(items).toHaveCount(0);
     });
 
     test("Special characters in geometry names display correctly", async ({ page }) => {
-      await goToStep(page, SECTION_SIXFOLD_V0, 10);
+      await goToStep(page, SECTION_SIXFOLD_DSL_V1, 10);
 
-      const geometryList = page.locator(`#${SECTION_SIXFOLD_V0} .geometry-list`);
+      const geometryList = page.locator(`#${SECTION_SIXFOLD_DSL_V1} .geometry-list`);
       await expect(geometryList).toBeVisible();
 
       // The app uses simple names like "line1", "p1", "c1", etc.
@@ -301,10 +306,10 @@ test.describe("Geometry List", () => {
   test.describe("Square section", () => {
     test("Geometry list works in Square section", async ({ page }) => {
       // Step 3 has the first circle in Square
-      await goToStep(page, SECTION_SQUARE, 3);
+      await goToStep(page, SECTION_SQUARE_DSL, 3);
 
       // Get the Square section's geometry list
-      const squareSection = page.locator(`#${SECTION_SQUARE}`);
+      const squareSection = page.locator(`#${SECTION_SQUARE_DSL}`);
       const geometryList = squareSection.locator(".geometry-list");
       await expect(geometryList).toBeVisible();
 
@@ -314,10 +319,10 @@ test.describe("Geometry List", () => {
     });
 
     test("Filtering works in Square section", async ({ page }) => {
-      await goToStep(page, SECTION_SQUARE, 5);
+      await goToStep(page, SECTION_SQUARE_DSL, 5);
 
       // Get the Square section's geometry list
-      const squareSection = page.locator(`#${SECTION_SQUARE}`);
+      const squareSection = page.locator(`#${SECTION_SQUARE_DSL}`);
       const geometryList = squareSection.locator(".geometry-list");
       const items = geometryList.locator("li");
       const initialCount = await items.count();

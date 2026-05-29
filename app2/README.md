@@ -1,6 +1,6 @@
 # React Geometric Patterns
 
-React version of the Svelte geometric pattern app with identical structure.
+React version of the geometric pattern app with DSL (Declarative Geometry Framework) implementation.
 
 ## Run
 
@@ -13,20 +13,21 @@ npm run preview
 
 ## Structure
 
-- Same HTML/CSS as original Svelte app
-- Empty SVG components ready for D3.js implementation
+- React with TypeScript
+- DSL (Declarative Geometry Framework) for geometry constructions
 - React Query for state management
 - 12-column grid layout
 
 ## Components
 
-- SixFoldV0
-- Square
-- GeometryList
-- All with same props and structure as original
+- SquareDslSvg - Square construction using DSL
+- SixFoldDslSvg - SixFold pattern using DSL
+- SixFoldDslV1Svg - SixFold pattern v1 with cs2 coordinate system using DSL
+- GeometryList - Lists all geometry elements with filters
+- GeometryDetails - Shows details of selected geometry
+- GeometryPlayer - Step navigation controls
+- Navigation - Section navigation bar
 
-## Next
+## Note
 
-1. Add D3.js: `npm install d3 @svgdotjs/svg.js`
-2. Implement SVG drawing in components
-3. Copy math utilities from original app
+This app uses the DSL (Declarative Geometry Framework) which is an improved version that requires significantly less code from developers while providing equivalent functionality compared to the previous imperative step-based approach.

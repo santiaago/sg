@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE, SECTION_SIXFOLD_V0 } from "./fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1 } from "./fixtures";
 import { goToSection, getCurrentStep } from "./utils/navigation";
 import { assertClipboardContains } from "./utils/clipboard";
 import { waitForPageLoad } from "./utils/helpers";
@@ -18,7 +18,7 @@ test.describe("Copy URL Functionality", () => {
 
   test("Copy URL button copies current URL with hash to clipboard", async ({ page }) => {
     // Navigate to Square section
-    await goToSection(page, SECTION_SQUARE);
+    await goToSection(page, SECTION_SQUARE_DSL);
 
     // Click Copy URL button (use .first() since there may be multiple in different sections)
     await page.getByTestId("copy-url-btn").first().click();
@@ -29,18 +29,18 @@ test.describe("Copy URL Functionality", () => {
     });
 
     // Verify clipboard contains the URL with hash
-    expect(clipboardText).toContain("square");
+    expect(clipboardText).toContain("square-dsl");
     expect(clipboardText).toContain("localhost");
   });
 
   test("Copied URL matches window.location.href", async ({ page }) => {
-    await goToSection(page, SECTION_SQUARE);
+    await goToSection(page, SECTION_SQUARE_DSL);
 
     // Get current URL
     const currentUrl = page.url();
 
     // Click Copy URL button in the current section
-    await page.locator("#square").getByTestId("copy-url-btn").click();
+    await page.locator("#square-dsl").getByTestId("copy-url-btn").click();
 
     // Get clipboard content
     const clipboardText = await page.evaluate(async () => {
@@ -64,39 +64,39 @@ test.describe("Copy URL Functionality", () => {
   });
 
   test("Copy URL works from Square section", async ({ page }) => {
-    await goToSection(page, SECTION_SQUARE);
+    await goToSection(page, SECTION_SQUARE_DSL);
 
-    await page.locator("#square").getByTestId("copy-url-btn").click();
+    await page.locator("#square-dsl").getByTestId("copy-url-btn").click();
 
-    await assertClipboardContains(page, "square");
+    await assertClipboardContains(page, "square-dsl");
   });
 
   test("Copy URL works from SixFold v0 section", async ({ page }) => {
-    await goToSection(page, SECTION_SIXFOLD_V0);
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-    await page.locator("#sixfold-v0").getByTestId("copy-url-btn").click();
+    await page.locator("#sixfold-dsl-v1").getByTestId("copy-url-btn").click();
 
-    await assertClipboardContains(page, "sixfold-v0");
+    await assertClipboardContains(page, "sixfold-dsl-v1");
   });
 
   test("Copied URL includes section hash", async ({ page }) => {
-    await goToSection(page, SECTION_SQUARE);
+    await goToSection(page, SECTION_SQUARE_DSL);
 
-    await page.locator("#square").getByTestId("copy-url-btn").click();
+    await page.locator("#square-dsl").getByTestId("copy-url-btn").click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
     });
 
-    expect(clipboardText).toContain("#square");
+    expect(clipboardText).toContain("#square-dsl");
   });
 
   test("Copied URL includes step hash if applicable", async ({ page }) => {
     // Note: The app currently doesn't include step in the URL hash
     // This test documents the expected behavior
-    await goToSection(page, SECTION_SQUARE);
+    await goToSection(page, SECTION_SQUARE_DSL);
 
-    await page.locator("#square").getByTestId("copy-url-btn").click();
+    await page.locator("#square-dsl").getByTestId("copy-url-btn").click();
 
     const clipboardText = await page.evaluate(async () => {
       return await navigator.clipboard.readText();
@@ -104,28 +104,28 @@ test.describe("Copy URL Functionality", () => {
 
     // Currently, the app only includes section hash, not step
     // This is expected behavior
-    expect(clipboardText).toContain("#square");
+    expect(clipboardText).toContain("#square-dsl");
   });
 
   test("Copy URL button is visible in both sections", async ({ page }) => {
     // Check SixFold v0 section
-    await goToSection(page, SECTION_SIXFOLD_V0);
-    await expect(page.locator("#sixfold-v0").getByTestId("copy-url-btn")).toBeVisible();
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
+    await expect(page.locator("#sixfold-dsl-v1").getByTestId("copy-url-btn")).toBeVisible();
 
     // Check Square section
-    await goToSection(page, SECTION_SQUARE);
-    await expect(page.locator("#square").getByTestId("copy-url-btn")).toBeVisible();
+    await goToSection(page, SECTION_SQUARE_DSL);
+    await expect(page.locator("#square-dsl").getByTestId("copy-url-btn")).toBeVisible();
   });
 
   test("Copy URL works after navigating between sections", async ({ page }) => {
     // Start at SixFold v0
-    await goToSection(page, SECTION_SIXFOLD_V0);
-    await page.locator("#sixfold-v0").getByTestId("copy-url-btn").click();
-    await assertClipboardContains(page, "sixfold-v0");
+    await goToSection(page, SECTION_SIXFOLD_DSL_V1);
+    await page.locator("#sixfold-dsl-v1").getByTestId("copy-url-btn").click();
+    await assertClipboardContains(page, "sixfold-dsl-v1");
 
     // Navigate to Square
-    await goToSection(page, SECTION_SQUARE);
-    await page.locator("#square").getByTestId("copy-url-btn").click();
-    await assertClipboardContains(page, "square");
+    await goToSection(page, SECTION_SQUARE_DSL);
+    await page.locator("#square-dsl").getByTestId("copy-url-btn").click();
+    await assertClipboardContains(page, "square-dsl");
   });
 });

@@ -191,10 +191,6 @@ export function useGeometryStore(): GeometryStore {
   return useGeometryStoreImpl();
 }
 
-// Backwards compatibility exports - prefer useGeometryStore for new code
-export const useGeometryStoreSquare = useGeometryStore;
-export const useGeometryStoreSixFoldV0 = useGeometryStore;
-
 // Dependency Graph Types for useGeometryValueStore
 export interface DependencyNode {
   id: string;

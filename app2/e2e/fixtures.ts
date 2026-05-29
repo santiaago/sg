@@ -4,11 +4,11 @@
  */
 
 // Section identifiers
-export const SECTION_SQUARE = "square";
-export const SECTION_SIXFOLD_V0 = "sixfold-v0";
+export const SECTION_SQUARE_DSL = "square-dsl";
+export const SECTION_SIXFOLD_DSL_V1 = "sixfold-dsl-v1";
 
-// Square section geometry names (from GEOM constants in operations.ts)
-export const SQUARE_GEOMETRY = {
+// Square DSL section geometry names (from DSL construction)
+export const SQUARE_DSL_GEOMETRY = {
   MAIN_LINE: "line_main",
   C1: "c1",
   C2: "c2",
@@ -27,36 +27,17 @@ export const SQUARE_GEOMETRY = {
   SQUARE: "square",
 } as const;
 
-// SixFold v0 geometry names (from GEOM constants in sixFold/operations.ts)
-export const SIXFOLD_V0_GEOMETRY = {
-  LINE1: "line1",
-  P1: "p1",
-  P2: "p2",
-  CP1: "cp1",
-  CP2: "cp2",
-  C1: "c1",
-  C2: "c2",
-  PIC12: "pic12",
-  CPIC12: "cPic12",
-  P3: "p3",
-  P4: "p4",
-  L13: "l13",
-  L24: "l24",
-  // Polygon at step 45
-  POLYGON_0: "outline1", // First polygon outline
-} as const;
-
 // Step numbers for test data
 export const TEST_STEPS = {
-  SQUARE: {
+  SQUARE_DSL: {
     // Step 5 should have multiple geometries including circles
     STEP_WITH_CIRCLES: 5,
     STEP_WITH_SQUARE: 16, // Final step with square
   },
-  SIXFOLD_V0: {
+  SIXFOLD_DSL_V1: {
     BASELINE: 1,
-    STEP_WITH_DEPENDENCIES: 45, // Should have polygon-0 (outline1)
-    FINAL_STEP: 93,
+    STEP_WITH_DEPENDENCIES: 45,
+    FINAL_STEP: 96,
   },
 } as const;
 
@@ -79,8 +60,8 @@ export const GEOMETRY_TYPES = ["point", "line", "circle", "polygon"] as const;
 
 // Navigation button selectors
 export const NAV_BUTTONS = {
-  SQUARE: "Square",
-  SIXFOLD_V0: "SixFold v0",
+  SQUARE_DSL: "Square DSL",
+  SIXFOLD_DSL_V1: "SixFold DSL v1",
 } as const;
 
 // Button titles
