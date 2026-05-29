@@ -13,17 +13,23 @@ export async function goToSection(
   section: typeof SECTION_SQUARE_DSL | typeof SECTION_SIXFOLD_DSL | typeof SECTION_SIXFOLD_DSL_V1,
 ): Promise<void> {
   const testId =
-    section === SECTION_SQUARE_DSL ? "nav-square-dsl" :
-    section === SECTION_SIXFOLD_DSL ? "nav-sixfold-dsl" :
-    "nav-sixfold-dsl-v1";
+    section === SECTION_SQUARE_DSL
+      ? "nav-square-dsl"
+      : section === SECTION_SIXFOLD_DSL
+        ? "nav-sixfold-dsl"
+        : "nav-sixfold-dsl-v1";
   const sectionSelector =
-    section === SECTION_SQUARE_DSL ? "#square-dsl" :
-    section === SECTION_SIXFOLD_DSL ? "#sixfold-dsl" :
-    "#sixfold-dsl-v1";
+    section === SECTION_SQUARE_DSL
+      ? "#square-dsl"
+      : section === SECTION_SIXFOLD_DSL
+        ? "#sixfold-dsl"
+        : "#sixfold-dsl-v1";
   const svgTestId =
-    section === SECTION_SQUARE_DSL ? "square-dsl-svg" :
-    section === SECTION_SIXFOLD_DSL ? "sixfold-dsl-svg" :
-    "sixfold-dsl-v1-svg";
+    section === SECTION_SQUARE_DSL
+      ? "square-dsl-svg"
+      : section === SECTION_SIXFOLD_DSL
+        ? "sixfold-dsl-svg"
+        : "sixfold-dsl-v1-svg";
 
   // Check if URL already has the correct hash
   const currentUrl = page.url();
@@ -54,9 +60,11 @@ export async function goToStep(
   await goToSection(page, section);
 
   const sectionSelector =
-    section === SECTION_SQUARE_DSL ? "#square-dsl" :
-    section === SECTION_SIXFOLD_DSL ? "#sixfold-dsl" :
-    "#sixfold-dsl-v1";
+    section === SECTION_SQUARE_DSL
+      ? "#square-dsl"
+      : section === SECTION_SIXFOLD_DSL
+        ? "#sixfold-dsl"
+        : "#sixfold-dsl-v1";
   const sectionLocator = page.locator(sectionSelector);
 
   // Get current step
@@ -96,9 +104,11 @@ export async function getCurrentStep(
   section: typeof SECTION_SQUARE_DSL | typeof SECTION_SIXFOLD_DSL | typeof SECTION_SIXFOLD_DSL_V1,
 ): Promise<number> {
   const sectionSelector =
-    section === SECTION_SQUARE_DSL ? "#square-dsl" :
-    section === SECTION_SIXFOLD_DSL ? "#sixfold-dsl" :
-    "#sixfold-dsl-v1";
+    section === SECTION_SQUARE_DSL
+      ? "#square-dsl"
+      : section === SECTION_SIXFOLD_DSL
+        ? "#sixfold-dsl"
+        : "#sixfold-dsl-v1";
   const stepElement = page.locator(sectionSelector).getByText(/Current step \d+\/\d+/);
   const stepText = await stepElement.textContent();
 
@@ -122,9 +132,11 @@ export async function clickFirstButton(
   section: typeof SECTION_SQUARE_DSL | typeof SECTION_SIXFOLD_DSL | typeof SECTION_SIXFOLD_DSL_V1,
 ): Promise<void> {
   const sectionSelector =
-    section === SECTION_SQUARE_DSL ? "#square-dsl" :
-    section === SECTION_SIXFOLD_DSL ? "#sixfold-dsl" :
-    "#sixfold-dsl-v1";
+    section === SECTION_SQUARE_DSL
+      ? "#square-dsl"
+      : section === SECTION_SIXFOLD_DSL
+        ? "#sixfold-dsl"
+        : "#sixfold-dsl-v1";
   const sectionLocator = page.locator(sectionSelector);
   await sectionLocator.getByTestId("step-first").click();
 }
@@ -137,9 +149,11 @@ export async function clickLastButton(
   section: typeof SECTION_SQUARE_DSL | typeof SECTION_SIXFOLD_DSL | typeof SECTION_SIXFOLD_DSL_V1,
 ): Promise<void> {
   const sectionSelector =
-    section === SECTION_SQUARE_DSL ? "#square-dsl" :
-    section === SECTION_SIXFOLD_DSL ? "#sixfold-dsl" :
-    "#sixfold-dsl-v1";
+    section === SECTION_SQUARE_DSL
+      ? "#square-dsl"
+      : section === SECTION_SIXFOLD_DSL
+        ? "#sixfold-dsl"
+        : "#sixfold-dsl-v1";
   const sectionLocator = page.locator(sectionSelector);
   await sectionLocator.getByTestId("step-last").click();
 }
@@ -152,9 +166,11 @@ export async function clickNextButton(
   section: typeof SECTION_SQUARE_DSL | typeof SECTION_SIXFOLD_DSL | typeof SECTION_SIXFOLD_DSL_V1,
 ): Promise<void> {
   const sectionSelector =
-    section === SECTION_SQUARE_DSL ? "#square-dsl" :
-    section === SECTION_SIXFOLD_DSL ? "#sixfold-dsl" :
-    "#sixfold-dsl-v1";
+    section === SECTION_SQUARE_DSL
+      ? "#square-dsl"
+      : section === SECTION_SIXFOLD_DSL
+        ? "#sixfold-dsl"
+        : "#sixfold-dsl-v1";
   const sectionLocator = page.locator(sectionSelector);
   await sectionLocator.getByTestId("step-next").click();
 }
@@ -167,9 +183,11 @@ export async function clickPrevButton(
   section: typeof SECTION_SQUARE_DSL | typeof SECTION_SIXFOLD_DSL | typeof SECTION_SIXFOLD_DSL_V1,
 ): Promise<void> {
   const sectionSelector =
-    section === SECTION_SQUARE_DSL ? "#square-dsl" :
-    section === SECTION_SIXFOLD_DSL ? "#sixfold-dsl" :
-    "#sixfold-dsl-v1";
+    section === SECTION_SQUARE_DSL
+      ? "#square-dsl"
+      : section === SECTION_SIXFOLD_DSL
+        ? "#sixfold-dsl"
+        : "#sixfold-dsl-v1";
   const sectionLocator = page.locator(sectionSelector);
   await sectionLocator.getByTestId("step-prev").click();
 }
@@ -180,7 +198,10 @@ export async function clickPrevButton(
  */
 export async function resetApp(
   page: Page,
-  section: typeof SECTION_SQUARE_DSL | typeof SECTION_SIXFOLD_DSL | typeof SECTION_SIXFOLD_DSL_V1 = SECTION_SIXFOLD_DSL_V1,
+  section:
+    | typeof SECTION_SQUARE_DSL
+    | typeof SECTION_SIXFOLD_DSL
+    | typeof SECTION_SIXFOLD_DSL_V1 = SECTION_SIXFOLD_DSL_V1,
 ): Promise<void> {
   await goToSection(page, section);
   await clickFirstButton(page, section);
