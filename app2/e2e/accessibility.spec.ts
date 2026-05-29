@@ -50,7 +50,7 @@ test.describe("Accessibility", () => {
       expect(count).toBeGreaterThan(0);
 
       // Check a few key elements are visible (using test IDs to avoid ambiguity)
-      const navButtons = page.getByRole("button", { name: /SixFold v0|Square/ });
+      const navButtons = page.getByRole("button", { name: /SixFold DSL|Square DSL/ });
       await expect(navButtons.first()).toBeVisible();
 
       const themeButton = page.getByTestId("theme-toggle");
@@ -65,7 +65,7 @@ test.describe("Accessibility", () => {
 
     test("Focus indicators are visible on all interactive elements", async ({ page }) => {
       // Focus on navigation button
-      const navButton = page.getByRole("button", { name: "SixFold v0" });
+      const navButton = page.getByRole("button", { name: "SixFold DSL v1" });
       await navButton.focus();
 
       // Check that focus is visible (either via outline or custom focus styles)
@@ -116,7 +116,7 @@ test.describe("Accessibility", () => {
 
     test("Section navigation announces active section", async ({ page }) => {
       // Check that active section button has aria-current or similar
-      const activeButton = page.getByRole("button", { name: "SixFold v0" });
+      const activeButton = page.getByRole("button", { name: "SixFold DSL v1" });
       const ariaCurrent = await activeButton.getAttribute("aria-current");
 
       // The active button should have some indication
@@ -136,7 +136,7 @@ test.describe("Accessibility", () => {
     test.skip("SVG aria labels not implemented in app yet", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const svg = page.getByTestId("sixfoldv0-svg");
+      const svg = page.getByTestId("sixfold-dsl-v1-svg");
       await expect(svg).toBeVisible();
 
       // Check that SVG has a role or aria-label
@@ -176,8 +176,8 @@ test.describe("Accessibility", () => {
     });
 
     test("Can activate buttons with Enter key", async ({ page }) => {
-      // Focus on SixFold v0 button
-      const navButton = page.getByRole("button", { name: "SixFold v0" });
+      // Focus on SixFold DSL v1 button
+      const navButton = page.getByRole("button", { name: "SixFold DSL v1" });
       await navButton.focus();
 
       // Press Enter
@@ -213,7 +213,7 @@ test.describe("Accessibility", () => {
     test("Sections have proper headings", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
-      const sectionHeading = page.getByRole("heading", { name: /Six fold pattern/ });
+      const sectionHeading = page.getByRole("heading", { name: /SixFold v1 DSL/ });
       await expect(sectionHeading).toBeVisible();
     });
   });

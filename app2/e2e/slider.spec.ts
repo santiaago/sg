@@ -14,15 +14,15 @@ test.describe("Slider Navigation", () => {
     await waitForPageLoad(page);
   });
 
-  test.describe("Square", () => {
-    test("Slider exists for Square section", async ({ page }) => {
+  test.describe("Square DSL", () => {
+    test("Slider exists for Square DSL section", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
 
       const slider = page.locator('#square-dsl input[type="range"]');
       await expect(slider).toBeVisible();
     });
 
-    test("Slider min = 0, max = total steps for Square", async ({ page }) => {
+    test("Slider min = 0, max = total steps for Square DSL", async ({ page }) => {
       await goToSection(page, SECTION_SQUARE_DSL);
 
       const slider = page.locator('#square-dsl input[type="range"]');
@@ -32,8 +32,8 @@ test.describe("Slider Navigation", () => {
 
       // App uses 0-based indexing for steps
       expect(min).toBe("0");
-      // Square has 19 steps (0-19)
-      expect(max).toBe("19");
+      // Square DSL has 19 steps (0-18)
+      expect(max).toBe("18");
     });
 
     test("Slider value matches current step", async ({ page }) => {
@@ -93,7 +93,7 @@ test.describe("Slider Navigation", () => {
       const lastLabel = labels.last();
 
       await expect(firstLabel).toHaveText("0");
-      await expect(lastLabel).toHaveText("19");
+      await expect(lastLabel).toHaveText("18");
     });
 
     test("Slider is keyboard accessible (arrow keys change value)", async ({ page }) => {
@@ -121,15 +121,15 @@ test.describe("Slider Navigation", () => {
     });
   });
 
-  test.describe("SixFold v0", () => {
-    test("Slider exists for SixFold v0 section", async ({ page }) => {
+  test.describe("SixFold DSL v1", () => {
+    test("Slider exists for SixFold DSL v1 section", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       const slider = page.locator('#sixfold-dsl-v1 input[type="range"]');
       await expect(slider).toBeVisible();
     });
 
-    test("Slider min = 1, max = total steps (93)", async ({ page }) => {
+    test("Slider min = 0, max = total steps for SixFold DSL v1", async ({ page }) => {
       await goToSection(page, SECTION_SIXFOLD_DSL_V1);
 
       const slider = page.locator('#sixfold-dsl-v1 input[type="range"]');
@@ -139,8 +139,8 @@ test.describe("Slider Navigation", () => {
 
       // App uses 0-based indexing for steps
       expect(min).toBe("0");
-      // SixFold v0 has 94 steps (0-93)
-      expect(max).toBe("94");
+      // SixFold DSL v1 has 97 steps (0-96)
+      expect(max).toBe("96");
     });
 
     test("Slider value matches current step", async ({ page }) => {
@@ -159,10 +159,10 @@ test.describe("Slider Navigation", () => {
       const slider = page.locator('#sixfold-dsl-v1 input[type="range"]');
       const section = page.locator("#sixfold-dsl-v1");
 
-      // Click at the 48.39% position (45/93) of the slider to go to step 45
+      // Click at the position (45/96) of the slider to go to step 45
       const box = await slider.boundingBox();
       if (!box) throw new Error("Slider not found");
-      const x = box.x + box.width * (45 / 93);
+      const x = box.x + box.width * (45 / 96);
       const y = box.y + box.height / 2;
       await page.mouse.click(x, y);
 
@@ -201,7 +201,7 @@ test.describe("Slider Navigation", () => {
 
       // App uses 0-based indexing, so first label is 0
       await expect(firstLabel).toHaveText("0");
-      await expect(lastLabel).toHaveText("94");
+      await expect(lastLabel).toHaveText("96");
     });
   });
 
@@ -241,7 +241,7 @@ test.describe("Slider Navigation", () => {
       const valueAfterFirst = await slider.getAttribute("value");
       expect(valueAfterFirst).toBe("0");
 
-      // Click last (>>) - goes to step 19 (end of Square, = SQUARE_STEPS.length)
+      // Click last (>>) - goes to step 19 (end of Square DSL)
       await page.locator("#square-dsl").getByTestId("step-last").click();
 
       const valueAfterLast = await slider.getAttribute("value");

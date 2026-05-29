@@ -472,7 +472,7 @@ export default function App(): JSX.Element {
               svgRef={squareDslSvgRef}
               svgConfig={standardSvgConfig}
               currentStep={currentStepSquareDsl}
-              totalSteps={DSL_SQUARE_STEPS_LENGTH}
+              totalSteps={DSL_SQUARE_STEPS_LENGTH - 1}
               onStepChange={setCurrentStepSquareDsl}
               onFirstStep={handleFirstStepSquareDsl}
               onPrevStep={handlePrevClickSquareDsl}
@@ -543,7 +543,7 @@ export default function App(): JSX.Element {
               svgRef={sixfoldDslSvgRef}
               svgConfig={standardSvgConfig}
               currentStep={currentStepSixfoldDsl}
-              totalSteps={DSL_SIXFOLD_STEPS_LENGTH}
+              totalSteps={DSL_SIXFOLD_STEPS_LENGTH - 1}
               onStepChange={setCurrentStepSixfoldDsl}
               onFirstStep={handleFirstStepSixfoldDsl}
               onPrevStep={handlePrevClickSixfoldDsl}
@@ -619,7 +619,7 @@ export default function App(): JSX.Element {
               svgRef={sixfoldDslV1SvgRef}
               svgConfig={standardSvgConfig}
               currentStep={currentVisualIndexV1}
-              totalSteps={visualStepCountV1}
+              totalSteps={visualStepCountV1 - 1}
               onStepChange={(step) => goToStepV1(step)}
               onFirstStep={handleFirstStepSixfoldDslV1}
               onPrevStep={handlePrevClickSixfoldDslV1}
