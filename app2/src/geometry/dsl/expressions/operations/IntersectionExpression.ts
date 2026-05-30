@@ -1,14 +1,15 @@
 // Intersection expression for circle-line intersection operation
 
 import type { GeometryRenderer } from "../../renderers/types";
-import type { Step, GeometryValue, Point } from "@/types/geometry";
+import type { Step, GeometryValue, Point, CoordinateSystem } from "@/types/geometry";
 import { isCircle, isLine, isPoint, point } from "@/types/geometry";
 import { GeometryError } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
-import { pointFromCircleAndLine, interceptCircleLineSegHelper } from "@/geometry/constructors";
+import { interceptCircleLineSegHelper } from "@/geometry/constructors";
+import { inteceptCircleLineSeg } from "@sg/geometry";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { CircleLikeExpression, LineLikeExpression } from "../types";
-import { createStepId } from "../../utils";
+import { createStepId, transformPointToLocalSpace, getCoordinateSystem } from "../../utils";
 
 /** Options for circle-line intersection */
 export interface IntersectionOptions {
@@ -18,6 +19,8 @@ export interface IntersectionOptions {
   position?: "left" | "right" | "north" | "south";
   /** Tolerance for intersection calculation */
   tolerance?: number;
+  /** ID of coordinate system to use for relative direction interpretation */
+  relativeTo?: string;
 }
 
 /**
@@ -60,6 +63,11 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
       this.dependencies.push(options.excludeId);
     }
 
+    // Add relativeTo coordinate system to dependencies if present
+    if (options.relativeTo) {
+      this.dependencies.push(options.relativeTo);
+    }
+
     this.parameters = [];
   }
 
@@ -81,17 +89,54 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
         const circleVal = getGeometry(inputs, this.circleId, isCircle, "Circle", stepId);
         const lineVal = getGeometry(inputs, this.lineId, isLine, "Line", stepId);
 
+        // Get relative coordinate system if specified
+        const relativeCs = this.options.relativeTo
+          ? getCoordinateSystem(inputs, this.options.relativeTo, stepId)
+          : null;
+
         // If position is specified, use interceptCircleLineSegHelper with index
         if (this.options.position === "left" || this.options.position === "right") {
-          const result = interceptCircleLineSegHelper(circleVal, lineVal, positionIndex);
-          if (!result) {
-            throw new GeometryError(
-              stepId,
-              this.id,
-              "No intersection found between circle and line",
+          // When relativeTo is specified, we need to get all intersections and select
+          // based on the relative coordinate system
+          if (relativeCs) {
+            const allPoints = inteceptCircleLineSeg(
+              circleVal.cx,
+              circleVal.cy,
+              lineVal.x1,
+              lineVal.y1,
+              lineVal.x2,
+              lineVal.y2,
+              circleVal.r,
             );
+
+            if (!allPoints || allPoints.length === 0) {
+              throw new GeometryError(
+                stepId,
+                this.id,
+                "No intersection found between circle and line",
+              );
+            }
+
+            // Transform each point to local space and select based on position
+            const desiredIndex = this.options.position === "right" ? 1 : 0;
+            const selectedPoint = this.selectPointByRelativePosition(
+              allPoints,
+              relativeCs,
+              desiredIndex,
+              stepId,
+            );
+            return new Map([[this.id, selectedPoint]]);
+          } else {
+            const result = interceptCircleLineSegHelper(circleVal, lineVal, positionIndex);
+            if (!result) {
+              throw new GeometryError(
+                stepId,
+                this.id,
+                "No intersection found between circle and line",
+              );
+            }
+            return new Map([[this.id, result]]);
           }
-          return new Map([[this.id, result]]);
         }
 
         // Build exclude point if provided
@@ -119,5 +164,57 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
         renderer.drawPoint(svg, values, this.id, store, theme, stepId);
       },
     };
+  }
+
+  /**
+   * Select a point from an array of intersection points based on relative position.
+   * Transforms each point to the relative coordinate system's local space and
+   * selects based on the x-coordinate (left/right).
+   *
+   * @param points - Array of [x, y] tuples in global coordinates
+   * @param relativeCs - The coordinate system to use for relative positioning
+   * @param desiredIndex - 0 for left, 1 for right
+   * @param stepId - Step ID for error messages
+   * @returns The selected point in global coordinates
+   */
+  private selectPointByRelativePosition(
+    points: Array<[number, number]>,
+    relativeCs: CoordinateSystem,
+    desiredIndex: number,
+    stepId: string,
+  ): Point {
+    // Transform each point to local space
+    const localPoints = points.map(([x, y]) => {
+      const globalPoint: Point = { type: "point", x, y };
+      return transformPointToLocalSpace(globalPoint, relativeCs);
+    });
+
+    // Sort by x-coordinate (left to right in local space)
+    localPoints.sort((a, b) => a.x - b.x);
+
+    // Select the desired point
+    if (desiredIndex >= 0 && desiredIndex < localPoints.length) {
+      const selectedLocal = localPoints[desiredIndex];
+      // Transform back to global coordinates
+      // We need to apply the coordinate system transformation
+      const rotation = relativeCs.rotation ?? 0;
+      const flipX = relativeCs.flipX ?? false;
+      const flipY = relativeCs.flipY ?? false;
+      const cosRot = Math.cos(rotation);
+      const sinRot = Math.sin(rotation);
+      const xSign = flipX ? -1 : 1;
+      const ySign = flipY ? -1 : 1;
+
+      const globalX = relativeCs.x + (selectedLocal.x * xSign) * cosRot - selectedLocal.y * sinRot;
+      const globalY = relativeCs.y + (selectedLocal.x * xSign) * sinRot + (selectedLocal.y * cosRot) * ySign;
+
+      return point(globalX, globalY);
+    }
+
+    throw new GeometryError(
+      stepId,
+      this.id,
+      `No intersection point at index ${desiredIndex} (got ${localPoints.length} points)`,
+    );
   }
 }

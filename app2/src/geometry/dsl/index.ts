@@ -10,7 +10,7 @@ export { GeometryFeatureReference } from "./GeometryFeatureReference";
 export { isGeometryFeatureReference } from "./types";
 
 // Utilities
-export { resolveParameter } from "./utils";
+export { resolveParameter, transformPointToLocalSpace, getCoordinateSystem } from "./utils";
 
 // Renderer
 export type { GeometryRenderer } from "./renderers/types";

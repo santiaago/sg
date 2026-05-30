@@ -105,16 +105,21 @@ export class PointInCoordinateSystemExpression<TConfig> implements GeometryExpre
         const x = resolveParameter(inputs, params, this.localX, "localX");
         const y = resolveParameter(inputs, params, this.localY, "localY");
 
-        // Apply coordinate system transformation
-        // In a rotated CS:
-        //   x' = cs.x + localX * cos(rotation) - localY * sin(rotation)
-        //   y' = cs.y + localX * sin(rotation) + localY * cos(rotation)
+        // Apply coordinate system transformation with flip support
+        // Formula from PRD Decision 2:
+        // x_global = cs.x + (x_l * (flipX ? -1 : 1) * cos(θ)) - (y_l * sin(θ))
+        // y_global = cs.y + (x_l * (flipX ? -1 : 1) * sin(θ)) + (y_l * cos(θ)) * (flipY ? -1 : 1)
         const rotation = cs.rotation ?? 0;
+        const flipX = cs.flipX ?? false;
+        const flipY = cs.flipY ?? false;
         const cosRot = Math.cos(rotation);
         const sinRot = Math.sin(rotation);
 
-        const globalX = cs.x + x * cosRot - y * sinRot;
-        const globalY = cs.y + x * sinRot + y * cosRot;
+        const xSign = flipX ? -1 : 1;
+        const ySign = flipY ? -1 : 1;
+
+        const globalX = cs.x + (x * xSign) * cosRot - y * sinRot;
+        const globalY = cs.y + (x * xSign) * sinRot + (y * cosRot) * ySign;
 
         return new Map([[this.id, point(globalX, globalY)]]);
       },

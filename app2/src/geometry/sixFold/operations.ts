@@ -136,6 +136,12 @@ export interface SixFoldV0Config {
   coordinateSystemArrowLength: number;
 }
 
+/** Configuration for SixFoldV2 geometry construction */
+export interface SixFoldV2Config extends SixFoldV0Config {
+  // V2 extends V0 with no additional configuration needed
+  // The flip parameters are hardcoded in the construction
+}
+
 /**
  * Computes the SixFoldV0 geometry configuration
  * Matches v3 Svelte circlesFromLine logic exactly
