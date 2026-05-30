@@ -14,6 +14,8 @@ import { createStepId } from "../../utils";
 export interface CircleIntersectionOptions {
   /** Which intersection point to select: "north" (lower y), "south" (higher y), "west" (lower x), or "east" (higher x) in SVG coordinates */
   select?: "north" | "south" | "west" | "east";
+  /** Coordinate system ID to use for relative direction interpretation */
+  relativeTo?: string;
 }
 
 /**

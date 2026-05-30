@@ -18,6 +18,8 @@ export interface IntersectionOptions {
   position?: "left" | "right" | "north" | "south";
   /** Tolerance for intersection calculation */
   tolerance?: number;
+  /** Coordinate system ID to use for relative direction interpretation */
+  relativeTo?: string;
 }
 
 /**
