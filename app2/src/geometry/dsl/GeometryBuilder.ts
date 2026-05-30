@@ -272,6 +272,8 @@ export class GeometryBuilder<TConfig> {
    * @param y - Y position of the origin (number, config key, or feature reference)
    * @param arrowLength - Length of the axis arrows (number, config key, or feature reference)
    * @param rotation - Optional rotation angle in radians (number, config key, or feature reference) (default: 0)
+   * @param flipX - Flip X-axis (mirror horizontally) (default: false)
+   * @param flipY - Flip Y-axis (mirror vertically) (default: false)
    * @returns The created CoordinateSystemExpression
    */
   coordinateSystem(
@@ -280,8 +282,10 @@ export class GeometryBuilder<TConfig> {
     y: ParameterValue<TConfig> = 0,
     arrowLength: ParameterValue<TConfig> = 0,
     rotation: ParameterValue<TConfig> = 0,
+    flipX: ParameterValue<TConfig> = false,
+    flipY: ParameterValue<TConfig> = false,
   ): CoordinateSystemExpression<TConfig> {
-    const expr = new CoordinateSystemExpression(id, x, y, arrowLength, rotation);
+    const expr = new CoordinateSystemExpression(id, x, y, arrowLength, rotation, flipX, flipY);
     this.expressions.set(id, expr);
     return expr;
   }
