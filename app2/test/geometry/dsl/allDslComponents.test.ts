@@ -3,6 +3,7 @@
 
 import { describe, it, expect, beforeEach } from "vitest";
 import { buildSixfoldDslV1Steps } from "@/geometry/sixfoldDslV1Steps";
+import { buildSixfoldDslV2Steps } from "@/geometry/sixfoldDslV2Steps";
 import { buildSixfoldDslSteps } from "@/geometry/sixfoldDslSteps";
 import { buildSquareDslSteps } from "@/geometry/squareDslSteps";
 import { executeSteps } from "@/geometry/stepExecution";
@@ -27,7 +28,43 @@ describe("All DSL components filter non-visual geometry", () => {
     theme = createMockTheme();
   });
 
+  // Non-visual geometry filtered from all components
   // ========================================================================
+
+  describe("Non-visual geometry NOT in store for any DSL component", () => {
+    it("SixFoldDslV1Svg filters all non-visual geometry", () => {
+=======
+  // ========================================================================
+  // Non-visual geometry filtered from all components
+  // ========================================================================
+
+  describe("Non-visual geometry NOT in store for any DSL component", () => {
+    it("SixFoldDslV2Svg filters all non-visual geometry", () => {
+      const steps = buildSixfoldDslV2Steps();
+      const config = computeSixFoldV0Config(800, 600);
+      const ctx = createStepExecutionContext({
+        svg,
+        store,
+        theme,
+        renderer: new TestGeometryRenderer(),
+      });
+
+      executeSteps(steps, steps.length, ctx, config); // Execute all steps
+
+      // Non-visual items should NOT be in store
+      expect(store.items["p1x"]).toBeUndefined();
+      expect(store.items["p1y"]).toBeUndefined();
+      expect(store.items["p2x"]).toBeUndefined();
+      expect(store.items["p2y"]).toBeUndefined();
+
+      // Visual items should still be present
+      expect(store.items["cs"]).toBeDefined();
+      expect(store.items["cs2"]).toBeDefined();
+      expect(store.items["p1"]).toBeDefined();
+      expect(store.items["p2"]).toBeDefined();
+    });
+
+    it("SixFoldDslV1Svg filters all non-visual geometry", () => {========================================================================
   // Non-visual geometry filtered from all components
   // ========================================================================
 
