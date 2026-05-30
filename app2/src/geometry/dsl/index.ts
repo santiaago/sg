@@ -45,3 +45,6 @@ export type { GeometryExpression } from "./expressions/GeometryExpression";
 
 // Options types
 export type { IntersectionOptions, CircleIntersectionOptions } from "./expressions";
+
+// Transformation helpers
+export { transformPointToLocalSpace, transformToLocalCoords, selectByDirectionInLocalSpace } from "./transformations";
