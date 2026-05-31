@@ -256,6 +256,8 @@ const AXIS_LABEL_FONT_SIZE = 8;
  * @param strokeColor - Color of the arrow lines
  * @param rotation - Rotation angle in radians (default: 0 = X right, Y down)
  * @param geomId - Unique identifier for this coordinate system (used for marker ID)
+ * @param flipX - Flip X-axis (mirror horizontally) (default: false)
+ * @param flipY - Flip Y-axis (mirror vertically) (default: false)
  * @returns SVG group element containing the coordinate system
  */
 export function coordinateSystemArrows(
@@ -267,6 +269,8 @@ export function coordinateSystemArrows(
   strokeColor: string,
   rotation: number = 0,
   geomId: string = "cs",
+  flipX: boolean = false,
+  flipY: boolean = false,
 ): SVGGElement {
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("data-coordinate-system", "true");
@@ -277,8 +281,10 @@ export function coordinateSystemArrows(
 
   // Draw X axis arrow (pointing right/east - positive X direction)
   // With rotation: X arrow points at angle `rotation` from horizontal
-  const x2 = x + arrowLength * Math.cos(rotation);
-  const y2 = y + arrowLength * Math.sin(rotation);
+  // With flipX: X arrow points in opposite direction
+  const xSign = flipX ? -1 : 1;
+  const x2 = x + xSign * arrowLength * Math.cos(rotation);
+  const y2 = y + xSign * arrowLength * Math.sin(rotation);
 
   const xArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
   xArrow.setAttribute("x1", x.toString());
@@ -295,8 +301,8 @@ export function coordinateSystemArrows(
   // X axis label - positioned along the X arrow line
   const xLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
   const labelOffset = arrowLength + AXIS_LABEL_OFFSET;
-  const labelX = x + labelOffset * Math.cos(rotation);
-  const labelY = y + labelOffset * Math.sin(rotation);
+  const labelX = x + xSign * labelOffset * Math.cos(rotation);
+  const labelY = y + xSign * labelOffset * Math.sin(rotation);
   xLabel.setAttribute("x", labelX.toString());
   xLabel.setAttribute("y", labelY.toString());
   xLabel.setAttribute("font-size", AXIS_LABEL_FONT_SIZE.toString());
@@ -310,9 +316,11 @@ export function coordinateSystemArrows(
 
   // Draw Y axis arrow (pointing perpendicular to X, at angle rotation + Pi/2)
   // In SVG, Y increases downward, so we add Pi/2 to the rotation
+  // With flipY: Y arrow points in opposite direction
+  const ySign = flipY ? -1 : 1;
   const yRotation = rotation + Math.PI / 2;
-  const y2_x = x + arrowLength * Math.cos(yRotation);
-  const y2_y = y + arrowLength * Math.sin(yRotation);
+  const y2_x = x + ySign * arrowLength * Math.cos(yRotation);
+  const y2_y = y + ySign * arrowLength * Math.sin(yRotation);
 
   const yArrow = document.createElementNS("http://www.w3.org/2000/svg", "line");
   yArrow.setAttribute("x1", x.toString());
@@ -329,8 +337,8 @@ export function coordinateSystemArrows(
   // Y axis label - positioned along the Y arrow line
   const yLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
   const yLabelOffset = arrowLength + AXIS_LABEL_OFFSET;
-  const yLabelX = x + yLabelOffset * Math.cos(yRotation);
-  const yLabelY = y + yLabelOffset * Math.sin(yRotation);
+  const yLabelX = x + ySign * yLabelOffset * Math.cos(yRotation);
+  const yLabelY = y + ySign * yLabelOffset * Math.sin(yRotation);
   yLabel.setAttribute("x", yLabelX.toString());
   yLabel.setAttribute("y", yLabelY.toString());
   yLabel.setAttribute("font-size", AXIS_LABEL_FONT_SIZE.toString());
@@ -618,6 +626,8 @@ export function drawCoordinateSystem(
   }
 
   const rotation = cs.rotation ?? 0;
+  const flipX = cs.flipX ?? false;
+  const flipY = cs.flipY ?? false;
   const group = coordinateSystemArrows(
     svg,
     cs.x,
@@ -627,6 +637,8 @@ export function drawCoordinateSystem(
     strokeColor,
     rotation,
     geomId,
+    flipX,
+    flipY,
   );
 
   // Store geomId on the group for proper cleanup
