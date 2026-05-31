@@ -1,7 +1,7 @@
 // Intersection expression for circle-line intersection operation
 
 import type { GeometryRenderer } from "../../renderers/types";
-import type { Step, GeometryValue, Point, CoordinateSystem } from "@/types/geometry";
+import type { Step, GeometryValue, Point } from "@/types/geometry";
 import { isCircle, isLine, isPoint, isCoordinateSystem, point } from "@/types/geometry";
 import { GeometryError } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";

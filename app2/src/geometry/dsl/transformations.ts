@@ -50,7 +50,10 @@ export function transformPointToLocalSpace(point: Point, cs: CoordinateSystem): 
  * @param cs - The coordinate system to transform into
  * @returns The local coordinates as { x: number, y: number }
  */
-export function transformToLocalCoords(point: Point, cs: CoordinateSystem): { x: number; y: number } {
+export function transformToLocalCoords(
+  point: Point,
+  cs: CoordinateSystem,
+): { x: number; y: number } {
   const localPoint = transformPointToLocalSpace(point, cs);
   return { x: localPoint.x, y: localPoint.y };
 }

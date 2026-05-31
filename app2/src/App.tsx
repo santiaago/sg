@@ -75,7 +75,12 @@ export default function App(): JSX.Element {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.substring(1) as SectionId | "";
-      const validSections = ["square-dsl", "sixfold-dsl", "sixfold-dsl-v2", "sixfold-dsl-v1"] as const;
+      const validSections = [
+        "square-dsl",
+        "sixfold-dsl",
+        "sixfold-dsl-v2",
+        "sixfold-dsl-v1",
+      ] as const;
       if (hash && validSections.includes(hash as SectionId)) {
         scrollToSection(hash);
       }
@@ -712,13 +717,16 @@ export default function App(): JSX.Element {
         data-testid="section-sixfold-dsl-v2"
       >
         <div className="mb-6 flex items-center">
-          <h1 className="text-2xl font-semibold mb-1 text-left">SixFold v2 DSL with cs2 and flipX</h1>
+          <h1 className="text-2xl font-semibold mb-1 text-left">
+            SixFold v2 DSL with cs2 and flipX
+          </h1>
           <CopyUrlButton />
         </div>
         <div className="mb-4">
           <small className="block text-gray-400 mb-2">05/15/2026</small>
           <p className="text-gray-300 mb-4">
-            SixFold v2 construction using DSL with cs2 coordinate system and flipX transformation ({sixfoldDslV2Steps.length} steps).
+            SixFold v2 construction using DSL with cs2 coordinate system and flipX transformation (
+            {sixfoldDslV2Steps.length} steps).
           </p>
         </div>
         <div className="grid grid-cols-12 gap-8">

@@ -151,10 +151,16 @@ export function buildSixfoldDslV2Steps(renderer?: GeometryRenderer): Step<SixFol
   const c12_d1 = builder.circleWithDistanceRadius("c12_d1", pic12, pic14, pi2);
 
   // Step 35: Point PI3 - east intersection of C14_D1 and C2_D1, relative to cs2
-  const pi3 = builder.circleIntersection("pi3", c14_d1, c2_d1, { select: "east", relativeTo: "cs2" });
+  const pi3 = builder.circleIntersection("pi3", c14_d1, c2_d1, {
+    select: "east",
+    relativeTo: "cs2",
+  });
 
   // Step 36: Point PI4 - east intersection of C12_D1 and C4_D1, relative to cs2
-  const pi4 = builder.circleIntersection("pi4", c12_d1, c4_d1, { select: "east", relativeTo: "cs2" });
+  const pi4 = builder.circleIntersection("pi4", c12_d1, c4_d1, {
+    select: "east",
+    relativeTo: "cs2",
+  });
 
   // Step 37: Line LCP1PI3 from CP1 to PI3
   const lcp1pi3 = builder.line("lcp1pi3", cp1, pi3);

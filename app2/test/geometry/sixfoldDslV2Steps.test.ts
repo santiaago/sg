@@ -33,7 +33,7 @@ describe("SixFold DSL v2 construction", () => {
 
     it("each step has an id", () => {
       const steps = buildSixfoldDslV2Steps();
-      steps.forEach((step, index) => {
+      steps.forEach((step) => {
         expect(step.id).toBeDefined();
         expect(typeof step.id).toBe("string");
         expect(step.id.length).toBeGreaterThan(0);
@@ -111,8 +111,8 @@ describe("SixFold DSL v2 construction", () => {
         renderer: new TestGeometryRenderer(),
       });
 
-      // Execute enough steps to create p1
-      executeSteps(steps, 5, ctx, config);
+      // p1 is at step index 5 (0=cs, 1=cs2, 2=vec, 3=p1x, 4=p1y, 5=p1)
+      executeSteps(steps, 6, ctx, config);
 
       expect(store.items["p1"]).toBeDefined();
     });
@@ -126,13 +126,13 @@ describe("SixFold DSL v2 construction", () => {
         renderer: new TestGeometryRenderer(),
       });
 
-      // Execute enough steps to create p2
-      executeSteps(steps, 10, ctx, config);
+      // p2 is at step index 8 (after p2_local_x, p2_local_y)
+      executeSteps(steps, 9, ctx, config);
 
       expect(store.items["p2"]).toBeDefined();
     });
 
-    it("creates line l1", () => {
+    it("creates line line1", () => {
       const steps = buildSixfoldDslV2Steps();
       const ctx = createStepExecutionContext({
         svg,
@@ -141,10 +141,10 @@ describe("SixFold DSL v2 construction", () => {
         renderer: new TestGeometryRenderer(),
       });
 
-      // Execute enough steps to create l1
-      executeSteps(steps, 15, ctx, config);
+      // line1 is at step index 9
+      executeSteps(steps, 10, ctx, config);
 
-      expect(store.items["l1"]).toBeDefined();
+      expect(store.items["line1"]).toBeDefined();
     });
   });
 

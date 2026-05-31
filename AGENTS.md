@@ -18,6 +18,7 @@
 ## DSL Framework
 
 The declarative geometry DSL framework in `app2/src/geometry/dsl/` provides a type-safe way to construct geometric figures. Key components:
+
 - `GeometryBuilder`: Main facade for creating geometry expressions
 - `GeometryExpression`: Base class for all geometry types (Point, Line, Circle, CoordinateSystem, Polygon)
 - `CoordinateSystemExpression`: Supports `flipX` and `flipY` for mirroring transformations

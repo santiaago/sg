@@ -131,13 +131,58 @@ export class CoordinateSystemExpression<TConfig> implements GeometryExpression<
         const y = resolveParameter(inputs, params, this.yCoord, "y");
         const arrowLength = resolveParameter(inputs, params, this.arrowLengthVal, "arrowLength");
         const rotation = resolveParameter(inputs, params, this.rotationVal, "rotation");
-        const flipX = resolveParameter(inputs, params, this.flipXVal, "flipX") as boolean;
-        const flipY = resolveParameter(inputs, params, this.flipYVal, "flipY") as boolean;
+        const flipX = this.resolveBooleanParameter(inputs, params, this.flipXVal, "flipX");
+        const flipY = this.resolveBooleanParameter(inputs, params, this.flipYVal, "flipY");
         return new Map([[this.id, coordinateSystem(x, y, arrowLength, rotation, flipX, flipY)]]);
       },
       draw: (svg, values, store, theme): void => {
         renderer.drawCoordinateSystem(svg, values, this.id, store, theme, stepId);
       },
     };
+  }
+
+  /**
+   * Resolve a boolean parameter value (for flipX/flipY).
+   * Handles literal booleans, config keys, and feature references to boolean properties.
+   */
+  private resolveBooleanParameter(
+    inputs: Map<string, GeometryValue>,
+    params: TConfig,
+    value: ParameterValue<TConfig>,
+    paramName: string,
+  ): boolean {
+    if (typeof value === "boolean") {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      const result = (params as Record<string, unknown>)[value];
+      if (result === undefined) {
+        throw new Error(`Missing config parameter: ${value}`);
+      }
+      if (typeof result !== "boolean") {
+        throw new Error(`Config parameter ${value} is not a boolean (got ${typeof result})`);
+      }
+      return result;
+    }
+
+    if (isGeometryFeatureReference(value)) {
+      const sourceValue = inputs.get(value.sourceId);
+      if (!sourceValue) {
+        throw new Error(`GeometryFeatureReference: source geometry '${value.sourceId}' not found`);
+      }
+      const propValue = (sourceValue as unknown as Record<string, unknown>)[String(value.property)];
+      if (typeof propValue !== "boolean") {
+        throw new Error(
+          `GeometryFeatureReference: property '${String(value.property)}' on ` +
+            `'${value.sourceId}' is not a boolean (got ${typeof propValue})`,
+        );
+      }
+      return propValue;
+    }
+
+    throw new Error(
+      `Invalid ${paramName} type: expected boolean, string, or GeometryFeatureReference`,
+    );
   }
 }

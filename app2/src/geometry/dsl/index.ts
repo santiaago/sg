@@ -47,4 +47,8 @@ export type { GeometryExpression } from "./expressions/GeometryExpression";
 export type { IntersectionOptions, CircleIntersectionOptions } from "./expressions";
 
 // Transformation helpers
-export { transformPointToLocalSpace, transformToLocalCoords, selectByDirectionInLocalSpace } from "./transformations";
+export {
+  transformPointToLocalSpace,
+  transformToLocalCoords,
+  selectByDirectionInLocalSpace,
+} from "./transformations";

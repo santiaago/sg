@@ -118,8 +118,8 @@ export class PointInCoordinateSystemExpression<TConfig> implements GeometryExpre
         const flipXSign = flipX ? -1 : 1;
         const flipYSign = flipY ? -1 : 1;
 
-        const globalX = cs.x + (x * flipXSign * cosRot) - (y * sinRot);
-        const globalY = cs.y + (x * flipXSign * sinRot) + (y * cosRot) * flipYSign;
+        const globalX = cs.x + x * flipXSign * cosRot - y * sinRot;
+        const globalY = cs.y + x * flipXSign * sinRot + y * cosRot * flipYSign;
 
         return new Map([[this.id, point(globalX, globalY)]]);
       },

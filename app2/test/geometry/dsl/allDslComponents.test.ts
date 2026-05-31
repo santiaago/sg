@@ -32,13 +32,6 @@ describe("All DSL components filter non-visual geometry", () => {
   // ========================================================================
 
   describe("Non-visual geometry NOT in store for any DSL component", () => {
-    it("SixFoldDslV1Svg filters all non-visual geometry", () => {
-=======
-  // ========================================================================
-  // Non-visual geometry filtered from all components
-  // ========================================================================
-
-  describe("Non-visual geometry NOT in store for any DSL component", () => {
     it("SixFoldDslV2Svg filters all non-visual geometry", () => {
       const steps = buildSixfoldDslV2Steps();
       const config = computeSixFoldV0Config(800, 600);
@@ -64,11 +57,6 @@ describe("All DSL components filter non-visual geometry", () => {
       expect(store.items["p2"]).toBeDefined();
     });
 
-    it("SixFoldDslV1Svg filters all non-visual geometry", () => {========================================================================
-  // Non-visual geometry filtered from all components
-  // ========================================================================
-
-  describe("Non-visual geometry NOT in store for any DSL component", () => {
     it("SixFoldDslV1Svg filters all non-visual geometry", () => {
       const steps = buildSixfoldDslV1Steps();
       const config = computeSixFoldV0Config(800, 600);

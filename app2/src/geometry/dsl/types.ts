@@ -26,10 +26,15 @@ export interface GeometryFeatureReferenceLike {
 /**
  * All possible sources for a numeric parameter value.
  * - number: Literal numeric value
+ * - boolean: Literal boolean value (for flipX/flipY)
  * - keyof TConfig: Reference to a configuration parameter
- * - GeometryFeatureReferenceLike: Reference to another geometry's numeric property
+ * - GeometryFeatureReferenceLike: Reference to another geometry's numeric or boolean property
  */
-export type ParameterValue<TConfig> = number | keyof TConfig | GeometryFeatureReferenceLike;
+export type ParameterValue<TConfig> =
+  | number
+  | boolean
+  | keyof TConfig
+  | GeometryFeatureReferenceLike;
 
 /**
  * Extract only the numeric property names from a GeometryValue type.

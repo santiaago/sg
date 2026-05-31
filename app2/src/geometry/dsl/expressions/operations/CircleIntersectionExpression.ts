@@ -1,8 +1,8 @@
 // CircleIntersection expression for circle-circle intersection operation
 
 import type { GeometryRenderer } from "../../renderers/types";
-import type { Step, GeometryValue, Point, CoordinateSystem } from "@/types/geometry";
-import { isCircle, isCoordinateSystem, point } from "@/types/geometry";
+import type { Step, GeometryValue, Point } from "@/types/geometry";
+import { isCircle, isCoordinateSystem } from "@/types/geometry";
 import { GeometryError } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
 import { pointFromCircles } from "@/geometry/constructors";
@@ -90,7 +90,12 @@ export class CircleIntersectionExpression<TConfig> implements GeometryExpression
           const allPoints: Point[] = [];
           // pointFromCircles returns one point based on select, but we need both
           // Try all four directions to get both points
-          const directions: ("north" | "south" | "west" | "east")[] = ["north", "south", "west", "east"];
+          const directions: ("north" | "south" | "west" | "east")[] = [
+            "north",
+            "south",
+            "west",
+            "east",
+          ];
           for (const dir of directions) {
             const result = pointFromCircles(c1Val, c2Val, { select: dir });
             if (result && !allPoints.some((p) => p.x === result.x && p.y === result.y)) {
