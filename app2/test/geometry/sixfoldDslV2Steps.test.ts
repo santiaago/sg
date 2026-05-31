@@ -28,7 +28,7 @@ describe("SixFold DSL v2 construction", () => {
     it("builds all v2 steps", () => {
       const steps = buildSixfoldDslV2Steps();
       expect(steps.length).toBeGreaterThan(0);
-      expect(steps.length).toBe(102);
+      expect(steps.length).toBe(99);
     });
 
     it("each step has an id", () => {

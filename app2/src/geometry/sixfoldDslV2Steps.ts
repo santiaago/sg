@@ -29,6 +29,8 @@ export function buildSixfoldDslV2Steps(renderer?: GeometryRenderer): Step<SixFol
 
   // Step 0: Coordinate System - unchanged from v0
   const cs = builder.coordinateSystem("cs", 0, 0, builder.param("coordinateSystemArrowLength"), 0);
+  // cs is registered as step 0; variable kept for step registration
+  void cs;
 
   // Step 1: Coordinate System cs2 - at (p2x, p2y) from config with flipX=true
   // This is the key difference from v1: cs2 is at p2's position and has flipX=true
@@ -42,13 +44,8 @@ export function buildSixfoldDslV2Steps(renderer?: GeometryRenderer): Step<SixFol
     false, // flipY = false
   );
 
-  // vec_cs2_to_cs captures the offset from cs to cs2
-  const vec_cs2_to_cs = builder.vector("vec_cs2_cs", cs2, cs);
-
   // Step 2: Point P1 in cs2 at (0, 0) - absolute position = (p2x, p2y) = v1's p2 position
-  const p1x = builder.add("p1x", builder.param("p1x"), vec_cs2_to_cs.dx);
-  const p1y = builder.add("p1y", builder.param("p1y"), vec_cs2_to_cs.dy);
-  const p1 = builder.pointInCs("p1", cs2, p1x.value, p1y.value);
+  const p1 = builder.pointInCs("p1", cs2, 0, 0);
 
   // Step 3: Point P2 in cs2 at (p2x - p1x, p1y - p2y) - absolute position = (p1x, p1y) = v1's p1 position
   // In cs2's flipped space, this swaps the positions
@@ -374,6 +371,6 @@ export function buildSixfoldDslV2Steps(renderer?: GeometryRenderer): Step<SixFol
 
 /**
  * Number of steps in the DSL SixFold v2 construction.
- * 102 total: includes coordinate systems, points, lines, circles, and outline geometries
+ * 99 total: includes coordinate systems, points, lines, circles, and outline geometries
  */
-export const DSL_SIXFOLD_V2_STEPS_LENGTH = 102;
+export const DSL_SIXFOLD_V2_STEPS_LENGTH = 99;
