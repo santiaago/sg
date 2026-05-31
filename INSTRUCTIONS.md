@@ -1,3 +1,9 @@
+# smart stepper impl
+
+31-05-2026
+
+load skills caveman and karpathy-guidelines, read @AGENTS.md then read @backlog/prd-migrate-square-sixfold-to-smart-stepper.md I want you to implement that step by step, with incremental commits. When done, I want you to look at @AGENTS.md and see if there is anything that would have been useful to know in @AGENTS.md and commit changes if any, be always very brief. git msgs w/ @AGENTS.md conventions, when done create a PR to merge to main, add titel and desc following @AGENTS.md conventions
+
 # spec for geometry framework v2
 
 I want to create a higher-level declarative geometry framework.
