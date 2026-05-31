@@ -43,6 +43,7 @@ The solution uses a **configuration-over-customization** pattern: GeometrySectio
 ### Interface of GeometrySection
 
 GeometrySection will accept props for:
+
 - **Identity**: sectionId (for refs and hash navigation), title, date, description
 - **Step management**: useSmartStepper result (or the stepper props directly)
 - **SVG rendering**: SvgComponent (the component class), svgProps (props to pass to it), svgRef
