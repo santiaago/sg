@@ -30,32 +30,6 @@ export function Navigation({
         <ul className="flex flex-wrap gap-4 justify-center">
           <li>
             <button
-              onClick={() => handleNavigate("square-dsl")}
-              className={`px-4 py-2 rounded transition-colors ${
-                activeSection === "square-dsl"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
-              data-testid="nav-square-dsl"
-            >
-              Square DSL
-            </button>
-          </li>
-          <li>
-            <button
-              onClick={() => handleNavigate("sixfold-dsl")}
-              className={`px-4 py-2 rounded transition-colors ${
-                activeSection === "sixfold-dsl"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
-              }`}
-              data-testid="nav-sixfold-dsl"
-            >
-              SixFold DSL
-            </button>
-          </li>
-          <li>
-            <button
               onClick={() => handleNavigate("sixfold-dsl-v2")}
               className={`px-4 py-2 rounded transition-colors ${
                 activeSection === "sixfold-dsl-v2"
@@ -78,6 +52,32 @@ export function Navigation({
               data-testid="nav-sixfold-dsl-v1"
             >
               SixFold DSL v1
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleNavigate("sixfold-dsl")}
+              className={`px-4 py-2 rounded transition-colors ${
+                activeSection === "sixfold-dsl"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+              data-testid="nav-sixfold-dsl"
+            >
+              SixFold DSL
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleNavigate("square-dsl")}
+              className={`px-4 py-2 rounded transition-colors ${
+                activeSection === "square-dsl"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+              data-testid="nav-square-dsl"
+            >
+              Square DSL
             </button>
           </li>
         </ul>
