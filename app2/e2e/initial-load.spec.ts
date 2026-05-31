@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SIXFOLD_DSL_V1, SECTION_SQUARE_DSL, THEME, SVG_CONFIG } from "./fixtures";
+import { SECTION_SIXFOLD_DSL_V1, SECTION_SIXFOLD_DSL_V2, SECTION_SQUARE_DSL, THEME, SVG_CONFIG } from "./fixtures";
 import { goToSection, getCurrentStep } from "./utils/navigation";
 import { assertTheme } from "./utils/assertions";
 import { waitForPageLoad } from "./utils/helpers";
@@ -43,21 +43,21 @@ test.describe("Initial Page Load", () => {
 
   test("Defaults to first section in navigation order", async ({ page }) => {
     // The first section should be visible
-    await expect(page.locator("#sixfold-dsl-v1")).toBeVisible();
+    await expect(page.locator("#sixfold-dsl-v2")).toBeVisible();
   });
 
   test("First section starts at step 0 (initial state)", async ({ page }) => {
-    const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_DSL_V1);
+    const currentStep = await getCurrentStep(page, SECTION_SIXFOLD_DSL_V2);
     // The app starts at step 0, not step 1
     expect(currentStep).toBe(0);
   });
 
-  test("SixFold DSL v1 section is the active section initially", async ({ page }) => {
-    // The default section is sixfold-dsl-v1
-    await expect(page.locator("#sixfold-dsl-v1")).toBeVisible();
+  test("SixFold DSL v2 section is the active section initially", async ({ page }) => {
+    // The default section is sixfold-dsl-v2
+    await expect(page.locator("#sixfold-dsl-v2")).toBeVisible();
     // Square DSL section exists in DOM but may or may not be visible depending on viewport
-    // Instead, check that SixFold DSL v1 is the active section
-    const sixfoldNav = page.getByTestId("nav-sixfold-dsl-v1");
+    // Instead, check that SixFold DSL v2 is the active section
+    const sixfoldNav = page.getByTestId("nav-sixfold-dsl-v2");
     const classList = await sixfoldNav.getAttribute("class");
     expect(classList).toContain("bg-blue-600");
   });

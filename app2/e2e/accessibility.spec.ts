@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1 } from "./fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1, SECTION_SIXFOLD_DSL_V2 } from "./fixtures";
 import { goToSection } from "./utils/navigation";
 import { waitForPageLoad } from "./utils/helpers";
 
@@ -116,7 +116,7 @@ test.describe("Accessibility", () => {
 
     test("Section navigation announces active section", async ({ page }) => {
       // Check that active section button has aria-current or similar
-      const activeButton = page.getByRole("button", { name: "SixFold DSL v1" });
+      const activeButton = page.getByRole("button", { name: "SixFold DSL v2" });
       const ariaCurrent = await activeButton.getAttribute("aria-current");
 
       // The active button should have some indication
@@ -127,7 +127,7 @@ test.describe("Accessibility", () => {
 
     test("Step navigation announces current step", async ({ page }) => {
       // The current step is displayed as text
-      const stepText = page.locator("#sixfold-dsl-v1").getByText(/Current step \d+\/\d+/);
+      const stepText = page.locator("#sixfold-dsl-v2").getByText(/Current step \d+\/\d+/);
       await expect(stepText).toBeVisible();
     });
   });

@@ -49,13 +49,13 @@ test.describe("Copy SVG Functionality", () => {
   });
 
   test('Copy SVG button shows "Copied!" feedback temporarily', async ({ page }) => {
-    await page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn").click();
+    await page.locator("#sixfold-dsl-v2").getByTestId("copy-svg-btn").click();
 
     // Verify feedback is visible
-    await expect(page.locator('#sixfold-dsl-v1 [data-testid="copy-feedback"]')).toBeVisible();
+    await expect(page.locator('#sixfold-dsl-v2 [data-testid="copy-feedback"]')).toBeVisible();
 
     // Wait for feedback to disappear
-    await expect(page.locator('#sixfold-dsl-v1 [data-testid="copy-feedback"]')).not.toBeVisible({
+    await expect(page.locator('#sixfold-dsl-v2 [data-testid="copy-feedback"]')).not.toBeVisible({
       timeout: 3000,
     });
   });
