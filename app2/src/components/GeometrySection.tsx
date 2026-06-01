@@ -26,7 +26,7 @@ export interface GeometrySectionProps {
 
   // SVG rendering props
   SvgComponent: React.ComponentType<{
-    ref?: RefObject<SVGSVGElement>;
+    ref?: RefObject<SVGSVGElement | null>;
     store: GeometryStore;
     dotStrokeWidth: number;
     svgConfig: SvgConfig;

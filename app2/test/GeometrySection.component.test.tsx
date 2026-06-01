@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import type { RefObject } from "react";
 import { GeometrySection } from "../src/components/GeometrySection";
 import type { GeometryStore, GeometryItem } from "../src/react-store";
 import type { StepRef, Theme } from "../src/types/geometry";
@@ -9,20 +10,14 @@ import { standardSvgConfig } from "../src/config/svgConfig";
 
 // Mock SVG component
 const MockSvgComponent = vi.fn(
-  ({
-    store,
-    dotStrokeWidth,
-    svgConfig,
-    restartTrigger,
-    currentStep,
-    theme,
-  }: {
+  (_props: {
     store: GeometryStore;
     dotStrokeWidth: number;
     svgConfig: typeof standardSvgConfig;
     restartTrigger: number;
     currentStep: number;
     theme: Theme;
+    ref?: RefObject<SVGSVGElement | null>;
   }) => {
     return <svg data-testid="mock-svg" />;
   },
@@ -70,10 +65,7 @@ const createMockStepper = () => ({
 });
 
 // Mock steps
-const mockSteps: readonly StepRef[] = [
-  { id: "step1", name: "Step 1" },
-  { id: "step2", name: "Step 2" },
-] as const;
+const mockSteps: readonly StepRef[] = [{ id: "step1" }, { id: "step2" }] as const;
 
 const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = [
   "point",
@@ -289,8 +281,8 @@ describe("GeometrySection", () => {
   it("forwards ref to outer div", () => {
     const mockStore = createMockStore();
     const mockStepper = createMockStepper();
-    const svgRef = { current: null };
-    const ref = { current: null } as React.RefObject<HTMLDivElement>;
+    const svgRef = { current: null } as RefObject<SVGSVGElement | null>;
+    const ref = { current: null } as RefObject<HTMLDivElement | null>;
 
     render(
       <GeometrySection

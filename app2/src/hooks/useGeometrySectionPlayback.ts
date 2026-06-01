@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { UseSmartStepperResult } from "./useSmartStepper";
 import type { GeometryStore } from "../react-store";
+import type { Step } from "../types/geometry";
 
 /**
  * Props for the useGeometrySectionPlayback hook.
@@ -8,6 +9,7 @@ import type { GeometryStore } from "../react-store";
 export interface UseGeometrySectionPlaybackProps {
   stepper: UseSmartStepperResult;
   store: GeometryStore;
+  steps: readonly Step[];
 }
 
 /**
@@ -30,13 +32,14 @@ export interface UseGeometrySectionPlaybackResult {
 /**
  * Hook for managing play/pause/step navigation for a geometry section.
  * Encapsulates the interval-based playback logic and step navigation handlers.
- * 
+ *
  * @param props - Hook props including stepper result and store
  * @returns Object with playback state, refs, and handlers
  */
 export function useGeometrySectionPlayback({
   stepper,
   store,
+  steps,
 }: UseGeometrySectionPlaybackProps): UseGeometrySectionPlaybackResult {
   const {
     currentVisualIndex,
@@ -135,7 +138,7 @@ export function useGeometrySectionPlayback({
         playIntervalRef.current = null;
       }
       // Reset to 0 if at the end
-      if (stepsUpToIndex >= stepper.steps.length) {
+      if (stepsUpToIndex >= steps.length) {
         goToStep(0);
       }
       // Start playing
@@ -157,13 +160,14 @@ export function useGeometrySectionPlayback({
         }
       }, 200); // 200ms delay between steps
     }
-  }, [isPlaying, stepsUpToIndex, stepper.steps.length, goToStep, goToNext]);
+  }, [isPlaying, stepsUpToIndex, steps.length, goToStep, goToNext]);
 
   // Clean up interval on unmount
   useEffect(() => {
     return () => {
       if (playIntervalRef.current) {
         clearInterval(playIntervalRef.current);
+        playIntervalRef.current = null;
       }
     };
   }, []);

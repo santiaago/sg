@@ -2,11 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useGeometrySectionPlayback } from "../../src/hooks/useGeometrySectionPlayback";
 import type { UseSmartStepperResult } from "../../src/hooks/useSmartStepper";
-import type { GeometryStore } from "../../src/react-store";
+import type { GeometryStore, GeometryItem } from "../../src/react-store";
+import type { Step } from "../../src/types/geometry";
 
 // Mock store
 const createMockStore = (): GeometryStore => {
-  const items: Record<string, unknown> = {};
+  const items: Record<string, GeometryItem> = {};
   return {
     get items() {
       return items;
@@ -19,8 +20,30 @@ const createMockStore = (): GeometryStore => {
   };
 };
 
+// Mock steps
+const mockSteps: readonly Step[] = [
+  {
+    id: "step1",
+    inputs: [],
+    outputs: [],
+    isVisual: true,
+    compute: vi.fn(() => new Map()),
+    draw: vi.fn(),
+  },
+  {
+    id: "step2",
+    inputs: [],
+    outputs: [],
+    isVisual: true,
+    compute: vi.fn(() => new Map()),
+    draw: vi.fn(),
+  },
+] as const;
+
 // Mock stepper
-const createMockStepper = (overrides: Partial<UseSmartStepperResult> = {}): UseSmartStepperResult => ({
+const createMockStepper = (
+  overrides: Partial<UseSmartStepperResult> = {},
+): UseSmartStepperResult => ({
   currentVisualIndex: 0,
   visualStepCount: 10,
   stepsUpToIndex: 0,
@@ -29,7 +52,6 @@ const createMockStepper = (overrides: Partial<UseSmartStepperResult> = {}): UseS
   goToPrev: vi.fn(),
   canGoNext: true,
   canGoPrev: false,
-  steps: [{ id: "step1" }, { id: "step2" }],
   ...overrides,
 });
 
@@ -55,7 +77,7 @@ describe("useGeometrySectionPlayback", () => {
     const mockStepper = createMockStepper();
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     expect(result.current.restartKey).toBe(0);
@@ -67,7 +89,7 @@ describe("useGeometrySectionPlayback", () => {
     const mockStepper = createMockStepper({ canGoNext: true });
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     act(() => {
@@ -82,7 +104,7 @@ describe("useGeometrySectionPlayback", () => {
     const mockStepper = createMockStepper({ canGoNext: true });
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     // Start playing
@@ -105,7 +127,7 @@ describe("useGeometrySectionPlayback", () => {
     const mockStepper = createMockStepper({ canGoPrev: true });
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     act(() => {
@@ -120,7 +142,7 @@ describe("useGeometrySectionPlayback", () => {
     const mockStepper = createMockStepper();
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     const initialRestartKey = result.current.restartKey;
@@ -139,7 +161,7 @@ describe("useGeometrySectionPlayback", () => {
     const mockStepper = createMockStepper({ visualStepCount: 10 });
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     const initialRestartKey = result.current.restartKey;
@@ -162,7 +184,7 @@ describe("useGeometrySectionPlayback", () => {
     });
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     act(() => {
@@ -182,7 +204,7 @@ describe("useGeometrySectionPlayback", () => {
     });
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     // Start playing
@@ -209,7 +231,7 @@ describe("useGeometrySectionPlayback", () => {
     });
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     act(() => {
@@ -225,20 +247,20 @@ describe("useGeometrySectionPlayback", () => {
   it("interval stops when reaching the end", () => {
     const mockStore = createMockStore();
     const mockStepper = createMockStepper({
-      currentVisualIndex: 9,
+      currentVisualIndex: 10,
       visualStepCount: 10,
-      stepsUpToIndex: 9,
+      stepsUpToIndex: 10,
     });
 
     const { result } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     act(() => {
       result.current.handlePlayClick();
     });
 
-    // Advance timer by 200ms
+    // Advance timer by 200ms - should stop immediately since at end
     advanceTimers(200);
 
     expect(result.current.isPlaying).toBe(false);
@@ -254,7 +276,7 @@ describe("useGeometrySectionPlayback", () => {
     });
 
     const { result, unmount } = renderHook(() =>
-      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore }),
+      useGeometrySectionPlayback({ stepper: mockStepper, store: mockStore, steps: mockSteps }),
     );
 
     act(() => {

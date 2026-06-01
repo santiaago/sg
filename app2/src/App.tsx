@@ -13,7 +13,7 @@ import { buildSixfoldDslSteps } from "./geometry/sixfoldDslSteps";
 import { buildSixfoldDslV1Steps } from "./geometry/sixfoldDslV1Steps";
 import { buildSixfoldDslV2Steps } from "./geometry/sixfoldDslV2Steps";
 import { lightTheme, darkTheme } from "./themes";
-import type { Theme, GeometryType } from "./types/geometry";
+import type { Theme, GeometryType, Step } from "./types/geometry";
 import { useSmartStepper } from "./hooks/useSmartStepper";
 import { useGeometrySectionPlayback } from "./hooks/useGeometrySectionPlayback";
 
@@ -127,21 +127,25 @@ export default function App(): JSX.Element {
   const squareDslPlayback = useGeometrySectionPlayback({
     stepper: squareDslStepper,
     store: storeSquareDsl,
+    steps: squareDslSteps as readonly Step[],
   });
 
   const sixfoldDslPlayback = useGeometrySectionPlayback({
     stepper: sixfoldDslStepper,
     store: storeSixFoldDsl,
+    steps: sixfoldDslSteps as readonly Step[],
   });
 
   const sixfoldDslV1Playback = useGeometrySectionPlayback({
     stepper: sixfoldDslV1Stepper,
     store: storeSixFoldDslV1,
+    steps: sixfoldDslV1Steps as readonly Step[],
   });
 
   const sixfoldDslV2Playback = useGeometrySectionPlayback({
     stepper: sixfoldDslV2Stepper,
     store: storeSixFoldDslV2,
+    steps: sixfoldDslV2Steps as readonly Step[],
   });
 
   return (
