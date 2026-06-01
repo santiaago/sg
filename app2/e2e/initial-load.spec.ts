@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SIXFOLD_DSL_V1, SECTION_SIXFOLD_DSL_V2, SECTION_SQUARE_DSL, THEME, SVG_CONFIG } from "./fixtures";
+import { SECTION_SIXFOLD_DSL_V2, SECTION_SQUARE_DSL, THEME, SVG_CONFIG } from "./fixtures";
 import { goToSection, getCurrentStep } from "./utils/navigation";
 import { assertTheme } from "./utils/assertions";
 import { waitForPageLoad } from "./utils/helpers";

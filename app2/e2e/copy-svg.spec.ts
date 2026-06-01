@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1, SVG_CONFIG } from "./fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1 } from "./fixtures";
 import { goToSection } from "./utils/navigation";
 import { assertSVGValid } from "./utils/assertions";
-import { assertClipboardContains, getSVGContent } from "./utils/clipboard";
+import { getSVGContent } from "./utils/clipboard";
 import { waitForPageLoad } from "./utils/helpers";
 
 /**
