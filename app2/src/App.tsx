@@ -637,49 +637,52 @@ export default function App(): JSX.Element {
         svgTheme={svgTheme}
       />
 
-      {/* DSL Square Section */}
+      {/* SixFold DSL v2 Section */}
       <div
-        ref={sectionRefs["square-dsl"]}
+        ref={sectionRefs["sixfold-dsl-v2"]}
         className="mb-8 p-8 bg-gray-900 rounded-lg"
-        id="square-dsl"
-        data-testid="section-square-dsl"
+        id="sixfold-dsl-v2"
+        data-testid="section-sixfold-dsl-v2"
       >
         <div className="mb-6 flex items-center">
-          <h1 className="text-2xl font-semibold mb-1 text-left">Square DSL</h1>
+          <h1 className="text-2xl font-semibold mb-1 text-left">
+            SixFold v2 DSL with cs2 and flipX
+          </h1>
           <CopyUrlButton />
         </div>
         <div className="mb-4">
-          <small className="block text-gray-400 mb-2">05/07/2026</small>
+          <small className="block text-gray-400 mb-2">05/15/2026</small>
           <p className="text-gray-300 mb-4">
-            Square construction using the new declarative DSL implementation.
+            SixFold v2 construction using DSL with cs2 coordinate system and flipX transformation (
+            {sixfoldDslV2Steps.length} steps).
           </p>
         </div>
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-7">
             <GeometryPlayer
-              svgRef={squareDslSvgRef}
+              svgRef={sixfoldDslV2SvgRef}
               svgConfig={standardSvgConfig}
-              currentStep={currentVisualIndexSquareDsl}
-              totalSteps={visualStepCountSquareDsl - 1}
-              onStepChange={(step) => goToStepSquareDsl(step)}
-              onFirstStep={handleFirstStepSquareDsl}
-              onPrevStep={handlePrevClickSquareDsl}
-              onNextStep={handleNextClickSquareDsl}
-              onLastStep={handleLastStepSquareDsl}
+              currentStep={currentVisualIndexV2}
+              totalSteps={visualStepCountV2 - 1}
+              onStepChange={(step) => goToStepV2(step)}
+              onFirstStep={handleFirstStepSixfoldDslV2}
+              onPrevStep={handlePrevClickSixfoldDslV2}
+              onNextStep={handleNextClickSixfoldDslV2}
+              onLastStep={handleLastStepSixfoldDslV2}
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
               showPlayButton={true}
-              isPlaying={isPlayingSquareDsl}
-              onPlayClick={handlePlayClickSquareDsl}
+              isPlaying={isPlayingSixfoldDslV2}
+              onPlayClick={handlePlayClickSixfoldDslV2}
             >
-              <SquareDslSvg
-                ref={squareDslSvgRef}
-                store={storeSquareDsl}
+              <SixFoldDslV2Svg
+                ref={sixfoldDslV2SvgRef}
+                store={storeSixFoldDslV2}
                 dotStrokeWidth={strokeBig}
                 svgConfig={standardSvgConfig}
-                restartTrigger={restartKeySquareDsl}
-                currentStep={stepsUpToIndexSquareDsl}
+                restartTrigger={restartKeySixfoldDslV2}
+                currentStep={stepsUpToIndexV2}
                 theme={svgTheme}
               />
             </GeometryPlayer>
@@ -687,14 +690,94 @@ export default function App(): JSX.Element {
           <div className="col-span-2">
             <h2 className="text-lg font-medium mb-4">Right pane</h2>
             <p className="text-gray-300 mb-4">
-              Current step {currentVisualIndexSquareDsl}/{visualStepCountSquareDsl}
+              Current step {currentVisualIndexV2}/{visualStepCountV2}
             </p>
-            <GeometryDetails store={storeSquareDsl} strokeBig={strokeBig} steps={squareDslSteps} />
+            <GeometryDetails
+              store={storeSixFoldDslV2}
+              strokeBig={strokeBig}
+              steps={sixfoldDslV2Steps}
+            />
           </div>
           <div className="col-span-3">
             <div>
               <GeometryList
-                store={storeSquareDsl}
+                store={storeSixFoldDslV2}
+                strokeMid={strokeMid}
+                strokeBig={strokeBig}
+                strokeLine={strokeLine}
+                showInputHighlight={showInputHighlight}
+                showNameFilter={true}
+                showTypeFilters={true}
+                availableTypes={GEOMETRY_TYPES}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SixFold DSL v1 Section */}
+      <div
+        ref={sectionRefs["sixfold-dsl-v1"]}
+        className="mb-8 p-8 bg-gray-900 rounded-lg"
+        id="sixfold-dsl-v1"
+        data-testid="section-sixfold-dsl-v1"
+      >
+        <div className="mb-6 flex items-center">
+          <h1 className="text-2xl font-semibold mb-1 text-left">SixFold v1 DSL with cs2</h1>
+          <CopyUrlButton />
+        </div>
+        <div className="mb-4">
+          <small className="block text-gray-400 mb-2">05/14/2026</small>
+          <p className="text-gray-300 mb-4">
+            SixFold v1 construction using DSL with cs2 coordinate system ({visualStepCountV1} visual
+            steps).
+          </p>
+        </div>
+        <div className="grid grid-cols-12 gap-8">
+          <div className="col-span-7">
+            <GeometryPlayer
+              svgRef={sixfoldDslV1SvgRef}
+              svgConfig={standardSvgConfig}
+              currentStep={currentVisualIndexV1}
+              totalSteps={visualStepCountV1 - 1}
+              onStepChange={(step) => goToStepV1(step)}
+              onFirstStep={handleFirstStepSixfoldDslV1}
+              onPrevStep={handlePrevClickSixfoldDslV1}
+              onNextStep={handleNextClickSixfoldDslV1}
+              onLastStep={handleLastStepSixfoldDslV1}
+              showInputsToggle={true}
+              showInputHighlight={showInputHighlight}
+              onToggleInputs={toggleInputs}
+              showPlayButton={true}
+              isPlaying={isPlayingSixfoldDslV1}
+              onPlayClick={handlePlayClickSixfoldDslV1}
+            >
+              <SixFoldDslV1Svg
+                ref={sixfoldDslV1SvgRef}
+                store={storeSixFoldDslV1}
+                dotStrokeWidth={strokeBig}
+                svgConfig={standardSvgConfig}
+                restartTrigger={restartKeySixfoldDslV1}
+                currentStep={stepsUpToIndexV1}
+                theme={svgTheme}
+              />
+            </GeometryPlayer>
+          </div>
+          <div className="col-span-2">
+            <h2 className="text-lg font-medium mb-4">Right pane</h2>
+            <p className="text-gray-300 mb-4">
+              Current step {currentVisualIndexV1}/{visualStepCountV1}
+            </p>
+            <GeometryDetails
+              store={storeSixFoldDslV1}
+              strokeBig={strokeBig}
+              steps={sixfoldDslV1Steps}
+            />
+          </div>
+          <div className="col-span-3">
+            <div>
+              <GeometryList
+                store={storeSixFoldDslV1}
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
@@ -783,52 +866,49 @@ export default function App(): JSX.Element {
         </div>
       </div>
 
-      {/* SixFold DSL v2 Section */}
+      {/* DSL Square Section */}
       <div
-        ref={sectionRefs["sixfold-dsl-v2"]}
+        ref={sectionRefs["square-dsl"]}
         className="mb-8 p-8 bg-gray-900 rounded-lg"
-        id="sixfold-dsl-v2"
-        data-testid="section-sixfold-dsl-v2"
+        id="square-dsl"
+        data-testid="section-square-dsl"
       >
         <div className="mb-6 flex items-center">
-          <h1 className="text-2xl font-semibold mb-1 text-left">
-            SixFold v2 DSL with cs2 and flipX
-          </h1>
+          <h1 className="text-2xl font-semibold mb-1 text-left">Square DSL</h1>
           <CopyUrlButton />
         </div>
         <div className="mb-4">
-          <small className="block text-gray-400 mb-2">05/15/2026</small>
+          <small className="block text-gray-400 mb-2">05/07/2026</small>
           <p className="text-gray-300 mb-4">
-            SixFold v2 construction using DSL with cs2 coordinate system and flipX transformation (
-            {sixfoldDslV2Steps.length} steps).
+            Square construction using the new declarative DSL implementation.
           </p>
         </div>
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-7">
             <GeometryPlayer
-              svgRef={sixfoldDslV2SvgRef}
+              svgRef={squareDslSvgRef}
               svgConfig={standardSvgConfig}
-              currentStep={currentVisualIndexV2}
-              totalSteps={visualStepCountV2 - 1}
-              onStepChange={(step) => goToStepV2(step)}
-              onFirstStep={handleFirstStepSixfoldDslV2}
-              onPrevStep={handlePrevClickSixfoldDslV2}
-              onNextStep={handleNextClickSixfoldDslV2}
-              onLastStep={handleLastStepSixfoldDslV2}
+              currentStep={currentVisualIndexSquareDsl}
+              totalSteps={visualStepCountSquareDsl - 1}
+              onStepChange={(step) => goToStepSquareDsl(step)}
+              onFirstStep={handleFirstStepSquareDsl}
+              onPrevStep={handlePrevClickSquareDsl}
+              onNextStep={handleNextClickSquareDsl}
+              onLastStep={handleLastStepSquareDsl}
               showInputsToggle={true}
               showInputHighlight={showInputHighlight}
               onToggleInputs={toggleInputs}
               showPlayButton={true}
-              isPlaying={isPlayingSixfoldDslV2}
-              onPlayClick={handlePlayClickSixfoldDslV2}
+              isPlaying={isPlayingSquareDsl}
+              onPlayClick={handlePlayClickSquareDsl}
             >
-              <SixFoldDslV2Svg
-                ref={sixfoldDslV2SvgRef}
-                store={storeSixFoldDslV2}
+              <SquareDslSvg
+                ref={squareDslSvgRef}
+                store={storeSquareDsl}
                 dotStrokeWidth={strokeBig}
                 svgConfig={standardSvgConfig}
-                restartTrigger={restartKeySixfoldDslV2}
-                currentStep={stepsUpToIndexV2}
+                restartTrigger={restartKeySquareDsl}
+                currentStep={stepsUpToIndexSquareDsl}
                 theme={svgTheme}
               />
             </GeometryPlayer>
@@ -836,93 +916,14 @@ export default function App(): JSX.Element {
           <div className="col-span-2">
             <h2 className="text-lg font-medium mb-4">Right pane</h2>
             <p className="text-gray-300 mb-4">
-              Current step {currentVisualIndexV2}/{visualStepCountV2}
+              Current step {currentVisualIndexSquareDsl}/{visualStepCountSquareDsl}
             </p>
-            <GeometryDetails
-              store={storeSixFoldDslV2}
-              strokeBig={strokeBig}
-              steps={sixfoldDslV2Steps}
-            />
+            <GeometryDetails store={storeSquareDsl} strokeBig={strokeBig} steps={squareDslSteps} />
           </div>
           <div className="col-span-3">
             <div>
               <GeometryList
-                store={storeSixFoldDslV2}
-                strokeMid={strokeMid}
-                strokeBig={strokeBig}
-                strokeLine={strokeLine}
-                showInputHighlight={showInputHighlight}
-                showNameFilter={true}
-                showTypeFilters={true}
-                availableTypes={GEOMETRY_TYPES}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      {/* SixFold DSL v1 Section */}
-      <div
-        ref={sectionRefs["sixfold-dsl-v1"]}
-        className="mb-8 p-8 bg-gray-900 rounded-lg"
-        id="sixfold-dsl-v1"
-        data-testid="section-sixfold-dsl-v1"
-      >
-        <div className="mb-6 flex items-center">
-          <h1 className="text-2xl font-semibold mb-1 text-left">SixFold v1 DSL with cs2</h1>
-          <CopyUrlButton />
-        </div>
-        <div className="mb-4">
-          <small className="block text-gray-400 mb-2">05/14/2026</small>
-          <p className="text-gray-300 mb-4">
-            SixFold v1 construction using DSL with cs2 coordinate system ({visualStepCountV1} visual
-            steps).
-          </p>
-        </div>
-        <div className="grid grid-cols-12 gap-8">
-          <div className="col-span-7">
-            <GeometryPlayer
-              svgRef={sixfoldDslV1SvgRef}
-              svgConfig={standardSvgConfig}
-              currentStep={currentVisualIndexV1}
-              totalSteps={visualStepCountV1 - 1}
-              onStepChange={(step) => goToStepV1(step)}
-              onFirstStep={handleFirstStepSixfoldDslV1}
-              onPrevStep={handlePrevClickSixfoldDslV1}
-              onNextStep={handleNextClickSixfoldDslV1}
-              onLastStep={handleLastStepSixfoldDslV1}
-              showInputsToggle={true}
-              showInputHighlight={showInputHighlight}
-              onToggleInputs={toggleInputs}
-              showPlayButton={true}
-              isPlaying={isPlayingSixfoldDslV1}
-              onPlayClick={handlePlayClickSixfoldDslV1}
-            >
-              <SixFoldDslV1Svg
-                ref={sixfoldDslV1SvgRef}
-                store={storeSixFoldDslV1}
-                dotStrokeWidth={strokeBig}
-                svgConfig={standardSvgConfig}
-                restartTrigger={restartKeySixfoldDslV1}
-                currentStep={stepsUpToIndexV1}
-                theme={svgTheme}
-              />
-            </GeometryPlayer>
-          </div>
-          <div className="col-span-2">
-            <h2 className="text-lg font-medium mb-4">Right pane</h2>
-            <p className="text-gray-300 mb-4">
-              Current step {currentVisualIndexV1}/{visualStepCountV1}
-            </p>
-            <GeometryDetails
-              store={storeSixFoldDslV1}
-              strokeBig={strokeBig}
-              steps={sixfoldDslV1Steps}
-            />
-          </div>
-          <div className="col-span-3">
-            <div>
-              <GeometryList
-                store={storeSixFoldDslV1}
+                store={storeSquareDsl}
                 strokeMid={strokeMid}
                 strokeBig={strokeBig}
                 strokeLine={strokeLine}
