@@ -95,8 +95,8 @@ test.describe("Navigation & URL Hash", () => {
       await page.goto("/#invalid-section");
       await waitForPageLoad(page);
 
-      // Should still show the default section (sixfold-dsl-v1)
-      await expect(page.locator("#sixfold-dsl-v1")).toBeVisible();
+      // Should still show the default section (sixfold-dsl-v2)
+      await expect(page.locator("#sixfold-dsl-v2")).toBeVisible();
     });
 
     test("Hash with query parameters works correctly", async ({ page }) => {

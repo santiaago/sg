@@ -2,7 +2,7 @@ import type { JSX } from "react";
 import type { Theme } from "../themes";
 import { darkTheme } from "../themes";
 
-type SectionId = "square-dsl" | "sixfold-dsl" | "sixfold-dsl-v1";
+type SectionId = "square-dsl" | "sixfold-dsl" | "sixfold-dsl-v2" | "sixfold-dsl-v1";
 
 interface NavigationProps {
   onNavigate: (sectionId: SectionId) => void;
@@ -30,15 +30,28 @@ export function Navigation({
         <ul className="flex flex-wrap gap-4 justify-center">
           <li>
             <button
-              onClick={() => handleNavigate("square-dsl")}
+              onClick={() => handleNavigate("sixfold-dsl-v2")}
               className={`px-4 py-2 rounded transition-colors ${
-                activeSection === "square-dsl"
+                activeSection === "sixfold-dsl-v2"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
               }`}
-              data-testid="nav-square-dsl"
+              data-testid="nav-sixfold-dsl-v2"
             >
-              Square DSL
+              SixFold DSL v2
+            </button>
+          </li>
+          <li>
+            <button
+              onClick={() => handleNavigate("sixfold-dsl-v1")}
+              className={`px-4 py-2 rounded transition-colors ${
+                activeSection === "sixfold-dsl-v1"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+              }`}
+              data-testid="nav-sixfold-dsl-v1"
+            >
+              SixFold DSL v1
             </button>
           </li>
           <li>
@@ -56,15 +69,15 @@ export function Navigation({
           </li>
           <li>
             <button
-              onClick={() => handleNavigate("sixfold-dsl-v1")}
+              onClick={() => handleNavigate("square-dsl")}
               className={`px-4 py-2 rounded transition-colors ${
-                activeSection === "sixfold-dsl-v1"
+                activeSection === "square-dsl"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-700 text-gray-300 hover:bg-gray-600"
               }`}
-              data-testid="nav-sixfold-dsl-v1"
+              data-testid="nav-square-dsl"
             >
-              SixFold DSL v1
+              Square DSL
             </button>
           </li>
         </ul>

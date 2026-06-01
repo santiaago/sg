@@ -15,6 +15,18 @@
 - backlog: Code review documents and tracking (`backlog/`)
 - code reviews: Detailed review reports in `backlog/` (e.g., `GEOMETRY_STEP_SYSTEM_REVIEW.md`)
 
+## DSL Framework
+
+The declarative geometry DSL framework in `app2/src/geometry/dsl/` provides a type-safe way to construct geometric figures. Key components:
+
+- `GeometryBuilder`: Main facade for creating geometry expressions
+- `GeometryExpression`: Base class for all geometry types (Point, Line, Circle, CoordinateSystem, Polygon)
+- `CoordinateSystemExpression`: Supports `flipX` and `flipY` for mirroring transformations
+- `PointInCoordinateSystemExpression`: Transforms points using coordinate system's flip settings
+- `IntersectionExpression` / `CircleIntersectionExpression`: Support `relativeTo` option for direction-based selections in a specific coordinate system's local space
+- `transformations.ts`: Helper functions for coordinate system transformations (transformPointToLocalSpace, transformToLocalCoords, selectByDirectionInLocalSpace)
+- See `backlog/dsl/PRD-sixfold-dsl-v2.md` for the SixFold DSL v2 specification
+
 ## Build, Test, and Development Commands
 
 - Install deps: `pnpm install`

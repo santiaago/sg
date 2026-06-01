@@ -105,4 +105,8 @@ export interface CoordinateSystemWithAccessors<TConfig> extends GeometryExpressi
   readonly arrowLength: GeometryFeatureReference<TConfig, CoordinateSystem, "arrowLength">;
   /** Access the rotation as a feature reference */
   readonly rotation: GeometryFeatureReference<TConfig, CoordinateSystem, "rotation">;
+  /** Access the flipX property as a feature reference */
+  readonly flipX: GeometryFeatureReference<TConfig, CoordinateSystem, "flipX">;
+  /** Access the flipY property as a feature reference */
+  readonly flipY: GeometryFeatureReference<TConfig, CoordinateSystem, "flipY">;
 }

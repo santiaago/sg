@@ -136,6 +136,9 @@ export interface SixFoldV0Config {
   coordinateSystemArrowLength: number;
 }
 
+/** Configuration for SixFoldV2 geometry construction */
+export interface SixFoldV2Config extends SixFoldV0Config {}
+
 /**
  * Computes the SixFoldV0 geometry configuration
  * Matches v3 Svelte circlesFromLine logic exactly

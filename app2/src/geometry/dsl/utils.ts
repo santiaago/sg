@@ -41,6 +41,12 @@ export function resolveParameter<TConfig>(
     return value;
   }
 
+  if (typeof value === "boolean") {
+    // Convert boolean to number (true -> 1, false -> 0)
+    // This allows boolean parameters to be used in numeric contexts
+    return value ? 1 : 0;
+  }
+
   if (typeof value === "string") {
     const result = params[value as keyof TConfig];
     if (result === undefined) {

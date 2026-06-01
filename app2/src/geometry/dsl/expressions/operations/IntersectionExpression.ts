@@ -2,13 +2,14 @@
 
 import type { GeometryRenderer } from "../../renderers/types";
 import type { Step, GeometryValue, Point } from "@/types/geometry";
-import { isCircle, isLine, isPoint, point } from "@/types/geometry";
+import { isCircle, isLine, isPoint, isCoordinateSystem, point } from "@/types/geometry";
 import { GeometryError } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
 import { pointFromCircleAndLine, interceptCircleLineSegHelper } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { CircleLikeExpression, LineLikeExpression } from "../types";
 import { createStepId } from "../../utils";
+import { selectByDirectionInLocalSpace } from "../../transformations";
 
 /** Options for circle-line intersection */
 export interface IntersectionOptions {
@@ -18,6 +19,8 @@ export interface IntersectionOptions {
   position?: "left" | "right" | "north" | "south";
   /** Tolerance for intersection calculation */
   tolerance?: number;
+  /** Coordinate system ID to use for relative direction interpretation */
+  relativeTo?: string;
 }
 
 /**
@@ -60,6 +63,11 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
       this.dependencies.push(options.excludeId);
     }
 
+    // Add relativeTo to dependencies if present
+    if (options.relativeTo) {
+      this.dependencies.push(options.relativeTo);
+    }
+
     this.parameters = [];
   }
 
@@ -83,15 +91,52 @@ export class IntersectionExpression<TConfig> implements GeometryExpression<TConf
 
         // If position is specified, use interceptCircleLineSegHelper with index
         if (this.options.position === "left" || this.options.position === "right") {
-          const result = interceptCircleLineSegHelper(circleVal, lineVal, positionIndex);
-          if (!result) {
-            throw new GeometryError(
+          // Check if we need to use relative coordinate system
+          if (this.options.relativeTo) {
+            const csVal = getGeometry(
+              inputs,
+              this.options.relativeTo,
+              isCoordinateSystem,
+              "CoordinateSystem",
               stepId,
-              this.id,
-              "No intersection found between circle and line",
             );
+            // Get all intersection points
+            const allIntersections = interceptCircleLineSegHelper(circleVal, lineVal, 0);
+            const allIntersections2 = interceptCircleLineSegHelper(circleVal, lineVal, 1);
+            const allPoints = [allIntersections, allIntersections2].filter(
+              (p): p is Point => p !== null,
+            );
+
+            if (allPoints.length === 0) {
+              throw new GeometryError(
+                stepId,
+                this.id,
+                "No intersection found between circle and line",
+              );
+            }
+
+            // Select based on direction in the relative coordinate system
+            const direction = this.options.position; // "left" or "right"
+            const selected = selectByDirectionInLocalSpace(allPoints, csVal, direction);
+            if (!selected) {
+              throw new GeometryError(
+                stepId,
+                this.id,
+                "No intersection found between circle and line",
+              );
+            }
+            return new Map([[this.id, selected]]);
+          } else {
+            const result = interceptCircleLineSegHelper(circleVal, lineVal, positionIndex);
+            if (!result) {
+              throw new GeometryError(
+                stepId,
+                this.id,
+                "No intersection found between circle and line",
+              );
+            }
+            return new Map([[this.id, result]]);
           }
-          return new Map([[this.id, result]]);
         }
 
         // Build exclude point if provided

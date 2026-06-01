@@ -1,19 +1,22 @@
 // CircleIntersection expression for circle-circle intersection operation
 
 import type { GeometryRenderer } from "../../renderers/types";
-import type { Step, GeometryValue } from "@/types/geometry";
-import { isCircle } from "@/types/geometry";
+import type { Step, GeometryValue, Point } from "@/types/geometry";
+import { isCircle, isCoordinateSystem } from "@/types/geometry";
 import { GeometryError } from "@/types/geometry";
 import { getGeometry } from "@/geometry/operations";
 import { pointFromCircles } from "@/geometry/constructors";
 import type { GeometryExpression } from "../GeometryExpression";
 import type { CircleLikeExpression } from "../types";
 import { createStepId } from "../../utils";
+import { selectByDirectionInLocalSpace } from "../../transformations";
 
 /** Options for circle-circle intersection */
 export interface CircleIntersectionOptions {
   /** Which intersection point to select: "north" (lower y), "south" (higher y), "west" (lower x), or "east" (higher x) in SVG coordinates */
   select?: "north" | "south" | "west" | "east";
+  /** Coordinate system ID to use for relative direction interpretation */
+  relativeTo?: string;
 }
 
 /**
@@ -50,6 +53,12 @@ export class CircleIntersectionExpression<TConfig> implements GeometryExpression
     this.c2Id = c2.id;
     this.options = options;
     this.dependencies = [c1.id, c2.id];
+
+    // Add relativeTo to dependencies if present
+    if (options.relativeTo) {
+      this.dependencies.push(options.relativeTo);
+    }
+
     this.parameters = [];
   }
 
@@ -66,6 +75,45 @@ export class CircleIntersectionExpression<TConfig> implements GeometryExpression
       ): Map<string, GeometryValue> => {
         const c1Val = getGeometry(inputs, this.c1Id, isCircle, "Circle", stepId);
         const c2Val = getGeometry(inputs, this.c2Id, isCircle, "Circle", stepId);
+
+        // Check if we need to use relative coordinate system
+        if (this.options.relativeTo && this.options.select) {
+          const csVal = getGeometry(
+            inputs,
+            this.options.relativeTo,
+            isCoordinateSystem,
+            "CoordinateSystem",
+            stepId,
+          );
+
+          // Get all intersection points
+          const allPoints: Point[] = [];
+          // pointFromCircles returns one point based on select, but we need both
+          // Try all four directions to get both points
+          const directions: ("north" | "south" | "west" | "east")[] = [
+            "north",
+            "south",
+            "west",
+            "east",
+          ];
+          for (const dir of directions) {
+            const result = pointFromCircles(c1Val, c2Val, { select: dir });
+            if (result && !allPoints.some((p) => p.x === result.x && p.y === result.y)) {
+              allPoints.push(result);
+            }
+          }
+
+          if (allPoints.length === 0) {
+            throw new GeometryError(stepId, this.id, "No intersection found between circles");
+          }
+
+          // Select based on direction in the relative coordinate system
+          const selected = selectByDirectionInLocalSpace(allPoints, csVal, this.options.select);
+          if (!selected) {
+            throw new GeometryError(stepId, this.id, "No intersection found between circles");
+          }
+          return new Map([[this.id, selected]]);
+        }
 
         const result = pointFromCircles(c1Val, c2Val, {
           select: this.options.select,

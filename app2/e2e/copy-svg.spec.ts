@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1, SVG_CONFIG } from "./fixtures";
+import { SECTION_SQUARE_DSL, SECTION_SIXFOLD_DSL_V1 } from "./fixtures";
 import { goToSection } from "./utils/navigation";
 import { assertSVGValid } from "./utils/assertions";
-import { assertClipboardContains, getSVGContent } from "./utils/clipboard";
+import { getSVGContent } from "./utils/clipboard";
 import { waitForPageLoad } from "./utils/helpers";
 
 /**
@@ -49,13 +49,13 @@ test.describe("Copy SVG Functionality", () => {
   });
 
   test('Copy SVG button shows "Copied!" feedback temporarily', async ({ page }) => {
-    await page.locator("#sixfold-dsl-v1").getByTestId("copy-svg-btn").click();
+    await page.locator("#sixfold-dsl-v2").getByTestId("copy-svg-btn").click();
 
     // Verify feedback is visible
-    await expect(page.locator('#sixfold-dsl-v1 [data-testid="copy-feedback"]')).toBeVisible();
+    await expect(page.locator('#sixfold-dsl-v2 [data-testid="copy-feedback"]')).toBeVisible();
 
     // Wait for feedback to disappear
-    await expect(page.locator('#sixfold-dsl-v1 [data-testid="copy-feedback"]')).not.toBeVisible({
+    await expect(page.locator('#sixfold-dsl-v2 [data-testid="copy-feedback"]')).not.toBeVisible({
       timeout: 3000,
     });
   });

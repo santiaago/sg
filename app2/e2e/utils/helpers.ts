@@ -14,9 +14,9 @@ export async function waitForPageLoad(page: Page, timeout: number = 10000): Prom
     window.location.hash = "";
   });
   // Wait for default section to be visible and active
-  await page.waitForSelector("#sixfold-dsl-v1", { state: "visible", timeout: 10000 });
+  await page.waitForSelector("#sixfold-dsl-v2", { state: "visible", timeout: 10000 });
   // Wait for SVG to be ready
-  await page.waitForSelector("[data-testid='sixfold-dsl-v1-svg']", {
+  await page.waitForSelector("[data-testid='sixfold-dsl-v2-svg']", {
     state: "visible",
     timeout: 10000,
   });

@@ -67,6 +67,8 @@ export interface CoordinateSystem {
   y: number;
   arrowLength: number;
   rotation?: number; // Rotation angle in radians (default: 0 = X right, Y down)
+  flipX?: boolean; // Flip X-axis (mirror horizontally)
+  flipY?: boolean; // Flip Y-axis (mirror vertically)
 }
 
 // Union type for all geometry values
@@ -197,6 +199,8 @@ export function coordinateSystem(
   y: number,
   arrowLength: number,
   rotation: number = 0,
+  flipX: boolean = false,
+  flipY: boolean = false,
 ): CoordinateSystem {
-  return { type: "coordinate_system", x, y, arrowLength, rotation };
+  return { type: "coordinate_system", x, y, arrowLength, rotation, flipX, flipY };
 }
