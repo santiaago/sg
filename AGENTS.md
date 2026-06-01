@@ -37,6 +37,7 @@ Geometry construction sections in `app2/src/App.tsx` use a reusable `GeometrySec
 ### Adding a New Geometry Section
 
 To add a new geometry construction section:
+
 1. Create step builder function (e.g., `buildNewDslSteps()` in `app2/src/geometry/`) returning `Step[]`
 2. Create SVG component (e.g., `NewDslSvg` in `app2/src/components/`) accepting `store`, `dotStrokeWidth`, `svgConfig`, `restartTrigger`, `currentStep`, `theme` props
 3. Add GeometrySection call in `App.tsx` with required props: `sectionId`, `title`, `date`, `description`, `stepper`, `SvgComponent`, `svgRef`, `svgConfig`, `restartKey`, `store`, `strokeBig`, `steps`, `strokeMid`, `strokeLine`, `showInputHighlight`, `availableTypes`, `showInputsToggle`, `showPlayButton`, `onToggleInputs`, `isPlaying`, `onPlayClick`, `onFirstStep`, `onPrevStep`, `onNextStep`, `onLastStep`, `theme`
