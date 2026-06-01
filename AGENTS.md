@@ -27,6 +27,24 @@ The declarative geometry DSL framework in `app2/src/geometry/dsl/` provides a ty
 - `transformations.ts`: Helper functions for coordinate system transformations (transformPointToLocalSpace, transformToLocalCoords, selectByDirectionInLocalSpace)
 - See `backlog/dsl/PRD-sixfold-dsl-v2.md` for the SixFold DSL v2 specification
 
+## Geometry Section Architecture
+
+Geometry construction sections in `app2/src/App.tsx` use a reusable `GeometrySection` component that encapsulates the common structure (header, description, grid layout with GeometryPlayer, GeometryDetails, and GeometryList). Each section is configured via props following the **configuration-over-customization** pattern.
+
+- **GeometrySection component** (`app2/src/components/GeometrySection.tsx`): Renders a complete geometry construction section with consistent layout
+- **useGeometrySectionPlayback hook** (`app2/src/hooks/useGeometrySectionPlayback.ts`): Manages play/pause/step navigation logic for sections
+
+### Adding a New Geometry Section
+
+To add a new geometry construction section:
+
+1. Create step builder function (e.g., `buildNewDslSteps()` in `app2/src/geometry/`) returning `Step[]`
+2. Create SVG component (e.g., `NewDslSvg` in `app2/src/components/`) accepting `store`, `dotStrokeWidth`, `svgConfig`, `restartTrigger`, `currentStep`, `theme` props
+3. Add GeometrySection call in `App.tsx` with required props: `sectionId`, `title`, `date`, `description`, `stepper`, `SvgComponent`, `svgRef`, `svgConfig`, `restartKey`, `store`, `strokeBig`, `steps`, `strokeMid`, `strokeLine`, `showInputHighlight`, `availableTypes`, `showInputsToggle`, `showPlayButton`, `onToggleInputs`, `isPlaying`, `onPlayClick`, `onFirstStep`, `onPrevStep`, `onNextStep`, `onLastStep`, `theme`
+4. Use `useSmartStepper` for step management and `useGeometrySectionPlayback` for play logic
+
+Estimated: ~20 lines of code per new geometry type.
+
 ## Build, Test, and Development Commands
 
 - Install deps: `pnpm install`
