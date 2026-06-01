@@ -4,6 +4,7 @@ import { useGeometryStore } from "./react-store";
 import { SquareDslSvg } from "./components/SquareDslSvg";
 import { SixFoldDslSvg } from "./components/SixFoldDslSvg";
 import { SixFoldDslV1Svg } from "./components/SixFoldDslV1Svg";
+import { SixFoldDslV2Svg } from "./components/SixFoldDslV2Svg";
 import { GeometryPlayer } from "./components/GeometryPlayer";
 import { standardSvgConfig } from "./config/svgConfig";
 import { GeometryList } from "./components/GeometryList";
@@ -74,7 +75,12 @@ export default function App(): JSX.Element {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.substring(1) as SectionId | "";
-      const validSections = ["square-dsl", "sixfold-dsl", "sixfold-dsl-v2", "sixfold-dsl-v1"] as const;
+      const validSections = [
+        "square-dsl",
+        "sixfold-dsl",
+        "sixfold-dsl-v2",
+        "sixfold-dsl-v1",
+      ] as const;
       if (hash && validSections.includes(hash as SectionId)) {
         scrollToSection(hash);
       }
@@ -94,6 +100,7 @@ export default function App(): JSX.Element {
   const storeSquareDsl = useGeometryStore();
   const storeSixFoldDsl = useGeometryStore();
   const storeSixFoldDslV1 = useGeometryStore();
+  const storeSixFoldDslV2 = useGeometryStore();
 
   const [showInputHighlight, setShowInputHighlight] = useState(true);
   const toggleInputs = (): void => {
@@ -199,9 +206,7 @@ export default function App(): JSX.Element {
     visualStepCountV2Ref.current = visualStepCountV2;
   }, [visualStepCountV2]);
 
-  
-
-// SixFold DSL v1 state
+  // SixFold DSL v1 state
   const [restartKeySixfoldDslV1, setRestartKeySixfoldDslV1] = useState<number>(0);
   const [isPlayingSixfoldDslV1, setIsPlayingSixfoldDslV1] = useState<boolean>(false);
   const sixfoldDslV1SvgRef = useRef<SVGSVGElement>(null);
@@ -524,9 +529,7 @@ export default function App(): JSX.Element {
     };
   }, []);
 
-  
-
-// SixFold DSL v1 handlers
+  // SixFold DSL v1 handlers
   const handleNextClickSixfoldDslV1 = (): void => {
     // Stop playing if user manually clicks
     if (isPlayingSixfoldDslV1 && playIntervalSixfoldDslV1.current) {
