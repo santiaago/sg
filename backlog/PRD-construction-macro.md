@@ -2,14 +2,14 @@
 
 ## Problem Statement
 
-The SG Geometry application currently requires duplicating entire construction definitions (like sixfold v1 and v2) when creating variations or placing multiple instances. There is no way to define a reusable **Geometric Construction** template, instantiate it multiple times with different parameters, and have each instance appear as a single unit in the UI. This makes it cumbersome to:
+The SG Geometry application currently requires duplicating entire construction definitions (like sixfold v1 and v2) when creating variations or placing multiple instances. There is no way to define a reusable **Geometric Construction**, instantiate it multiple times with different parameters, and have each instance appear as a single unit in the UI. This makes it cumbersome to:
 - Place multiple instances of the same construction pattern (e.g., 4 sixfold sections to form a rosa)
 - Show only final outputs while hiding intermediate construction geometries
 - Position entire constructions with a single step
 
 ## Solution
 
-Introduce a Construction Macro system that allows defining reusable **Geometric Construction** templates (ConstructionDefinitions), instantiating them with specific parameters (ConstructionInstances), and having each instance appear as a single entry in GeometryList with expandable outputs. The system integrates seamlessly with the existing DSL framework, requiring minimal changes to existing code.
+Introduce a Construction Macro system that allows defining reusable **Geometric Construction**s (ConstructionDefinitions), instantiating them with specific parameters (ConstructionInstances), and having each instance appear as a single entry in GeometryList with expandable outputs. The system integrates seamlessly with the existing DSL framework, requiring minimal changes to existing code.
 
 ## User Stories
 
@@ -22,7 +22,7 @@ Introduce a Construction Macro system that allows defining reusable **Geometric 
 
 ### Construction Instantiation
 
-5. As a geometry author, I want to place a construction instance via `builder.useConstruction(name, definition, params)`, so that I can instantiate templates with a fluent API
+5. As a geometry author, I want to place a construction instance via `builder.useConstruction(name, definition, params)`, so that I can instantiate constructions with a fluent API
 6. As a geometry author, I want to give each construction instance an explicit name at placement time, so that I can easily identify and debug instances
 7. As a geometry author, I want to place 4 construction instances in the same GeometrySection, so that I can compose complex patterns like the sixfold rosa
 8. As a geometry author, I want each construction instance to appear as a single step in the stepper, so that placing a whole construction is atomic
@@ -65,7 +65,7 @@ Introduce a Construction Macro system that allows defining reusable **Geometric 
 ### Core Modules
 
 **ConstructionDefinition:**
-- A function type that defines a reusable construction template
+- A function type that defines a reusable **Geometric Construction**
 - Signature: `(renderer?: GeometryRenderer, prefix?: string) => Step<TConfig>[]`
 - Existing construction builders like `buildSixfoldDslV2Steps` conform to this with minimal modification (adding optional prefix parameter)
 - The prefix parameter enables ID namespacing for multiple instances
