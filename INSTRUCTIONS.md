@@ -1,3 +1,9 @@
+# number geometry section
+
+01-06-2026
+
+load skills caveman and karpathy-guidelines, read @AGENTS.md then read @backlog/PRD-numbers-geometry-section.md I want you to implement that step by step, BE SURE TO IMPLEMENT WITH INCREMENTAL COMMITS. When done, I want you to look at @AGENTS.md and see if there is anything that would have been useful to know in @AGENTS.md and commit changes if any, be always very brief. git msgs w/ @AGENTS.md conventions, when done create a PR to merge to main, add titel and desc following @AGENTS.md conventions
+
 # smart stepper impl
 
 31-05-2026
