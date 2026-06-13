@@ -6,70 +6,79 @@ The DSL framework lacks dedicated showcase examples demonstrating its capabiliti
 
 ## Solution
 
-Add a new "numbers" section to app2 that allows users to select and view geometric constructions representing numbers 1 through 12. The section follows the existing pattern of square-dsl and sixfold-dsl, featuring a player with SVG canvas, geometry details, and geometry items. A grid picker with thumbnails enables users to preview and select which number's construction to explore step-by-step.
+Add a new "numbers" **page** to app2 that allows users to select and view geometric constructions representing numbers 1 through 12. The page features a player with SVG canvas, geometry details, and geometry items list. A grid picker with thumbnails enables users to preview and select which number's construction to explore step-by-step.
+
+The numbers page is accessible via URL paths like `/numbers/1`, `/numbers/2`, etc., making each number linkable and shareable.
 
 Start with numbers 1-4 as a minimal viable implementation, with the infrastructure to support all 12 numbers.
 
 ## User Stories
 
-### Section & Navigation
+### Page & Navigation
 
-1. As a user, I want a "numbers" entry in the navigation, so that I can access the numbers geometry section
-2. As a user, I want the numbers section to follow the same layout pattern as square-dsl and sixfold-dsl, so that the interface is consistent and familiar
-3. As a user, I want the numbers section to be scrollable like other sections, so that I can navigate to it via URL hash
+1. As a user, I want a "numbers" entry in the navigation, so that I can access the numbers page
+2. As a user, I want the numbers page to be on a separate URL path (`/numbers`), so that I can bookmark and share links
+3. As a user, I want the numbers page to use the GeometrySection layout pattern, so that I can see the player, geometry items, and geometry details
+4. As a user, I want the URL to update when I select a number, so that I can share links to specific numbers
+5. As a user, I want to navigate directly to a number via URL (e.g., `/numbers/1`), so that links are shareable
 
 ### Picker & Selection
 
-4. As a user, I want a grid of thumbnails showing all available numbers, so that I can visually browse and select a number to explore
-5. As a user, I want thumbnails to display the final rendered geometry after all construction steps, so that I can preview what each number looks like
-6. As a user, I want thumbnails to be 150x150 pixels, so that they are large enough to recognize but fit well in a grid
-7. As a user, I want to click a thumbnail to select that number, so that I can view its step-by-step construction in the player
+6. As a user, I want a grid of thumbnails showing all available numbers, so that I can visually browse and select a number to explore
+7. As a user, I want thumbnails to display **only the output geometries** of each number's construction (not the base construction inputs like cs, cs2, p1, p2, line1), so that I can see the final recognizable pattern
+8. As a user, I want thumbnails to be 150x150 pixels, so that they are large enough to recognize but fit well in a grid
+9. As a user, I want to click a thumbnail to select that number, so that I can view its step-by-step construction in the player
 
 ### Number 1 (Dot)
 
-8. As a developer, I want number 1 to start with the shared base construction (cs, cs2, p1, p2, line1), so that all numbers follow a consistent foundation
-9. As a developer, I want number 1 to place a dot (circle) at the midpoint of line1, so that the simplest number is represented by the simplest addition to the base
-10. As a user, I want to see the dot construction progress from base through to the final circle, so that I can understand how a single geometric element is added
+10. As a developer, I want number 1 to start with the shared base construction (cs, cs2, p1, p2, line1), so that all numbers follow a consistent foundation
+11. As a developer, I want number 1 to place a dot (circle) at the midpoint of line1, so that the simplest number is represented by the simplest addition to the base
+12. As a user, I want to see the dot construction progress from base through to the final circle, so that I can understand how a single geometric element is added
 
-### Number 2 (Yin Yang)
+### Number 2 (Two Circles)
 
-11. As a developer, I want number 2 to start with the shared base construction, so that consistency is maintained across all numbers
-12. As a developer, I want number 2 to construct a yin yang symbol using circles and dividing curves, so that circle operations and intersections are demonstrated
-13. As a user, I want to see the yin yang constructed step-by-step, so that I can understand how complex symbols are built from primitive geometries
+13. As a developer, I want number 2 to start with the shared base construction, so that consistency is maintained across all numbers
+14. As a developer, I want number 2 to display two circles at the endpoints of line1, so that multi-circle constructions are demonstrated
+15. As a user, I want to see two circles constructed step-by-step, so that I can understand the pattern
 
-### Number 3 (Three Circles Triangle)
+### Number 3 (Three Circles)
 
-14. As a developer, I want number 3 to start with the shared base construction, so that all numbers share the same foundation
-15. As a developer, I want number 3 to arrange three circles at the vertices of an isosceles triangle, so that multi-geometry positioning is demonstrated
-16. As a user, I want to see three circles positioned to form a triangle, so that I can understand how multiple independent geometries are composed
+16. As a developer, I want number 3 to start with the shared base construction, so that all numbers share the same foundation
+17. As a developer, I want number 3 to arrange three circles at the vertices of a triangle (p1, p2, midpoint), so that multi-geometry positioning is demonstrated
+18. As a user, I want to see three circles positioned to form a triangle, so that I can understand how multiple independent geometries are composed
 
-### Number 4 (Four Circles Flower)
+### Number 4 (Four Circles)
 
-17. As a developer, I want number 4 to start with the shared base construction, so that consistency is maintained
-18. As a developer, I want number 4 to arrange four circles in a symmetrical flower pattern, so that radial symmetry and pattern construction are demonstrated
-19. As a user, I want to see four circles arranged aesthetically, so that I can understand how symmetrical patterns are created
+19. As a developer, I want number 4 to start with the shared base construction, so that consistency is maintained
+20. As a developer, I want number 4 to arrange four circles in a symmetrical pattern, so that radial symmetry and pattern construction are demonstrated
+21. As a user, I want to see four circles arranged aesthetically, so that I can understand how symmetrical patterns are created
 
 ### Player & Construction
 
-20. As a user, I want to step through each number's construction step-by-step, so that I can see how the geometry is built incrementally
-21. As a user, I want to play/pause/step through the construction, so that I can control the viewing experience
-22. As a user, I want to see geometry details and dependency information, so that I can understand the construction's internal structure
-23. As a user, I want to see the geometry items list, so that I can track all elements in the construction
+22. As a user, I want to step through each number's construction step-by-step, so that I can see how the geometry is built incrementally
+23. As a user, I want to play/pause/step through the construction, so that I can control the viewing experience
+24. As a user, I want to see geometry details and dependency information, so that I can understand the construction's internal structure
+25. As a user, I want to see the geometry items list, so that I can track all elements in the construction
 
 ### Technical
 
-24. As a developer, I want NumberConfig to be computed from SVG dimensions, so that geometries scale properly with the canvas
-25. As a developer, I want each number to have its own DSL definition file, so that code is organized and maintainable
-26. As a developer, I want NumberSvg component to be reusable for both main player and thumbnails, so that rendering is consistent
-27. As a developer, I want thumbnails to be cached after first render, so that performance is good when switching between numbers
-28. As a developer, I want the implementation to follow existing patterns from square-dsl and sixfold-dsl, so that code is consistent with the rest of app2
+26. As a developer, I want NumberConfig to be computed from SVG dimensions, so that geometries scale properly with the canvas
+27. As a developer, I want each number to have its own DSL definition file, so that code is organized and maintainable
+28. As a developer, I want the NumberSvg component to be reusable for both main player and thumbnails, so that rendering is consistent
+29. As a developer, I want thumbnails to only display output geometries (filtering out base construction inputs), so that thumbnails show clean final patterns
+30. As a developer, I want URL routing for each number, so that links are shareable
+31. As a developer, I want the implementation to follow existing patterns from square-dsl and sixfold-dsl, so that code is consistent with the rest of app2
 
 ### Future Extensibility
 
-29. As a developer, I want the infrastructure to support numbers 5-12, so that the section can be extended later without refactoring
-30. As a developer, I want each number's construction to be independent, so that adding new numbers doesn't affect existing ones
+32. As a developer, I want the infrastructure to support numbers 5-12, so that the section can be extended later without refactoring
+33. As a developer, I want each number's construction to be independent, so that adding new numbers doesn't affect existing ones
 
 ## Implementation Decisions
+
+### Page Structure
+
+The numbers functionality is implemented as a **separate page** at `/numbers` with individual number routes like `/numbers/1`, `/numbers/2`, etc. This differs from the original section-based approach to enable direct linking to specific numbers.
 
 ### Configuration
 
@@ -100,6 +109,8 @@ All numbers start with the same foundational construction, matching sixfold-dsl-
 
 This shared base ensures consistency across all numbers and enables future transformations of entire number constructions as single units.
 
+**Note for thumbnails:** Only the output geometries (those created after the base construction) should be displayed in thumbnails, not the base construction elements (cs, cs2, p1, p2, line1).
+
 ### Number DSL Definitions
 
 Each number has its own TypeScript file in `app2/src/geometry/numbers/` exporting a `buildNumberXSteps()` function that returns `Step<NumberConfig>[]`:
@@ -110,23 +121,23 @@ Each number has its own TypeScript file in `app2/src/geometry/numbers/` exportin
   - Step 6: Circle at midpoint point (the dot)
   - Total: 7 steps
 
-- **numbers/2.ts** - Number 2 (Yin Yang):
+- **numbers/2.ts** - Number 2 (Two Circles):
   - Steps 0-4: Shared base construction
-  - Subsequent steps: Construct yin yang symbol using circle operations
-  - Uses circle intersections and lines to create the symbolic representation
-  - Total: TBD steps
+  - Step 5: Midpoint of line1
+  - Step 6-7: Two circles at endpoints
+  - Total: 8 steps
 
-- **numbers/3.ts** - Number 3 (Three Circles Triangle):
+- **numbers/3.ts** - Number 3 (Three Circles):
   - Steps 0-4: Shared base construction
-  - Subsequent steps: Create three circles positioned at isosceles triangle vertices
-  - Uses geometric positioning based on line1 endpoints and midpoint
-  - Total: TBD steps
+  - Step 5: Midpoint of line1
+  - Step 6-8: Three circles at p1, p2, and midpoint
+  - Total: 9 steps
 
-- **numbers/4.ts** - Number 4 (Four Circles Flower):
+- **numbers/4.ts** - Number 4 (Four Circles):
   - Steps 0-4: Shared base construction
-  - Subsequent steps: Create four circles in symmetrical flower arrangement
-  - Uses radial positioning around a center point
-  - Total: TBD steps
+  - Step 5: Midpoint of line1
+  - Step 6-9: Four circles at p1, p2, midpoint, and above
+  - Total: 10 steps
 
 Each file follows the pattern established in squareDslSteps.ts and sixfoldDslV1Steps.ts.
 
@@ -139,45 +150,55 @@ Each file follows the pattern established in squareDslSteps.ts and sixfoldDslV1S
 - **`app2/src/geometry/numbers/4.ts`** - Number 4 DSL definition
 - **`app2/src/geometry/numbers/index.ts`** - Barrel export for number modules
 - **`app2/src/components/NumberSvg.tsx`** - SVG component for rendering a number's geometry (parameterized by number and step)
-- **`app2/src/components/NumberThumbnail.tsx`** - Thumbnail component (150x150) showing final geometry
+- **`app2/src/components/NumberThumbnail.tsx`** - Thumbnail component (150x150) showing **only output geometries**
 - **`app2/src/components/NumberPicker.tsx`** - Grid picker component with thumbnails for numbers 1-4
+- **`app2/src/pages/NumbersPage.tsx`** - Separate page component with GeometrySection and NumberPicker
 
 ### Modules to Modify
 
 - **`app2/src/App.tsx`:**
-  - Add "numbers" to SectionId type
-  - Add navigation entry for numbers
-  - Add state for numbers section (store, currentStep, isPlaying, etc.)
-  - Add numbers section div with NumberPicker and NumberSvg
-  - Add section ref and scroll handling
-  - Import and integrate NumberPicker and NumberSvg components
+  - Add route for `/numbers` and `/numbers/:id`
+  - Add "numbers" to navigation menu
 
 - **`app2/src/components/Navigation.tsx`:**
-  - Add "numbers" button to navigation menu
+  - Add "numbers" button to navigation menu that links to `/numbers`
 
 ### Component Architecture
 
-**NumberSvg:**
+**NumbersPage:**
+- Separate page component that uses GeometrySection
+- Accepts number ID from URL params
+- Manages store, stepper, and playback state for the current number
+- Renders NumberPicker for selection and GeometrySection for the player
 
-- Props: store, svgConfig, restartTrigger, currentStep, theme, number
-- Similar to SquareDslSvg but parameterized by number
-- Builds steps using the appropriate buildNumberXSteps function
+**NumberSvg:**
+- Props: store, svgConfig, restartTrigger, currentStep, theme, steps
+- Similar to SquareDslSvg but parameterized by the steps array
 - Handles SVG setup, clearing, and step execution
 - Uses useThemeAwareSteps hook for theme/clear management
 
 **NumberThumbnail:**
-
 - Props: number, onClick
 - Renders NumberSvg at 150x150 with currentStep = total steps (shows final state)
+- **Filters out base construction geometries** (cs, cs2, p1, p2, line1) to only show number-specific outputs
 - Caches rendered SVG to avoid recomputation
 - Triggers onClick callback when clicked
 
 **NumberPicker:**
-
-- Props: onSelectNumber
+- Props: onSelectNumber, selectedNumber
 - Renders grid of NumberThumbnail components for numbers 1-4
 - Manages thumbnail cache
 - Calls onSelectNumber when a thumbnail is clicked
+
+### Routing
+
+- `/numbers` - Numbers page, defaults to showing number 1
+- `/numbers/1` - Numbers page showing number 1 construction
+- `/numbers/2` - Numbers page showing number 2 construction
+- `/numbers/3` - Numbers page showing number 3 construction
+- `/numbers/4` - Numbers page showing number 4 construction
+
+URL changes when user clicks a thumbnail. Direct navigation to these URLs should update the displayed number.
 
 ### Thumbnail Caching Strategy
 
@@ -194,14 +215,14 @@ Create a number registry that maps number to its module and metadata:
 
 ```typescript
 const NUMBERS = {
-  1: { label: "1 - Dot", module: () => import("./numbers/1"), steps: 7 },
-  2: { label: "2 - Yin Yang", module: () => import("./numbers/2"), steps: TBD },
-  3: { label: "3 - Triangle", module: () => import("./numbers/3"), steps: TBD },
-  4: { label: "4 - Flower", module: () => import("./numbers/4"), steps: TBD },
+  1: { label: "1 - Dot", steps: 7, outputGeometries: ["dot_1"] },
+  2: { label: "2 - Two Circles", steps: 8, outputGeometries: ["circle1", "circle2"] },
+  3: { label: "3 - Three Circles", steps: 9, outputGeometries: ["circle1", "circle2", "circle3"] },
+  4: { label: "4 - Four Circles", steps: 10, outputGeometries: ["circle1", "circle2", "circle3", "circle4"] },
 } as const;
 ```
 
-This enables dynamic loading and provides step counts for UI elements.
+The `outputGeometries` array specifies which geometry IDs should be displayed in thumbnails (excluding base construction geometries).
 
 ## Testing Decisions
 
@@ -213,20 +234,19 @@ Only test external behavior, not implementation details. Focus on:
 - Each number's DSL definition produces expected geometry IDs
 - Components render without errors
 - Thumbnail caching works correctly
-- Picker selection updates state correctly
-- Integration with App.tsx navigation works
+- Thumbnail filtering shows only output geometries
+- Picker selection updates state and URL correctly
+- URL navigation works for direct links
+- Integration with routing works
 
 ### Modules to Test
 
 - **config.ts:** Test computeNumberConfig with various width/height combinations
-- **numbers/1.ts:** Test that buildNumber1Steps produces expected number of steps and geometry IDs
-- **numbers/2.ts:** Test that buildNumber2Steps produces expected output
-- **numbers/3.ts:** Test that buildNumber3Steps produces expected output
-- **numbers/4.ts:** Test that buildNumber4Steps produces expected output
-- **NumberThumbnail.tsx:** Snapshot test rendered thumbnails for each number
-- **NumberPicker.tsx:** Test that clicking thumbnails triggers correct callbacks
-- **NumberSvg.tsx:** Test that component renders and executes steps correctly
-- **App.tsx integration:** Test that numbers section is navigable and functional
+- **numbers/1-4.ts:** Test that each buildNumberXSteps produces expected number of steps and geometry IDs
+- **NumberThumbnail.tsx:** Test that thumbnails only show output geometries
+- **NumberPicker.tsx:** Test that clicking thumbnails triggers correct callbacks and URL updates
+- **NumbersPage.tsx:** Test page rendering and routing
+- **App.tsx routing:** Test that numbers routes work correctly
 
 ### Prior Art
 
@@ -241,13 +261,30 @@ Follow patterns from existing tests:
 
 - Unit tests for pure functions (computeNumberConfig, buildNumberXSteps)
 - Snapshot tests for thumbnails
-- Component tests for NumberThumbnail, NumberPicker, NumberSvg
-- Integration test for numbers section in App.tsx
+- Component tests for NumberThumbnail, NumberPicker, NumberSvg, NumbersPage
+- Integration test for numbers routing
+
+## Implementation Status
+
+### ✅ Completed
+- [x] NumberConfig interface and computeNumberConfig function
+- [x] DSL definitions for numbers 1-4 (buildNumber1Steps through buildNumber4Steps)
+- [x] NumberSvg component (parameterized by number and steps)
+- [x] NumberThumbnail component (150x150, basic implementation)
+- [x] NumberPicker component (grid layout)
+- [x] Navigation entry for numbers
+- [x] Numbers page with GeometrySection, player, geometry items, and geometry details
+- [x] Separate page at `/numbers` with hash routing (`#numbers/1`, `#numbers/2`, etc.)
+- [x] URL updates when clicking thumbnails
+
+### ⏳ Not Yet Implemented
+- [ ] **Thumbnail filtering**: Thumbnails currently show ALL geometries including base construction (cs, cs2, p1, p2, line1). Need to filter to show ONLY output geometries (dot_1, circle1-4, etc.)
+- [ ] **Direct URL navigation**: While `#numbers/1` updates the hash, direct page load with hash may not properly initialize the numbers page
+- [ ] Numbers 5-12 with unique geometric representations
 
 ## Out of Scope
 
 - Numbers 5-12 (planned for future iteration)
-- Advanced yin yang with precise S-curve (simplified representation acceptable for MVP)
 - Complex animations or transitions between numbers
 - Custom styling per number
 - User ability to add custom numbers
@@ -263,9 +300,9 @@ Follow patterns from existing tests:
 Follow existing patterns:
 
 - File names: kebab-case (number-svg.tsx, number-picker.tsx)
-- Component names: PascalCase (NumberSvg, NumberPicker, NumberThumbnail)
+- Component names: PascalCase (NumberSvg, NumberPicker, NumberThumbnail, NumbersPage)
 - Function names: camelCase (buildNumber1Steps, computeNumberConfig)
-- Geometry IDs: lowercase with underscores (cs, cs2, p1, p2, line1, dot_1, etc.)
+- Geometry IDs: lowercase with underscores (cs, cs2, p1, p2, line1, dot_1, circle1, etc.)
 
 ### Code Organization
 
@@ -274,6 +311,7 @@ Numbers-related code is co-located:
 - Config: `app2/src/geometry/numbers/config.ts`
 - DSL definitions: `app2/src/geometry/numbers/X.ts`
 - Components: `app2/src/components/Number*.tsx`
+- Page: `app2/src/pages/NumbersPage.tsx`
 
 This keeps all numbers-related code together and separate from other sections.
 
@@ -292,7 +330,8 @@ After MVP (numbers 1-4):
 This PRD depends on:
 
 - Existing DSL framework (GeometryBuilder, GeometryExpressions)
-- Existing app2 component patterns (SquareDslSvg, GeometryPlayer, etc.)
+- Existing app2 component patterns (SquareDslSvg, GeometryPlayer, GeometrySection, etc.)
 - Existing geometry types and store
+- React Router for page routing
 
 No new external dependencies required.

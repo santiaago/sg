@@ -26,6 +26,7 @@ The declarative geometry DSL framework in `app2/src/geometry/dsl/` provides a ty
 - `IntersectionExpression` / `CircleIntersectionExpression`: Support `relativeTo` option for direction-based selections in a specific coordinate system's local space
 - `transformations.ts`: Helper functions for coordinate system transformations (transformPointToLocalSpace, transformToLocalCoords, selectByDirectionInLocalSpace)
 - See `backlog/dsl/PRD-sixfold-dsl-v2.md` for the SixFold DSL v2 specification
+- **Expression values**: When passing arithmetic expressions (AddExpression, SubtractExpression, MultiplyExpression, DivideExpression) to methods expecting `ParameterValue<TConfig>`, use `.value` property to get the GeometryFeatureReference (e.g., `builder.add("sum", a, b).value`)
 
 ## Geometry Section Architecture
 

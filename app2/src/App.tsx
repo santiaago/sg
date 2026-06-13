@@ -6,16 +6,23 @@ import { SixFoldDslSvg } from "./components/SixFoldDslSvg";
 import { SixFoldDslV1Svg } from "./components/SixFoldDslV1Svg";
 import { SixFoldDslV2Svg } from "./components/SixFoldDslV2Svg";
 import { GeometrySection } from "./components/GeometrySection";
+import { NumberSvg, type NumberId } from "./components/NumberSvg";
+import { NumberPicker } from "./components/NumberPicker";
 import { standardSvgConfig } from "./config/svgConfig";
 import { Navigation } from "./components/Navigation";
 import { buildSquareDslSteps } from "./geometry/squareDslSteps";
 import { buildSixfoldDslSteps } from "./geometry/sixfoldDslSteps";
 import { buildSixfoldDslV1Steps } from "./geometry/sixfoldDslV1Steps";
 import { buildSixfoldDslV2Steps } from "./geometry/sixfoldDslV2Steps";
+import { buildNumber1Steps } from "./geometry/numbers/1";
+import { buildNumber2Steps } from "./geometry/numbers/2";
+import { buildNumber3Steps } from "./geometry/numbers/3";
+import { buildNumber4Steps } from "./geometry/numbers/4";
 import { lightTheme, darkTheme } from "./themes";
 import type { Theme, GeometryType, Step } from "./types/geometry";
 import { useSmartStepper } from "./hooks/useSmartStepper";
 import { useGeometrySectionPlayback } from "./hooks/useGeometrySectionPlayback";
+import type { NumberConfig } from "./geometry/numbers/config";
 
 const GEOMETRY_TYPES: ReadonlyArray<GeometryType> = [
   "point",
@@ -45,13 +52,14 @@ export default function App(): JSX.Element {
   }, [svgTheme]);
 
   // Navigation menu state
-  type SectionId = "square-dsl" | "sixfold-dsl" | "sixfold-dsl-v2" | "sixfold-dsl-v1";
+  type SectionId = "square-dsl" | "sixfold-dsl" | "sixfold-dsl-v2" | "sixfold-dsl-v1" | "numbers";
   const [activeSection, setActiveSection] = useState<SectionId>("sixfold-dsl-v2");
   const sectionRefs = {
     "square-dsl": useRef<HTMLDivElement>(null),
     "sixfold-dsl": useRef<HTMLDivElement>(null),
     "sixfold-dsl-v2": useRef<HTMLDivElement>(null),
     "sixfold-dsl-v1": useRef<HTMLDivElement>(null),
+    numbers: useRef<HTMLDivElement>(null),
   };
 
   // Scroll to section when navigation changes
@@ -67,6 +75,33 @@ export default function App(): JSX.Element {
     }, 100);
   };
 
+  // Numbers section state
+  const [selectedNumber, setSelectedNumber] = useState<NumberId>(1);
+  const storeNumbers = useGeometryStore();
+  const numbersSvgRef = useRef<SVGSVGElement>(null);
+
+  // Build number steps
+  const number1Steps = useMemo(() => buildNumber1Steps(), []);
+  const number2Steps = useMemo(() => buildNumber2Steps(), []);
+  const number3Steps = useMemo(() => buildNumber3Steps(), []);
+  const number4Steps = useMemo(() => buildNumber4Steps(), []);
+
+  // Get steps for current number
+  const currentNumberSteps = useMemo(() => {
+    switch (selectedNumber) {
+      case 1:
+        return number1Steps;
+      case 2:
+        return number2Steps;
+      case 3:
+        return number3Steps;
+      case 4:
+        return number4Steps;
+      default:
+        return number1Steps;
+    }
+  }, [selectedNumber, number1Steps, number2Steps, number3Steps, number4Steps]);
+
   // Handle URL hash changes
   useEffect(() => {
     const handleHashChange = () => {
@@ -76,6 +111,7 @@ export default function App(): JSX.Element {
         "sixfold-dsl",
         "sixfold-dsl-v2",
         "sixfold-dsl-v1",
+        "numbers",
       ] as const;
       if (hash && validSections.includes(hash as SectionId)) {
         scrollToSection(hash);
@@ -282,6 +318,51 @@ export default function App(): JSX.Element {
         onLastStep={squareDslPlayback.handleLastStep}
         theme={svgTheme}
       />
+
+      {/* Numbers Section */}
+      <section
+        ref={sectionRefs["numbers"]}
+        id="numbers"
+        className="mt-16"
+        data-testid="numbers-section"
+      >
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-2 text-blue-400">Numbers Geometry</h2>
+          <p className="text-gray-400 mb-6">
+            Select a number (1-4) to explore its geometric construction step-by-step.
+          </p>
+          <NumberPicker
+            onSelectNumber={(num) => {
+              setSelectedNumber(num);
+            }}
+          />
+          <div className="bg-gray-800 rounded-lg p-4 mb-8">
+            <NumberSvg
+              store={storeNumbers}
+              svgConfig={standardSvgConfig}
+              restartTrigger={0}
+              currentStep={currentNumberSteps.length}
+              theme={svgTheme}
+              number={selectedNumber}
+              steps={currentNumberSteps as Step<NumberConfig>[]}
+              ref={numbersSvgRef}
+            />
+          </div>
+          <div className="text-sm text-gray-500">
+            <p>
+              Number {selectedNumber}:{" "}
+              {selectedNumber === 1
+                ? "Dot"
+                : selectedNumber === 2
+                  ? "Two Circles"
+                  : selectedNumber === 3
+                    ? "Three Circles"
+                    : "Four Circles"}{" "}
+              ({currentNumberSteps.length} steps)
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
